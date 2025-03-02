@@ -8,6 +8,8 @@
 	"add_item": "Add item",
 	"add_view": "Add view",
 	"addons": "Add-ons",
+	"display_only": "Display only",
+	"display_only_suggestion": "This entity type is typically used for displaying status information only. Setting it as \"Display Only\" will show a clean white icon with no background, and it will not respond to touch (no popup menu will open). Use this for sensors and status indicators.",
 	"after": "After",
 	"alarm_modes_armed_away": "Away",
 	"alarm_modes_armed_custom_bypass": "Custom",

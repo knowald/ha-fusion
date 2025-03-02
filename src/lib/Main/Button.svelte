@@ -29,6 +29,8 @@
 	export let demo: string | undefined = undefined;
 	export let sel: any;
 	export let sectionName: string | undefined = undefined;
+	// Add a new prop to explicitly mark entity as display-only (non-interactive)
+	export let displayOnly: boolean = false;
 
 	$: entity_id = demo || sel?.entity_id;
 	$: template = $templates?.[sel?.id];
@@ -43,6 +45,54 @@
 	let loading: boolean;
 	let resetLoading: ReturnType<typeof setTimeout> | null;
 	let stateOn: boolean;
+
+	// Determine if entity is display-only (non-interactive) using both sel.displayOnly and the prop
+	$: isDisplayOnly =
+		sel?.displayOnly === true || displayOnly === true || determineIfDisplayOnly(entity_id, entity);
+
+	/**
+	 * Determines if an entity is display-only based on its domain or other properties
+	 * Display-only entities are typically sensors or entities that don't have toggleable actions
+	 */
+	function determineIfDisplayOnly(
+		entityId: string | undefined,
+		entity: HassEntity | undefined
+	): boolean {
+		if (!entityId) return false;
+
+		// Only auto-detect if not explicitly set in configuration
+		if (sel?.displayOnly !== undefined) {
+			return sel.displayOnly;
+		}
+
+		// Get domain from entity_id
+		const domain = getDomain(entityId);
+
+		// List of domains that are typically display-only
+		const displayOnlyDomains = [
+			'sensor',
+			'binary_sensor',
+			'weather',
+			'sun',
+			'date',
+			'time',
+			'person',
+			'zone',
+			'device_tracker'
+		];
+
+		// Check if the domain is in the display-only list
+		if (displayOnlyDomains.includes(domain)) {
+			return true;
+		}
+
+		// Check if the entity doesn't have a toggleable service
+		if (entity && !getTogglableService(entity)) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/** display loader if no state change has occurred within `$motion`ms */
 	let delayLoading: ReturnType<typeof setTimeout> | null;
@@ -103,6 +153,11 @@
 	 * using the correct service call...
 	 */
 	function toggle() {
+		// For display-only entities, don't do anything when clicked
+		if (isDisplayOnly) {
+			return; // No action for display-only entities
+		}
+
 		// if service template
 		if (sel?.template?.service && template?.service?.output) {
 			try {
@@ -451,8 +506,13 @@
 	class="container"
 	bind:this={container}
 	data-state={stateOn}
+	data-display-only={isDisplayOnly}
 	tabindex="-1"
-	style={!$editMode ? 'cursor: pointer;' : ''}
+	style={!$editMode && !isDisplayOnly
+		? 'cursor: pointer;'
+		: isDisplayOnly
+			? 'cursor: default;'
+			: ''}
 	style:min-height="{$itemHeight}px"
 	on:pointerenter={handlePointer}
 	on:pointerdown={handlePointer}
@@ -469,24 +529,18 @@
 
 	<div
 		class="left"
-		on:click|stopPropagation={(event) => {
-			if (!$editMode) {
-				toggle();
-			} else {
-				handleEvent(event);
-			}
-		}}
+		on:click|stopPropagation={isDisplayOnly ? () => {} : handleEvent}
 		on:keydown
 		role="button"
-		tabindex="0"
+		tabindex={isDisplayOnly ? '-1' : '0'}
 	>
 		<div
 			class="icon"
 			data-state={stateOn}
+			data-display-only={isDisplayOnly}
 			style:--icon-color={iconColor}
-			style:background-color={sel?.template?.color && template?.color?.output
-				? template?.color?.output
-				: undefined}
+			style:background-color={!isDisplayOnly &&
+				(sel?.template?.color && template?.color?.output ? template?.color?.output : undefined)}
 			style:background-image={!icon && attributes?.entity_picture
 				? `url(${attributes?.entity_picture})`
 				: image && icon
@@ -517,9 +571,23 @@
 		</div>
 	</div>
 
-	<div class="right" on:click|stopPropagation={handleEvent} on:keydown role="button" tabindex="0">
+	<div
+		class="right"
+		on:click|stopPropagation={(event) => {
+			if (!$editMode) {
+				if (!isDisplayOnly) {
+					toggle();
+				}
+				// Display-only entities don't do anything on click
+			} else {
+				handleEvent(event);
+			}
+		}}
+		role="button"
+		tabindex={isDisplayOnly ? '-1' : '0'}
+	>
 		<!-- NAME -->
-		<div class="name" data-state={stateOn}>
+		<div class="name" data-state={stateOn} data-display-only={isDisplayOnly}>
 			{@html (sel?.template?.name && template?.name?.output) ||
 				getName(sel, entity, sectionName) ||
 				$lang('unknown')}
@@ -528,7 +596,7 @@
 		<!-- STATE -->
 
 		<!-- only bind clientWidth if marquee is set and use svelte-fast-dimension -->
-		<div class="state" data-state={stateOn}>
+		<div class="state" data-state={stateOn} data-display-only={isDisplayOnly}>
 			{#if marquee}
 				<div style="width: min-content;" bind:clientWidth={contentWidth}>
 					{#if sel?.state || (sel?.template?.state && template?.state?.output)}
@@ -573,6 +641,11 @@
 		overflow: hidden;
 	}
 
+	/* Display-only items get a more subtle styling */
+	.container[data-display-only='true'] {
+		background-color: var(--theme-display-only-background-color, rgba(0, 0, 0, 0.15));
+	}
+
 	.image {
 		background-size: cover;
 		background-repeat: no-repeat;
@@ -608,6 +681,12 @@
 		background-repeat: no-repeat;
 	}
 
+	/* Display-only icons have white color and no background */
+	.icon[data-display-only='true'] {
+		color: white;
+		background-color: transparent !important;
+	}
+
 	.name {
 		grid-area: name;
 		font-weight: 500;
@@ -618,6 +697,11 @@
 		text-overflow: ellipsis;
 		font-size: 0.95rem;
 		margin-top: -1px;
+	}
+
+	/* Display-only items text styling */
+	.name[data-display-only='true'] {
+		color: var(--theme-display-only-name-color, white);
 	}
 
 	.state {
@@ -631,9 +715,19 @@
 		margin-top: 1px;
 	}
 
+	/* Display-only items state styling */
+	.state[data-display-only='true'] {
+		color: var(--theme-display-only-state-color, rgba(255, 255, 255, 0.7));
+	}
+
 	.container[data-state='true'] {
 		background-color: var(--theme-button-background-color-on);
 		color: black;
+	}
+
+	/* Keep display-only background the same even when state is true */
+	.container[data-display-only='true'][data-state='true'] {
+		background-color: var(--theme-display-only-background-color, rgba(0, 0, 0, 0.15));
 	}
 
 	.icon[data-state='true'] {
@@ -641,12 +735,28 @@
 		background-color: var(--icon-color);
 	}
 
+	/* Display-only icons stay transparent even when state is true */
+	.icon[data-display-only='true'][data-state='true'] {
+		color: white !important;
+		background-color: transparent !important;
+	}
+
 	.name[data-state='true'] {
 		color: var(--theme-button-name-color-on);
 	}
 
+	/* Display-only name text color when state is true */
+	.name[data-display-only='true'][data-state='true'] {
+		color: var(--theme-display-only-name-color, white);
+	}
+
 	.state[data-state='true'] {
 		color: var(--theme-button-state-color-on);
+	}
+
+	/* Display-only state text color when state is true */
+	.state[data-display-only='true'][data-state='true'] {
+		color: var(--theme-display-only-state-color, rgba(255, 255, 255, 0.7));
 	}
 
 	/* Phone and Tablet (portrait) */
