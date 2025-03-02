@@ -1,0 +1,40 @@
+title: serene
+author: knowald
+attribution: "Inspired by natural environments"
+theme:
+  # Text and UI Elements
+  colors-text: rgba(240, 240, 245, 0.9)
+  colors-icon: rgb(200, 228, 240)
+  colors-title: rgba(240, 240, 245, 0.95)
+  colors-sidebar-border: 1px solid rgba(100, 130, 150, 0.3)
+  colors-sidebar-background: rgba(30, 45, 65, 0.45)
+
+  # Sizing
+  sizes-sidebar-time: 3.2rem
+
+  # Background and Fonts
+  background-image: url('/themes/serene_background.webp')
+  font-family: "'Outfit', 'Inter Variable', system-ui"
+
+  # Button States
+  button-background-color-on: rgba(210, 235, 250, 0.9)
+  button-background-color-off: rgba(70, 90, 110, 0.4)
+  drawer-button-background-color: rgba(70, 90, 110, 0.4)
+  button-name-color-on: rgb(30, 45, 60)
+  button-name-color-off: rgb(180, 190, 200)
+  button-state-color-on: rgb(60, 80, 100)
+  button-state-color-off: rgb(160, 175, 190)
+
+  # Modals and UI Components
+  modal-background-color: rgba(20, 30, 45, 0.4)
+  border-radius: 0.5rem
+  sidebar-font-size: 0.975rem
+  sidebar-item-padding: 0.65rem 0.7rem
+  sidebar-padding: 0 1.5rem
+  drawer-font-size: 0.9rem
+  sidebar-divider: 1px solid rgba(100, 130, 150, 0.35)
+  navigate-background-color: rgba(70, 90, 110, 0.4)
+
+  # App Colors
+  app-color: "#1a2835"
+  modal-background-color-modal: rgba(25, 35, 50, 0.75)
