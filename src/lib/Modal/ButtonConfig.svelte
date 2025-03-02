@@ -40,6 +40,7 @@
 	let icon = sel?.icon;
 	let state = sel?.state;
 	let computedIcon: string;
+	let displayOnly = sel?.displayOnly || false;
 
 	$: options = $entityList('');
 
@@ -75,6 +76,38 @@
 			servicePlaceholder = $lang('error');
 		}
 	}
+
+	function shouldSuggestDisplayOnly(entityId: string): boolean {
+		if (!entityId) return false;
+
+		const domain = getDomain(entityId);
+
+		// List of domains that are typically display-only
+		const displayOnlyDomains = [
+			'sensor',
+			'binary_sensor',
+			'weather',
+			'sun',
+			'date',
+			'time',
+			'person',
+			'zone',
+			'device_tracker'
+		];
+
+		if (displayOnlyDomains.includes(domain)) {
+			return true;
+		}
+
+		if ($states[entityId] && !getTogglableService($states[entityId])) {
+			return true;
+		}
+
+		return false;
+	}
+
+	// Auto-suggest display-only based on entity type
+	$: suggestDisplayOnly = shouldSuggestDisplayOnly(entity_id);
 </script>
 
 {#if isOpen}
@@ -84,7 +117,7 @@
 		<h2>{$lang('preview')}</h2>
 
 		<div style:pointer-events="none">
-			<Button {sel} {sectionName} />
+			<Button {sel} {sectionName} {displayOnly} />
 		</div>
 
 		<h2>{$lang('entity')}</h2>
@@ -98,6 +131,11 @@
 					on:change={(event) => {
 						if (event?.detail === null) return;
 						set('entity_id', event);
+						// Reset display-only on entity change if not already a display-only entity
+						if (!shouldSuggestDisplayOnly(event?.detail)) {
+							displayOnly = false;
+							set('displayOnly', false);
+						}
 					}}
 					computeIcons={true}
 					getIconString={true}
@@ -302,8 +340,8 @@
 					bind:value={color}
 					on:change={(event) => set('color', event)}
 					style:padding
-					disabled={Boolean(template?.color?.output)}
-					class:disabled={Boolean(template?.color?.output)}
+					disabled={Boolean(template?.color?.output) || displayOnly}
+					class:disabled={Boolean(template?.color?.output) || displayOnly}
 				/>
 			</InputClear>
 
@@ -317,6 +355,7 @@
 				}}
 				on:change={(event) => set('color', event)}
 				title={$lang('color')}
+				disabled={displayOnly}
 			/>
 
 			<button
@@ -332,10 +371,49 @@
 				}}
 				style:padding="0.85rem"
 				class:template-active={template?.color?.output}
+				class:disabled={displayOnly}
 			>
 				<Icon icon="ph:brackets-curly-bold" height="none" /></button
 			>
 		</div>
+
+		<!-- Display-Only Option Section -->
+		<h2>{$lang('display_only') || 'Display Only'}</h2>
+		<div class="button-container">
+			<button
+				class:selected={displayOnly}
+				on:click={() => {
+					displayOnly = true;
+					set('displayOnly', true);
+				}}
+				use:Ripple={$ripple}
+			>
+				{$lang('yes')}
+			</button>
+			<button
+				class:selected={!displayOnly}
+				on:click={() => {
+					displayOnly = false;
+					set('displayOnly', false);
+				}}
+				use:Ripple={$ripple}
+			>
+				{$lang('no')}
+			</button>
+		</div>
+
+		{#if suggestDisplayOnly && !displayOnly}
+			<div class="suggestion-box">
+				<Icon
+					icon="mdi:lightbulb-outline"
+					height="1.5em"
+					width="4em"
+					style="margin-right: 0.5rem;"
+				/>
+				{$lang('display_only_suggestion') ||
+					'This entity type is commonly used for displaying status. Consider setting it as "Display Only".'}
+			</div>
+		{/if}
 
 		<h2>{$lang('service')}</h2>
 
@@ -364,6 +442,7 @@
 				}}
 				style:padding="0.85rem"
 				class:template-active={template?.service?.output}
+				class:disabled={displayOnly}
 			>
 				<Icon icon="ph:brackets-curly-bold" height="none" /></button
 			>
@@ -450,5 +529,16 @@
 	.full-width {
 		width: -webkit-fill-available;
 		width: -moz-available;
+	}
+
+	.suggestion-box {
+		display: flex;
+		align-items: center;
+		background-color: rgba(255, 193, 7, 0.2);
+		border-left: 3px solid rgb(255, 193, 7);
+		padding: 0.7rem 1rem;
+		margin: 0.5rem 0 1.5rem 0;
+		border-radius: 0.3rem;
+		font-size: 0.9rem;
 	}
 </style>
