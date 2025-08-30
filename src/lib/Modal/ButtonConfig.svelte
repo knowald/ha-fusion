@@ -41,6 +41,7 @@
 	let state = sel?.state;
 	let computedIcon: string;
 	let displayOnly = sel?.displayOnly || false;
+	let slideBrightness = sel?.slide_brightness !== false; // Default to true
 
 	$: options = $entityList('');
 
@@ -108,6 +109,7 @@
 
 	// Auto-suggest display-only based on entity type
 	$: suggestDisplayOnly = shouldSuggestDisplayOnly(entity_id);
+	$: isLightEntity = getDomain(entity_id) === 'light';
 </script>
 
 {#if isOpen}
@@ -412,6 +414,33 @@
 				/>
 				{$lang('display_only_suggestion') ||
 					'This entity type is commonly used for displaying status. Consider setting it as "Display Only".'}
+			</div>
+		{/if}
+
+		<!-- Slide Brightness Option - Only for Light Entities -->
+		{#if isLightEntity && !displayOnly}
+			<h2>{$lang('slide_brightness')}</h2>
+			<div class="button-container">
+				<button
+					class:selected={slideBrightness}
+					on:click={() => {
+						slideBrightness = true;
+						set('slide_brightness', true);
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('yes')}
+				</button>
+				<button
+					class:selected={!slideBrightness}
+					on:click={() => {
+						slideBrightness = false;
+						set('slide_brightness', false);
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('no')}
+				</button>
 			</div>
 		{/if}
 

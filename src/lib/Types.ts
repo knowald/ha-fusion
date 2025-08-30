@@ -90,6 +90,8 @@ export interface ButtonItem {
 	more_info?: boolean;
 	service?: string;
 	state: any;
+	displayOnly?: boolean;
+	slide_brightness?: boolean;
 	template?: {
 		[key: string]: {
 			set_state?: string;

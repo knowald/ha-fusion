@@ -46,9 +46,27 @@
 	let resetLoading: ReturnType<typeof setTimeout> | null;
 	let stateOn: boolean;
 
+	// Brightness slider variables
+	let isSliding = false;
+	let slideStartX = 0;
+	let targetBrightness: number | null = null;
+	let slideBrightness = 0;
+	let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	// Determine if entity is display-only (non-interactive) using both sel.displayOnly and the prop
 	$: isDisplayOnly =
 		sel?.displayOnly === true || displayOnly === true || determineIfDisplayOnly(entity_id, entity);
+
+	// Check if this is a light entity that supports brightness and has slide_brightness enabled
+	$: isLightWithBrightness =
+		getDomain(entity_id) === 'light' &&
+		entity?.attributes?.brightness !== undefined &&
+		sel?.slide_brightness !== false; // Default to true if not explicitly set to false
+
+	// Get current brightness (0-255 range from HA, convert to 0-100 percentage)
+	$: currentBrightness = entity?.attributes?.brightness
+		? Math.round((entity.attributes.brightness / 255) * 100)
+		: 0;
 
 	/**
 	 * Determines if an entity is display-only based on its domain or other properties
@@ -499,7 +517,109 @@
 		}
 	}
 
-	onDestroy(() => unsubscribe?.());
+	onDestroy(() => {
+		unsubscribe?.();
+		if (debounceTimeout) clearTimeout(debounceTimeout);
+	});
+
+	// Brightness slider functions
+	function handleSlideStart(event: PointerEvent | MouseEvent | TouchEvent) {
+		if (!isLightWithBrightness || isDisplayOnly || $editMode) return;
+
+		// Don't prevent default here - let normal click handling work if no slide occurs
+		slideStartX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+		slideBrightness = currentBrightness;
+		targetBrightness = null;
+
+		// Add global listeners
+		document.addEventListener('pointermove', handleSlideMove, { passive: false });
+		document.addEventListener('pointerup', handleSlideEnd, { passive: false });
+		document.addEventListener('mousemove', handleSlideMove, { passive: false });
+		document.addEventListener('mouseup', handleSlideEnd, { passive: false });
+		document.addEventListener('touchmove', handleSlideMove, { passive: false });
+		document.addEventListener('touchend', handleSlideEnd, { passive: false });
+	}
+
+	function handleSlideMove(event: PointerEvent | MouseEvent | TouchEvent) {
+		const currentX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+		const deltaX = Math.abs(currentX - slideStartX);
+
+		// Only start sliding if there's significant horizontal movement
+		if (!isSliding && deltaX > 10) {
+			isSliding = true;
+			event.preventDefault();
+		}
+
+		if (!isSliding) return;
+
+		event.preventDefault();
+		const actualDeltaX = currentX - slideStartX;
+		const containerRect = container.getBoundingClientRect();
+		const maxWidth = containerRect.width * 0.8; // Use 80% of button width for full range
+
+		// Calculate brightness based on horizontal movement
+		const brightnessChange = (actualDeltaX / maxWidth) * 100;
+		let newBrightness = Math.max(0, Math.min(100, currentBrightness + brightnessChange));
+
+		// Snap to 0% if very close
+		if (newBrightness < 5) newBrightness = 0;
+		// Snap to 100% if very close
+		if (newBrightness > 95) newBrightness = 100;
+
+		slideBrightness = Math.round(newBrightness);
+		targetBrightness = slideBrightness;
+
+		// Debounced service call
+		if (debounceTimeout) clearTimeout(debounceTimeout);
+		debounceTimeout = setTimeout(() => {
+			setBrightness(slideBrightness);
+		}, 100);
+	}
+
+	function handleSlideEnd(event: PointerEvent | MouseEvent | TouchEvent) {
+		// Remove global listeners immediately
+		document.removeEventListener('pointermove', handleSlideMove);
+		document.removeEventListener('pointerup', handleSlideEnd);
+		document.removeEventListener('mousemove', handleSlideMove);
+		document.removeEventListener('mouseup', handleSlideEnd);
+		document.removeEventListener('touchmove', handleSlideMove);
+		document.removeEventListener('touchend', handleSlideEnd);
+
+		if (!isSliding) return;
+
+		// Final service call if needed
+		if (debounceTimeout) {
+			clearTimeout(debounceTimeout);
+			setBrightness(slideBrightness);
+		}
+
+		// Clear slider visualization after a short delay
+		setTimeout(() => {
+			isSliding = false;
+			targetBrightness = null;
+		}, 500);
+	}
+
+	async function setBrightness(brightness: number) {
+		if (!entity?.entity_id) return;
+
+		try {
+			if (brightness === 0) {
+				// Turn off the light
+				await callService($connection, 'light', 'turn_off', {
+					entity_id: entity.entity_id
+				});
+			} else {
+				// Turn on/set brightness (convert percentage back to 0-255 range)
+				await callService($connection, 'light', 'turn_on', {
+					entity_id: entity.entity_id,
+					brightness: Math.round((brightness / 100) * 255)
+				});
+			}
+		} catch (error) {
+			console.error('Failed to set brightness:', error);
+		}
+	}
 </script>
 
 <div
@@ -574,6 +694,7 @@
 	<div
 		class="right"
 		on:click|stopPropagation={(event) => {
+			if (isSliding) return; // Don't trigger click if we were sliding
 			if (!$editMode) {
 				if (!isDisplayOnly) {
 					toggle();
@@ -583,8 +704,12 @@
 				handleEvent(event);
 			}
 		}}
+		on:pointerdown={handleSlideStart}
+		on:mousedown={handleSlideStart}
+		on:touchstart={handleSlideStart}
 		role="button"
 		tabindex={isDisplayOnly ? '-1' : '0'}
+		class:sliding={isSliding}
 	>
 		<!-- NAME -->
 		<div class="name" data-state={stateOn} data-display-only={isDisplayOnly}>
@@ -620,6 +745,16 @@
 			{/if}
 		</div>
 	</div>
+
+	<!-- BRIGHTNESS SLIDER OVERLAY -->
+	{#if isLightWithBrightness && (isSliding || targetBrightness !== null)}
+		<div class="brightness-overlay">
+			<div class="brightness-fill" style:width="{targetBrightness ?? slideBrightness}%"></div>
+			<div class="brightness-content">
+				<div class="brightness-text">{targetBrightness ?? slideBrightness}%</div>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -718,6 +853,62 @@
 	/* Display-only items state styling */
 	.state[data-display-only='true'] {
 		color: var(--theme-display-only-state-color, rgba(255, 255, 255, 0.7));
+	}
+
+	/* Brightness slider overlay - covers entire container */
+	.brightness-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		border-radius: 0.65rem;
+		overflow: hidden;
+		z-index: 10;
+		pointer-events: none;
+		background: rgba(0, 0, 0, 0.2);
+	}
+
+	.brightness-fill {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		background: rgba(255, 255, 255, 0.15);
+		transition: width 0.1s ease-out;
+		min-width: 0;
+	}
+
+	.brightness-content {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		padding-right: var(--container-padding);
+		z-index: 2;
+	}
+
+	.brightness-text {
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: white;
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+		background: rgba(0, 0, 0, 0.3);
+		padding: 0.2rem 0.5rem;
+		border-radius: 0.3rem;
+		min-width: 2.5rem;
+		text-align: center;
+	}
+
+	.right.sliding {
+		cursor: ew-resize !important;
+		user-select: none;
+	}
+
+	.container {
+		position: relative;
 	}
 
 	.container[data-state='true'] {
