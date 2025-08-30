@@ -234,12 +234,17 @@
 		{/await}
 	{/if}
 
-	<!-- module -->
+	<!-- modules -->
 	{#if $customJs}
 		{#await import('$lib/Components/CustomJs.svelte') then CustomJs}
 			<svelte:component this={CustomJs.default} />
 		{/await}
 	{/if}
+
+	<!-- custom css -->
+	{#await import('$lib/Components/CustomCss.svelte') then CustomCss}
+		<svelte:component this={CustomCss.default} />
+	{/await}
 </div>
 
 <style>

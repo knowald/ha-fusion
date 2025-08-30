@@ -1,6 +1,6 @@
 title: serene
 author: knowald
-attribution: "Inspired by natural environments"
+attribution: 'Inspired by natural environments'
 theme:
   # Text and UI Elements
   colors-text: rgba(240, 240, 245, 0.9)
@@ -36,5 +36,5 @@ theme:
   navigate-background-color: rgba(70, 90, 110, 0.4)
 
   # App Colors
-  app-color: "#1a2835"
+  app-color: '#1a2835'
   modal-background-color-modal: rgba(25, 35, 50, 0.75)

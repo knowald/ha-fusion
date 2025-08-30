@@ -10,6 +10,7 @@
 	import Version from '$lib/Settings/Version.svelte';
 	import Token from '$lib/Settings/Token.svelte';
 	import CustomJs from '$lib/Settings/CustomJs.svelte';
+	import CustomCss from '$lib/Settings/CustomCss.svelte';
 	import Logout from '$lib/Settings/Logout.svelte';
 	import Ripple from 'svelte-ripple';
 
@@ -128,6 +129,8 @@
 			<Version />
 
 			<CustomJs />
+
+			<CustomCss />
 
 			<Motion />
 

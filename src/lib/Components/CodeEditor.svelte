@@ -218,6 +218,12 @@
 			const jinja2Module = await import('@codemirror/legacy-modes/mode/jinja2');
 
 			extensions.push(...[StreamLanguage.define(jinja2Module.jinja2)]);
+
+			// ... or css extensions
+		} else if (type === 'css') {
+			const cssModule = await import('@codemirror/legacy-modes/mode/css');
+
+			extensions.push(...[StreamLanguage.define(cssModule.css)]);
 		}
 
 		// codemirror

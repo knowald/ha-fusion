@@ -38,8 +38,7 @@
 	<div class="item">
 		<h3>YouTube</h3>
 		<div class="button-toggle-container">
-			<button
-				on:click={() => {
+			<button on:click={() => {
 					openModal(() => import('$lib/Modal/YoutubeModal.svelte'), {});
 				}}
 				>{$lang('configure')}
