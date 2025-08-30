@@ -45,6 +45,12 @@
 	let loading: boolean;
 	let resetLoading: ReturnType<typeof setTimeout> | null;
 	let stateOn: boolean;
+	
+	// Optimistic state management
+	let optimisticState: string | null = null;
+	let optimisticStateOn: boolean | null = null;
+	let optimisticBrightness: number | null = null;
+	let optimisticResetTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	// Brightness slider variables
 	let isSliding = false;
@@ -64,7 +70,10 @@
 		sel?.slide_brightness !== false; // Default to true if not explicitly set to false
 
 	// Get current brightness (0-255 range from HA, convert to 0-100 percentage)
-	$: currentBrightness = entity?.attributes?.brightness
+	// Use optimistic brightness if available, otherwise use actual
+	$: currentBrightness = optimisticBrightness !== null 
+		? optimisticBrightness
+		: entity?.attributes?.brightness
 		? Math.round((entity.attributes.brightness / 255) * 100)
 		: 0;
 
@@ -137,6 +146,9 @@
 			clearTimeout(resetLoading);
 			resetLoading = null;
 		}
+
+		// Clear optimistic state when real state updates
+		clearOptimisticState();
 	}
 
 	$: attributes = entity?.attributes;
@@ -150,7 +162,10 @@
 	// icon is image if extension, e.g. test.png
 	$: image = icon?.includes('.');
 
-	$: if (sel?.template?.set_state && template?.set_state?.output) {
+	$: if (optimisticStateOn !== null) {
+		// Use optimistic state if available
+		stateOn = optimisticStateOn;
+	} else if (sel?.template?.set_state && template?.set_state?.output) {
 		// template
 		stateOn = $onStates?.includes(template?.set_state?.output?.toLocaleLowerCase());
 	} else if (attributes?.hvac_action) {
@@ -164,6 +179,38 @@
 	} else {
 		// default
 		stateOn = $onStates?.includes(entity?.state?.toLocaleLowerCase());
+	}
+
+	/**
+	 * Sets optimistic state immediately for better UX
+	 */
+	function setOptimisticState(state: string, stateOn: boolean, brightness?: number) {
+		optimisticState = state;
+		optimisticStateOn = stateOn;
+		if (brightness !== undefined) {
+			optimisticBrightness = brightness;
+		}
+		
+		// Clear optimistic state after timeout if no real state update
+		if (optimisticResetTimeout) {
+			clearTimeout(optimisticResetTimeout);
+		}
+		optimisticResetTimeout = setTimeout(() => {
+			clearOptimisticState();
+		}, 5000); // 5 second fallback
+	}
+
+	/**
+	 * Clears optimistic state
+	 */
+	function clearOptimisticState() {
+		optimisticState = null;
+		optimisticStateOn = null;
+		optimisticBrightness = null;
+		if (optimisticResetTimeout) {
+			clearTimeout(optimisticResetTimeout);
+			optimisticResetTimeout = null;
+		}
 	}
 
 	/**
@@ -200,6 +247,20 @@
 		const service = getTogglableService(entity);
 
 		if (service) {
+			// Set optimistic state immediately for common entities
+			if (getDomain(entity_id) === 'light') {
+				const currentlyOn = $onStates?.includes(entity?.state?.toLocaleLowerCase());
+				if (currentlyOn) {
+					setOptimisticState('off', false, 0);
+				} else {
+					setOptimisticState('on', true, entity?.attributes?.brightness ? Math.round((entity.attributes.brightness / 255) * 100) : 100);
+				}
+			} else {
+				// For other toggleable entities, just toggle the on/off state
+				const currentlyOn = $onStates?.includes(entity?.state?.toLocaleLowerCase());
+				setOptimisticState(currentlyOn ? 'off' : 'on', !currentlyOn);
+			}
+
 			// use returned domain to handle specific cases such
 			// as 'remote', which uses 'homeassistant.toggle'
 			const [_domain, _service] = service.split('.');
@@ -520,6 +581,7 @@
 	onDestroy(() => {
 		unsubscribe?.();
 		if (debounceTimeout) clearTimeout(debounceTimeout);
+		clearOptimisticState();
 	});
 
 	// Brightness slider functions
@@ -603,6 +665,13 @@
 	async function setBrightness(brightness: number) {
 		if (!entity?.entity_id) return;
 
+		// Set optimistic state immediately
+		if (brightness === 0) {
+			setOptimisticState('off', false, 0);
+		} else {
+			setOptimisticState('on', true, brightness);
+		}
+
 		try {
 			if (brightness === 0) {
 				// Turn off the light
@@ -618,6 +687,8 @@
 			}
 		} catch (error) {
 			console.error('Failed to set brightness:', error);
+			// Clear optimistic state on error
+			clearOptimisticState();
 		}
 	}
 </script>
