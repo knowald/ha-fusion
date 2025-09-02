@@ -13,7 +13,6 @@
 	let stateObj: any;
 	let currentIcon: string | undefined;
 	let src: string | undefined;
-	let isInteractive: string | undefined;
 
 	$: if (entity_id) stateObj = $states?.[entity_id];
 

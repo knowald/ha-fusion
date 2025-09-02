@@ -45,9 +45,8 @@
 	let loading: boolean;
 	let resetLoading: ReturnType<typeof setTimeout> | null;
 	let stateOn: boolean;
-	
+
 	// Optimistic state management
-	let optimisticState: string | null = null;
 	let optimisticStateOn: boolean | null = null;
 	let optimisticBrightness: number | null = null;
 	let optimisticResetTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -71,11 +70,12 @@
 
 	// Get current brightness (0-255 range from HA, convert to 0-100 percentage)
 	// Use optimistic brightness if available, otherwise use actual
-	$: currentBrightness = optimisticBrightness !== null 
-		? optimisticBrightness
-		: entity?.attributes?.brightness
-		? Math.round((entity.attributes.brightness / 255) * 100)
-		: 0;
+	$: currentBrightness =
+		optimisticBrightness !== null
+			? optimisticBrightness
+			: entity?.attributes?.brightness
+				? Math.round((entity.attributes.brightness / 255) * 100)
+				: 0;
 
 	/**
 	 * Determines if an entity is display-only based on its domain or other properties
@@ -185,12 +185,11 @@
 	 * Sets optimistic state immediately for better UX
 	 */
 	function setOptimisticState(state: string, stateOn: boolean, brightness?: number) {
-		optimisticState = state;
 		optimisticStateOn = stateOn;
 		if (brightness !== undefined) {
 			optimisticBrightness = brightness;
 		}
-		
+
 		// Clear optimistic state after timeout if no real state update
 		if (optimisticResetTimeout) {
 			clearTimeout(optimisticResetTimeout);
@@ -204,7 +203,6 @@
 	 * Clears optimistic state
 	 */
 	function clearOptimisticState() {
-		optimisticState = null;
 		optimisticStateOn = null;
 		optimisticBrightness = null;
 		if (optimisticResetTimeout) {
@@ -253,7 +251,13 @@
 				if (currentlyOn) {
 					setOptimisticState('off', false, 0);
 				} else {
-					setOptimisticState('on', true, entity?.attributes?.brightness ? Math.round((entity.attributes.brightness / 255) * 100) : 100);
+					setOptimisticState(
+						'on',
+						true,
+						entity?.attributes?.brightness
+							? Math.round((entity.attributes.brightness / 255) * 100)
+							: 100
+					);
 				}
 			} else {
 				// For other toggleable entities, just toggle the on/off state
@@ -638,7 +642,7 @@
 		}, 100);
 	}
 
-	function handleSlideEnd(event: PointerEvent | MouseEvent | TouchEvent) {
+	function handleSlideEnd() {
 		// Remove global listeners immediately
 		document.removeEventListener('pointermove', handleSlideMove);
 		document.removeEventListener('pointerup', handleSlideEnd);
@@ -775,11 +779,22 @@
 				handleEvent(event);
 			}
 		}}
+		on:keydown={(event) => {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				if (!$editMode && !isDisplayOnly) {
+					toggle();
+				} else if ($editMode) {
+					handleEvent(event);
+				}
+			}
+		}}
 		on:pointerdown={handleSlideStart}
 		on:mousedown={handleSlideStart}
 		on:touchstart={handleSlideStart}
 		role="button"
 		tabindex={isDisplayOnly ? '-1' : '0'}
+		aria-pressed={stateOn}
 		class:sliding={isSliding}
 	>
 		<!-- NAME -->
