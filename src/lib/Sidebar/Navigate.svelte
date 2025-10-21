@@ -52,11 +52,11 @@
 
 	function setDimensions(element: HTMLElement) {
 		if (container && element) {
-			const elementRect = element.getBoundingClientRect();
-			const containerRect = container.getBoundingClientRect();
-			top = elementRect.top - containerRect.top + 'px';
-			left = elementRect.left - containerRect.left + 'px';
-			height = elementRect.height + 'px';
+			// Use offsetTop/offsetLeft for more accurate positioning relative to container
+			// This prevents accumulating rounding errors with getBoundingClientRect
+			top = element.offsetTop + 'px';
+			left = element.offsetLeft + 'px';
+			height = element.offsetHeight + 'px';
 		}
 	}
 </script>

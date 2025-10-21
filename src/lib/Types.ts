@@ -104,6 +104,15 @@ export interface ButtonItem {
 	};
 }
 
+export interface DaysSinceItem {
+	type: string;
+	id: number;
+	name?: string;
+	icon?: string;
+	color?: string;
+	entity_id?: string; // input_datetime entity that stores the last reset timestamp
+}
+
 export interface Template {
 	[id: number]: {
 		[key: string]: {

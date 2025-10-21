@@ -6,6 +6,7 @@
 	import Camera from '$lib/Main/Camera.svelte';
 	import Configure from '$lib/Main/Configure.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
+	import DaysSince from '$lib/Main/DaysSince.svelte';
 
 	export let item: any;
 	export let sectionName: string | undefined = undefined;
@@ -21,6 +22,8 @@
 	<Configure sel={item} />
 {:else if item?.type === 'button'}
 	<Button sel={item} {sectionName} />
+{:else if item?.type === 'days_since'}
+	<DaysSince sel={item} {sectionName} />
 {:else if item?.type === 'conditional_media'}
 	<ConditionalMedia sel={item} />
 {:else if item?.type === 'picture_elements'}

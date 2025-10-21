@@ -20,6 +20,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Ripple from 'svelte-ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
+	import DaysSince from '$lib/Main/DaysSince.svelte';
 
 	export let isOpen: boolean;
 	export let sel: any;
@@ -88,6 +89,14 @@
 			}
 		},
 		{
+			id: 'days_since',
+			type: $lang('days_since') || 'Days Since',
+			component: DaysSince,
+			props: {
+				sel
+			}
+		},
+		{
 			id: 'camera',
 			type: $lang('camera'),
 			component: Camera,
@@ -140,6 +149,11 @@
 			case 'button':
 				openModal(() => import('$lib/Modal/ButtonConfig.svelte'), {
 					demo: $demo.sensor,
+					sel
+				});
+				break;
+			case 'days_since':
+				openModal(() => import('$lib/Modal/DaysSinceConfig.svelte'), {
 					sel
 				});
 				break;
