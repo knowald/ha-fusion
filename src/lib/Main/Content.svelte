@@ -7,11 +7,13 @@
 	import Configure from '$lib/Main/Configure.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
+	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
+	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
 	export let item: any;
 	export let sectionName: string | undefined = undefined;
 
-	const large = ['conditional_media', 'picture_elements', 'camera'];
+	const large = ['conditional_media', 'picture_elements', 'camera', 'spotify_player_large'];
 </script>
 
 {#if item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] && large.includes(item?.type)}
@@ -24,6 +26,10 @@
 	<Button sel={item} {sectionName} />
 {:else if item?.type === 'days_since'}
 	<DaysSince sel={item} {sectionName} />
+{:else if item?.type === 'spotify_player'}
+	<SpotifyPlayer sel={item} {sectionName} />
+{:else if item?.type === 'spotify_player_large'}
+	<SpotifyPlayerLarge sel={item} {sectionName} />
 {:else if item?.type === 'conditional_media'}
 	<ConditionalMedia sel={item} />
 {:else if item?.type === 'picture_elements'}

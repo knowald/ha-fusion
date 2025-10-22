@@ -113,6 +113,29 @@ export interface DaysSinceItem {
 	entity_id?: string; // input_datetime entity that stores the last reset timestamp
 }
 
+export interface SpotifyPlayerItem {
+	type: string;
+	id: number;
+	entity_id?: string; // media_player.spotify_* entity
+	name?: string;
+	icon?: string;
+	color?: string;
+	default_device?: string; // Preferred Spotify Connect device
+	show_progress?: boolean; // Show progress bar in compact view
+	show_volume?: boolean; // Show volume control
+	compact?: boolean; // Use compact display mode
+}
+
+export interface SpotifyPlayerLargeItem {
+	type: string;
+	id: number;
+	entity_id?: string; // media_player.spotify_* entity
+	name?: string;
+	icon?: string;
+	color?: string;
+	show_progress?: boolean; // Show progress bar
+}
+
 export interface Template {
 	[id: number]: {
 		[key: string]: {

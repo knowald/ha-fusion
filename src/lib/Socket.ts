@@ -4,6 +4,7 @@ import {
 	createConnection,
 	subscribeConfig,
 	subscribeEntities,
+	subscribeServices,
 	ERR_CANNOT_CONNECT,
 	ERR_INVALID_AUTH,
 	ERR_CONNECTION_LOST,
@@ -11,7 +12,7 @@ import {
 	ERR_INVALID_HTTPS_TO_HTTP
 } from 'home-assistant-js-websocket';
 import type { Auth, AuthData } from 'home-assistant-js-websocket';
-import { states, connection, config, connected, event, persistentNotifications } from '$lib/Stores';
+import { states, connection, config, services, connected, event, persistentNotifications } from '$lib/Stores';
 import { openModal, closeModal } from 'svelte-modals';
 import type { Configuration, PersistentNotification } from '$lib/Types';
 
@@ -69,6 +70,11 @@ export async function authentication(configuration: Configuration) {
 		// config
 		subscribeConfig(conn, (hassConfig) => {
 			config.set(hassConfig);
+		});
+
+		// services
+		subscribeServices(conn, (hassServices) => {
+			services.set(hassServices);
 		});
 
 		// events

@@ -21,6 +21,8 @@
 	import Ripple from 'svelte-ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
+	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
+	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
 	export let isOpen: boolean;
 	export let sel: any;
@@ -97,6 +99,22 @@
 			}
 		},
 		{
+			id: 'spotify_player',
+			type: $lang('spotify_player') || 'Spotify Player',
+			component: SpotifyPlayer,
+			props: {
+				sel
+			}
+		},
+		{
+			id: 'spotify_player_large',
+			type: $lang('spotify_player_large') || 'Spotify Player Large',
+			component: SpotifyPlayerLarge,
+			props: {
+				sel
+			}
+		},
+		{
 			id: 'camera',
 			type: $lang('camera'),
 			component: Camera,
@@ -154,6 +172,16 @@
 				break;
 			case 'days_since':
 				openModal(() => import('$lib/Modal/DaysSinceConfig.svelte'), {
+					sel
+				});
+				break;
+			case 'spotify_player':
+				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
+					sel
+				});
+				break;
+			case 'spotify_player_large':
+				openModal(() => import('$lib/Modal/SpotifyPlayerLargeConfig.svelte'), {
 					sel
 				});
 				break;

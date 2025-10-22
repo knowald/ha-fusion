@@ -2,13 +2,19 @@
 FROM node:22 AS builder
 WORKDIR /app
 
-# copy all files
+# copy package files first for better layer caching
+COPY package.json pnpm-lock.yaml* ./
+
+# install pnpm and dependencies
+RUN npm install -g pnpm && \
+  pnpm install
+
+# copy source files
 COPY . .
 
-# install, build and prune
-RUN npm install --verbose && \
-  npm run build && \
-  npm prune --omit=dev
+# build and prune dev dependencies
+RUN pnpm run build && \
+  pnpm prune --prod
 
 # second stage
 FROM node:22-alpine

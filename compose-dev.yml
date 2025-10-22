@@ -9,6 +9,6 @@ services:
       - 5050:5050
     environment:
       TZ: Europe/Stockholm
-      HASS_URL: http://192.168.1.241:8123
+      HASS_URL: http://homeassistant.local:8123/
     restart: always
 # cd ~/Developer/ha-fusion && docker-compose -f compose-dev.yml up -d --build ha-fusion
