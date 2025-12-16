@@ -14,9 +14,88 @@ If you find this project useful, please consider supporting the original creator
 
 ---
 
-## 📣 Pre-beta
+## Fork Features
 
-The current state of this project is **pre-beta**. This means that there's basic functionality missing, incomplete features and unresolved issues. General feedback, bug reports and feature requests are welcome!
+This fork adds the following features to the original ha-fusion project:
+
+### Spotify Player Widgets
+
+Full-featured Spotify media player widgets with two layout options.
+
+**Compact Player:**
+
+```yaml
+- type: spotify_player
+  id: 1234567890
+  entity_id: media_player.spotify_username
+  name: Spotify
+  icon: mdi:spotify
+  color: "rgb(30, 215, 96)"
+  show_progress: true
+```
+
+**Large Player:**
+
+```yaml
+- type: spotify_player_large
+  id: 1234567890
+  entity_id: media_player.spotify_username
+  show_progress: true
+```
+
+Features include real-time progress bar, playback controls, album artwork, and an integrated browser for playlists, albums, and artists.
+
+### Days Since Widget
+
+A counter widget that tracks days elapsed since a timestamp stored in a Home Assistant entity.
+
+```yaml
+- type: days_since
+  id: 1234567890
+  entity_id: input_datetime.last_filter_change
+  name: Filter Changed
+  icon: mdi:air-filter
+  color: "rgb(75, 166, 237)"
+```
+
+### Display-Only Buttons ⚠️ Breaking
+
+Configure buttons as non-interactive for displaying sensor values or status information.
+
+```yaml
+- type: button
+  id: 1234567890
+  entity_id: sensor.indoor_temperature
+  name: Temperature
+  displayOnly: true
+```
+
+> **Breaking Change:** Sensor domains (`sensor`, `binary_sensor`, `weather`, `sun`, `zone`, `person`) are now automatically detected as display-only. If you have sensor buttons that were previously interactive, use `displayOnly: false` to restore the original behavior.
+
+### Slide Brightness Control ⚠️ Breaking
+
+Adjust light brightness by sliding horizontally on button widgets.
+
+```yaml
+- type: button
+  id: 1234567890
+  entity_id: light.living_room
+  slide_brightness: false  # disable slide control
+```
+
+> **Breaking Change:** Enabled by default for all lights that support brightness. Horizontal swipe/drag gestures now adjust brightness instead of being ignored. Use `slide_brightness: false` to disable.
+
+### Optimistic UI Updates
+
+Buttons now provide instant visual feedback when toggled, without waiting for Home Assistant round-trips. This is enabled automatically for all interactive buttons.
+
+### Custom CSS
+
+Apply custom styles via Settings > Custom CSS. Styles are saved to `/data/custom_css.css`.
+
+### Serene Theme
+
+A new built-in theme with a calm, nature-inspired blue-gray aesthetic. Select it from the theme picker in settings.
 
 ---
 
@@ -81,8 +160,6 @@ docker run -d \
 If you prefer to use Kubernetes, see [Chart README.md](https://github.com/knowald/ha-fusion/tree/167c320918544416e2f9272e1edad64b7329269a/charts/ha-fusion)
 
 </details>
-
-...
 
 ---
 
