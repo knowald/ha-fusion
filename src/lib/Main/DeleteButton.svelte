@@ -12,13 +12,27 @@
 	 * After removal, updates the dashboard and records the changes.
 	 */
 	function handleClick() {
-		// section
+		// top-level section
 		if (view.sections.includes(section)) {
 			view.sections = view.sections.filter((sec: any) => sec !== section);
 		} else {
-			// nested
+			// nested in a stack (one level deep)
 			const stack = view.sections.find((sec: any) => sec.sections?.includes(section));
-			if (stack) stack.sections = stack.sections.filter((sub: any) => sub !== section);
+			if (stack) {
+				stack.sections = stack.sections.filter((sub: any) => sub !== section);
+			} else {
+				// nested two levels deep (section inside vertical stack inside horizontal stack)
+				for (const parentStack of view.sections) {
+					if (parentStack.sections) {
+						for (const nestedStack of parentStack.sections) {
+							if (nestedStack.sections?.includes(section)) {
+								nestedStack.sections = nestedStack.sections.filter((sub: any) => sub !== section);
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		$dashboard = $dashboard;

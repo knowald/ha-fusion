@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 5173
 
 # Start development server with host flag to allow external connections
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npx", "vite", "dev", "--host"]

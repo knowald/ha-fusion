@@ -1,5 +1,5 @@
 default:
     @just --list
 
-up:
-    docker compose -f docker-compose.dev.yml up
+up *args:
+    docker compose -f docker-compose.dev.yml up {{args}}

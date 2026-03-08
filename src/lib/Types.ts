@@ -44,7 +44,7 @@ export interface Section {
 		conditions?: Condition[];
 	}[];
 
-	// HorizontalStack
+	// horizontal-stack | vertical-stack
 	type?: string;
 	sections?: Section[];
 }

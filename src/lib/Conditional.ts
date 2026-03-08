@@ -11,14 +11,27 @@ export function handleVisibility($editMode: boolean, sections: Section[], states
 
 	sections.forEach((section: Section) => {
 		if (handleAllConditions($editMode, states, section)) {
-			// horizontal-stack
-			if (section.type === 'horizontal-stack' && section.sections) {
-				const stack = section.sections.filter((nested: Section) => {
-					return handleAllConditions($editMode, states, nested);
-				});
+			// horizontal-stack or vertical-stack
+			if ((section.type === 'horizontal-stack' || section.type === 'vertical-stack') && section.sections) {
+				const stack = section.sections
+					.filter((nested: Section) => handleAllConditions($editMode, states, nested))
+					.map((nested: Section) => {
+						// Handle nested vertical stacks inside horizontal stacks
+						if (nested.type === 'vertical-stack' && nested.sections) {
+							const nestedStack = nested.sections.filter((deepNested: Section) =>
+								handleAllConditions($editMode, states, deepNested)
+							);
+							if (nestedStack.length > 0) {
+								return { ...nested, sections: nestedStack };
+							}
+							return null; // Hide nested stack if all its sections are hidden
+						}
+						return nested;
+					})
+					.filter((nested: Section | null) => nested !== null) as Section[];
 
-				// if every section in a horizontal-stack are hidden
-				// hide horizontal-stack itself
+				// if every section in a stack are hidden
+				// hide the stack itself
 				if (stack.length > 0) {
 					section = {
 						...section,

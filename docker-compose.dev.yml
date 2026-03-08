@@ -1,12 +1,16 @@
 services:
   ha-fusion-dev:
+    container_name: ha-fusion-dev
     build:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
+      # Mount source code for hot-reload
       - .:/app
       # Prevent overwriting container's node_modules
       - /app/node_modules
+    networks:
+      - ha-fusion-network
     ports:
       - "${DEV_PORT:-5173}:5173"
     environment:
@@ -14,3 +18,8 @@ services:
       HASS_URL: ${HASS_URL}
       NODE_ENV: development
     restart: unless-stopped
+    # Development doesn't need health checks as it's monitored interactively
+
+networks:
+  ha-fusion-network:
+    driver: bridge

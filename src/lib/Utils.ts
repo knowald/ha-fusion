@@ -47,12 +47,19 @@ function findInSections(sections: Section[], id: number | undefined): any {
 				if (item.id === id) return item;
 			}
 		}
-		if (section.type === 'horizontal-stack' && section.sections) {
+		if ((section.type === 'horizontal-stack' || section.type === 'vertical-stack') && section.sections) {
 			const result = findInSections(section.sections, id);
 			if (result) return result;
 		}
 	}
 	return undefined;
+}
+
+/**
+ * Checks if a section type is a stack type
+ */
+export function isStackType(type: string | undefined): boolean {
+	return type === 'horizontal-stack' || type === 'vertical-stack';
 }
 
 /**

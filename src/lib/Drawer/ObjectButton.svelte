@@ -13,15 +13,17 @@
 		!view ||
 		!view.sections ||
 		view.sections.length === 0 ||
-		checkForHorizontalStackOnly(view.sections);
+		checkForStackOnly(view.sections);
 
-	function checkForHorizontalStackOnly(sections: any[]): boolean {
+	function checkForStackOnly(sections: any[]): boolean {
 		return sections.every((section) => {
-			// section is a horizontal-stack
-			if (section.type === 'horizontal-stack') {
-				return section.sections ? checkForHorizontalStackOnly(section.sections) : true;
+			// section is a horizontal-stack or vertical-stack
+			if (section.type === 'horizontal-stack' || section.type === 'vertical-stack') {
+				// Check if stack is empty or contains only empty stacks
+				if (!section.sections || section.sections.length === 0) return true;
+				return checkForStackOnly(section.sections);
 			}
-			// section is not a horizontal-stack
+			// section is not a stack, so we found a valid section
 			return false;
 		});
 	}
@@ -50,11 +52,11 @@
 
 	/**
 	 * Finds the first section that is
-	 * not of type 'horizontal-stack'.
+	 * not of type 'horizontal-stack' or 'vertical-stack'.
 	 */
 	function findSection(sections: any[]): any | undefined {
 		for (const section of sections) {
-			if (section.type !== 'horizontal-stack') return section;
+			if (section.type !== 'horizontal-stack' && section.type !== 'vertical-stack') return section;
 			const found = section.sections && findSection(section.sections);
 			if (found) return found;
 		}

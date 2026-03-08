@@ -6,6 +6,7 @@
 	import Content from '$lib/Main/Content.svelte';
 	import SectionHeader from '$lib/Main/SectionHeader.svelte';
 	import HorizontalStackHeader from '$lib/Main/HorizontalStackHeader.svelte';
+	import VerticalStackHeader from '$lib/Main/VerticalStackHeader.svelte';
 	import Scenes from '$lib/Main/Scenes.svelte';
 	import { handleVisibility, mediaQueries } from '$lib/Conditional';
 	import { generateId } from '$lib/Utils';
@@ -17,6 +18,7 @@
 	let dragEnteredAnother = false;
 
 	let isDraggingHorizontalStack = false;
+	let isDraggingVerticalStack = false;
 	let isDraggingScenes = false;
 	let skipTransformElement = false;
 
@@ -29,7 +31,9 @@
 		flipDurationMs: $motion,
 		dragDisabled: !$editMode,
 		dropTargetStyle: {},
-		zoneTabIndex: -1
+		zoneTabIndex: -1,
+		dropFromOthersDisabled: false,
+		centreDraggedOnCursor: true
 	};
 
 	/**
@@ -101,11 +105,13 @@
 		);
 
 		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
+		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
 		isDraggingScenes = matchedSection?.type === 'scenes';
 
 		if (event.type === 'finalize') {
 			isDraggingScenes = false;
 			isDraggingHorizontalStack = false;
+			isDraggingVerticalStack = false;
 		}
 
 		handleDrag(event, () => {
@@ -128,24 +134,45 @@
 	}
 
 	/**
-	 * Handles the reordering of sections within a horizontal stack when they are dragged
+	 * Handles the reordering of sections within a stack (horizontal or vertical) when they are dragged
 	 */
 	function dragSection__stack(id: number, event: CustomEvent<DndEvent>) {
+		// Detect what type of section is being dragged for type matching
+		const matchedSection = event.detail.items.find((section: any) =>
+			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
+		);
+		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
+		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
+		isDraggingScenes = matchedSection?.type === 'scenes';
+
+		if (event.type === 'finalize') {
+			isDraggingHorizontalStack = false;
+			isDraggingVerticalStack = false;
+			isDraggingScenes = false;
+		}
+
 		handleDrag(event, () => {
 			const stack = view?.sections.find(
 				(section: { id: number; type: string }) =>
-					section.id === id && section.type === 'horizontal-stack'
+					section.id === id && (section.type === 'horizontal-stack' || section.type === 'vertical-stack')
 			);
 
 			if (stack) {
-				stack.sections = event.detail.items as any;
+				// Ensure sections array exists
+				if (!stack.sections) stack.sections = [];
+				// Ensure each dropped section has an items array
+				const items = event.detail.items.map((item: any) => ({
+					...item,
+					items: item.items ?? []
+				}));
+				stack.sections = items as any;
 				view.sections = [...view.sections];
 			}
 		});
 	}
 
 	/**
-	 * Handles the reordering of items within a horizontal stack when they are dragged
+	 * Handles the reordering of items within a stack (horizontal or vertical) when they are dragged
 	 */
 	function dragItem__stack(id: number, event: CustomEvent<DndEvent>) {
 		handleDrag(event, () => {
@@ -158,6 +185,81 @@
 			if (section) {
 				section.items = handleCopyOnDrag(section.items, event);
 				view.sections = [...view.sections];
+			}
+		});
+	}
+
+	/**
+	 * Handles the reordering of sections within a nested vertical stack (inside horizontal stack)
+	 */
+	function dragSection__nestedStack(parentId: number, nestedStackId: number, event: CustomEvent<DndEvent>) {
+		// Detect what type of section is being dragged for type matching
+		const matchedSection = event.detail.items.find((section: any) =>
+			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
+		);
+		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
+		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
+		isDraggingScenes = matchedSection?.type === 'scenes';
+
+		if (event.type === 'finalize') {
+			isDraggingHorizontalStack = false;
+			isDraggingVerticalStack = false;
+			isDraggingScenes = false;
+		}
+
+		handleDrag(event, () => {
+			const parentStack = view?.sections.find(
+				(section: { id: number; type: string }) =>
+					section.id === parentId && section.type === 'horizontal-stack'
+			);
+
+			if (parentStack) {
+				const nestedStack = parentStack.sections?.find(
+					(section: { id: number; type: string }) =>
+						section.id === nestedStackId && section.type === 'vertical-stack'
+				);
+
+				if (nestedStack) {
+					// Ensure sections array exists
+					if (!nestedStack.sections) nestedStack.sections = [];
+					// Ensure each dropped section has an items array
+					const items = event.detail.items.map((item: any) => ({
+						...item,
+						items: item.items ?? []
+					}));
+					nestedStack.sections = items as any;
+					view.sections = [...view.sections];
+				}
+			}
+		});
+	}
+
+	/**
+	 * Handles the reordering of items within a nested vertical stack (inside horizontal stack)
+	 */
+	function dragItem__nestedStack(parentId: number, nestedStackId: number, sectionId: number, event: CustomEvent<DndEvent>) {
+		handleDrag(event, () => {
+			const parentStack = view?.sections.find(
+				(section: { id: number; type: string }) =>
+					section.id === parentId && section.type === 'horizontal-stack'
+			);
+
+			if (parentStack) {
+				const nestedStack = parentStack.sections?.find(
+					(section: { id: number; type: string }) =>
+						section.id === nestedStackId && section.type === 'vertical-stack'
+				);
+
+				if (nestedStack) {
+					const section = nestedStack.sections?.find(
+						(sec: { id: number }) => sec.id === sectionId
+					);
+
+					if (section) {
+						section.items = handleCopyOnDrag(section.items, event);
+						view.sections = [...view.sections];
+					}
+				}
 			}
 		});
 	}
@@ -301,13 +403,130 @@
 					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 					use:dndzone={{
 						...dndOptions,
-						type: isDraggingHorizontalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
-						items: section.sections
+						type: isDraggingHorizontalStack ? 'horizontal-stack' : isDraggingScenes ? 'scenes' : 'section',
+						items: section.sections ?? []
 					}}
 					on:consider={(event) => dragSection__stack(section.id, event)}
 					on:finalize={(event) => dragSection__stack(section.id, event)}
 				>
-					{#each section?.sections as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+						<section
+							id={String(stackSection.id)}
+							data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+							animate:flip={{ duration: $motion }}
+							style:overflow="hidden"
+						>
+							<!-- nested vertical stack inside horizontal stack -->
+							{#if stackSection?.type === 'vertical-stack'}
+								<VerticalStackHeader {view} section={stackSection} />
+
+								<div
+									class="vertical-stack nested"
+									style:min-height="{stackHeight}px"
+									style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
+									style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
+									data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+									use:dndzone={{
+										...dndOptions,
+										type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
+										items: stackSection.sections ?? []
+									}}
+									on:consider={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
+									on:finalize={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
+								>
+									{#each stackSection?.sections ?? [] as nestedSection (`${nestedSection?.id}${nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+										{@const empty = $editMode && !nestedSection?.items?.length}
+										<section
+											id={String(nestedSection.id)}
+											data-is-dnd-shadow-item-hint={nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+											animate:flip={{ duration: $motion }}
+											style:overflow="hidden"
+										>
+											<SectionHeader {view} section={nestedSection} />
+											<div
+												class="items"
+												data-is-dnd-shadow-item-hint={nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+												style={sectionStyles(stackSection?.type, $editMode, $motion, empty)}
+												use:dndzone={{
+													...dndOptions,
+													type: 'item',
+													items: nestedSection.items ?? [],
+													transformDraggedElement
+												}}
+												on:consider={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
+												on:finalize={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
+											>
+												{#each nestedSection?.items ?? [] as item (item.id)}
+													<div
+														id={item?.id}
+														data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+														class="item"
+														animate:flip={{ duration: $motion }}
+														tabindex="-1"
+														style={itemStyles(item?.type)}
+													>
+														<Content {item} sectionName={nestedSection?.name} />
+													</div>
+												{/each}
+											</div>
+										</section>
+									{/each}
+								</div>
+							{:else}
+								<!-- regular section inside horizontal stack -->
+								{@const empty = $editMode && !stackSection?.items?.length}
+								<SectionHeader {view} section={stackSection} />
+								<div
+									class="items"
+									data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+									style={sectionStyles(section?.type, $editMode, $motion, empty)}
+									use:dndzone={{
+										...dndOptions,
+										type: 'item',
+										items: stackSection.items ?? [],
+										transformDraggedElement
+									}}
+									on:consider={(event) => dragItem__stack(stackSection.id, event)}
+									on:finalize={(event) => dragItem__stack(stackSection.id, event)}
+								>
+									<!-- item -->
+									{#each stackSection?.items ?? [] as item (item.id)}
+										<div
+											id={item?.id}
+											data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+											class="item"
+											animate:flip={{ duration: $motion }}
+											tabindex="-1"
+											style={itemStyles(item?.type)}
+										>
+											<Content {item} sectionName={stackSection?.name} />
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</section>
+					{/each}
+				</div>
+
+				<!-- vertical stack -->
+			{:else if section?.type === 'vertical-stack'}
+				<VerticalStackHeader {view} {section} />
+
+				<div
+					class="vertical-stack"
+					style:min-height="{stackHeight}px"
+					style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
+					style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
+					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+					use:dndzone={{
+						...dndOptions,
+						type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
+						items: section.sections ?? []
+					}}
+					on:consider={(event) => dragSection__stack(section.id, event)}
+					on:finalize={(event) => dragSection__stack(section.id, event)}
+				>
+					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 						{@const empty = $editMode && !stackSection?.items?.length}
 						<section
 							id={String(stackSection.id)}
@@ -323,14 +542,14 @@
 								use:dndzone={{
 									...dndOptions,
 									type: 'item',
-									items: stackSection.items,
+									items: stackSection.items ?? [],
 									transformDraggedElement
 								}}
 								on:consider={(event) => dragItem__stack(stackSection.id, event)}
 								on:finalize={(event) => dragItem__stack(stackSection.id, event)}
 							>
 								<!-- item -->
-								{#each stackSection?.items as item (item.id)}
+								{#each stackSection?.items ?? [] as item (item.id)}
 									<div
 										id={item?.id}
 										data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
@@ -358,13 +577,13 @@
 					use:dndzone={{
 						...dndOptions,
 						type: 'item',
-						items: section.items,
+						items: section.items ?? [],
 						transformDraggedElement: transformScenesElement
 					}}
 					on:consider={(event) => dragItem(section.id, event)}
 					on:finalize={(event) => dragItem(section.id, event)}
 				>
-					{#each section?.items as item, index (item.id)}
+					{#each section?.items ?? [] as item, index (item.id)}
 						<div
 							id={item?.id}
 							data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
@@ -390,13 +609,13 @@
 					use:dndzone={{
 						...dndOptions,
 						type: 'item',
-						items: section.items,
+						items: section.items ?? [],
 						transformDraggedElement
 					}}
 					on:consider={(event) => dragItem(section.id, event)}
 					on:finalize={(event) => dragItem(section.id, event)}
 				>
-					{#each section?.items as item (item.id)}
+					{#each section?.items ?? [] as item (item.id)}
 						<div
 							id={item?.id}
 							data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
@@ -436,6 +655,21 @@
 		gap: 2rem;
 		border-radius: 0.65rem;
 		outline-offset: 3px;
+		padding: 0.5rem;
+	}
+
+	.vertical-stack {
+		display: grid;
+		grid-auto-flow: row;
+		grid-auto-rows: min-content;
+		gap: 1.5rem;
+		border-radius: 0.65rem;
+		outline-offset: 3px;
+		padding: 0.5rem;
+	}
+
+	.vertical-stack.nested {
+		outline-offset: -3px;
 	}
 
 	.items {

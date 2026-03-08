@@ -6,17 +6,31 @@ A modern, easy-to-use and performant custom [Home Assistant](https://www.home-as
 
 [![preview](/static/preview.png)](https://www.youtube.com/watch?v=D8mWruSuPOM)
 
-## 🍴 Fork Notice
+## Fork Notice
 
 This is a fork of the original [ha-fusion](https://github.com/matt8707/ha-fusion) project created by [matt8707](https://github.com/matt8707). All credit for the initial development and core architecture goes to the original author.
 
-If you find this project useful, please consider supporting the original creator: ❤️ <https://www.paypal.com/paypalme/matt8707>
+If you find this project useful, please consider supporting the original creator: <https://www.paypal.com/paypalme/matt8707>
 
 ---
 
 ## Fork Features
 
 This fork adds the following features to the original ha-fusion project:
+
+### Vertical Stacks
+
+Arrange sections in a vertical column layout within views, including nesting vertical stacks inside horizontal stacks for complex dashboard layouts.
+
+```yaml
+- type: vertical-stack
+  id: 1234567890
+  sections:
+    - name: Top Section
+      items: [...]
+    - name: Bottom Section
+      items: [...]
+```
 
 ### Spotify Player Widgets
 
@@ -58,9 +72,9 @@ A counter widget that tracks days elapsed since a timestamp stored in a Home Ass
   color: "rgb(75, 166, 237)"
 ```
 
-### Display-Only Buttons ⚠️ Breaking
+### Display-Only Buttons
 
-Configure buttons as non-interactive for displaying sensor values or status information.
+Configure buttons as non-interactive for displaying sensor values or status information. Sensor domains (`sensor`, `binary_sensor`, `weather`, `sun`, `zone`, `person`) are automatically detected as display-only. Use `displayOnly: false` to override.
 
 ```yaml
 - type: button
@@ -70,11 +84,9 @@ Configure buttons as non-interactive for displaying sensor values or status info
   displayOnly: true
 ```
 
-> **Breaking Change:** Sensor domains (`sensor`, `binary_sensor`, `weather`, `sun`, `zone`, `person`) are now automatically detected as display-only. If you have sensor buttons that were previously interactive, use `displayOnly: false` to restore the original behavior.
+### Slide Brightness Control
 
-### Slide Brightness Control ⚠️ Breaking
-
-Adjust light brightness by sliding horizontally on button widgets.
+Adjust light brightness by sliding horizontally on button widgets. Enabled by default for all lights that support brightness. Use `slide_brightness: false` to disable.
 
 ```yaml
 - type: button
@@ -83,11 +95,9 @@ Adjust light brightness by sliding horizontally on button widgets.
   slide_brightness: false  # disable slide control
 ```
 
-> **Breaking Change:** Enabled by default for all lights that support brightness. Horizontal swipe/drag gestures now adjust brightness instead of being ignored. Use `slide_brightness: false` to disable.
-
 ### Optimistic UI Updates
 
-Buttons now provide instant visual feedback when toggled, without waiting for Home Assistant round-trips. This is enabled automatically for all interactive buttons.
+Buttons provide instant visual feedback when toggled, without waiting for Home Assistant round-trips. Enabled automatically for all interactive buttons.
 
 ### Custom CSS
 
@@ -95,7 +105,7 @@ Apply custom styles via Settings > Custom CSS. Styles are saved to `/data/custom
 
 ### Serene Theme
 
-A new built-in theme with a calm, nature-inspired blue-gray aesthetic. Select it from the theme picker in settings.
+A built-in theme with a blue-gray aesthetic. Select it from the theme picker in settings.
 
 ---
 

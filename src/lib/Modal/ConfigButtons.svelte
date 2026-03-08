@@ -26,22 +26,20 @@
 	 * Get id from a mainItem
 	 */
 	function mainItem() {
+		const isStack = (type: string) => type === 'horizontal-stack' || type === 'vertical-stack';
+
+		const filterItems = (section: any): any => ({
+			...section,
+			sections:
+				isStack(section.type) && section.sections
+					? section.sections.map((nested: any) => filterItems(nested))
+					: section.sections,
+			items: section.items?.filter((item: any) => item.id !== sel.id)
+		});
+
 		$dashboard.views = $dashboard.views.map((view) => ({
 			...view,
-			sections: view.sections?.map((section) => ({
-				...section,
-				sections:
-					section.type === 'horizontal-stack' && section.sections
-						? section.sections.map((nestedSection) => ({
-								...nestedSection,
-								items: nestedSection.items?.filter((item) => item.id !== sel.id)
-							}))
-						: section.sections,
-				items:
-					section.type !== 'horizontal-stack'
-						? section.items?.filter((item) => item.id !== sel.id)
-						: section.items
-			}))
+			sections: view.sections?.map(filterItems)
 		}));
 	}
 

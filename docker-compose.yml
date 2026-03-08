@@ -3,11 +3,26 @@ services:
     container_name: ha-fusion
     image: ghcr.io/knowald/ha-fusion
     volumes:
-      - /path/to/ha-fusion:/app/data
-    network_mode: bridge
+      # Mount data directory for persistent dashboard configurations
+      # Update this path to your desired data directory
+      - ${DATA_PATH:-./data}:/app/data
+    networks:
+      - ha-fusion-network
     ports:
-      - 5050:5050
+      - "${EXPOSED_PORT:-5050}:5050"
     environment:
-      TZ: Europe/Stockholm
-      HASS_URL: http://192.168.1.241:8123
+      TZ: ${TZ:-UTC}
+      HASS_URL: ${HASS_URL}
+      PORT: 5050
+      NODE_ENV: production
     restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5050"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  ha-fusion-network:
+    driver: bridge

@@ -397,6 +397,7 @@
 	"vacuum_commands": "Vacuum cleaner commands:",
 	"version": "Version",
 	"vertical": "Vertical",
+	"vertical_stack": "Vertical stack",
 	"change": "Change",
 	"visibility": "Visibility",
 	"visibility_explanation": "The card will be shown when ALL conditions below are fulfilled. If no conditions are set, the card will always be shown.",
