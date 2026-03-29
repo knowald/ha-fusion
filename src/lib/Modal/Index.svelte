@@ -245,7 +245,8 @@
 	}
 
 	.contents {
-		padding: 1.6rem 1.9rem 1.9rem 1.9rem;
+		font-size: 0.9rem;
+		padding: 1.3rem 1.5rem 1.5rem 1.5rem;
 		background-color: var(--theme-modal-background-color-modal);
 		display: block;
 		flex-direction: column;

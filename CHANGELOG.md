@@ -1,5 +1,18 @@
 # Changelog
 
+## [2026.3.1](https://github.com/knowald/ha-fusion/releases/tag/2026.3.1) - 2026-03-29
+
+### Added
+
+- Add quick play shortcuts to Spotify widgets, shown when not playing (SpotifyShortcuts.svelte, SpotifyShortcutsConfig.svelte)
+- Add rotating background from recently played tracks on idle Spotify widgets (SpotifyPlayer.svelte, SpotifyPlayerLarge.svelte)
+- Add default device picker to Spotify widget config (SpotifyPlayerConfig.svelte, SpotifyPlayerLargeConfig.svelte)
+
+### Changed
+
+- Redesign Spotify player modal with side-by-side layout for smaller screens (SpotifyPlayerModal.svelte)
+- Reduce modal font sizes and padding for higher information density (Modal.css, Index.svelte)
+
 ## [2026.3.0](https://github.com/knowald/ha-fusion/releases/tag/2026.3.0) - 2026-03-08
 
 ### Added

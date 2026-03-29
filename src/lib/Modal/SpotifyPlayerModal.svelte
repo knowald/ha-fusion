@@ -153,210 +153,208 @@
 	<Modal>
 		<h1 slot="title">{sel?.name || $lang('spotify_player') || 'Spotify'}</h1>
 
-		<div class="player-container">
-			<!-- Album Art -->
-			<div class="album-art-container">
-				{#if entity_picture}
-					<img src={entity_picture} alt="Album Art" class="album-art" />
-				{:else}
-					<div class="album-art-placeholder">
-						<Icon icon="mdi:spotify" height="8rem" />
+		<div class="player">
+			<!-- Main: art left, info+controls right (centered vertically) -->
+			<div class="main">
+				<div class="art">
+					{#if entity_picture}
+						<img src={entity_picture} alt="Album Art" class="art-img" />
+					{:else}
+						<div class="art-placeholder">
+							<Icon icon="mdi:spotify" height="3.5rem" />
+						</div>
+					{/if}
+				</div>
+
+				<div class="right">
+					<div class="info">
+						<div class="title">{media_title || $lang('nothing_playing')}</div>
+						{#if media_artist}
+							<div class="artist">{media_artist}</div>
+						{/if}
+						{#if media_album_name}
+							<div class="album">{media_album_name}</div>
+						{/if}
 					</div>
-				{/if}
+
+					<div class="controls">
+						<button
+							class="btn"
+							on:click={previousTrack}
+							disabled={is_idle}
+							use:Ripple={$ripple}
+							title={$lang('previous_track') || 'Previous'}
+						>
+							<Icon icon="mdi:skip-previous" height="1.4rem" />
+						</button>
+
+						<button
+							class="btn primary"
+							on:click={playPause}
+							disabled={is_idle}
+							use:Ripple={$ripple}
+							title={is_playing ? $lang('pause') || 'Pause' : $lang('play') || 'Play'}
+						>
+							<Icon icon={is_playing ? 'mdi:pause' : 'mdi:play'} height="1.6rem" />
+						</button>
+
+						<button
+							class="btn"
+							on:click={nextTrack}
+							disabled={is_idle}
+							use:Ripple={$ripple}
+							title={$lang('next_track') || 'Next'}
+						>
+							<Icon icon="mdi:skip-next" height="1.4rem" />
+						</button>
+					</div>
+
+					{#if !is_idle && media_duration}
+						<div class="progress">
+							<span class="time">{formatTime(current_position)}</span>
+							<input
+								type="range"
+								min="0"
+								max={media_duration}
+								value={current_position}
+								on:change={seek}
+								class="seek"
+							/>
+							<span class="time right-align">{formatTime(media_duration)}</span>
+						</div>
+					{/if}
+				</div>
 			</div>
 
-			<!-- Track Info -->
-			<div class="track-info">
-				<div class="track-title">{media_title || $lang('nothing_playing')}</div>
-				{#if media_artist}
-					<div class="track-artist">
-						{media_artist}{media_album_name ? ` • ${media_album_name}` : ''}
-					</div>
-				{/if}
-			</div>
-
-			<!-- Progress Bar -->
-			{#if !is_idle && media_duration}
-				<div class="progress-section">
-					<span class="time-label">{formatTime(current_position)}</span>
+			<!-- Footer -->
+			<div class="footer">
+				<div class="volume">
+					<Icon icon="mdi:volume-high" height="0.95rem" style="opacity: 0.35;" />
 					<input
 						type="range"
 						min="0"
-						max={media_duration}
-						value={current_position}
-						on:change={seek}
-						class="progress-slider"
+						max="1"
+						step="0.01"
+						value={volume_level}
+						on:input={setVolume}
+						class="vol-slider"
 					/>
-					<span class="time-label">{formatTime(media_duration)}</span>
+					<span class="vol-pct">{Math.round(volume_level * 100)}%</span>
 				</div>
-			{/if}
 
-			<!-- Playback Controls -->
-			<div class="controls">
-				<button
-					class="control-button"
-					on:click={previousTrack}
-					disabled={is_idle}
-					use:Ripple={$ripple}
-					title={$lang('previous_track') || 'Previous'}
-				>
-					<Icon icon="mdi:skip-previous" height="2rem" />
-				</button>
+				{#if source_list.length > 0}
+					<div class="device">
+						<Icon icon="mdi:speaker" height="0.95rem" style="opacity: 0.35;" />
+						<select on:change={(e) => selectDevice(e.target.value)} class="device-sel">
+							{#each source_list as device}
+								<option value={device} selected={device === current_source}>
+									{device}
+								</option>
+							{/each}
+						</select>
+					</div>
+				{/if}
 
-				<button
-					class="control-button primary"
-					on:click={playPause}
-					disabled={is_idle}
-					use:Ripple={$ripple}
-					title={is_playing ? $lang('pause') || 'Pause' : $lang('play') || 'Play'}
-				>
-					<Icon icon={is_playing ? 'mdi:pause' : 'mdi:play'} height="3rem" />
-				</button>
-
-				<button
-					class="control-button"
-					on:click={nextTrack}
-					disabled={is_idle}
-					use:Ripple={$ripple}
-					title={$lang('next_track') || 'Next'}
-				>
-					<Icon icon="mdi:skip-next" height="2rem" />
+				<button class="browse" on:click={openBrowser} use:Ripple={$ripple}>
+					<Icon icon="mdi:library-music" height="0.95rem" />
+					<span>{$lang('browse_library') || 'Browse Library'}</span>
 				</button>
 			</div>
-
-			<!-- Volume Control -->
-			<div class="volume-section">
-				<Icon icon="mdi:volume-high" height="1.5rem" style="opacity: 0.7;" />
-				<input
-					type="range"
-					min="0"
-					max="1"
-					step="0.01"
-					value={volume_level}
-					on:input={setVolume}
-					class="volume-slider"
-				/>
-				<span class="volume-label">{Math.round(volume_level * 100)}%</span>
-			</div>
-
-			<!-- Device Selection -->
-			{#if source_list.length > 0}
-				<div class="device-section">
-					<label for="device-select">
-						<Icon icon="mdi:speaker" height="1.3rem" style="opacity: 0.7;" />
-						{$lang('device') || 'Device'}:
-					</label>
-					<select id="device-select" on:change={(e) => selectDevice(e.target.value)} class="device-select">
-						{#each source_list as device}
-							<option value={device} selected={device === current_source}>
-								{device}
-							</option>
-						{/each}
-					</select>
-				</div>
-			{/if}
-
-			<!-- Browse Library Button -->
-			<button class="browse-button" on:click={openBrowser} use:Ripple={$ripple}>
-				<Icon icon="mdi:library-music" height="1.3rem" />
-				<span>{$lang('browse_library') || 'Browse Library'}</span>
-			</button>
 		</div>
 	</Modal>
 {/if}
 
 <style>
-	.player-container {
+	.player {
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
-		align-items: center;
-		padding-top: 1rem;
+		gap: 1.25rem;
+		padding-top: 0.75rem;
 	}
 
-	.album-art-container {
+	/* --- Main: side by side --- */
+
+	.main {
+		display: grid;
+		grid-template-columns: 200px 1fr;
+		gap: 1.75rem;
+		align-items: center;
+	}
+
+	/* --- Art --- */
+
+	.art {
 		width: 100%;
-		max-width: 300px;
 		aspect-ratio: 1;
 	}
 
-	.album-art {
+	.art-img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
 		border-radius: 0.5rem;
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
 	}
 
-	.album-art-placeholder {
+	.art-placeholder {
 		width: 100%;
 		height: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background-color: rgba(0, 0, 0, 0.2);
+		background-color: rgba(0, 0, 0, 0.15);
 		border-radius: 0.5rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: rgba(255, 255, 255, 0.25);
 	}
 
-	.track-info {
+	/* --- Right column: vertically centered --- */
+
+	.right {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 		text-align: center;
-		width: 100%;
+		gap: 1.5rem;
+		min-width: 0;
 	}
 
-	.track-title {
-		font-size: 1.5rem;
+	/* --- Track info --- */
+
+	.info {
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	.title {
+		font-size: 1.1rem;
 		font-weight: 600;
 		color: white;
-		margin-bottom: 0.5rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		line-height: 1.35;
 	}
 
-	.track-artist {
-		font-size: 1rem;
-		color: rgba(255, 255, 255, 0.7);
-	}
-
-	.progress-section {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		width: 100%;
-	}
-
-	.time-label {
+	.artist {
 		font-size: 0.85rem;
-		color: rgba(255, 255, 255, 0.7);
-		min-width: 3rem;
+		color: rgba(255, 255, 255, 0.6);
+		margin-top: 0.3rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.progress-slider {
-		flex: 1;
-		height: 6px;
-		background: rgba(255, 255, 255, 0.2);
-		border-radius: 3px;
-		outline: none;
-		-webkit-appearance: none;
-		appearance: none;
+	.album {
+		font-size: 0.75rem;
+		color: rgba(255, 255, 255, 0.3);
+		margin-top: 0.15rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
-	.progress-slider::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		appearance: none;
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		background: rgb(30, 215, 96);
-		cursor: pointer;
-	}
-
-	.progress-slider::-moz-range-thumb {
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		background: rgb(30, 215, 96);
-		cursor: pointer;
-		border: none;
-	}
+	/* --- Controls --- */
 
 	.controls {
 		display: flex;
@@ -365,138 +363,211 @@
 		gap: 1rem;
 	}
 
-	.control-button {
-		background-color: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
+	.btn {
+		background-color: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 50%;
-		width: 3.5rem;
-		height: 3.5rem;
+		width: 2.8rem;
+		height: 2.8rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		color: white;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s ease;
 		font-family: inherit;
 	}
 
-	.control-button.primary {
-		width: 4.5rem;
-		height: 4.5rem;
+	.btn.primary {
+		width: 3.4rem;
+		height: 3.4rem;
 		background-color: rgb(30, 215, 96);
 		border-color: rgb(30, 215, 96);
 	}
 
-	.control-button:hover:not(:disabled) {
-		background-color: rgba(255, 255, 255, 0.2);
-		transform: scale(1.05);
+	.btn:hover:not(:disabled) {
+		background-color: rgba(255, 255, 255, 0.1);
 	}
 
-	.control-button.primary:hover:not(:disabled) {
+	.btn.primary:hover:not(:disabled) {
 		background-color: rgb(40, 225, 106);
 	}
 
-	.control-button:disabled {
-		opacity: 0.3;
+	.btn:disabled {
+		opacity: 0.25;
 		cursor: not-allowed;
 	}
 
-	.volume-section {
+	/* --- Progress --- */
+
+	.progress {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
+		gap: 0.5rem;
 		width: 100%;
 	}
 
-	.volume-slider {
+	.time {
+		font-size: 0.7rem;
+		color: rgba(255, 255, 255, 0.35);
+		min-width: 2rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.time.right-align {
+		text-align: right;
+	}
+
+	.seek {
 		flex: 1;
-		height: 4px;
-		background: rgba(255, 255, 255, 0.2);
+		height: 3px;
+		background: rgba(255, 255, 255, 0.1);
 		border-radius: 2px;
 		outline: none;
 		-webkit-appearance: none;
 		appearance: none;
 	}
 
-	.volume-slider::-webkit-slider-thumb {
+	.seek::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		appearance: none;
-		width: 12px;
-		height: 12px;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: rgb(30, 215, 96);
+		cursor: pointer;
+	}
+
+	.seek::-moz-range-thumb {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: rgb(30, 215, 96);
+		cursor: pointer;
+		border: none;
+	}
+
+	/* --- Footer --- */
+
+	.footer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.05);
+		padding-top: 1.5rem;
+	}
+
+	.volume {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.4rem 0;
+	}
+
+	.vol-slider {
+		flex: 1;
+		height: 3px;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 2px;
+		outline: none;
+		-webkit-appearance: none;
+		appearance: none;
+	}
+
+	.vol-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 10px;
+		height: 10px;
 		border-radius: 50%;
 		background: white;
 		cursor: pointer;
 	}
 
-	.volume-slider::-moz-range-thumb {
-		width: 12px;
-		height: 12px;
+	.vol-slider::-moz-range-thumb {
+		width: 10px;
+		height: 10px;
 		border-radius: 50%;
 		background: white;
 		cursor: pointer;
 		border: none;
 	}
 
-	.volume-label {
-		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.7);
-		min-width: 3rem;
+	.vol-pct {
+		font-size: 0.7rem;
+		color: rgba(255, 255, 255, 0.35);
+		min-width: 2rem;
 		text-align: right;
+		font-variant-numeric: tabular-nums;
 	}
 
-	.device-section {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		width: 100%;
-	}
-
-	.device-section label {
+	.device {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		font-size: 0.95rem;
-		color: rgba(255, 255, 255, 0.9);
+		padding: 0.4rem 0;
 	}
 
-	.device-select {
+	.device-sel {
 		flex: 1;
-		padding: 0.75rem 1rem;
+		padding: 0.4rem 0.6rem;
 		background-color: rgba(0, 0, 0, 0.2);
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 0.5rem;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 0.35rem;
 		color: white;
 		font-family: inherit;
-		font-size: 0.95rem;
+		font-size: 0.8rem;
 		cursor: pointer;
 		color-scheme: dark;
 	}
 
-	.device-select:focus {
+	.device-sel:focus {
 		outline: none;
-		border-color: rgba(255, 255, 255, 0.3);
+		border-color: rgba(255, 255, 255, 0.2);
 	}
 
-	.browse-button {
+	.browse {
 		width: 100%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.75rem;
-		padding: 1rem;
-		background-color: rgba(30, 215, 96, 0.2);
-		border: 1px solid rgba(30, 215, 96, 0.4);
-		border-radius: 0.5rem;
-		color: white;
-		font-size: 1rem;
-		font-weight: 500;
+		gap: 0.45rem;
+		padding: 0.6rem;
+		background-color: rgba(255, 255, 255, 0.04);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 0.35rem;
+		color: rgba(255, 255, 255, 0.5);
+		font-size: 0.8rem;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s ease;
 		font-family: inherit;
 	}
 
-	.browse-button:hover {
-		background-color: rgba(30, 215, 96, 0.3);
-		border-color: rgba(30, 215, 96, 0.6);
+	.browse:hover {
+		background-color: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.15);
+		color: rgba(255, 255, 255, 0.8);
+	}
+
+	/* --- Mobile --- */
+
+	@media all and (max-width: 600px) {
+		.main {
+			grid-template-columns: 1fr;
+			justify-items: center;
+		}
+
+		.art {
+			width: 160px;
+		}
+
+		.right {
+			width: 100%;
+		}
+
+		.player {
+			gap: 1rem;
+		}
 	}
 </style>

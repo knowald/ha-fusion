@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { dashboard, record, lang, ripple, states } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { connection, dashboard, record, lang, ripple, services, states } from '$lib/Stores';
+	import { onDestroy, onMount } from 'svelte';
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from 'svelte-ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
 	import { updateObj } from '$lib/Utils';
 
 	export let isOpen: boolean;
@@ -18,11 +19,45 @@
 	let color: string | undefined = sel?.color;
 	let entity_id: string | undefined = sel?.entity_id;
 	let show_progress: boolean = sel?.show_progress ?? true;
+	let default_device: string | undefined = sel?.default_device;
 
 	// Get list of Spotify media players
 	$: spotifyEntities = Object.keys($states || {}).filter((key) =>
 		key.startsWith('media_player.spotify')
 	);
+
+	// Device list from SpotifyPlus
+	interface SpDevice { Id: string; Name: string; }
+	let devices: SpDevice[] = [];
+
+	function getSpotifyPlusEntity(): string | undefined {
+		if (!entity_id) return undefined;
+		if (entity_id.startsWith('media_player.spotifyplus_')) return entity_id;
+		const suffix = entity_id.replace('media_player.spotify_', '');
+		const candidate = `media_player.spotifyplus_${suffix}`;
+		if ($states?.[candidate]) return candidate;
+		return Object.keys($states || {}).find((k) => k.startsWith('media_player.spotifyplus_'));
+	}
+
+	async function loadDevices() {
+		const spEntity = getSpotifyPlusEntity();
+		if (!spEntity || !$connection || !$services?.spotifyplus) return;
+		try {
+			const response = await $connection.sendMessagePromise({
+				type: 'call_service',
+				domain: 'spotifyplus',
+				service: 'get_spotify_connect_devices',
+				service_data: { entity_id: spEntity },
+				return_response: true
+			});
+			const items = response?.response?.result?.Items || [];
+			devices = items.filter((d: any) => d.IsInDeviceList);
+		} catch (err) {
+			console.error('Failed to load devices:', err);
+		}
+	}
+
+	onMount(loadDevices);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -194,6 +229,26 @@
 				<span>{$lang('show_progress_bar') || 'Show progress bar'}</span>
 			</label>
 		</div>
+
+		{#if devices.length > 0}
+			<h2>{$lang('default_device') || 'Default Device'}</h2>
+
+			<select
+				class="input"
+				value={default_device || ''}
+				on:change={(event) => {
+					default_device = event.target?.value || undefined;
+					set('default_device', default_device ? { target: { value: default_device } } : undefined);
+				}}
+			>
+				<option value="">{$lang('auto') || 'Auto'}</option>
+				{#each devices as device}
+					<option value={device.Name}>{device.Name}</option>
+				{/each}
+			</select>
+		{/if}
+
+		<SpotifyShortcutsConfig {sel} />
 
 		<h2>{$lang('description') || 'Description'}</h2>
 		<p style="margin: 0; opacity: 0.7; font-size: 0.9rem;">

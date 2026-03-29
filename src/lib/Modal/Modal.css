@@ -8,23 +8,23 @@
 
 #modal h1 {
 	margin: 0;
-	font-size: 1.65rem;
+	font-size: 1.3rem;
 	font-weight: 700;
 	pointer-events: none;
 }
 
 #modal h2 {
 	font-weight: 500;
-	margin: 1.3rem 0 0.6rem 0;
-	font-size: 1.125rem;
+	margin: 1rem 0 0.45rem 0;
+	font-size: 0.95rem;
 	pointer-events: none;
 }
 
 /* directly add `data-modal` to every element instead of just h2 */
 h2[data-modal] {
 	font-weight: 500;
-	margin: 1.3rem 0 0.6rem 0;
-	font-size: 1.125rem;
+	margin: 1rem 0 0.45rem 0;
+	font-size: 0.95rem;
 	pointer-events: none;
 }
 
@@ -43,9 +43,9 @@ h2[data-modal] {
 	border: none;
 	cursor: pointer;
 	transition: background-color 200ms ease;
-	font-size: 0.9rem;
+	font-size: 0.85rem;
 	font-family: inherit;
-	height: 3rem;
+	height: 2.6rem;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -78,7 +78,7 @@ h2[data-modal] {
 }
 
 #modal .input {
-	padding: 0.9em;
+	padding: 0.7em;
 	border-radius: 0.6em;
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	background-color: rgba(0, 0, 0, 0.2);
@@ -90,7 +90,7 @@ h2[data-modal] {
 
 /* directly add `data-modal` to every element instead of just input */
 input[data-modal] {
-	padding: 0.9em;
+	padding: 0.7em;
 	border-radius: 0.6em;
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	background-color: rgba(0, 0, 0, 0.2);
@@ -107,7 +107,7 @@ input[data-modal] {
 
 #modal .preview {
 	pointer-events: none;
-	font-size: 1.07rem;
+	font-size: 0.95rem;
 }
 
 #modal .done {
@@ -145,15 +145,15 @@ input[data-modal] {
 #modal .clear > button {
 	background: none;
 	color: lightgrey;
-	font-size: 1.5rem;
+	font-size: 1.3rem;
 	border: none;
 	cursor: pointer;
 	position: absolute;
-	right: -1.4rem;
+	right: -1.2rem;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	width: 2.8rem;
-	height: 2.8rem;
+	width: 2.4rem;
+	height: 2.4rem;
 }
 
 #modal .icon-gallery-container {
@@ -170,8 +170,8 @@ input[data-modal] {
 	color: inherit;
 	font-size: inherit;
 	cursor: pointer;
-	width: 3.15rem;
-	height: 3.15rem;
+	width: 2.8rem;
+	height: 2.8rem;
 	display: grid;
 	align-items: center;
 }

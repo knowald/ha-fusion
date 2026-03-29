@@ -113,6 +113,12 @@ export interface DaysSinceItem {
 	entity_id?: string; // input_datetime entity that stores the last reset timestamp
 }
 
+export interface SpotifyShortcut {
+	name: string;
+	uri: string;
+	image_url?: string;
+}
+
 export interface SpotifyPlayerItem {
 	type: string;
 	id: number;
@@ -124,6 +130,7 @@ export interface SpotifyPlayerItem {
 	show_progress?: boolean; // Show progress bar in compact view
 	show_volume?: boolean; // Show volume control
 	compact?: boolean; // Use compact display mode
+	shortcuts?: SpotifyShortcut[];
 }
 
 export interface SpotifyPlayerLargeItem {
@@ -134,6 +141,7 @@ export interface SpotifyPlayerLargeItem {
 	icon?: string;
 	color?: string;
 	show_progress?: boolean; // Show progress bar
+	shortcuts?: SpotifyShortcut[];
 }
 
 export interface Template {

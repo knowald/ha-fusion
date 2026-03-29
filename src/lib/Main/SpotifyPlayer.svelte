@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { editMode, itemHeight, lang, ripple, states, timer } from '$lib/Stores';
+	import { connection, editMode, itemHeight, lang, ripple, services, states, timer } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 	import { openModal } from 'svelte-modals';
 	import Ripple from 'svelte-ripple';
+	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
+	import { onMount } from 'svelte';
 
 	export let sel: any;
 	export let sectionName: string | undefined = undefined;
@@ -12,6 +14,7 @@
 	$: icon = sel?.icon || 'mdi:spotify';
 	$: color = sel?.color || 'rgb(30, 215, 96)'; // Spotify green
 	$: show_progress = sel?.show_progress ?? true;
+	$: shortcuts = sel?.shortcuts ?? [];
 
 	// Get entity state
 	$: entity = entity_id ? $states?.[entity_id] : undefined;
@@ -28,6 +31,70 @@
 	$: is_playing = state === 'playing';
 	$: is_paused = state === 'paused';
 	$: is_idle = state === 'idle' || !entity;
+
+	// Recent track artwork for rotating background
+	let recentArtwork: string[] = [];
+	let rotatingIndex = 0;
+	let rotatingImageA = '';
+	let rotatingImageB = '';
+	let showImageA = true;
+
+	function findSpotifyPlusEntity(): string | undefined {
+		if (!entity_id) return undefined;
+		// If already a spotifyplus entity, use it directly
+		if (entity_id.startsWith('media_player.spotifyplus_')) return entity_id;
+		// Try to find matching spotifyplus entity (spotify_foo -> spotifyplus_foo)
+		const suffix = entity_id.replace('media_player.spotify_', '');
+		const candidate = `media_player.spotifyplus_${suffix}`;
+		if ($states?.[candidate]) return candidate;
+		// Fall back to any spotifyplus entity
+		return Object.keys($states || {}).find((k) => k.startsWith('media_player.spotifyplus_'));
+	}
+
+	async function fetchRecentArtwork() {
+		if (!entity_id || !$connection || !$services?.spotifyplus) return;
+		const spotifyPlusEntity = findSpotifyPlusEntity();
+		if (!spotifyPlusEntity) return;
+		try {
+			const response = await $connection.sendMessagePromise({
+				type: 'call_service',
+				domain: 'spotifyplus',
+				service: 'get_player_recent_tracks',
+				service_data: { entity_id: spotifyPlusEntity, limit_total: 10 },
+				return_response: true
+			});
+			const items = response?.response?.result?.items || [];
+			const urls = items
+				.map((item: any) => (item.track || item)?.album?.images?.[0]?.url)
+				.filter((url: string | undefined): url is string => !!url);
+			// Deduplicate
+			recentArtwork = [...new Set(urls)] as string[];
+			if (recentArtwork.length > 0) {
+				rotatingImageA = recentArtwork[0];
+			}
+		} catch (err) {
+			console.error('Failed to fetch recent tracks:', err);
+		}
+	}
+
+	onMount(fetchRecentArtwork);
+
+	// Rotate every 8 seconds
+	$: if (recentArtwork.length > 1 && !is_playing && $timer) {
+		const seconds = $timer.getSeconds();
+		if (seconds % 8 === 0) {
+			const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
+			if (nextIndex !== rotatingIndex) {
+				rotatingIndex = nextIndex;
+				if (showImageA) {
+					rotatingImageB = recentArtwork[rotatingIndex];
+				} else {
+					rotatingImageA = recentArtwork[rotatingIndex];
+				}
+				showImageA = !showImageA;
+			}
+		}
+	}
 
 	// Progress calculation
 	$: media_duration = attributes?.media_duration;
@@ -92,10 +159,25 @@
 	role="button"
 	use:Ripple={$ripple}
 >
-	<!-- Background image -->
-	{#if entity_picture && !is_idle}
+	<!-- Background image (playing) -->
+	{#if entity_picture && is_playing}
 		<div class="background-image" style:background-image="url({entity_picture})" />
 		<div class="background-overlay" />
+	{:else if recentArtwork.length > 0 && !is_playing}
+		<!-- Rotating background (not playing) -->
+		<div
+			class="background-image rotating"
+			style:background-image="url({rotatingImageA})"
+			style:opacity={showImageA ? 1 : 0}
+		/>
+		{#if recentArtwork.length > 1}
+			<div
+				class="background-image rotating"
+				style:background-image="url({rotatingImageB})"
+				style:opacity={showImageA ? 0 : 1}
+			/>
+		{/if}
+		<div class="background-overlay idle" />
 	{/if}
 
 	<!-- Content -->
@@ -131,6 +213,11 @@
 					</div>
 				</div>
 			{/if}
+
+			<!-- SHORTCUTS (not playing) -->
+			{#if !is_playing && shortcuts.length > 0}
+				<SpotifyShortcuts {shortcuts} {entity_id} default_device={sel?.default_device} layout="compact" />
+			{/if}
 		</div>
 	</div>
 </div>
@@ -162,6 +249,10 @@
 		transform: scale(1.1);
 	}
 
+	.background-image.rotating {
+		transition: opacity 1.5s ease;
+	}
+
 	.background-overlay {
 		position: absolute;
 		top: 0;
@@ -169,6 +260,10 @@
 		right: 0;
 		bottom: 0;
 		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.background-overlay.idle {
+		background: rgba(0, 0, 0, 0.65);
 	}
 
 	.content {
