@@ -134,7 +134,7 @@
 				value={sel?.entity_id}
 				{options}
 				placeholder={$lang('entity')}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -151,9 +151,9 @@
 							options={filterMediaPlayerOptions(item.entity_id)}
 							value={item.entity_id || ''}
 							clearable={sel?.media_players?.length > 1}
-							on:change={(event) => {
-								if (event?.detail) {
-									sel.media_players[index] = { entity_id: event?.detail };
+							onchange={(event) => {
+								if (event) {
+									sel.media_players[index] = { entity_id: event };
 								} else {
 									sel.media_players.splice(index, 1);
 								}
@@ -167,7 +167,7 @@
 
 				<button
 					class="options action"
-					on:click={() => {
+					onclick={() => {
 						// add empty obj
 						set('media_players', [...sel.media_players, {}]);
 					}}
@@ -187,7 +187,7 @@
 
 		<InputClear
 			condition={timeout !== undefined}
-			on:clear={() => {
+			onclear={() => {
 				set('timeout');
 				timeout = undefined;
 			}}
@@ -200,7 +200,7 @@
 				class="input"
 				bind:value={timeout}
 				placeholder={timeout?.toString() || defaultExpire?.toString()}
-				on:change={handleChange}
+				onchange={handleChange}
 				autocomplete="off"
 				spellcheck="false"
 				style:padding
@@ -212,7 +212,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.show_timeout}
-				on:click={() => set('show_timeout', true)}
+				onclick={() => set('show_timeout', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -220,7 +220,7 @@
 
 			<button
 				class:selected={!sel?.show_timeout}
-				on:click={() => set('show_timeout', false)}
+				onclick={() => set('show_timeout', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -230,13 +230,13 @@
 		<h2>Marquee</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.marquee} on:click={() => set('marquee')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.marquee} onclick={() => set('marquee')} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
 			<button
 				class:selected={sel?.marquee}
-				on:click={() => set('marquee', true)}
+				onclick={() => set('marquee', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}

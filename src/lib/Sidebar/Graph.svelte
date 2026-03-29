@@ -176,8 +176,8 @@
 		class="timeline"
 		bind:clientWidth={width}
 		bind:clientHeight={height}
-		on:pointermove={(event) => handlePointerMove(event)}
-		on:pointerleave={handlePointerLeave}
+		onpointermove={(event) => handlePointerMove(event)}
+		onpointerleave={handlePointerLeave}
 	>
 		<svg width="100%" height="100%">
 			<defs>

@@ -58,7 +58,7 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={sel.entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -69,7 +69,7 @@
 				options={periodOptions}
 				placeholder={$lang('period')}
 				value={sel?.period || 'hour'}
-				on:change={(event) => set('period', event)}
+				onchange={(event) => set('period', event)}
 			/>
 		{/if}
 
@@ -78,7 +78,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -86,7 +86,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

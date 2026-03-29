@@ -139,7 +139,7 @@
 				disabled={!supports?.DELETE_EVENT || busy}
 				style:cursor={supports?.DELETE_EVENT && !busy ? 'pointer' : 'unset'}
 				style:transition="opacity {$motion}ms ease, background-color {$motion}ms ease"
-				on:click={deleteEvent}
+				onclick={deleteEvent}
 			>
 				{$lang('event_delete')}
 			</button>

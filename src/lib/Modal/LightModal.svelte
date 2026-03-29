@@ -134,7 +134,7 @@
 				<div class="button-container">
 					<button
 						class:selected={$states?.[groupEntity?.entity_id]?.entity_id === groupSel}
-						on:click={() => {
+						onclick={() => {
 							groupSel = $states?.[groupEntity?.entity_id]?.entity_id;
 							sel = $states?.[groupEntity?.entity_id];
 
@@ -147,7 +147,7 @@
 					{#each groupEntity?.attributes?.entity_id as selEntity}
 						<button
 							class:selected={$states?.[selEntity]?.entity_id === groupSel}
-							on:click={() => {
+							onclick={() => {
 								groupSel = $states?.[selEntity]?.entity_id;
 								sel = $states?.[selEntity];
 
@@ -167,11 +167,11 @@
 					{options}
 					value={groupEntity?.entity_id}
 					placeholder={$lang('entity')}
-					on:change={(event) => {
-						if (event?.detail === null) return;
+					onchange={(event) => {
+						if (event === null) return;
 
-						groupSel = $states?.[event?.detail]?.entity_id;
-						sel = $states?.[event?.detail];
+						groupSel = $states?.[event]?.entity_id;
+						sel = $states?.[event];
 
 						// reset
 						clearTimeout(timeout);
@@ -186,7 +186,7 @@
 
 		<h2>{$lang('toggle')}</h2>
 
-		<Toggle bind:checked={toggle} on:change={handleClick} />
+		<Toggle bind:checked={toggle} onchange={handleClick} />
 
 		<!-- BRIGHTNESS -->
 		{#if supports?.BRIGHTNESS}
@@ -209,7 +209,7 @@
 				{#if colorModes?.includes('color_temp')}
 					<button
 						class:selected={selTab === 'color_temp'}
-						on:click={() => handleSelTabClick('color_temp')}
+						onclick={() => handleSelTabClick('color_temp')}
 						use:Ripple={$ripple}
 					>
 						{$lang('color_temp')}
@@ -219,7 +219,7 @@
 				{#if supports?.COLOR}
 					<button
 						class:selected={selTab === 'color'}
-						on:click={() => handleSelTabClick('color')}
+						onclick={() => handleSelTabClick('color')}
 						use:Ripple={$ripple}
 					>
 						{$lang('color')}
@@ -229,7 +229,7 @@
 				{#if colorModes?.includes('white')}
 					<button
 						class:selected={selTab === 'white'}
-						on:click={() => handleSelTabClick('white')}
+						onclick={() => handleSelTabClick('white')}
 						use:Ripple={$ripple}
 					>
 						{$lang('set_white')}

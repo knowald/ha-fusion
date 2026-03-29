@@ -78,7 +78,7 @@
 			<Select
 				value={entity_id}
 				placeholder={$lang('entity')}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 				{options}
 				computeIcons={true}
 			/>
@@ -88,7 +88,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -100,7 +100,7 @@
 				class:placeholder={!name}
 				bind:value={name}
 				placeholder={getName(sel, (sel?.entity_id && $states[sel.entity_id]) || undefined)}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				autocomplete="off"
 				spellcheck="false"
 				style:padding
@@ -117,7 +117,7 @@
 			placeholder="9"
 			min={range.min}
 			max={range.max}
-			on:input={handleNumberRange}
+			oninput={handleNumberRange}
 			autocomplete="off"
 		/>
 
@@ -126,7 +126,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -134,7 +134,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

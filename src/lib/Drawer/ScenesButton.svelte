@@ -3,13 +3,12 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	import { createEventDispatcher } from 'svelte';
+	export let onclicked: (() => void) | undefined = undefined;
 
 	export let view: any;
 
 	$: noViews = !$dashboard?.views?.length;
 
-	const dispatch = createEventDispatcher();
 
 	/**
 	 * Creates a new section object
@@ -34,13 +33,13 @@
 
 		$record();
 
-		dispatch('clicked');
+		onclicked?.();
 	}
 </script>
 
 <button
 	class="button dropdown"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
 		opacity: noViews ? '0' : $ripple.opacity

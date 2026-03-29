@@ -88,7 +88,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class="konva-header"
-	on:click={() => {
+	onclick={() => {
 		collapsed = !collapsed;
 	}}
 >
@@ -105,7 +105,7 @@
 
 		<button
 			title={selectedShape?.attrs?.box ? 'Disable Text Box' : 'Enable Text Box'}
-			on:click|stopPropagation={() => konva.toggleTextBox(selectedShape?.attrs?.id)}
+			onclick={(e) => { e.stopPropagation(); konva.toggleTextBox(selectedShape?.attrs?.id); }}
 			disabled={selectedShapes?.length !== 1 ||
 				!selectedShape?.attrs?.draggable ||
 				!['text', 'state-label'].includes(selectedShape?.attrs?.type)}
@@ -127,8 +127,8 @@
 					id="fontFamily"
 					list="font-list"
 					value={fontFamily}
-					on:input={(event) => handleInput(attr?.id, 'fontFamily', event)}
-					on:change={(event) => setAttribute(attr?.id, 'fontFamily', event)}
+					oninput={(event) => handleInput(attr?.id, 'fontFamily', event)}
+					onchange={(event) => setAttribute(attr?.id, 'fontFamily', event)}
 					{disabled}
 				/>
 
@@ -145,7 +145,7 @@
 					type="text"
 					id="fontSize"
 					value={fontSize}
-					on:change={(event) => setAttribute(attr?.id, 'fontSize', event)}
+					onchange={(event) => setAttribute(attr?.id, 'fontSize', event)}
 					{disabled}
 				/>
 			</div>
@@ -162,7 +162,7 @@
 					type="text"
 					id="letterSpacing"
 					value={letterSpacing}
-					on:change={(event) => setAttribute(attr?.id, 'letterSpacing', event)}
+					onchange={(event) => setAttribute(attr?.id, 'letterSpacing', event)}
 					{disabled}
 				/>
 			</div>
@@ -177,7 +177,7 @@
 					type="text"
 					id="lineHeight"
 					value={lineHeight}
-					on:change={handleLineHeight}
+					onchange={handleLineHeight}
 					{disabled}
 				/>
 			</div>
@@ -189,7 +189,7 @@
 				<button
 					title="Bold"
 					id="bold"
-					on:click={() => handleFontStyle(attr?.fontStyle, bold)}
+					onclick={() => handleFontStyle(attr?.fontStyle, bold)}
 					class:selected={attr?.fontStyle?.includes(bold)}
 					{disabled}
 				>
@@ -200,7 +200,7 @@
 				<button
 					title="Italic"
 					id="italic"
-					on:click={() => handleFontStyle(attr?.fontStyle, 'italic')}
+					onclick={() => handleFontStyle(attr?.fontStyle, 'italic')}
 					class:selected={attr?.fontStyle?.includes('italic')}
 					{disabled}
 				>
@@ -214,7 +214,7 @@
 				<button
 					title="Align Left"
 					id="alignLeft"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'left')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'left')}
 					class:selected={align === 'left'}
 					{disabled}
 				>
@@ -225,7 +225,7 @@
 				<button
 					title="Align Center"
 					id="alignCenter"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'center')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'center')}
 					class:selected={align === 'center'}
 					{disabled}
 				>
@@ -236,7 +236,7 @@
 				<button
 					title="Align Right"
 					id="alignRight"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'right')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'right')}
 					class:selected={align === 'right'}
 					{disabled}
 				>
@@ -250,7 +250,7 @@
 				<button
 					title="Ellipsis"
 					id="ellipsis"
-					on:click={handleEllipsis}
+					onclick={handleEllipsis}
 					class:selected={ellipsis}
 					{disabled}
 				>

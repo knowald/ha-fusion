@@ -17,10 +17,10 @@
 
 <div
 	role="none"
-	on:pointerover={handleHover}
-	on:pointerout={handleHover}
-	on:focus={handleHover}
-	on:blur={handleHover}
+	onpointerover={handleHover}
+	onpointerout={handleHover}
+	onfocus={handleHover}
+	onblur={handleHover}
 >
 	<div class="content" class:paused={paused || (pauseOnHover && hovered)}>
 		{#each Array(repeat) as i}

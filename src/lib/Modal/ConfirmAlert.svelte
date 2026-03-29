@@ -25,14 +25,14 @@
 
 		<div class="bottom-buttons">
 			<button
-				on:click={confirm}
+				onclick={confirm}
 				style:background-color="#ae2e2e"
 				use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 			>
 				{$lang('ok')}
 			</button>
 
-			<button bind:this={cancelButton} on:click={cancel} use:Ripple={$ripple}>
+			<button bind:this={cancelButton} onclick={cancel} use:Ripple={$ripple}>
 				{$lang('cancel')}
 			</button>
 		</div>

@@ -3,11 +3,10 @@
 	import { fade } from 'svelte/transition';
 	import { openModal } from 'svelte-modals/legacy';
 	import Ripple from '$lib/Actions/ripple';
-	import { createEventDispatcher } from 'svelte';
+	export let onclicked: (() => void) | undefined = undefined;
 
 	export let view: any;
 
-	const dispatch = createEventDispatcher();
 
 	let clientWidth = 0;
 
@@ -28,7 +27,7 @@
 <button
 	bind:clientWidth
 	class="edit"
-	on:click={handleClick}
+	onclick={handleClick}
 	transition:fade={{ duration: $motion / 2 }}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 >

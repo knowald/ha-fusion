@@ -28,7 +28,7 @@
 
 		<h2>{$lang('toggle')}</h2>
 
-		<Toggle bind:checked={toggle} on:change={handleClick} />
+		<Toggle bind:checked={toggle} onchange={handleClick} />
 
 		<ConfigButtons />
 	</Modal>

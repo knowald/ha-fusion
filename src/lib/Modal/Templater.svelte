@@ -106,7 +106,7 @@
 </script>
 
 {#if isOpen}
-	<Modal on:transitionend={handleEvent}>
+	<Modal ontransitionend={handleEvent}>
 		<h1 slot="title">{$lang(type)}</h1>
 
 		<h2>
@@ -144,7 +144,7 @@
 			{#if type === 'set_state' || type === 'state'}
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						//paste into code editor
 						$pasteContent = `{{ states(entity_id) }}`;
 					}}
@@ -157,7 +157,7 @@
 
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						//paste into code editor
 						$pasteContent = `{{ is_state(entity_id, "on") }}`;
 					}}
@@ -172,7 +172,7 @@
 
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						//paste into code editor
 						$pasteContent = `{{ is_state_attr(entity_id, "key", "value") }}`;
 					}}
@@ -188,7 +188,7 @@
 
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `{% if is_state(entity_id, "on") %}
   Yes
 {% else %}
@@ -216,7 +216,7 @@
 			{:else if type === 'icon'}
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `{% if is_state(entity_id, "on") %}
   humbleicons:switch-on
 {% else %}
@@ -244,7 +244,7 @@
 			{:else if type === 'name'}
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `{{ state_attr(entity_id, "friendly_name") }}`;
 					}}
 					use:Ripple={$ripple}
@@ -259,7 +259,7 @@
 
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `{% if is_state(entity_id, "on") %}
   Yes
 {% else %}
@@ -287,7 +287,7 @@
 			{:else if type === 'color'}
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `{% if is_state(entity_id, "on") %}
   green
 {% else %}
@@ -315,7 +315,7 @@
 			{:else if type === 'service'}
 				<button
 					class="template-example"
-					on:click={() => {
+					onclick={() => {
 						$pasteContent = `entity_id: {{ entity_id }}`;
 					}}
 					use:Ripple={$ripple}
@@ -338,12 +338,12 @@
 					options={servicesOptions}
 					placeholder={$lang('service')}
 					value={service}
-					on:change={async (event) => {
-						if (event?.detail === null) return;
-						service = event?.detail;
+					onchange={async (event) => {
+						if (event === null) return;
+						service = event;
 						$pasteContent = '__clear__';
 						await tick();
-						$pasteContent = `service: ${event?.detail}
+						$pasteContent = `service: ${event}
 data: {}`;
 					}}
 				/>
@@ -365,14 +365,14 @@ data: {}`;
 			type="jinja2"
 			transitionend={modalTransitionEnd}
 			autocompleteList={$autocompleteList}
-			on:change={(event) => {
+			onchange={(event) => {
 				if (!type) return;
 
 				// if no template key, create an object
 				if (!sel?.template) sel.template = {};
 
-				if (event?.detail) {
-					sel.template[type] = event.detail;
+				if (event) {
+					sel.template[type] = event;
 
 					// example, remove sel.icon in favour of sel.template.icon
 					if (type !== 'set_state') {
@@ -401,7 +401,7 @@ data: {}`;
 				<!-- REMOVE -->
 				<button
 					class="action remove"
-					on:click={() => {
+					onclick={() => {
 						// remove template
 						delete sel?.template?.[type];
 						delete $templates?.[sel?.id]?.[type];
@@ -422,7 +422,7 @@ data: {}`;
 				<!-- BACK -->
 				<button
 					class="action done"
-					on:click={() => {
+					onclick={() => {
 						closeModal();
 					}}
 					use:Ripple={$ripple}
@@ -431,7 +431,7 @@ data: {}`;
 				</button>
 			</div>
 
-			<button class="done action" on:click={() => closeAllModals()} use:Ripple={$ripple}>
+			<button class="done action" onclick={() => closeAllModals()} use:Ripple={$ripple}>
 				{$lang('done')}
 			</button>
 		</div>

@@ -95,7 +95,7 @@
 			<button
 				transition:fade={{ duration: $motion }}
 				class="remove action"
-				on:click={removeObj}
+				onclick={removeObj}
 				use:Ripple={{
 					...$ripple,
 					color: 'rgba(0, 0, 0, 0.35)'
@@ -108,7 +108,7 @@
 				<button
 					transition:fade={{ duration: $motion }}
 					class="options action"
-					on:click={() => {
+					onclick={() => {
 						handleChangeType();
 					}}
 					use:Ripple={$ripple}
@@ -119,7 +119,7 @@
 		{/if}
 	</div>
 
-	<button class="done action" on:click={closeModal} use:Ripple={$ripple}>
+	<button class="done action" onclick={closeModal} use:Ripple={$ripple}>
 		{$lang('done')}
 	</button>
 </div>

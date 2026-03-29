@@ -37,7 +37,7 @@
 
 		<InputClear
 			condition={url}
-			on:clear={() => {
+			onclear={() => {
 				url = undefined;
 				set('url');
 			}}
@@ -48,7 +48,7 @@
 				class="input"
 				bind:value={url}
 				placeholder="https://"
-				on:change={(event) => set('url', event)}
+				onchange={(event) => set('url', event)}
 				autocomplete="off"
 				spellcheck="false"
 				style:padding
@@ -59,7 +59,7 @@
 
 		<InputClear
 			condition={size}
-			on:clear={() => {
+			onclear={() => {
 				size = undefined;
 				set('size');
 			}}
@@ -70,7 +70,7 @@
 				class="input"
 				bind:value={size}
 				placeholder="150px"
-				on:change={(event) => set('size', event)}
+				onchange={(event) => set('size', event)}
 				autocomplete="off"
 				spellcheck="false"
 				style:padding
@@ -82,7 +82,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -90,7 +90,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

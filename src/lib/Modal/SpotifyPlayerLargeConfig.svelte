@@ -83,7 +83,7 @@
 			<select
 				class="input"
 				bind:value={entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			>
 				<option value={undefined}>{$lang('select_entity') || 'Select entity'}</option>
 				{#each spotifyEntities as entity}
@@ -100,7 +100,7 @@
 			</div>
 			<InputClear
 				condition={entity_id}
-				on:clear={() => {
+				onclear={() => {
 					entity_id = undefined;
 					set('entity_id');
 				}}
@@ -114,7 +114,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={entity_id}
-					on:change={(event) => set('entity_id', event)}
+					onchange={(event) => set('entity_id', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -124,7 +124,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -138,7 +138,7 @@
 				autocomplete="off"
 				spellcheck="false"
 				bind:value={name}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				style:padding
 			/>
 		</InputClear>
@@ -148,7 +148,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -162,7 +162,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -171,7 +171,7 @@
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -185,7 +185,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={color}
-				on:clear={() => {
+				onclear={() => {
 					color = undefined;
 					set('color');
 				}}
@@ -199,7 +199,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={color}
-					on:change={(event) => set('color', event)}
+					onchange={(event) => set('color', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -207,12 +207,12 @@
 			<input
 				type="color"
 				bind:value={color}
-				on:click={() => {
+				onclick={() => {
 					if (color === undefined) {
 						color = '#1ed760';
 					}
 				}}
-				on:change={(event) => set('color', event)}
+				onchange={(event) => set('color', event)}
 				title={$lang('color')}
 			/>
 		</div>
@@ -224,7 +224,7 @@
 				<input
 					type="checkbox"
 					bind:checked={show_progress}
-					on:change={(event) => set('show_progress', event)}
+					onchange={(event) => set('show_progress', event)}
 				/>
 				<span>{$lang('show_progress_bar') || 'Show progress bar'}</span>
 			</label>
@@ -236,7 +236,7 @@
 			<select
 				class="input"
 				value={default_device || ''}
-				on:change={(event) => {
+				onchange={(event) => {
 					default_device = event.target?.value || undefined;
 					set('default_device', default_device ? { target: { value: default_device } } : undefined);
 				}}

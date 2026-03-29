@@ -56,10 +56,10 @@
 	}
 </script>
 
-<svelte:window on:pointerdown|capture={handlePointerDown} on:keydown|capture={handleKeydown} />
+<svelte:window onpointerdowncapture={handlePointerDown} onkeydowncapture={handleKeydown} />
 
 <div class="container" bind:this={container}>
-	<button class="button" on:click={handleClick} use:Ripple={$ripple}>
+	<button class="button" onclick={handleClick} use:Ripple={$ripple}>
 		<figure>
 			<Icon icon="gridicons:add-outline" height="none" />
 		</figure>
@@ -70,30 +70,30 @@
 	{#if isOpen}
 		<div
 			class="dropdown"
-			on:introstart={() => {
+			onintrostart={() => {
 				showTriangle = true;
 			}}
-			on:outrostart={() => {
+			onoutrostart={() => {
 				showTriangle = false;
 			}}
 			in:slide={{ duration: $motion, easing: cubicOut }}
 			out:fade={{ duration: $motion / 3, easing: cubicOut }}
 		>
 			{#if !$dashboard.hide_sidebar}
-				<svelte:component this={SidebarButton} on:clicked={handleClick} />
+				<svelte:component this={SidebarButton} onclicked={handleClick} />
 			{/if}
 
-			<svelte:component this={ObjectButton} {view} on:clicked={handleClick} />
+			<svelte:component this={ObjectButton} {view} onclicked={handleClick} />
 
-			<svelte:component this={SectionButton} {view} on:clicked={handleClick} />
+			<svelte:component this={SectionButton} {view} onclicked={handleClick} />
 
-			<svelte:component this={HorizontalStackButton} {view} on:clicked={handleClick} />
+			<svelte:component this={HorizontalStackButton} {view} onclicked={handleClick} />
 
-			<svelte:component this={VerticalStackButton} {view} on:clicked={handleClick} />
+			<svelte:component this={VerticalStackButton} {view} onclicked={handleClick} />
 
-			<svelte:component this={ScenesButton} {view} on:clicked={handleClick} />
+			<svelte:component this={ScenesButton} {view} onclicked={handleClick} />
 
-			<svelte:component this={ViewButton} on:clicked={handleClick} />
+			<svelte:component this={ViewButton} onclicked={handleClick} />
 		</div>
 	{/if}
 

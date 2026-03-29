@@ -91,7 +91,7 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={sel?.entity_id}
-				on:change={(event) => {
+				onchange={(event) => {
 					// remove 'forecast_type' when changing entity_id
 					set('forecast_type');
 					set('entity_id', event);
@@ -106,7 +106,7 @@
 				options={iconOptions}
 				placeholder={$lang('icon')}
 				value={sel?.icon_pack || 'meteocons'}
-				on:change={(event) => set('icon_pack', event)}
+				onchange={(event) => set('icon_pack', event)}
 			/>
 		{/if}
 
@@ -120,7 +120,7 @@
 				bind:this={numberElement}
 				min={range.min}
 				max={range.max}
-				on:change={handleNumberRange}
+				onchange={handleNumberRange}
 				autocomplete="off"
 			/>
 		{/if}
@@ -132,7 +132,7 @@
 				{#if supports?.FORECAST_DAILY}
 					<button
 						class:selected={sel?.forecast_type === 'daily' || !sel?.forecast_type}
-						on:click={() => set('forecast_type', 'daily')}
+						onclick={() => set('forecast_type', 'daily')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_daily')}
@@ -142,7 +142,7 @@
 				{#if supports?.FORECAST_HOURLY}
 					<button
 						class:selected={sel?.forecast_type === 'hourly'}
-						on:click={() => set('forecast_type', 'hourly')}
+						onclick={() => set('forecast_type', 'hourly')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_hourly')}
@@ -152,7 +152,7 @@
 				{#if supports?.FORECAST_TWICE_DAILY}
 					<button
 						class:selected={sel?.forecast_type === 'twice_daily'}
-						on:click={() => set('forecast_type', 'twice_daily')}
+						onclick={() => set('forecast_type', 'twice_daily')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_twice_daily')}
@@ -166,7 +166,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -174,7 +174,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

@@ -180,7 +180,7 @@
 					<div class="controls">
 						<button
 							class="btn"
-							on:click={previousTrack}
+							onclick={previousTrack}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={$lang('previous_track') || 'Previous'}
@@ -190,7 +190,7 @@
 
 						<button
 							class="btn primary"
-							on:click={playPause}
+							onclick={playPause}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={is_playing ? $lang('pause') || 'Pause' : $lang('play') || 'Play'}
@@ -200,7 +200,7 @@
 
 						<button
 							class="btn"
-							on:click={nextTrack}
+							onclick={nextTrack}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={$lang('next_track') || 'Next'}
@@ -217,7 +217,7 @@
 								min="0"
 								max={media_duration}
 								value={current_position}
-								on:change={seek}
+								onchange={seek}
 								class="seek"
 							/>
 							<span class="time right-align">{formatTime(media_duration)}</span>
@@ -236,7 +236,7 @@
 						max="1"
 						step="0.01"
 						value={volume_level}
-						on:input={setVolume}
+						oninput={setVolume}
 						class="vol-slider"
 					/>
 					<span class="vol-pct">{Math.round(volume_level * 100)}%</span>
@@ -245,7 +245,7 @@
 				{#if source_list.length > 0}
 					<div class="device">
 						<Icon icon="mdi:speaker" height="0.95rem" style="opacity: 0.35;" />
-						<select on:change={(e) => selectDevice(e.target.value)} class="device-sel">
+						<select onchange={(e) => selectDevice(e.target.value)} class="device-sel">
 							{#each source_list as device}
 								<option value={device} selected={device === current_source}>
 									{device}
@@ -255,7 +255,7 @@
 					</div>
 				{/if}
 
-				<button class="browse" on:click={openBrowser} use:Ripple={$ripple}>
+				<button class="browse" onclick={openBrowser} use:Ripple={$ripple}>
 					<Icon icon="mdi:library-music" height="0.95rem" />
 					<span>{$lang('browse_library') || 'Browse Library'}</span>
 				</button>

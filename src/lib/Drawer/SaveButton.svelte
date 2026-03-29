@@ -56,11 +56,11 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	class="button"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
 		color: modified ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0)'

@@ -54,11 +54,11 @@
 		transition:slide={{ duration: $motion }}
 		class="toggle"
 		style:cursor={$editMode || empty ? 'unset' : 'pointer'}
-		on:click={() => {
+		onclick={() => {
 			if ($editMode || empty) return;
 			expanded = !expanded;
 		}}
-		on:keydown
+	
 		role="button"
 		tabindex="0"
 	>
@@ -100,7 +100,7 @@
 							<button
 								class="dismiss"
 								style:pointer-events={$editMode ? 'none' : 'unset'}
-								on:click={() => handleClick(key)}
+								onclick={() => handleClick(key)}
 								use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 							>
 								{$lang('notifications_dismiss')}

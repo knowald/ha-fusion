@@ -15,12 +15,12 @@
 </script>
 
 <div
-	on:click={handleClick}
+	onclick={handleClick}
 	class="container"
 	style:height="{$itemHeight}px"
 	style:opacity={$editMode ? '1' : '0'}
 	style:transition="opacity {$motion}ms ease"
-	on:keydown
+
 	role="button"
 	tabindex="0"
 ></div>

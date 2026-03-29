@@ -164,8 +164,8 @@
 				<div
 					class="event {$onStates.includes(event.state) ? 'on' : 'off'}"
 					style="width: {event.durationPercentage}%;"
-					on:pointerenter={() => handlePointerEnter(event)}
-					on:pointerleave={handlePointerLeave}
+					onpointerenter={() => handlePointerEnter(event)}
+					onpointerleave={handlePointerLeave}
 				>
 					<span class="state"> {$lang(event.state)}</span>
 				</div>

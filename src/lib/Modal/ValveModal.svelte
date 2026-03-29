@@ -47,7 +47,7 @@
 				<button
 					title={$lang('open_valve')}
 					class:selected={entity?.state === 'open'}
-					on:click={() => handleClick('open_valve')}
+					onclick={() => handleClick('open_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -60,7 +60,7 @@
 				<button
 					title={$lang('close_valve')}
 					class:selected={entity?.state === 'closed'}
-					on:click={() => handleClick('close_valve')}
+					onclick={() => handleClick('close_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -72,7 +72,7 @@
 			{#if supports?.STOP}
 				<button
 					title={$lang('stop_valve')}
-					on:click={() => handleClick('stop_valve')}
+					onclick={() => handleClick('stop_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">

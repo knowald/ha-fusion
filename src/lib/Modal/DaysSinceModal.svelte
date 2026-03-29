@@ -82,7 +82,7 @@
 
 		<h2>{$lang('reset') || 'Reset'}</h2>
 
-		<button class="reset-button" on:click={resetCounter} use:Ripple={$ripple}>
+		<button class="reset-button" onclick={resetCounter} use:Ripple={$ripple}>
 			<Icon icon="mdi:restart" height="1.3rem" />
 			<span>{$lang('reset_counter') || 'Reset Counter'}</span>
 		</button>

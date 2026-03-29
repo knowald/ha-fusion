@@ -136,11 +136,11 @@
 	});
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	class="button"
-	on:click={() => handleClick('undo')}
+	onclick={() => handleClick('undo')}
 	style:cursor={canUndo ? 'pointer' : 'unset'}
 	style:opacity={canUndo ? '1' : '0.5'}
 	style:transition="opacity {$motion}ms ease"
@@ -157,7 +157,7 @@
 
 <button
 	class="button"
-	on:click={() => handleClick('redo')}
+	onclick={() => handleClick('redo')}
 	style:cursor={canRedo ? 'pointer' : 'unset'}
 	style:opacity={canRedo ? '1' : '0.5'}
 	style:transition="opacity {$motion}ms ease"

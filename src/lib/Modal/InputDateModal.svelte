@@ -106,7 +106,7 @@
 			class="input"
 			type={domain === 'datetime' || type === 'datetime' ? 'datetime-local' : type}
 			value={domain === 'datetime' ? convert(state) : state}
-			on:change={handleChange}
+			onchange={handleChange}
 		/>
 
 		<ConfigButtons />

@@ -17,7 +17,7 @@
 	<div
 		slot="backdrop"
 		class="backdrop"
-		on:click={() => {
+		onclick={() => {
 			closeModal();
 		}}
 		in:fade={{
@@ -25,7 +25,7 @@
 			easing: expoOut
 		}}
 		out:fade={{ duration: $motion / 2 }}
-		on:keydown
+		onkeydown={() => {}}
 		role="button"
 		tabindex="0"
 	></div>

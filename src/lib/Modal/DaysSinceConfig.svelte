@@ -131,7 +131,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -145,7 +145,7 @@
 				autocomplete="off"
 				spellcheck="false"
 				bind:value={name}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				style:padding
 			/>
 		</InputClear>
@@ -155,7 +155,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -169,7 +169,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -178,7 +178,7 @@
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -192,7 +192,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={color}
-				on:clear={() => {
+				onclear={() => {
 					color = undefined;
 					set('color');
 				}}
@@ -206,7 +206,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={color}
-					on:change={(event) => set('color', event)}
+					onchange={(event) => set('color', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -214,12 +214,12 @@
 			<input
 				type="color"
 				bind:value={color}
-				on:click={() => {
+				onclick={() => {
 					if (color === undefined) {
 						color = '#4ba6ed';
 					}
 				}}
-				on:change={(event) => set('color', event)}
+				onchange={(event) => set('color', event)}
 				title={$lang('color')}
 			/>
 		</div>
@@ -237,7 +237,7 @@
 					<div class="suggested-entity">
 						<code>{suggestedEntityId}</code>
 						{#if $states?.[suggestedEntityId]}
-							<button use:Ripple={$ripple} class="link-button" on:click={linkEntity}>
+							<button use:Ripple={$ripple} class="link-button" onclick={linkEntity}>
 								<Icon icon="mdi:link" height="1.2rem" />
 								<span>{$lang('use_existing') || 'Use Existing'}</span>
 							</button>
@@ -258,7 +258,7 @@
 
 				<InputClear
 					condition={entity_id}
-					on:clear={() => {
+					onclear={() => {
 						entity_id = undefined;
 						set('entity_id');
 					}}
@@ -272,7 +272,7 @@
 						autocomplete="off"
 						spellcheck="false"
 						bind:value={entity_id}
-						on:change={(event) => set('entity_id', event)}
+						onchange={(event) => set('entity_id', event)}
 						style:padding
 					/>
 				</InputClear>
@@ -290,7 +290,7 @@
 				<button
 					use:Ripple={$ripple}
 					class="change-button"
-					on:click={() => {
+					onclick={() => {
 						entity_id = undefined;
 						set('entity_id');
 					}}
@@ -307,13 +307,13 @@
 					type="date"
 					class="date-input"
 					value={dateInputValue}
-					on:change={handleDateChange}
+					onchange={handleDateChange}
 					disabled={!entity_id}
 				/>
 				<button
 					use:Ripple={$ripple}
 					class="today-button"
-					on:click={setToday}
+					onclick={setToday}
 					title={$lang('set_to_today') || 'Set to Today'}
 					disabled={!entity_id}
 				>

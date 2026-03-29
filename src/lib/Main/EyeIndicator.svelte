@@ -18,7 +18,7 @@
 
 <button
 	class="edit eye"
-	on:click={handleIconClick}
+	onclick={handleIconClick}
 	transition:fade={{ duration: $motion }}
 	bind:offsetWidth={eyeWidth}
 >

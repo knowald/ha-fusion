@@ -130,19 +130,19 @@
 					{options}
 					placeholder={$lang('entity')}
 					value={entity_id}
-					on:change={(event) => {
-						if (event?.detail === null) return;
+					onchange={(event) => {
+						if (event === null) return;
 						set('entity_id', event);
 						// Reset display-only on entity change if not already a display-only entity
-						if (!shouldSuggestDisplayOnly(event?.detail)) {
+						if (!shouldSuggestDisplayOnly(event)) {
 							displayOnly = false;
 							set('displayOnly', false);
 						}
 					}}
 					computeIcons={true}
 					getIconString={true}
-					on:iconString={(event) => {
-						computedIcon = event?.detail;
+					oniconString={(value) => {
+						computedIcon = value;
 					}}
 				/>
 			</div>
@@ -151,7 +151,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -170,7 +170,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={name}
-				on:clear={() => {
+				onclear={() => {
 					name = undefined;
 					set('name');
 				}}
@@ -186,7 +186,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={name}
-					on:change={(event) => set('name', event)}
+					onchange={(event) => set('name', event)}
 					style:padding
 					disabled={Boolean(template?.name?.output)}
 					class:disabled={Boolean(template?.name?.output)}
@@ -197,7 +197,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={async () => {
+				onclick={async () => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -216,7 +216,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={state}
-				on:clear={() => {
+				onclear={() => {
 					state = undefined;
 					set('state');
 				}}
@@ -232,7 +232,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={state}
-					on:change={(event) => set('state', event)}
+					onchange={(event) => set('state', event)}
 					style:padding
 					disabled={Boolean(template?.state?.output)}
 					class:disabled={Boolean(template?.state?.output)}
@@ -243,7 +243,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={async () => {
+				onclick={async () => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -264,7 +264,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -280,7 +280,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 					disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
 					class:disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
@@ -291,7 +291,7 @@
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -303,7 +303,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -322,7 +322,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={color}
-				on:clear={() => {
+				onclear={() => {
 					color = undefined;
 					set('color');
 				}}
@@ -340,7 +340,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={color}
-					on:change={(event) => set('color', event)}
+					onchange={(event) => set('color', event)}
 					style:padding
 					disabled={Boolean(template?.color?.output) || displayOnly}
 					class:disabled={Boolean(template?.color?.output) || displayOnly}
@@ -350,12 +350,12 @@
 			<input
 				type="color"
 				bind:value={color}
-				on:click={() => {
+				onclick={() => {
 					if (color === undefined) {
 						color = '#ffffff';
 					}
 				}}
-				on:change={(event) => set('color', event)}
+				onchange={(event) => set('color', event)}
 				title={$lang('color')}
 				disabled={displayOnly}
 			/>
@@ -364,7 +364,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -384,7 +384,7 @@
 		<div class="button-container">
 			<button
 				class:selected={displayOnly}
-				on:click={() => {
+				onclick={() => {
 					displayOnly = true;
 					set('displayOnly', true);
 				}}
@@ -394,7 +394,7 @@
 			</button>
 			<button
 				class:selected={!displayOnly}
-				on:click={() => {
+				onclick={() => {
 					displayOnly = false;
 					set('displayOnly', false);
 				}}
@@ -423,7 +423,7 @@
 			<div class="button-container">
 				<button
 					class:selected={slideBrightness}
-					on:click={() => {
+					onclick={() => {
 						slideBrightness = true;
 						set('slide_brightness', true);
 					}}
@@ -433,7 +433,7 @@
 				</button>
 				<button
 					class:selected={!slideBrightness}
-					on:click={() => {
+					onclick={() => {
 						slideBrightness = false;
 						set('slide_brightness', false);
 					}}
@@ -462,7 +462,7 @@
 				use:Ripple={$ripple}
 				title={$lang('template')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					if (!sel?.id) return;
 					openModal(() => import('$lib/Modal/Templater.svelte'), {
 						sel,
@@ -482,7 +482,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.more_info !== false}
-				on:click={() => set('more_info')}
+				onclick={() => set('more_info')}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -490,7 +490,7 @@
 
 			<button
 				class:selected={sel?.more_info === false}
-				on:click={() => set('more_info', false)}
+				onclick={() => set('more_info', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -503,7 +503,7 @@
 			<div class="button-container">
 				<button
 					class:selected={!sel?.marquee}
-					on:click={() => set('marquee', false)}
+					onclick={() => set('marquee', false)}
 					use:Ripple={$ripple}
 				>
 					{$lang('no')}
@@ -511,7 +511,7 @@
 
 				<button
 					class:selected={sel?.marquee}
-					on:click={() => set('marquee', true)}
+					onclick={() => set('marquee', true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('yes')}

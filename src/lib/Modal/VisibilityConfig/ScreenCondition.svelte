@@ -149,27 +149,27 @@
 
 <div class="container">
 	<label>
-		<input type="checkbox" bind:checked={mobile} on:change={handleClick} />
+		<input type="checkbox" bind:checked={mobile} onchange={handleClick} />
 		{$lang('breakpoints_mobile')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={tablet} on:change={handleClick} />
+		<input type="checkbox" bind:checked={tablet} onchange={handleClick} />
 		{$lang('breakpoints_tablet')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={desktop} on:change={handleClick} />
+		<input type="checkbox" bind:checked={desktop} onchange={handleClick} />
 		{$lang('breakpoints_desktop')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={wide} on:change={handleClick} />
+		<input type="checkbox" bind:checked={wide} onchange={handleClick} />
 		{$lang('breakpoints_wide')}
 	</label>
 </div>
 
-<input data-modal type="text" bind:value={input} on:input={handleInput} />
+<input data-modal type="text" bind:value={input} oninput={handleInput} />
 
 <style>
 	.container {

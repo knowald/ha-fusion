@@ -162,7 +162,7 @@
 		style:width={responsive ? '100%' : 'calc(14.5rem * 2 + 0.4rem)'}
 		style:object-fit={size}
 		autoplay={true}
-		on:play={() => {
+		onplay={() => {
 			loaderVisible = false;
 		}}
 	>

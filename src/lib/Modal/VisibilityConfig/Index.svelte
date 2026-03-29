@@ -177,7 +177,7 @@
 	});
 </script>
 
-<svelte:window on:resize={updateMatches} bind:innerWidth />
+<svelte:window onresize={updateMatches} bind:innerWidth />
 
 {#if isOpen}
 	<Modal>
@@ -198,8 +198,8 @@
 					type: 'condition',
 					items
 				}}
-				on:consider={dragItem}
-				on:finalize={dragItem}
+				onconsider={dragItem}
+				onfinalize={dragItem}
 			>
 				{#each items as item (`${item?.id}${item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 					<div
@@ -235,8 +235,8 @@
 												type: draggingGroup ? 'group' : 'condition',
 												items: item?.conditions
 											}}
-											on:consider={(event) => dragNestedItem(item.id, event)}
-											on:finalize={(event) => dragNestedItem(item.id, event)}
+											onconsider={(event) => dragNestedItem(item.id, event)}
+											onfinalize={(event) => dragNestedItem(item.id, event)}
 										>
 											{#each item.conditions as subItem (`${subItem?.id}${subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 												<div
@@ -277,7 +277,7 @@
 		<div class="add-config-buttons">
 			<button
 				class="action remove"
-				on:click={handleRemove}
+				onclick={handleRemove}
 				use:Ripple={{ ...$ripple, color: !items?.length ? 'transparent' : $ripple.color }}
 				style:cursor={!items?.length ? 'initial' : 'pointer'}
 				style:opacity={!items?.length ? '0.3' : 'initial'}
@@ -286,7 +286,7 @@
 				{$lang('remove')}
 			</button>
 
-			<button class="action done" on:click={closeModal} use:Ripple={$ripple}>
+			<button class="action done" onclick={closeModal} use:Ripple={$ripple}>
 				{$lang('done')}
 			</button>
 		</div>

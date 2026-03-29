@@ -144,7 +144,7 @@
 	}
 </script>
 
-<svelte:document on:pointerdown={handlePointerdown} />
+<svelte:document onpointerdown={handlePointerdown} />
 
 <div class="konva-header">
 	<div class="title">
@@ -156,7 +156,7 @@
 	<div class="right">
 		<button
 			title={selectedShape?.attrs?.draggable !== false ? 'Lock' : 'Unlock'}
-			on:click={() => konva.toggleDraggable()}
+			onclick={() => konva.toggleDraggable()}
 			disabled={!selectedShape}
 		>
 			<Icon
@@ -166,7 +166,7 @@
 			/>
 		</button>
 
-		<button title="Delete" on:click={() => konva.deleteSelected()} disabled={!selectedShape}>
+		<button title="Delete" onclick={() => konva.deleteSelected()} disabled={!selectedShape}>
 			<Icon icon={icons?.['delete']} width="20" height="20" />
 		</button>
 	</div>
@@ -180,8 +180,8 @@
 		transformDraggedElement,
 		items: layers
 	}}
-	on:consider={handleDragLayers}
-	on:finalize={handleDragLayers}
+	onconsider={handleDragLayers}
+	onfinalize={handleDragLayers}
 >
 	{#each layers as shape (shape.id)}
 		{@const konvaStoreEquivalent = $konvaStore?.children?.find(
@@ -193,8 +193,8 @@
 			class="item"
 			animate:flip={{ duration: 0 }}
 			class:selected={selectedShapes?.some((node) => node?.attrs?.id === shape?.attrs?.id)}
-			on:dragstart={() => handleDragStart(shape?.attrs?.id)}
-			on:click={async (event) => {
+			ondragstart={() => handleDragStart(shape?.attrs?.id)}
+			onclick={async (event) => {
 				// blur any active attr input to trigger onchange before switching layer
 				if (
 					document?.activeElement instanceof HTMLInputElement ||
@@ -210,7 +210,7 @@
 			<button
 				class="visibility"
 				title={shape?.attrs?.visible === false ? 'Show' : 'Hide'}
-				on:click|stopPropagation={() => konva.toggleVisibility(shape?.attrs?.id)}
+				onclick={(e) => { e.stopPropagation(); konva.toggleVisibility(shape?.attrs?.id); }}
 			>
 				<Icon
 					icon={icons?.[shape?.attrs?.visible === false ? 'hidden' : 'visible']}
@@ -242,8 +242,8 @@
 							alt=""
 							width="20"
 							height="20"
-							on:load={handleImage}
-							on:error={handleImage}
+							onload={handleImage}
+							onerror={handleImage}
 						/>
 						<Icon icon={icons?.['broken']} width="20" height="20" style="display: none;" />
 					</div>
@@ -260,13 +260,13 @@
 					type="text"
 					class="editable"
 					value={shape?.attrs?.name}
-					on:keydown={(event) => handleKeydown(event, shape)}
-					on:blur={() => (editingId = undefined)}
-					on:click|stopPropagation
+					onkeydown={(event) => handleKeydown(event, shape)}
+					onblur={() => (editingId = undefined)}
+					onclick={(e) => e.stopPropagation()}
 					autofocus={true}
 				/>
 			{:else}
-				<span class="name editable" on:dblclick={() => (editingId = shape?.id)}>
+				<span class="name editable" ondblclick={() => (editingId = shape?.id)}>
 					{shape?.attrs?.name}
 				</span>
 			{/if}
@@ -276,7 +276,7 @@
 				<button
 					class="inline-lock"
 					title="Unlock"
-					on:click|stopPropagation={() => konva.toggleDraggable(shape?.attrs?.id)}
+					onclick={(e) => { e.stopPropagation(); konva.toggleDraggable(shape?.attrs?.id); }}
 				>
 					<Icon icon={icons['locked']} width="20" height="20" />
 				</button>

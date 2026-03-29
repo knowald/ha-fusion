@@ -82,7 +82,7 @@
 				<StateLogic entity_id={sel?.entity_id} selected={sel} />
 
 				<div class="toggle">
-					<Toggle bind:checked={toggle} on:change={() => handle('toggle')} />
+					<Toggle bind:checked={toggle} onchange={() => handle('toggle')} />
 				</div>
 			</div>
 
@@ -113,7 +113,7 @@
 
 			<!-- buttons -->
 			<div class="add-config-button">
-				<button class="done action" use:Ripple={$ripple} on:click={handleTrigger}>
+				<button class="done action" use:Ripple={$ripple} onclick={handleTrigger}>
 					{$lang(current ? 'cancel' : 'trigger')}
 				</button>
 

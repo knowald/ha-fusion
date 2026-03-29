@@ -125,12 +125,12 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	id="editmode"
 	class="button"
-	on:click={handleClick}
+	onclick={handleClick}
 	style:color={$editMode ? '#3b0f10' : 'inherit'}
 	style:background-color={$editMode ? '#ffc107' : 'var(--theme-drawer-button-background-color)'}
 	style:width="{width + 1}px"

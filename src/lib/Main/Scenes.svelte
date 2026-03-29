@@ -52,7 +52,7 @@
 		class:active={active && !$editMode}
 		style:transition="background-color {active ? $motion / 2 : $motion}ms ease"
 		class="btn"
-		on:click={handleClick}
+		onclick={handleClick}
 		style:cursor={$editMode ? 'unset' : 'pointer'}
 		use:Ripple={{
 			...$ripple,

@@ -71,7 +71,7 @@
 	});
 </script>
 
-<svelte:window on:pointerup={handleEvent} />
+<svelte:window onpointerup={handleEvent} />
 
 {#if isOpen}
 	<Modal>
@@ -97,7 +97,7 @@
 				min={entity?.attributes?.min}
 				max={entity?.attributes?.max}
 				step={entity?.attributes?.step}
-				on:change={handleInputBox}
+				onchange={handleInputBox}
 			/>
 		{:else}
 			<RangeSlider
@@ -105,11 +105,11 @@
 				min={entity?.attributes?.min}
 				max={entity?.attributes?.max}
 				step={entity?.attributes?.step}
-				on:input={(event) => {
-					draggingValue = event?.detail;
+				oninput={(event) => {
+					draggingValue = event;
 				}}
-				on:change={(event) => {
-					handleChange(event?.detail);
+				onchange={(event) => {
+					handleChange(event);
 				}}
 			/>
 		{/if}

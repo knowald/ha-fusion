@@ -115,7 +115,7 @@
 					{#each attributes?.hvac_modes as hvacMode}
 						<button
 							title={$lang(hvacMode)}
-							on:click={() => handleClick('hvac_mode', hvacMode)}
+							onclick={() => handleClick('hvac_mode', hvacMode)}
 							class:selected={hvacMode === entity?.state}
 						>
 							<div class="icon">
@@ -129,9 +129,9 @@
 					options={optionsHvacModes}
 					placeholder={$lang('hvac_modes')}
 					value={entity?.state}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('hvac_mode', event?.detail);
+					onchange={(event) => {
+						if (event === null) return;
+						handleClick('hvac_mode', event);
 					}}
 				/>
 			{/if}
@@ -140,8 +140,8 @@
 		{#if supports?.TARGET_TEMPERATURE}
 			<WheelPicker
 				stateObj={entity}
-				on:change={(event) => {
-					handleClick('temperature', event?.detail);
+				onchange={(event) => {
+					handleClick('temperature', event);
 				}}
 			/>
 		{/if}
@@ -158,7 +158,7 @@
 						min={attributes?.min_temp}
 						max={attributes?.max_temp}
 						bind:value={attributes.target_temp_low}
-						on:change={handleChange}
+						onchange={handleChange}
 					/>
 					<div class="slider-value">{attributes?.target_temp_low}°</div>
 				</div>
@@ -173,7 +173,7 @@
 						min={attributes?.min_temp}
 						max={attributes?.max_temp}
 						bind:value={attributes.target_temp_high}
-						on:change={handleChange}
+						onchange={handleChange}
 					/>
 					<div class="slider-value">{attributes?.target_temp_high}°</div>
 				</div>
@@ -186,7 +186,7 @@
 				<div class="button-container">
 					{#each attributes?.fan_modes as fanMode}
 						<button
-							on:click={() => handleClick('fan_mode', fanMode)}
+							onclick={() => handleClick('fan_mode', fanMode)}
 							class:selected={attributes?.fan_mode === fanMode}
 						>
 							{$lang(fanMode)}
@@ -198,9 +198,9 @@
 					options={optionsFanModes}
 					placeholder={$lang('fan_modes')}
 					value={attributes?.fan_mode}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('fan_mode', event?.detail);
+					onchange={(event) => {
+						if (event === null) return;
+						handleClick('fan_mode', event);
 					}}
 				/>
 			{/if}
@@ -212,7 +212,7 @@
 				<div class="button-container">
 					{#each attributes?.swing_modes as swingMode}
 						<button
-							on:click={() => handleClick('swing_mode', swingMode)}
+							onclick={() => handleClick('swing_mode', swingMode)}
 							class:selected={attributes?.swing_mode === swingMode}
 						>
 							{$lang(swingMode)}
@@ -224,9 +224,9 @@
 					options={optionsSwingModes}
 					placeholder={$lang('swing_modes')}
 					value={attributes?.swing_mode}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('swing_mode', event?.detail);
+					onchange={(event) => {
+						if (event === null) return;
+						handleClick('swing_mode', event);
 					}}
 				/>
 			{/if}

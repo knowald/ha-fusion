@@ -28,7 +28,7 @@
 </script>
 
 {#if isOpen}
-	<Modal on:transitionend={handleEvent}>
+	<Modal ontransitionend={handleEvent}>
 		<h1 slot="title">{$lang('template')}</h1>
 
 		<h2>
@@ -67,8 +67,8 @@
 			type="jinja2"
 			transitionend={modalTransitionEnd}
 			autocompleteList={$autocompleteList}
-			on:change={(event) => {
-				value = event.detail;
+			onchange={(event) => {
+				value = event;
 				set('template', value);
 			}}
 		/>
@@ -78,7 +78,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -86,7 +86,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

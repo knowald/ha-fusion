@@ -180,7 +180,7 @@
 	}
 </script>
 
-<svelte:document on:keydown={handleKey} />
+<svelte:document onkeydown={handleKey} />
 
 {#if isOpen}
 	<Modal>
@@ -193,7 +193,7 @@
 			<InputClear
 				condition={todoInput}
 				let:padding
-				on:clear={() => {
+				onclear={() => {
 					todoInput = '';
 				}}
 			>
@@ -209,7 +209,7 @@
 				/>
 			</InputClear>
 
-			<form on:submit|preventDefault={add}>
+			<form onsubmit={(e) => { e.preventDefault(); add(e); }}>
 				<button
 					class="action done submit"
 					type="submit"
@@ -228,8 +228,8 @@
 		{#if items}
 			<section
 				use:dndzone={{ items, ...dndOptions }}
-				on:consider={handleDnd}
-				on:finalize={handleDnd}
+				onconsider={handleDnd}
+				onfinalize={handleDnd}
 			>
 				{#each items as item (item.uid)}
 					<div
@@ -246,13 +246,13 @@
 									type="checkbox"
 									checked={item.status === 'completed' ? true : false}
 									class="input-checkbox"
-									on:input={(event) => handleStatus(event, item.uid)}
+									oninput={(event) => handleStatus(event, item.uid)}
 								/>
 							</label>
 
 							<span
 								class="item-name"
-								on:click={async () => {
+								onclick={async () => {
 									selectedId = item.uid;
 									const inputElement = document.getElementById(item.uid);
 
@@ -260,18 +260,18 @@
 										inputElement.focus();
 									}
 								}}
-								on:keydown
+							
 								role="button"
 								tabindex="0"
 							>
 								{#if selectedId === item.uid}
-									<form on:submit={handleSubmit}>
+									<form onsubmit={handleSubmit}>
 										<input
 											id={item.uid}
 											value={item.summary}
 											class="inputname"
-											on:change={(event) => handleRename(event, item.uid)}
-											on:blur={() => {
+											onchange={(event) => handleRename(event, item.uid)}
+											onblur={() => {
 												selectedId = undefined;
 											}}
 										/>
@@ -296,7 +296,7 @@
 				class="action"
 				class:remove={anyCompleted}
 				class:done={!anyCompleted}
-				on:click={clear}
+				onclick={clear}
 				use:Ripple={$ripple}
 				style:opacity={!anyCompleted ? '0.3' : '1'}
 				disabled={!anyCompleted}

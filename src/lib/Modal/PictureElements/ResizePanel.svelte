@@ -22,9 +22,9 @@
 	}
 </script>
 
-<svelte:window on:pointermove={handlePointermove} on:pointerup={() => (resizing = false)} />
+<svelte:window onpointermove={handlePointermove} onpointerup={() => (resizing = false)} />
 
-<div on:pointerdown={() => (resizing = true)}></div>
+<div onpointerdown={() => (resizing = true)}></div>
 
 <style>
 	div {

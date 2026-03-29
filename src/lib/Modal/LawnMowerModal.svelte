@@ -62,7 +62,7 @@
 				<button
 					title={$lang('start_mowing')}
 					class:selected={entity?.state === 'mowing'}
-					on:click={() => handleClick('start_mowing')}
+					onclick={() => handleClick('start_mowing')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -75,7 +75,7 @@
 				<button
 					title={$lang('pause')}
 					class:selected={entity?.state === 'paused'}
-					on:click={() => handleClick('pause')}
+					onclick={() => handleClick('pause')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -87,7 +87,7 @@
 			{#if supports?.DOCK}
 				<button
 					title={$lang('return_home')}
-					on:click={() => handleClick('dock')}
+					onclick={() => handleClick('dock')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.85);">

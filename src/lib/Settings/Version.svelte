@@ -129,7 +129,7 @@
 
 	<button
 		class="action done"
-		on:click|preventDefault={() => {
+		onclick={(e) => { e.preventDefault();
 			busy = true;
 			fetchLatest();
 		}}

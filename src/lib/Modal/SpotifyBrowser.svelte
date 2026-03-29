@@ -409,7 +409,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'playlists'}
-					on:click={() => switchTab('playlists')}
+					onclick={() => switchTab('playlists')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:playlist-music" height="1.2rem" />
@@ -418,7 +418,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'albums'}
-					on:click={() => switchTab('albums')}
+					onclick={() => switchTab('albums')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:album" height="1.2rem" />
@@ -427,7 +427,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'tracks'}
-					on:click={() => switchTab('tracks')}
+					onclick={() => switchTab('tracks')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:music-note" height="1.2rem" />
@@ -436,7 +436,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'artists'}
-					on:click={() => switchTab('artists')}
+					onclick={() => switchTab('artists')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:account-music" height="1.2rem" />
@@ -481,7 +481,7 @@
 						</div>
 					{:else}
 						{#each filteredItems as item (item.id)}
-							<button class="item" on:click={() => playItem(item)} use:Ripple={$ripple}>
+							<button class="item" onclick={() => playItem(item)} use:Ripple={$ripple}>
 								{#if item.image_url}
 									<img src={item.image_url} alt={item.name} class="item-image" />
 								{:else}

@@ -80,9 +80,8 @@
 
 <div
 	id="markdown"
-	on:click={handleEvent}
-	on:pointerenter={handleEvent}
-	on:keydown
+	onclick={handleEvent}
+	onpointerenter={handleEvent}
 	role="button"
 	tabindex="0"
 >

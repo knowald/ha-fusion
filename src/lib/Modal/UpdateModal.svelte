@@ -187,7 +187,7 @@
 						class="action"
 						class:done={skipped}
 						class:remove={!skipped}
-						on:click={() => handleSkip(skipped ? 'clear_skipped' : 'skip')}
+						onclick={() => handleSkip(skipped ? 'clear_skipped' : 'skip')}
 						style:opacity={latest ? '0.5' : '1'}
 						disabled={latest}
 						use:Ripple={$ripple}
@@ -199,7 +199,7 @@
 				{#if supports?.INSTALL}
 					<button
 						class="done action"
-						on:click={handleInstall}
+						onclick={handleInstall}
 						disabled={latest}
 						style:opacity={inProgress || latest ? '0.5' : '1'}
 						use:Ripple={$ripple}

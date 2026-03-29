@@ -81,7 +81,7 @@
 				{options}
 				placeholder={$lang('options')}
 				value={attributes?.fan_speed}
-				on:change={(event) => handleChange(event?.detail)}
+				onchange={(event) => handleChange(event)}
 			/>
 		{/if}
 
@@ -94,7 +94,7 @@
 				<button
 					title={$lang('on')}
 					class:selected={entity?.state === 'on'}
-					on:click={() => handleClick('turn_on')}
+					onclick={() => handleClick('turn_on')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -107,7 +107,7 @@
 				<button
 					title={$lang('off')}
 					class:selected={entity?.state === 'off'}
-					on:click={() => handleClick('turn_off')}
+					onclick={() => handleClick('turn_off')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -120,7 +120,7 @@
 				<button
 					title={$lang('start')}
 					class:selected={entity?.state === 'cleaning'}
-					on:click={() => handleClick('start')}
+					onclick={() => handleClick('start')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -133,7 +133,7 @@
 				<button
 					title={$lang('pause')}
 					class:selected={entity?.state === 'paused'}
-					on:click={() => handleClick('pause')}
+					onclick={() => handleClick('pause')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -146,7 +146,7 @@
 				<button
 					title={$lang('stop')}
 					class:selected={entity?.state === 'idle'}
-					on:click={() => handleClick('stop')}
+					onclick={() => handleClick('stop')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -156,7 +156,7 @@
 			{/if}
 
 			{#if supports?.LOCATE}
-				<button title={$lang('locate')} on:click={() => handleClick('locate')} use:Ripple={$ripple}>
+				<button title={$lang('locate')} onclick={() => handleClick('locate')} use:Ripple={$ripple}>
 					<div class="icon" style="transform: scale(0.65);">
 						<Icon icon="fa:search" height="none" />
 					</div>
@@ -167,7 +167,7 @@
 				<button
 					title={$lang('return_home')}
 					class:selected={entity?.state === 'returning'}
-					on:click={() => handleClick('return_to_base')}
+					onclick={() => handleClick('return_to_base')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.85);">

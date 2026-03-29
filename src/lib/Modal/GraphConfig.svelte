@@ -120,7 +120,7 @@
 				{options}
 				placeholder={$lang('sensor')}
 				value={sel.entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -128,7 +128,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -143,7 +143,7 @@
 				autocomplete="off"
 				spellcheck="false"
 				bind:value={name}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				style:padding
 			/>
 		</InputClear>
@@ -155,7 +155,7 @@
 				options={periodOptions}
 				placeholder={$lang('period')}
 				value={sel?.period}
-				on:change={(event) => set('period', event)}
+				onchange={(event) => set('period', event)}
 			/>
 		{/if}
 
@@ -185,7 +185,7 @@
 			class="input"
 			type="number"
 			placeholder="2"
-			on:input={handleNumberRange}
+			oninput={handleNumberRange}
 			bind:value={stroke}
 			bind:this={numberElement}
 			min={range.min}
@@ -197,7 +197,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -205,7 +205,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

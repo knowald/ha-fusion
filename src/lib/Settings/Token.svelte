@@ -24,8 +24,8 @@
 	name="token"
 	placeholder={$lang('token')}
 	bind:value={token}
-	on:focus={handleFocus}
-	on:blur={handleFocus}
+	onfocus={handleFocus}
+	onblur={handleFocus}
 />
 
 <style>

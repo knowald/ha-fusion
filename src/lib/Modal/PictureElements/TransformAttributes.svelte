@@ -149,8 +149,8 @@
 		<div class="konva-attribute">
 			{#if attr.type === 'button'}
 				<button
-					on:click={attr?.onclick}
-					on:dblclick={attr?.ondblclick}
+					onclick={attr?.onclick}
+					ondblclick={attr?.ondblclick}
 					class:selected={attr?.selected}
 					style:opacity={selectedShapes?.length > 0 && selectedShape?.attrs?.draggable
 						? '1'
@@ -169,7 +169,7 @@
 					type="text"
 					id={attr?.id}
 					value={`${attr?.value ?? ''}${attr?.unit || ''}`}
-					on:change={(event) => handleInput(attr, event)}
+					onchange={(event) => handleInput(attr, event)}
 					disabled={attr?.disabled}
 				/>
 			{/if}
@@ -179,7 +179,7 @@
 	<div class="history">
 		<!-- UNDO -->
 		<button
-			on:click={() => konva.undo()}
+			onclick={() => konva.undo()}
 			title="Undo"
 			disabled={!($konvaStore?.undoStack?.length > 1)}
 		>
@@ -188,7 +188,7 @@
 
 		<!-- REDO -->
 		<button
-			on:click={() => konva.redo()}
+			onclick={() => konva.redo()}
 			title="Redo"
 			disabled={!($konvaStore?.redoStack?.length > 0)}
 		>
@@ -196,7 +196,7 @@
 		</button>
 
 		<!-- HELP -->
-		<button on:click={() => (showHelp = true)} title="Help">
+		<button onclick={() => (showHelp = true)} title="Help">
 			<Icon icon={icons?.['help']} />
 		</button>
 	</div>

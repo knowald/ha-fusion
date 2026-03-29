@@ -107,9 +107,9 @@
 
 <button
 	class="button"
-	on:pointerdown={startRecognition}
-	on:pointerup={stopRecognition}
-	on:pointerleave={stopRecognition}
+	onpointerdown={startRecognition}
+	onpointerup={stopRecognition}
+	onpointerleave={stopRecognition}
 	use:Ripple={$ripple}
 >
 	<figure>

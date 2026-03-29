@@ -288,7 +288,7 @@
 						<button
 							id={attr?.id}
 							class:selected={attr?.selected}
-							on:click={attr?.onclick}
+							onclick={attr?.onclick}
 							disabled={attr?.disabled}
 						>
 							<Icon icon={attr?.icon} width="20" height="20" />
@@ -299,20 +299,20 @@
 							id={attr?.id}
 							type={attr?.type}
 							value={attr?.value}
-							on:change={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
-							on:input={(event) => handleInput(selectedShape?.attrs?.id, attr?.id, event)}
+							onchange={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
+							oninput={(event) => handleInput(selectedShape?.attrs?.id, attr?.id, event)}
 							style:width={attr?.width}
 							disabled={attr?.disabled}
 						/>
 					{:else}
-						<!-- on:change -->
+						<!--onchange -->
 						<input
 							id={attr?.id}
 							class={attr?.className}
 							type={attr?.type}
 							list={attr?.list}
 							value={`${attr?.value ?? '0'}${attr?.unit || ''}`}
-							on:change={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
+							onchange={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
 							style:width={attr?.width}
 							disabled={attr?.disabled}
 						/>

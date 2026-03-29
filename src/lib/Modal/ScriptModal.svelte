@@ -67,7 +67,7 @@
 				<StateLogic entity_id={sel?.entity_id} selected={sel} />
 
 				<div class="toggle">
-					<Toggle bind:checked={toggle} on:change={() => handle('toggle')} />
+					<Toggle bind:checked={toggle} onchange={() => handle('toggle')} />
 				</div>
 			</div>
 

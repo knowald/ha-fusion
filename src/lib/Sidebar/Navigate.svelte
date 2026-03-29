@@ -77,7 +77,7 @@
 				style:cursor={$editMode || currentView ? 'unset' : 'pointer'}
 				animate:flip={{ duration: $motion }}
 				bind:this={buttons[view.id || 0]}
-				on:click={() => {
+				onclick={() => {
 					if (!$editMode && view.id && $currentViewId !== view.id) {
 						$currentViewId = view.id;
 						$highlightView = false;

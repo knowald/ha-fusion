@@ -38,8 +38,8 @@
 				{options}
 				placeholder={$lang('options')}
 				value={entity?.state}
-				on:change={(event) => {
-					handleChange(event?.detail);
+				onchange={(event) => {
+					handleChange(event);
 				}}
 			/>
 		{/if}

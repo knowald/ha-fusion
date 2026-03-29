@@ -47,7 +47,7 @@
 				<Select
 					value={sel?.entity_id}
 					placeholder={$lang('entity')}
-					on:change={(event) => set('entity_id', event)}
+					onchange={(event) => set('entity_id', event)}
 					{options}
 					computeIcons={true}
 				/>
@@ -59,7 +59,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -67,7 +67,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

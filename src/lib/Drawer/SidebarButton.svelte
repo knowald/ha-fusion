@@ -3,9 +3,8 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	import { createEventDispatcher } from 'svelte';
+	export let onclicked: (() => void) | undefined = undefined;
 
-	const dispatch = createEventDispatcher();
 
 	/**
 	 * Creates a new sidebar object in sidebar items
@@ -21,11 +20,11 @@
 
 		$record();
 
-		dispatch('clicked');
+		onclicked?.();
 	}
 </script>
 
-<button class="button dropdown" on:click={handleClick} use:Ripple={$ripple}>
+<button class="button dropdown" onclick={handleClick} use:Ripple={$ripple}>
 	<figure>
 		<Icon icon="solar:sidebar-minimalistic-bold-duotone" height="none" />
 	</figure>

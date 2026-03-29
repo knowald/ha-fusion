@@ -73,7 +73,7 @@
 		<!-- TOGGLE -->
 		<h2>{$lang('toggle')}</h2>
 
-		<Toggle bind:checked={toggle} on:change={() => handleEvent('toggle')} />
+		<Toggle bind:checked={toggle} onchange={() => handleEvent('toggle')} />
 
 		<!-- STATE -->
 		<h2>{$lang('state')}</h2>
@@ -101,8 +101,8 @@
 			bind:value={attr.humidity}
 			min={attr?.min_humidity}
 			max={attr?.max_humidity}
-			on:change={(event) => {
-				handleEvent('set_humidity', event?.detail);
+			onchange={(event) => {
+				handleEvent('set_humidity', event);
 			}}
 		/>
 
@@ -117,8 +117,8 @@
 				{options}
 				placeholder={$lang('mode')}
 				value={attr?.mode}
-				on:change={(event) => {
-					handleEvent('set_mode', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_mode', event);
 				}}
 			/>
 		{/if}

@@ -22,7 +22,7 @@
 	}
 </script>
 
-<button title={$lang('remove')} on:click={() => handleClick(item)}>
+<button title={$lang('remove')} onclick={() => handleClick(item)}>
 	<Icon icon="mingcute:close-fill" />
 </button>
 

@@ -3,9 +3,8 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	import { createEventDispatcher } from 'svelte';
+	export let onclicked: (() => void) | undefined = undefined;
 
-	const dispatch = createEventDispatcher();
 
 	export let view: any;
 
@@ -33,13 +32,13 @@
 
 		$record();
 
-		dispatch('clicked');
+		onclicked?.();
 	}
 </script>
 
 <button
 	class="button dropdown"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
 		opacity: noViews ? '0' : $ripple.opacity

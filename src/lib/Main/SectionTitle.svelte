@@ -1,27 +1,19 @@
 <script lang="ts">
 	import { editMode, lang, record } from '$lib/Stores';
-	import { createEventDispatcher } from 'svelte';
-
 	export let value: string;
-
 	let width: number;
 	let input: HTMLInputElement;
-
-	const dispatch = createEventDispatcher();
-
+	export let onsubmit: ((value: string) => void) | undefined = undefined;
 	/**
 	 * Dispatches title change on submit or blur,
 	 * also restores required title if empty
 	 */
 	function handleSubmit() {
 		if (!$editMode) return;
-
-		dispatch('submit', value);
+		onsubmit?.(value);
 		$record();
-
 		if (input) input.blur();
 	}
-
 	/**
 	 * Stops the propagation of the 'f' keydown event,
 	 * because `$drawerSearch` hijacks that key event.
@@ -32,7 +24,6 @@
 		}
 	}
 </script>
-
 <!-- reference width -->
 <div class="hidden" bind:offsetWidth={width}>
 	{#if value === ''}
@@ -41,22 +32,20 @@
 		{@html value.replaceAll(' ', '&nbsp;')}
 	{/if}
 </div>
-
-<form on:submit|preventDefault={handleSubmit}>
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
 	<input
 		class="input"
 		name={value}
 		bind:value
 		bind:this={input}
-		on:blur={handleSubmit}
-		on:keydown={handleKeydown}
+		onblur={handleSubmit}
+		onkeydown={handleKeydown}
 		style:width="{width + 1}px"
 		autocomplete="off"
 		spellcheck="false"
 		placeholder={$lang('section')}
 	/>
 </form>
-
 <style>
 	.hidden {
 		position: absolute;
@@ -64,7 +53,6 @@
 		pointer-events: none;
 		visibility: hidden;
 	}
-
 	.input {
 		border: none;
 		background: none;

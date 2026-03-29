@@ -21,9 +21,9 @@
 
 <button
 	class="button"
-	on:click={handleClick}
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onclick={handleClick}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={$ripple}
 >
 	<figure>

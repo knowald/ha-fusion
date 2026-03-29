@@ -102,14 +102,14 @@
 	}
 </script>
 
-<svelte:document on:keydown|stopPropagation={handleKeydown} />
+<svelte:document onkeydown={(e) => { e.stopPropagation(); handleKeydown(e); }} />
 
 <div
 	role="button"
 	tabindex="-1"
 	transition:fade={{ duration: $motion, easing: expoOut }}
-	on:click={handleClick}
-	on:keydown={handleKeydown}
+	onclick={handleClick}
+	onkeydown={handleKeydown}
 >
 	<div class="container">
 		{#each data as section}

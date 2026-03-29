@@ -66,7 +66,7 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -74,7 +74,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -84,7 +84,7 @@
 				id="bar_name"
 				type="text"
 				bind:value={name}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
 				class:input={true}
 				class:placeholder={!name}
@@ -106,7 +106,7 @@
 
 				<div class="pre-container" transition:slide={{ duration: $motion / 1.5 }}>
 					{#each formulas as formula}
-						<button class="math" on:click={() => set('math', formula)} use:Ripple={$ripple}>
+						<button class="math" onclick={() => set('math', formula)} use:Ripple={$ripple}>
 							<pre>{formula}</pre>
 						</button>
 					{/each}
@@ -116,7 +116,7 @@
 
 		<InputClear
 			condition={math}
-			on:clear={() => {
+			onclear={() => {
 				math = '';
 				set('math');
 			}}
@@ -126,7 +126,7 @@
 				id="bar_math"
 				class="input"
 				type="text"
-				on:input={(event) => set('math', event)}
+				oninput={(event) => set('math', event)}
 				bind:value={math}
 				placeholder="x"
 				autocomplete="off"
@@ -141,7 +141,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -149,7 +149,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

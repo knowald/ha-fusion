@@ -74,7 +74,7 @@
 
 		<Toggle
 			bind:checked={toggle}
-			on:change={() => {
+			onchange={() => {
 				const service = entity?.state !== 'off' ? 'turn_off' : 'turn_on';
 				handleEvent(service);
 			}}
@@ -105,8 +105,8 @@
 				bind:value={attributes.temperature}
 				min={parseInt(attributes?.min_temp)}
 				max={parseInt(attributes?.max_temp)}
-				on:change={(event) => {
-					handleEvent('set_temperature', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_temperature', event);
 				}}
 			/>
 		{/if}
@@ -121,8 +121,8 @@
 				{options}
 				placeholder={$lang('mode')}
 				value={attributes?.operation_mode}
-				on:change={(event) => {
-					handleEvent('set_operation_mode', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_operation_mode', event);
 				}}
 			/>
 		{/if}
@@ -136,7 +136,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.away_mode === 'off'}
-					on:click={() => {
+					onclick={() => {
 						handleEvent('set_away_mode', false);
 					}}
 					use:Ripple={$ripple}
@@ -146,7 +146,7 @@
 
 				<button
 					class:selected={attributes?.away_mode === 'on'}
-					on:click={() => {
+					onclick={() => {
 						handleEvent('set_away_mode', true);
 					}}
 					use:Ripple={$ripple}

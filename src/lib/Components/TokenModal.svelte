@@ -54,7 +54,7 @@
 			</p>
 		</div>
 
-		<form on:submit|preventDefault={handleClick}>
+		<form onsubmit={(e) => { e.preventDefault(); handleClick(e); }}>
 			<h2>{$lang('token')}</h2>
 
 			<input class="input" type="password" bind:value={token} />

@@ -106,10 +106,10 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen}
-	<Modal size="large" on:transitionend={() => (transitionend = true)}>
+	<Modal size="large" ontransitionend={() => (transitionend = true)}>
 		<h1 slot="title">{$lang('custom_css')}</h1>
 
 		<br />
@@ -123,8 +123,8 @@
 				{init}
 				{transitionend}
 				autocompleteList={[]}
-				on:change={(event) => {
-					value = event.detail;
+				onchange={(event) => {
+					value = event;
 				}}
 			/>
 		{/if}
@@ -147,7 +147,7 @@
 				class:changed
 				disabled={!changed || loading}
 				style:transition="background-color {$motion / 1.5}ms ease"
-				on:click={() => save(value)}
+				onclick={() => save(value)}
 			>
 				{$lang('save')}
 			</button>

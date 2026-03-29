@@ -169,10 +169,10 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen}
-	<Modal size="large" on:transitionend={() => (transitionend = true)}>
+	<Modal size="large" ontransitionend={() => (transitionend = true)}>
 		<h1 slot="title">{$lang('raw')}</h1>
 
 		<br />
@@ -184,8 +184,8 @@
 			bind:reloadView
 			{transitionend}
 			autocompleteList={$autocompleteList}
-			on:change={(event) => {
-				value = event.detail;
+			onchange={(event) => {
+				value = event;
 			}}
 		/>
 
@@ -207,7 +207,7 @@
 				class:changed
 				disabled={!changed}
 				style:transition="background-color {$motion / 1.5}ms ease"
-				on:click={() => save(value)}
+				onclick={() => save(value)}
 			>
 				{$lang('save')}
 			</button>

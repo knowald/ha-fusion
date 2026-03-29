@@ -51,8 +51,8 @@
 	tabindex="-1"
 	style:cursor={!$editMode ? 'pointer' : ''}
 	style:min-height="{$itemHeight}px"
-	on:click={handleClick}
-	on:keydown={(event) => {
+	onclick={handleClick}
+	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			handleClick();

@@ -71,7 +71,7 @@
 				placeholder={$lang('entity')}
 				value={sel?.entity_id}
 				defaultIcon="mdi:weather-cloudy"
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -84,7 +84,7 @@
 				options={sensorOptions}
 				placeholder="{$lang('state')} ({$lang('optional')})"
 				value={sel?.state}
-				on:change={(event) => set('state', event)}
+				onchange={(event) => set('state', event)}
 				clearable={true}
 			/>
 		{/if}
@@ -96,7 +96,7 @@
 				options={iconOptions}
 				placeholder={$lang('icon')}
 				value={sel?.icon_pack || 'meteocons'}
-				on:change={(event) => set('icon_pack', event)}
+				onchange={(event) => set('icon_pack', event)}
 			/>
 		{/if}
 
@@ -109,7 +109,7 @@
 				options={sensorOptions}
 				placeholder="{$lang('sensor')} ({$lang('optional')})"
 				value={sel?.sensor}
-				on:change={(event) => set('sensor', event)}
+				onchange={(event) => set('sensor', event)}
 				clearable={true}
 			/>
 		{/if}
@@ -121,7 +121,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -132,7 +132,7 @@
 					type="text"
 					placeholder="codicon:blank"
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 					autocomplete="off"
 					spellcheck="false"
@@ -143,7 +143,7 @@
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -158,7 +158,7 @@
 			<div class="button-container">
 				<button
 					class:selected={!sel?.show_apparent}
-					on:click={() => set('show_apparent', false)}
+					onclick={() => set('show_apparent', false)}
 					use:Ripple={$ripple}
 				>
 					{$lang('no')}
@@ -166,7 +166,7 @@
 
 				<button
 					class:selected={sel?.show_apparent}
-					on:click={() => set('show_apparent', true)}
+					onclick={() => set('show_apparent', true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('yes')}
@@ -179,7 +179,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -187,7 +187,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

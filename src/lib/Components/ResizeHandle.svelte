@@ -32,9 +32,9 @@
 	}
 </script>
 
-<svelte:document on:pointermove={handlePointerMove} on:pointerup={handlePointer} />
+<svelte:document onpointermove={handlePointerMove} onpointerup={handlePointer} />
 
-<div class="handle" on:pointerdown={handlePointer}>
+<div class="handle" onpointerdown={handlePointer}>
 	<div class="area"></div>
 </div>
 

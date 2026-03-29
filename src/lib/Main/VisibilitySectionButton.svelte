@@ -37,13 +37,13 @@
 	$: visible = handleAllConditions($editMode, $states, section);
 </script>
 
-<svelte:window on:resize={handleResize} />
+<svelte:window onresize={handleResize} />
 
 <button
 	title={!conditions ? $lang('visibility') : $lang(visible ? 'visible' : 'hidden')}
 	transition:scale={{ start: 0.9, duration: $motion }}
-	on:click={handleClick}
-	on:pointerdown|stopPropagation
+	onclick={handleClick}
+	onpointerdown={(e) => e.stopPropagation()}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 	style:color={conditions ? '#3b0f0f' : 'inherit'}
 	style:background-color={conditions ? '#ffc008' : 'var(--theme-button-background-color-off)'}

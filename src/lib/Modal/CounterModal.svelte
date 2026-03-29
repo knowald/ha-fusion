@@ -39,7 +39,7 @@
 				class:dim={!canDecrement}
 				style:cursor={!canDecrement ? 'unset' : 'pointer'}
 				style:transition="opacity {$motion}ms ease"
-				on:click={() => {
+				onclick={() => {
 					handleClick('decrement');
 				}}
 				use:Ripple={$ripple}
@@ -56,7 +56,7 @@
 				class:dim={!canIncrement}
 				style:cursor={!canIncrement ? 'unset' : 'pointer'}
 				style:transition="opacity {$motion}ms ease"
-				on:click={() => {
+				onclick={() => {
 					handleClick('increment');
 				}}
 				use:Ripple={$ripple}
@@ -68,7 +68,7 @@
 		<div class="add-config-button">
 			<button
 				class="done action"
-				on:click={() => {
+				onclick={() => {
 					handleClick('reset');
 				}}
 				use:Ripple={$ripple}

@@ -49,13 +49,13 @@
 		</div>
 
 		<div class="button-container">
-			<button class:selected={!sel?.mode} on:click={() => set('mode')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.mode} onclick={() => set('mode')} use:Ripple={$ripple}>
 				{$lang('divider')}
 			</button>
 
 			<button
 				class:selected={sel?.mode === 'empty'}
-				on:click={() => set('mode', 'empty')}
+				onclick={() => set('mode', 'empty')}
 				use:Ripple={$ripple}
 			>
 				{$lang('empty')}
@@ -67,7 +67,7 @@
 
 			<InputClear
 				condition={size}
-				on:clear={() => {
+				onclear={() => {
 					set('size');
 					size = undefined;
 				}}
@@ -80,7 +80,7 @@
 					class="input"
 					bind:value={size}
 					placeholder={defaultValue}
-					on:change={handleChange}
+					onchange={handleChange}
 					autocomplete="off"
 					spellcheck="false"
 					style:padding
@@ -93,7 +93,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -101,7 +101,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

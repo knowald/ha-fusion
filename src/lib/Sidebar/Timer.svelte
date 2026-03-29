@@ -154,7 +154,7 @@
 				class="start_pause"
 				style:cursor={$editMode ? 'unset' : 'pointer'}
 				style:pointer-events={$modals.length !== 0 ? 'auto' : 'unset'}
-				on:click={handleClick}
+				onclick={handleClick}
 				use:Ripple={{
 					...$ripple,
 					opacity: $editMode ? '0' : $ripple.opacity

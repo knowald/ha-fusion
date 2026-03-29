@@ -709,8 +709,8 @@
 			? 'cursor: default;'
 			: ''}
 	style:min-height="{$itemHeight}px"
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={{
 		...$ripple,
 		color: !$editMode
@@ -724,8 +724,7 @@
 
 	<div
 		class="left"
-		on:click|stopPropagation={isDisplayOnly ? () => {} : handleEvent}
-		on:keydown
+		onclick={(e) => { e.stopPropagation(); if (!isDisplayOnly) handleEvent(e); }}
 		role="button"
 		tabindex={isDisplayOnly ? '-1' : '0'}
 	>
@@ -768,18 +767,18 @@
 
 	<div
 		class="right"
-		on:click|stopPropagation={(event) => {
-			if (isSliding) return; // Don't trigger click if we were sliding
+		onclick={(event) => {
+			event.stopPropagation();
+			if (isSliding) return;
 			if (!$editMode) {
 				if (!isDisplayOnly) {
 					toggle();
 				}
-				// Display-only entities don't do anything on click
 			} else {
 				handleEvent(event);
 			}
 		}}
-		on:keydown={(event) => {
+		onkeydown={(event) => {
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				if (!$editMode && !isDisplayOnly) {
@@ -789,9 +788,9 @@
 				}
 			}
 		}}
-		on:pointerdown={handleSlideStart}
-		on:mousedown={handleSlideStart}
-		on:touchstart={handleSlideStart}
+		onpointerdown={handleSlideStart}
+		onmousedown={handleSlideStart}
+		ontouchstart={handleSlideStart}
 		role="button"
 		tabindex={isDisplayOnly ? '-1' : '0'}
 		aria-pressed={stateOn}

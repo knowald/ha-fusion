@@ -67,7 +67,7 @@
 				<button
 					class="remove-btn"
 					title={$lang('remove') || 'Remove'}
-					on:click={() => removeShortcut(index)}
+					onclick={() => removeShortcut(index)}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:close" height="1rem" />
@@ -80,7 +80,7 @@
 <div class="add-form">
 	<InputClear
 		condition={newName}
-		on:clear={() => (newName = '')}
+		onclear={() => (newName = '')}
 		let:padding
 	>
 		<input
@@ -96,7 +96,7 @@
 
 	<InputClear
 		condition={newUri}
-		on:clear={() => (newUri = '')}
+		onclear={() => (newUri = '')}
 		let:padding
 	>
 		<input
@@ -112,7 +112,7 @@
 
 	<InputClear
 		condition={newImageUrl}
-		on:clear={() => (newImageUrl = '')}
+		onclear={() => (newImageUrl = '')}
 		let:padding
 	>
 		<input
@@ -128,7 +128,7 @@
 
 	<button
 		class="add-btn"
-		on:click={addShortcut}
+		onclick={addShortcut}
 		disabled={!newName.trim() || !newUri.trim()}
 		use:Ripple={$ripple}
 	>

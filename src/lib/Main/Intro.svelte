@@ -90,7 +90,7 @@
 			<div style:height="3rem">
 				{#if displayMenuButton}
 					<button
-						on:click={() => ($showDrawer = true)}
+						onclick={() => ($showDrawer = true)}
 						transition:fade|global={{ duration: $motion }}
 						style:opacity={$showDrawer ? '0' : '1'}
 						style:pointer-events={$showDrawer ? 'none' : 'unset'}

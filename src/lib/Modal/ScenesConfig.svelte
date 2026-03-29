@@ -55,14 +55,14 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={entity_id}
-				on:change={(event) => {
-					if (event?.detail === null) return;
+				onchange={(event) => {
+					if (event === null) return;
 					set('entity_id', event);
 				}}
 				computeIcons={true}
 				getIconString={true}
-				on:iconString={(event) => {
-					computedIcon = event?.detail;
+				oniconString={(value) => {
+					computedIcon = value;
 				}}
 			/>
 		</div>
@@ -71,7 +71,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
@@ -85,7 +85,7 @@
 				autocomplete="off"
 				spellcheck="false"
 				bind:value={name}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				style:padding
 			/>
 		</InputClear>
@@ -97,7 +97,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -111,7 +111,7 @@
 					autocomplete="off"
 					spellcheck="false"
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 				/>
 			</InputClear>
@@ -120,7 +120,7 @@
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"

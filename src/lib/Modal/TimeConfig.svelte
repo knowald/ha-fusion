@@ -34,7 +34,7 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.hour12}
-				on:click={() => set('hour12', false)}
+				onclick={() => set('hour12', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('time_format_24')}
@@ -42,7 +42,7 @@
 
 			<button
 				class:selected={sel?.hour12}
-				on:click={() => set('hour12', true)}
+				onclick={() => set('hour12', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('time_format_12')}
@@ -54,7 +54,7 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.seconds}
-				on:click={() => set('seconds', false)}
+				onclick={() => set('seconds', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -62,7 +62,7 @@
 
 			<button
 				class:selected={sel?.seconds}
-				on:click={() => set('seconds', true)}
+				onclick={() => set('seconds', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -74,7 +74,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -82,7 +82,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

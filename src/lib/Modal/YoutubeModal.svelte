@@ -159,7 +159,7 @@
 </script>
 
 <svelte:window
-	on:beforeunload={() => {
+	onbeforeunload={() => {
 		controller?.abort?.();
 	}}
 />
@@ -193,7 +193,7 @@
 						<button
 							class="action remove"
 							style:margin-left="auto"
-							on:click={signOut}
+							onclick={signOut}
 							use:Ripple={{
 								...$ripple,
 								color: 'rgba(0, 0, 0, 0.35)'
@@ -232,7 +232,7 @@
 							bind:this={inputCode}
 							class="code"
 							class:copied
-							on:click={() => copyCode(user_code)}
+							onclick={() => copyCode(user_code)}
 							style:transition="background-color {$motion}ms"
 							type="text"
 							value={user_code}

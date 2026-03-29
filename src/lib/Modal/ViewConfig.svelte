@@ -42,7 +42,7 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = '';
 				set('name', nameConst);
 			}}
@@ -53,7 +53,7 @@
 				type="text"
 				bind:value={name}
 				placeholder={nameConst}
-				on:change={(event) => set('name', event)}
+				onchange={(event) => set('name', event)}
 				style:padding
 				autocomplete="off"
 				spellcheck="false"
@@ -65,7 +65,7 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
@@ -76,7 +76,7 @@
 					type="text"
 					placeholder={'fluent:tab-add-24-filled'}
 					bind:value={icon}
-					on:change={(event) => set('icon', event)}
+					onchange={(event) => set('icon', event)}
 					style:padding
 					autocomplete="off"
 					spellcheck="false"
@@ -85,7 +85,7 @@
 
 			<button
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				title={$lang('icon')}

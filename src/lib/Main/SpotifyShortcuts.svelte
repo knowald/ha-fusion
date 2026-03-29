@@ -99,7 +99,7 @@
 			<button
 				class="shortcut"
 				title={shortcut.name}
-				on:click={(e) => playShortcut(e, shortcut)}
+				onclick={(e) => playShortcut(e, shortcut)}
 			>
 				{#if shortcut.image_url}
 					<img src={shortcut.image_url} alt={shortcut.name} class="shortcut-image" />

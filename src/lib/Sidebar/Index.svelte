@@ -243,8 +243,8 @@
 				morphDisabled: true,
 				transformDraggedElement
 			}}
-			on:consider={handleSort}
-			on:finalize={handleSort}
+			onconsider={handleSort}
+			onfinalize={handleSort}
 		>
 			{#each $dashboard.sidebar as item (item.id)}
 				{@const hide_mobile = matches && item?.hide_mobile && !$editMode}
@@ -264,7 +264,7 @@
 				>
 					<!-- BAR -->
 					{#if Bar && item?.type === 'bar' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component
 								this={Bar}
 								entity_id={item?.entity_id}
@@ -276,19 +276,19 @@
 
 						<!-- CAMERA -->
 					{:else if Camera && item?.type === 'camera' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Camera} sel={item} />
 						</button>
 
 						<!-- CONFIGURE -->
 					{:else if Configure && item?.type === 'configure'}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
 							<svelte:component this={Configure} sel={item} />
 						</div>
 
 						<!-- DATE -->
 					{:else if Date && item?.type === 'date' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component
 								this={Date}
 								short_day={item?.short_day}
@@ -300,13 +300,13 @@
 
 						<!-- DIVIDER -->
 					{:else if Divider && item?.type === 'divider' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
+						<button onclick={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
 							<svelte:component this={Divider} mode={item?.mode} size={item?.size} />
 						</button>
 
 						<!-- GRAPH -->
 					{:else if Graph && item?.type === 'graph' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component
 								this={Graph}
 								entity_id={item?.entity_id}
@@ -318,7 +318,7 @@
 
 						<!-- HISTORY -->
 					{:else if History && item?.type === 'history' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component
 								this={History}
 								entity_id={item?.entity_id || ''}
@@ -328,19 +328,19 @@
 
 						<!-- IFRAME -->
 					{:else if Iframe && item?.type === 'iframe' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Iframe} url={item?.url} size={item?.size} />
 						</button>
 
 						<!-- NOTIFICATIONS -->
 					{:else if Notifications && item?.type === 'notifications' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Notifications} sel={item} />
 						</button>
 
 						<!-- IMAGE -->
 					{:else if Image && item?.type === 'image' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Image} entity_id={item?.entity_id} url={item?.url} />
 						</button>
 
@@ -348,10 +348,9 @@
 					{:else if Navigate && item?.type === 'navigate' && !hide_mobile}
 						{#key $editMode}
 							<div
-								on:click|preventDefault={() => {
+								onclick={(e) => { e.preventDefault();
 									if ($editMode) handleClick(item?.id);
 								}}
-								on:keydown
 								role="button"
 								tabindex="0"
 							>
@@ -361,7 +360,7 @@
 
 						<!-- RADIAL -->
 					{:else if Radial && item?.type === 'radial' && !hide_mobile}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
 							<svelte:component
 								this={Radial}
 								entity_id={item?.entity_id}
@@ -372,7 +371,7 @@
 
 						<!-- SENSOR -->
 					{:else if Sensor && item?.type === 'sensor' && !hide_mobile}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
 							<svelte:component
 								this={Sensor}
 								entity_id={item?.entity_id}
@@ -384,13 +383,13 @@
 
 						<!-- TEMPLATE -->
 					{:else if Template && item?.type === 'template' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Template} sel={item} />
 						</button>
 
 						<!-- TIME -->
 					{:else if Time && item?.type === 'time' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component
 								this={Time}
 								seconds={item?.seconds}
@@ -400,19 +399,19 @@
 
 						<!-- TIMER -->
 					{:else if Timer && item?.type === 'timer' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Timer} sel={item} />
 						</button>
 
 						<!-- WEATHER -->
 					{:else if Weather && item?.type === 'weather' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={Weather} sel={item} />
 						</button>
 
 						<!-- WEATHER FORECAST -->
 					{:else if WeatherForecast && item?.type === 'weather_forecast' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
+						<button onclick={() => handleClick(item?.id)}>
 							<svelte:component this={WeatherForecast} sel={item} />
 						</button>
 					{/if}

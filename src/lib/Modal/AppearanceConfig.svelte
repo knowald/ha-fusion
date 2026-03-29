@@ -91,14 +91,14 @@
 			<div class="button-container">
 				<button
 					class:selected={visibilityNavigate === false}
-					on:click={() => handleViews(false)}
+					onclick={() => handleViews(false)}
 					use:Ripple={$ripple}
 				>
 					{$lang('visible')}
 				</button>
 				<button
 					class:selected={visibilityNavigate === true}
-					on:click={() => handleViews(true)}
+					onclick={() => handleViews(true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('hidden')}
@@ -110,14 +110,14 @@
 		<div class="button-container">
 			<button
 				class:selected={visibilitySidebar === false}
-				on:click={() => handleSidebar(false)}
+				onclick={() => handleSidebar(false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
 			</button>
 			<button
 				class:selected={visibilitySidebar === true}
-				on:click={() => handleSidebar(true)}
+				onclick={() => handleSidebar(true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}
@@ -137,7 +137,7 @@
 						}}
 						class="container"
 						bind:this={buttons[theme?.title]}
-						on:click={() => {
+						onclick={() => {
 							setTheme(theme?.title);
 						}}
 						style:cursor={_theme ? 'unset' : 'pointer'}
@@ -160,12 +160,12 @@
 												color: 'rgba(0, 0, 0, 0.35)'
 											}}
 											class="edit"
-											on:click={() => {
+											onclick={() => {
 												openModal(() => import('$lib/Modal/ThemeEditor.svelte'), {
 													theme: theme
 												});
 											}}
-											on:keydown
+										
 											role="button"
 											tabindex="0"
 										>

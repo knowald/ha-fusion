@@ -47,7 +47,7 @@
 	options={entityOptions}
 	placeholder={$lang('entity')}
 	value={item.entity}
-	on:change={(event) => handleEntity(item?.id, event?.detail)}
+	onchange={(event) => handleEntity(item?.id, event)}
 	computeIcons={true}
 	defaultIcon={'mdi:state-machine'}
 />
@@ -60,7 +60,7 @@
 			data-modal
 			type="number"
 			value={item?.above !== undefined ? item.above : ''}
-			on:input={(event) => handleRange(item?.id, event?.target, 'above')}
+			oninput={(event) => handleRange(item?.id, event?.target, 'above')}
 			placeholder={$lang('above')}
 			autocomplete="off"
 		/>
@@ -71,7 +71,7 @@
 			data-modal
 			type="number"
 			value={item?.below !== undefined ? item.below : ''}
-			on:input={(event) => handleRange(item?.id, event?.target, 'below')}
+			oninput={(event) => handleRange(item?.id, event?.target, 'below')}
 			placeholder={$lang('below')}
 			autocomplete="off"
 		/>

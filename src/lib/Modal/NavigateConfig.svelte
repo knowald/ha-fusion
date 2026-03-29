@@ -25,7 +25,7 @@
 </script>
 
 {#if isOpen}
-	<Modal on:transitionend={handleEvent}>
+	<Modal ontransitionend={handleEvent}>
 		<h1 slot="title">{$lang('navigate')}</h1>
 
 		<h2>{$lang('preview')}</h2>
@@ -39,7 +39,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -47,7 +47,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

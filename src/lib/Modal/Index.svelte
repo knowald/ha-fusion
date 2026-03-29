@@ -157,9 +157,9 @@
 </script>
 
 <svelte:window
-	on:pointerup={handlePointerUp}
-	on:pointermove={handlePointerMove}
-	on:keydown={handleKeydown}
+	onpointerup={handlePointerUp}
+	onpointermove={handlePointerMove}
+	onkeydown={handleKeydown}
 />
 
 <div
@@ -174,7 +174,7 @@
 >
 	<div
 		id="modal"
-		on:pointerdown={handlePointerDown}
+		onpointerdown={handlePointerDown}
 		style:transform="translateY({top}px)"
 		style:transition={!draggingModal ? `transform ${$motion}ms ease-out` : 'none'}
 		use:trapFocus
@@ -191,7 +191,7 @@
 				</h1>
 
 				<button
-					on:click={() => {
+					onclick={() => {
 						closeModal();
 					}}
 					aria-label="close"

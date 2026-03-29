@@ -47,8 +47,8 @@
 			? `${entity_picture}${date ? '&date=' + date : ''}`
 			: 'about:blank'}
 	bind:this={img}
-	on:error={() => handleError(true)}
-	on:load={() => handleError(false)}
+	onerror={() => handleError(true)}
+	onload={() => handleError(false)}
 	style:display={broken ? 'none' : 'initial'}
 	style:width={responsive ? '100%' : 'calc(14.5rem * 2 + 0.4rem)'}
 	style:object-fit={size}

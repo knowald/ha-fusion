@@ -87,7 +87,7 @@
 				{options}
 				placeholder={$lang('sensor')}
 				value={entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -95,7 +95,7 @@
 
 		<InputClear
 			condition={prefix}
-			on:clear={() => {
+			onclear={() => {
 				prefix = undefined;
 				set('prefix');
 			}}
@@ -107,7 +107,7 @@
 				type="text"
 				bind:value={prefix}
 				placeholder="Prefix"
-				on:change={(event) => set('prefix', event)}
+				onchange={(event) => set('prefix', event)}
 				style:padding
 				autocomplete="off"
 				spellcheck="false"
@@ -118,7 +118,7 @@
 
 		<InputClear
 			condition={suffix}
-			on:clear={() => {
+			onclear={() => {
 				suffix = undefined;
 				set('suffix');
 			}}
@@ -130,7 +130,7 @@
 				type="text"
 				bind:value={suffix}
 				placeholder="Suffix"
-				on:change={(event) => set('suffix', event)}
+				onchange={(event) => set('suffix', event)}
 				style:padding
 				autocomplete="off"
 				spellcheck="false"
@@ -140,11 +140,11 @@
 		<h2>{$lang('date')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.date} on:click={() => set('date', false)} use:Ripple={$ripple}>
+			<button class:selected={!sel?.date} onclick={() => set('date', false)} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
-			<button class:selected={sel?.date} on:click={() => set('date', true)} use:Ripple={$ripple}>
+			<button class:selected={sel?.date} onclick={() => set('date', true)} use:Ripple={$ripple}>
 				{$lang('yes')}
 			</button>
 		</div>
@@ -154,7 +154,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -162,7 +162,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

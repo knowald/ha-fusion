@@ -35,7 +35,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.expand !== false}
-				on:click={() => set('expand')}
+				onclick={() => set('expand')}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -43,7 +43,7 @@
 
 			<button
 				class:selected={sel?.expand === false}
-				on:click={() => set('expand', false)}
+				onclick={() => set('expand', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -55,7 +55,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -63,7 +63,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

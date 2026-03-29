@@ -50,19 +50,19 @@
 
 		<div class="button-container">
 			{#if state === 'active'}
-				<button on:click={() => handleClick('pause')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('pause')} use:Ripple={$ripple}>
 					{$lang('pause')}
 				</button>
 
-				<button on:click={() => handleClick('finish')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('finish')} use:Ripple={$ripple}>
 					{$lang('finish')}
 				</button>
 			{:else}
-				<button on:click={() => handleClick('start')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('start')} use:Ripple={$ripple}>
 					{$lang('start')}
 				</button>
 
-				<button on:click={() => handleClick('cancel')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('cancel')} use:Ripple={$ripple}>
 					{$lang('cancel')}
 				</button>
 			{/if}
@@ -75,7 +75,7 @@
 
 			<button
 				class="input overflow"
-				on:click={() => {
+				onclick={() => {
 					const prevState = state;
 					callService($connection, 'timer', 'start', { entity_id, duration });
 					if (prevState !== 'active') callService($connection, 'timer', 'pause', { entity_id });

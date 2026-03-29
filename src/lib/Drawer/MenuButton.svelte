@@ -25,12 +25,12 @@
 </script>
 
 <button
-	on:click={handleClick}
+	onclick={handleClick}
 	bind:this={menu}
 	transition:fade={{ duration: $motion }}
 	title={$lang('menu')}
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={$ripple}
 >
 	<svg

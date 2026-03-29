@@ -16,7 +16,7 @@
 	</div>
 
 	<div style:margin-top="1.3rem">
-		<button class="editor-button" on:click={openEditor} use:Ripple={$ripple}>
+		<button class="editor-button" onclick={openEditor} use:Ripple={$ripple}>
 			{$lang('open_editor')}
 		</button>
 	</div>

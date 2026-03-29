@@ -48,7 +48,7 @@
 			max={entity?.attributes?.max}
 			value={state === 'unknown' ? '' : state}
 			type={entity?.attributes?.mode === 'password' ? (showPassword ? 'text' : 'password') : 'text'}
-			on:change={handleChange}
+			onchange={handleChange}
 		/>
 
 		<br />

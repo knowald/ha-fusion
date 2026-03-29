@@ -382,8 +382,8 @@
 	style:transition="opacity {$motion}ms ease, outline-color {$motion}ms ease"
 	style:opacity={$editMode && view?.sections.length === 0 ? '0' : '1'}
 	use:dndzone={{ ...dndOptions, type: 'section', items: view.sections }}
-	on:consider={dragSection}
-	on:finalize={dragSection}
+	onconsider={dragSection}
+	onfinalize={dragSection}
 >
 	{#each viewSections as section (`${section?.id}${section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 		<section
@@ -406,8 +406,8 @@
 						type: isDraggingHorizontalStack ? 'horizontal-stack' : isDraggingScenes ? 'scenes' : 'section',
 						items: section.sections ?? []
 					}}
-					on:consider={(event) => dragSection__stack(section.id, event)}
-					on:finalize={(event) => dragSection__stack(section.id, event)}
+					onconsider={(event) => dragSection__stack(section.id, event)}
+					onfinalize={(event) => dragSection__stack(section.id, event)}
 				>
 					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 						<section
@@ -431,8 +431,8 @@
 										type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
 										items: stackSection.sections ?? []
 									}}
-									on:consider={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
-									on:finalize={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
+									onconsider={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
+									onfinalize={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
 								>
 									{#each stackSection?.sections ?? [] as nestedSection (`${nestedSection?.id}${nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 										{@const empty = $editMode && !nestedSection?.items?.length}
@@ -453,8 +453,8 @@
 													items: nestedSection.items ?? [],
 													transformDraggedElement
 												}}
-												on:consider={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
-												on:finalize={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
+												onconsider={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
+												onfinalize={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
 											>
 												{#each nestedSection?.items ?? [] as item (item.id)}
 													<div
@@ -486,8 +486,8 @@
 										items: stackSection.items ?? [],
 										transformDraggedElement
 									}}
-									on:consider={(event) => dragItem__stack(stackSection.id, event)}
-									on:finalize={(event) => dragItem__stack(stackSection.id, event)}
+									onconsider={(event) => dragItem__stack(stackSection.id, event)}
+									onfinalize={(event) => dragItem__stack(stackSection.id, event)}
 								>
 									<!-- item -->
 									{#each stackSection?.items ?? [] as item (item.id)}
@@ -523,8 +523,8 @@
 						type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
 						items: section.sections ?? []
 					}}
-					on:consider={(event) => dragSection__stack(section.id, event)}
-					on:finalize={(event) => dragSection__stack(section.id, event)}
+					onconsider={(event) => dragSection__stack(section.id, event)}
+					onfinalize={(event) => dragSection__stack(section.id, event)}
 				>
 					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 						{@const empty = $editMode && !stackSection?.items?.length}
@@ -545,8 +545,8 @@
 									items: stackSection.items ?? [],
 									transformDraggedElement
 								}}
-								on:consider={(event) => dragItem__stack(stackSection.id, event)}
-								on:finalize={(event) => dragItem__stack(stackSection.id, event)}
+								onconsider={(event) => dragItem__stack(stackSection.id, event)}
+								onfinalize={(event) => dragItem__stack(stackSection.id, event)}
 							>
 								<!-- item -->
 								{#each stackSection?.items ?? [] as item (item.id)}
@@ -580,8 +580,8 @@
 						items: section.items ?? [],
 						transformDraggedElement: transformScenesElement
 					}}
-					on:consider={(event) => dragItem(section.id, event)}
-					on:finalize={(event) => dragItem(section.id, event)}
+					onconsider={(event) => dragItem(section.id, event)}
+					onfinalize={(event) => dragItem(section.id, event)}
 				>
 					{#each section?.items ?? [] as item, index (item.id)}
 						<div
@@ -612,8 +612,8 @@
 						items: section.items ?? [],
 						transformDraggedElement
 					}}
-					on:consider={(event) => dragItem(section.id, event)}
-					on:finalize={(event) => dragItem(section.id, event)}
+					onconsider={(event) => dragItem(section.id, event)}
+					onfinalize={(event) => dragItem(section.id, event)}
 				>
 					{#each section?.items ?? [] as item (item.id)}
 						<div

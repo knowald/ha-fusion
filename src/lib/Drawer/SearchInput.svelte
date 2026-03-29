@@ -93,7 +93,7 @@
 
 <InputClear
 	condition={$drawerSearch}
-	on:clear={() => {
+	onclear={() => {
 		$drawerSearch = undefined;
 	}}
 >
@@ -102,8 +102,8 @@
 		class="input"
 		bind:this={input}
 		bind:value={$drawerSearch}
-		on:click={() => ($focusSearch = true)}
-		on:blur={() => ($focusSearch = false)}
+		onclick={() => ($focusSearch = true)}
+		onblur={() => ($focusSearch = false)}
 		name="filter"
 		placeholder={$lang('search')}
 		autocomplete="off"

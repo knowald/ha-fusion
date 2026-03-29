@@ -70,7 +70,7 @@
 
 		<Toggle
 			bind:checked={toggle}
-			on:change={() => {
+			onchange={() => {
 				callService($connection, 'fan', 'toggle', {
 					entity_id: entity?.entity_id
 				});
@@ -96,9 +96,9 @@
 				min={0}
 				max={100}
 				step={attributes?.percentage_step.toFixed(2)}
-				on:change={(event) => {
+				onchange={(event) => {
 					request = undefined;
-					handleChange('set_percentage', 'percentage', Math.round(event?.detail));
+					handleChange('set_percentage', 'percentage', Math.round(event));
 				}}
 			/>
 		{/if}
@@ -110,7 +110,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.oscillating === true}
-					on:click={() => {
+					onclick={() => {
 						handleChange('oscillate', 'oscillating', true);
 					}}
 					use:Ripple={$ripple}
@@ -120,7 +120,7 @@
 
 				<button
 					class:selected={attributes?.oscillating === false}
-					on:click={() => {
+					onclick={() => {
 						handleChange('oscillate', 'oscillating', false);
 					}}
 					use:Ripple={$ripple}
@@ -137,7 +137,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.direction === 'forward'}
-					on:click={() => {
+					onclick={() => {
 						handleChange('set_direction', 'direction', 'forward');
 					}}
 					use:Ripple={$ripple}
@@ -147,7 +147,7 @@
 
 				<button
 					class:selected={attributes?.direction === 'reverse'}
-					on:click={() => {
+					onclick={() => {
 						handleChange('set_direction', 'direction', 'reverse');
 					}}
 					use:Ripple={$ripple}
@@ -166,8 +166,8 @@
 				defaultIcon="mdi:fan"
 				placeholder={$lang('mode')}
 				value={attributes?.preset_mode}
-				on:change={(event) => {
-					handleChange('set_preset_mode', 'preset_mode', event?.detail);
+				onchange={(event) => {
+					handleChange('set_preset_mode', 'preset_mode', event);
 				}}
 			/>
 		{/if}

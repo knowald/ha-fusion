@@ -176,7 +176,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class="konva-header"
-	on:click={() => {
+	onclick={() => {
 		collapsed = !collapsed;
 	}}
 >
@@ -194,7 +194,7 @@
 		<button
 			title={testState === undefined ? 'Test' : testState ? 'Success' : 'Open Browser Console'}
 			{disabled}
-			on:click|stopPropagation={handleClick}
+			onclick={(e) => { e.stopPropagation(); handleClick(e); }}
 		>
 			{#if testState === undefined}
 				<Icon icon={icons['test']} width="20" height="20" />
@@ -223,7 +223,7 @@
 				type="text"
 				list="serviceOptions"
 				value={selectedService}
-				on:change={handleChange}
+				onchange={handleChange}
 				{disabled}
 			/>
 		</div>
@@ -236,7 +236,7 @@
 				type="text"
 				list="entityOptions"
 				value={selectedTarget}
-				on:change={handleChange}
+				onchange={handleChange}
 				{disabled}
 			/>
 		</div>
@@ -247,7 +247,7 @@
 				id="data"
 				title="JSON (optional)"
 				value={serviceData}
-				on:change={handleChange}
+				onchange={handleChange}
 				{disabled}
 				spellcheck="false"
 			></textarea>

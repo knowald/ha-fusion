@@ -89,7 +89,7 @@
 			{#if $editMode}
 				<EditViewButton
 					{view}
-					on:change={(event) => {
+					onchange={(event) => {
 						editViewButtonWidth = event?.detail;
 					}}
 				/>
@@ -114,22 +114,22 @@
 								morphDisabled: true,
 								zoneTabIndex: -1
 							}}
-							on:consider={handleDragEvent}
-							on:finalize={handleDragEvent}
+							onconsider={handleDragEvent}
+							onfinalize={handleDragEvent}
 						>
 							{#each $dashboard.views as view (view.id)}
 								<button
 									id={String(view.id)}
 									class="nav-button"
 									bind:this={buttons[view.id || 0]}
-									on:click={() => {
+									onclick={() => {
 										if ($currentViewId !== view.id) {
 											$currentViewId = view.id;
 											$viewUnderline = false;
 											$highlightView = false;
 										}
 									}}
-									on:transitionend={() => {
+									ontransitionend={() => {
 										if ($currentViewId === view.id) {
 											$viewUnderline = true;
 										}

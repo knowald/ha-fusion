@@ -39,14 +39,14 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.short_day}
-				on:click={() => set('short_day', false)}
+				onclick={() => set('short_day', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('max_length')}
 			</button>
 			<button
 				class:selected={sel?.short_day}
-				on:click={() => set('short_day', true)}
+				onclick={() => set('short_day', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('min_length')}
@@ -58,14 +58,14 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.short_month}
-				on:click={() => set('short_month', false)}
+				onclick={() => set('short_month', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('max_length')}
 			</button>
 			<button
 				class:selected={sel?.short_month}
-				on:click={() => set('short_month', true)}
+				onclick={() => set('short_month', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('min_length')}
@@ -77,14 +77,14 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.hide || sel?.hide === 'none'}
-				on:click={() => set('hide', 'none')}
+				onclick={() => set('hide', 'none')}
 				use:Ripple={$ripple}
 			>
 				{$lang('none')}
 			</button>
 			<button
 				class:selected={sel?.hide === 'day'}
-				on:click={() => {
+				onclick={() => {
 					set('hide', 'day');
 					set('layout', 'vertical');
 				}}
@@ -94,7 +94,7 @@
 			</button>
 			<button
 				class:selected={sel?.hide === 'month'}
-				on:click={() => {
+				onclick={() => {
 					set('hide', 'month');
 					set('layout', 'vertical');
 				}}
@@ -109,14 +109,14 @@
 			<div class="button-container">
 				<button
 					class:selected={!sel?.layout || sel?.layout === 'vertical'}
-					on:click={() => set('layout', 'vertical')}
+					onclick={() => set('layout', 'vertical')}
 					use:Ripple={$ripple}
 				>
 					{$lang('vertical')}
 				</button>
 				<button
 					class:selected={sel?.layout === 'horizontal'}
-					on:click={() => set('layout', 'horizontal')}
+					onclick={() => set('layout', 'horizontal')}
 					use:Ripple={$ripple}
 				>
 					{$lang('horizontal')}
@@ -129,7 +129,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -137,7 +137,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

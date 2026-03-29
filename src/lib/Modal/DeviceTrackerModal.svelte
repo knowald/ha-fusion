@@ -284,7 +284,7 @@
 			<div bind:this={geolocate} class="maplibregl-ctrl maplibregl-ctrl-group" style:display="none">
 				<button
 					class="maplibregl-ctrl-geolocate"
-					on:click={() => {
+					onclick={() => {
 						map.easeTo({
 							center: coordinates,
 							zoom: 17.5,
@@ -302,7 +302,7 @@
 		<div bind:this={theme} class="maplibregl-ctrl maplibregl-ctrl-group" style:display="none">
 			<button
 				class="maplibregl-ctrl-geolocate"
-				on:click={() => {
+				onclick={() => {
 					if (mode === 'light') {
 						map.setStyle(styles.dark, { diff: false });
 						mode = 'dark';
@@ -336,7 +336,7 @@
 				id="marker"
 				bind:this={markerIcon}
 				style:background-image={entity_picture ? `url("${entity_picture}")` : 'none'}
-				on:click={() => {
+				onclick={() => {
 					if (popup?.isOpen()) {
 						popup.remove();
 					} else {

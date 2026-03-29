@@ -1,10 +1,11 @@
 <script>
 	// https://svelte.dev/repl/35d77f2ab11e4197a19ffd8e7c4ac74e
 	export let checked = false;
+	export let onchange = undefined;
 </script>
 
 <label class="switch">
-	<input name="toggle" type="checkbox" bind:checked on:change />
+	<input name="toggle" type="checkbox" bind:checked onchange={onchange} />
 	<span class="slider" data-exclude-drag-modal></span>
 </label>
 

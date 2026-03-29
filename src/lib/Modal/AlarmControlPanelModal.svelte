@@ -109,8 +109,8 @@
 				{options}
 				placeholder={$lang('alarm_modes_label')}
 				value={'alarm_disarm'}
-				on:change={(event) => {
-					selectedService = event.detail;
+				onchange={(event) => {
+					selectedService = event;
 				}}
 			/>
 		{/if}
@@ -120,13 +120,13 @@
 
 			<div class="buttons">
 				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit}
-					<button on:click={() => addCode(digit)} use:Ripple={$ripple}>
+					<button onclick={() => addCode(digit)} use:Ripple={$ripple}>
 						{digit}
 					</button>
 				{/each}
 
 				<button
-					on:click={clearCode}
+					onclick={clearCode}
 					use:Ripple={$ripple}
 					style:background-color={code === '' ? '' : '#422522'}
 					style:transition="background-color {$motion}ms ease"
@@ -140,9 +140,9 @@
 					></Icon>
 				</button>
 
-				<button on:click={() => addCode(0)} use:Ripple={$ripple}>0</button>
+				<button onclick={() => addCode(0)} use:Ripple={$ripple}>0</button>
 
-				<button on:click={enterCode} use:Ripple={$ripple} style:background-color="#293828">
+				<button onclick={enterCode} use:Ripple={$ripple} style:background-color="#293828">
 					<Icon icon="gravity-ui:check" height="none" style="width: 1.8rem; color: #67ad5b;"></Icon>
 				</button>
 			</div>

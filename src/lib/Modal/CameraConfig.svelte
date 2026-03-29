@@ -55,7 +55,7 @@
 				{options}
 				placeholder={$lang('camera')}
 				value={entity?.entity_id}
-				on:change={(event) => {
+				onchange={(event) => {
 					set('entity_id', event);
 				}}
 			/>
@@ -64,13 +64,13 @@
 		<h2>{$lang('live')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.stream} on:click={() => set('stream')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.stream} onclick={() => set('stream')} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
 			<button
 				class:selected={sel?.stream === true}
-				on:click={() => set('stream', true)}
+				onclick={() => set('stream', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -80,13 +80,13 @@
 		<h2>{$lang('size')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.size} on:click={() => set('size')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.size} onclick={() => set('size')} use:Ripple={$ripple}>
 				{$lang('fill')}
 			</button>
 
 			<button
 				class:selected={sel?.size === 'contain'}
-				on:click={() => set('size', 'contain')}
+				onclick={() => set('size', 'contain')}
 				use:Ripple={$ripple}
 			>
 				{$lang('aspect_ratio')}
@@ -100,7 +100,7 @@
 			<div class="button-container">
 				<button
 					class:selected={sel?.hide_mobile !== true}
-					on:click={() => set('hide_mobile')}
+					onclick={() => set('hide_mobile')}
 					use:Ripple={$ripple}
 				>
 					{$lang('visible')}
@@ -108,7 +108,7 @@
 
 				<button
 					class:selected={sel?.hide_mobile === true}
-					on:click={() => set('hide_mobile', true)}
+					onclick={() => set('hide_mobile', true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('hidden')}

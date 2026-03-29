@@ -51,7 +51,7 @@
 					value={sel?.entity_id}
 					placeholder={$lang('entity')}
 					defaultIcon="mdi:image"
-					on:change={(event) => set('entity_id', event)}
+					onchange={(event) => set('entity_id', event)}
 					{options}
 					computeIcons={true}
 				/>
@@ -62,7 +62,7 @@
 
 		<InputClear
 			condition={url}
-			on:clear={() => {
+			onclear={() => {
 				url = undefined;
 				set('url');
 			}}
@@ -73,7 +73,7 @@
 				class="input"
 				bind:value={url}
 				placeholder="https://"
-				on:change={(event) => set('url', event)}
+				onchange={(event) => set('url', event)}
 				autocomplete="off"
 				spellcheck="false"
 				style:padding
@@ -85,7 +85,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -93,7 +93,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

@@ -232,7 +232,7 @@
 	}
 </script>
 
-<svelte:window on:keydown|capture={handleKeydown} />
+<svelte:window onkeydowncapture={handleKeydown} />
 
 {#if isOpen}
 	<Modal size="large">
@@ -241,7 +241,7 @@
 		<div class="search">
 			<InputClear
 				condition={searchString}
-				on:clear={() => {
+				onclear={() => {
 					searchString = '';
 				}}
 				let:padding
@@ -263,7 +263,7 @@
 		<div class="container">
 			{#each filter as { id, type, component, props, style } (id)}
 				<button
-					on:click={() => handleClick(id)}
+					onclick={() => handleClick(id)}
 					animate:flip={{ duration: $motion }}
 					style:text-align={style?.['text-align'] || 'start'}
 					use:Ripple={$ripple}

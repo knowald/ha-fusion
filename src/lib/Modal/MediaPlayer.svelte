@@ -154,12 +154,12 @@
 				value={rangeValue}
 				min={0}
 				max={attributes?.media_duration}
-				on:input={(event) => {
-					handleChange(event.detail);
+				oninput={(event) => {
+					handleChange(event);
 				}}
-				on:dragging={(event) => {
-					isDragging = event.detail;
-					if (event.detail) {
+				ondragging={(value) => {
+					isDragging = value;
+					if (value) {
 						clearTimeout(debounceTimeout);
 					}
 				}}
@@ -172,7 +172,7 @@
 			<!-- previous -->
 			<button
 				use:Ripple={$ripple}
-				on:click={() => {
+				onclick={() => {
 					handleClick('media_previous_track');
 				}}
 			>
@@ -183,7 +183,7 @@
 			<button
 				use:Ripple={$ripple}
 				style:display={entity?.state === 'playing' ? 'block' : 'none'}
-				on:click={() => {
+				onclick={() => {
 					handleClick('media_pause');
 				}}
 			>
@@ -192,7 +192,7 @@
 
 			<!-- play -->
 			<button
-				on:click={() => handleClick('media_play')}
+				onclick={() => handleClick('media_play')}
 				use:Ripple={$ripple}
 				style:display={entity?.state !== 'playing' ? 'block' : 'none'}
 			>
@@ -200,7 +200,7 @@
 			</button>
 
 			<!-- next -->
-			<button on:click={() => handleClick('media_next_track')} use:Ripple={$ripple}>
+			<button onclick={() => handleClick('media_next_track')} use:Ripple={$ripple}>
 				<Icon icon="ic:round-fast-forward" height="none" />
 			</button>
 		</div>
@@ -211,7 +211,7 @@
 
 		<div class="vol-container">
 			<!-- volume_up -->
-			<button on:click={() => handleClick('volume_up')} use:Ripple={$ripple}>
+			<button onclick={() => handleClick('volume_up')} use:Ripple={$ripple}>
 				<div style="scale: 90%; margin-bottom: -0.2rem;">
 					<Icon icon="typcn:plus" height="none" />
 				</div>
@@ -223,7 +223,7 @@
 			<!-- volume_down -->
 			<button
 				use:Ripple={$ripple}
-				on:click={() => {
+				onclick={() => {
 					handleClick('volume_down');
 				}}
 			>

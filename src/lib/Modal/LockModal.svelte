@@ -56,7 +56,7 @@
 			<StateLogic entity_id={sel?.entity_id} selected={sel} />
 
 			<div class="toggle">
-				<Toggle bind:checked={toggle} on:change={handleClick} />
+				<Toggle bind:checked={toggle} onchange={handleClick} />
 			</div>
 		</div>
 
@@ -68,7 +68,7 @@
 					class:opening
 					style:transition="background-color {$motion}ms ease"
 					use:Ripple={$ripple}
-					on:click={handleOpen}
+					onclick={handleOpen}
 				>
 					{$lang(opening ? 'open_door_success' : 'open_door')}
 				</button>

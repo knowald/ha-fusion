@@ -282,10 +282,10 @@
 
 <div
 	data-exclude-drag-modal
-	on:keydown
+
 	tabindex="0"
 	role="button"
-	on:click={handleClick}
+	onclick={handleClick}
 	class="container"
 	style:background-image={backgroundImage}
 	style:height="calc({$itemHeight}px * 4 + 0.4rem * 3)"

@@ -54,13 +54,13 @@
 		value={rangeValue}
 		min={0}
 		max={255}
-		on:input={(event) => {
-			current = Math.round(event.detail / 2.55);
-			handleChange(Math.round(event.detail));
+		oninput={(event) => {
+			current = Math.round(event / 2.55);
+			handleChange(Math.round(event));
 		}}
-		on:change={(event) => {
+		onchange={(event) => {
 			request = undefined;
-			handleChange(Math.round(event.detail));
+			handleChange(Math.round(event));
 		}}
 	/>
 {/if}

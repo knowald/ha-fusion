@@ -145,8 +145,8 @@
 	style:cursor={!$editMode ? 'pointer' : ''}
 	style:height="calc({$itemHeight}px * 4 + 0.4rem * 3)"
 	style:background-image={entity_picture && is_playing ? `url(${entity_picture})` : 'none'}
-	on:click={handleClick}
-	on:keydown={(event) => {
+	onclick={handleClick}
+	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			handleClick();

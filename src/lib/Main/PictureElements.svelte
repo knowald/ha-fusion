@@ -83,7 +83,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 
 <div
-	on:click={handleClick}
+	onclick={handleClick}
 	bind:this={canvas}
 	style:cursor={$editMode ? 'unset' : 'default'}
 	style:height="calc({$itemHeight}px * 4 + 0.4rem * 3)"

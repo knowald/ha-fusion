@@ -39,7 +39,7 @@
 		{$lang('nothing_configured')}
 	</span>
 
-	<button on:click={handleClick} use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}>
+	<button onclick={handleClick} use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}>
 		{$lang('edit')}
 	</button>
 </div>

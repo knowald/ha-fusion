@@ -37,7 +37,7 @@
 <div>
 	{#each buttons as button}
 		{#if button?.id}
-			<button class="action options" on:click={() => handleClick(button?.id)} use:Ripple={$ripple}>
+			<button class="action options" onclick={() => handleClick(button?.id)} use:Ripple={$ripple}>
 				{$lang(button?.id)}
 			</button>
 		{/if}

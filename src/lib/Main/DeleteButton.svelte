@@ -43,8 +43,8 @@
 <button
 	title={$lang('remove')}
 	transition:scale={{ start: 0.9, duration: $motion }}
-	on:click={handleClick}
-	on:pointerdown|stopPropagation
+	onclick={handleClick}
+	onpointerdown={(e) => e.stopPropagation()}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 >
 	<div class="icon">
