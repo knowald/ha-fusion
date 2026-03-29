@@ -4,7 +4,7 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import Icon from '@iconify/svelte';
 
-	export let eyeWidth: number;
+	let { eyeWidth = $bindable() }: { eyeWidth: number } = $props();
 
 	/**
 	 * Opens modal and highlights `hide_views`

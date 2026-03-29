@@ -9,25 +9,24 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: toggle = entity?.state !== 'off';
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state !== 'off');
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		TARGET_TEMPERATURE: 1,
 		OPERATION_MODE: 2,
 		AWAY_MODE: 4
-	});
+	}));
 
-	$: options = attributes?.operation_list?.map((option: string) => ({
+	let options = $derived(attributes?.operation_list?.map((option: string) => ({
 		id: option,
 		icon: icons?.[option] || 'mdi:water-percent',
 		label: $lang(`water_heater_${option}`)
-	}));
+	})));
 
 	const icons: Record<string, string> = {
 		eco: 'mdi:leaf',

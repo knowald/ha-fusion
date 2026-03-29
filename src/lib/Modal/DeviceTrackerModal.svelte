@@ -10,10 +10,9 @@
 	import { getName } from '$lib/Utils';
 	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity: HassEntity;
+	let entity = $state<HassEntity>(undefined!);
 	let map: Map;
 	let popup: Popup;
 	let mode: 'demo' | 'light' | 'dark';
@@ -23,7 +22,7 @@
 	let markerContainer: HTMLDivElement;
 	let markerIcon: HTMLButtonElement;
 	let controlButtonsIconColor: string;
-	let loadError: boolean;
+	let loadError = $state<boolean>(false);
 
 	const zoom = 13.5;
 	const pitch = 0;
@@ -54,16 +53,17 @@
 		}
 	};
 
-	/** Updates entity if `last_updated` attribute changes */
-	$: if ($states?.[sel?.entity_id]?.last_updated !== entity?.last_updated)
-		entity = $states?.[sel?.entity_id];
+	$effect(() => {
+		if ($states?.[sel?.entity_id]?.last_updated !== entity?.last_updated)
+			entity = $states?.[sel?.entity_id];
+	});
 
-	$: entity_picture = entity?.attributes?.entity_picture;
+	let entity_picture = $derived(entity?.attributes?.entity_picture);
 
-	$: coordinates = {
+	let coordinates = $derived({
 		lon: entity?.attributes?.longitude,
 		lat: entity?.attributes?.latitude
-	};
+	});
 
 	onMount(async () => {
 		mode = !apiKey ? 'demo' : localStorage.getItem('darkMap') === 'true' ? 'dark' : 'light';

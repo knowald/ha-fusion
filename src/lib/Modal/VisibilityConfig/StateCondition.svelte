@@ -3,10 +3,9 @@
 	import Select from '$lib/Components/Select.svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
-	$: entityOptions = $entityList('');
+	let entityOptions = $derived($entityList(''));
 
 	const stateOptions = [
 		{ id: 'state', label: $lang('state_equal') },

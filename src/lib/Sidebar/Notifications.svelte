@@ -16,11 +16,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { marked } from 'marked';
 
-	export let sel: any = undefined;
-	let expanded = false;
+	let { sel = undefined }: { sel?: any } = $props();
+	let expanded = $state(false);
 
-	$: length = Object.entries($persistentNotifications)?.length;
-	$: empty = length < 1;
+	let length = $derived(Object.entries($persistentNotifications)?.length);
+	let empty = $derived(length < 1);
 
 	function handleClick(key: string) {
 		if ($editMode) return;

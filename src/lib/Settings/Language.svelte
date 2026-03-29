@@ -3,10 +3,7 @@
 	import { translation, selectedLanguage, lang } from '$lib/Stores';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let languages: {
-		id: string;
-		label: string;
-	}[];
+	let { languages }: { languages: { id: string; label: string }[] } = $props();
 
 	async function loadSelectedLang(value: string) {
 		$selectedLanguage = value;

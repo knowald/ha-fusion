@@ -9,27 +9,26 @@
 	import Toggle from '$lib/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	$: entity = $states?.[selected?.entity_id] as HassEntity;
-	$: attributes = entity?.attributes;
-	$: toggle = entity?.state === 'on';
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[selected?.entity_id] as HassEntity);
+	let attributes = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state === 'on');
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		SET_SPEED: 1,
 		OSCILLATE: 2,
 		DIRECTION: 4,
 		PRESET_MODE: 8
-	});
+	}));
 
-	$: options = attributes?.preset_modes?.map((option: string) => ({
+	let options = $derived(attributes?.preset_modes?.map((option: string) => ({
 		id: option,
 		label: option
-	}));
+	})));
 
 	async function handleChange(
 		service: string,

@@ -8,8 +8,7 @@
 	import { updateObj } from '$lib/Utils';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: NavigateItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: NavigateItem } = $props();
 
 	let modalTransitionEnd = false;
 	function handleEvent() {

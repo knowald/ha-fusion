@@ -17,22 +17,24 @@
 	import EditViewButton from '$lib/Main/EditViewButton.svelte';
 	import EyeIndicator from '$lib/Main/EyeIndicator.svelte';
 
-	export let view: any;
+	let { view }: { view: any } = $props();
 
 	let buttons: { [key: number]: HTMLButtonElement } = {};
-	let width: number;
-	let left: number;
+	let width = $state<number>(0);
+	let left = $state<number>(0);
 
 	/**
 	 * Compute width and left values on active view-button
 	 */
-	$: if ($currentViewId && !$modals.length) {
-		const activeButton = buttons[$currentViewId];
-		if (activeButton) {
-			width = activeButton.clientWidth - 1;
-			left = activeButton.offsetLeft;
+	$effect(() => {
+		if ($currentViewId && !$modals.length) {
+			const activeButton = buttons[$currentViewId];
+			if (activeButton) {
+				width = activeButton.clientWidth - 1;
+				left = activeButton.offsetLeft;
+			}
 		}
-	}
+	});
 
 	const borderStyle = '3px solid white';
 
@@ -77,9 +79,9 @@
 	});
 
 	// navbar = 100% - (sidebar & padding & eye & button & padding + safety margin)
-	let editViewButtonWidth: number;
-	let eyeWidth: number;
-	$: navWidth = `calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`;
+	let editViewButtonWidth = $state<number>(0);
+	let eyeWidth = $state<number>(0);
+	let navWidth = $derived(`calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`);
 </script>
 
 <nav>

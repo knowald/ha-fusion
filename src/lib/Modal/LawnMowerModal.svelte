@@ -7,8 +7,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	// const demo = {
 	// 	entity_id: 'lawn_mower.demo_lawn_mower',
@@ -26,16 +25,16 @@
 	// 	last_updated: '2024-01-18T19:46:40.471Z'
 	// };
 
-	$: entity = $states?.[sel?.entity_id];
-	$: state = entity?.state as 'paused' | 'mowing' | 'docked' | 'error';
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let state = $derived(entity?.state as 'paused' | 'mowing' | 'docked' | 'error');
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		START_MOWING: 1,
 		PAUSE: 2,
 		DOCK: 4
-	});
+	}));
 
 	/**
 	 * Handle click

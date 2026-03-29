@@ -3,10 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import type { SpotifyShortcut } from '$lib/Types';
 
-	export let shortcuts: SpotifyShortcut[] = [];
-	export let entity_id: string | undefined;
-	export let default_device: string | undefined = undefined;
-	export let layout: 'compact' | 'large' = 'compact';
+	let { shortcuts = [], entity_id, default_device = undefined, layout = 'compact' }: { shortcuts?: SpotifyShortcut[]; entity_id: string | undefined; default_device?: string | undefined; layout?: 'compact' | 'large' } = $props();
 
 	function getSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;

@@ -4,7 +4,7 @@
 	import { fade } from 'svelte/transition';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let handleClick: () => void;
+	let { handleClick }: { handleClick: () => void } = $props();
 
 	let menu: HTMLButtonElement;
 

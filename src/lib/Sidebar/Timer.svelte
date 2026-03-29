@@ -7,30 +7,36 @@
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let interval: ReturnType<typeof setInterval>;
 	let currentDate = new Date();
-	let displayTime: string;
-	let entity: HassEntity;
+	let displayTime: string = $state('');
+	let entity: HassEntity = $state(undefined as any);
 
-	let clicked = false;
+	let clicked = $state(false);
 
-	$: entity_id = sel?.entity_id;
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	let entity_id = $derived(sel?.entity_id);
 
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
-	$: finishes_at = attributes?.finishes_at;
-	$: remaining = attributes?.remaining;
-	$: end = new Date(finishes_at);
-	$: if (end) init();
-	$: service = state === 'active' ? 'pause' : 'start';
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
+
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+	let finishes_at = $derived(attributes?.finishes_at);
+	let remaining = $derived(attributes?.remaining);
+	let end = $derived(new Date(finishes_at));
+	$effect(() => {
+		if (end) init();
+	});
+	let service = $derived(state === 'active' ? 'pause' : 'start');
 
 	// make pausedState global to sync across components
-	$: if (state === 'paused' && remaining && !clicked) {
+	$effect(() => {
+		if (state !== 'paused' || !remaining || clicked) return;
 		timers.update((currentTimers) => {
 			if (entity_id) {
 				return {
@@ -43,7 +49,7 @@
 			}
 			return currentTimers;
 		});
-	}
+	});
 
 	function init() {
 		clearInterval(interval);

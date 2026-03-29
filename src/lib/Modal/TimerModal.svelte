@@ -8,19 +8,20 @@
 	import { getName } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let duration: string;
-	let entity: HassEntity;
+	let duration = $state<string>('');
+	let entity = $state<HassEntity>(undefined!);
 
-	$: entity_id = sel?.entity_id;
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	let entity_id = $derived(sel?.entity_id);
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
 
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	onMount(() => {
 		duration = formatDuration(attributes?.duration || '');

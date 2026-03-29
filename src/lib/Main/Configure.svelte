@@ -3,7 +3,7 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import { onDestroy, tick } from 'svelte';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let timeout: ReturnType<typeof setTimeout> | null;
 

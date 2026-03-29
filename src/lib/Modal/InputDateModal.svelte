@@ -5,13 +5,12 @@
 	import { getDomain, getName } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
-	$: type = getType(entity?.attributes?.has_date, entity?.attributes?.has_time);
-	$: domain = getDomain(entity.entity_id) as string;
+	let entity = $derived($states[sel?.entity_id]);
+	let state = $derived(entity?.state);
+	let type = $derived(getType(entity?.attributes?.has_date, entity?.attributes?.has_time));
+	let domain = $derived(getDomain(entity.entity_id) as string);
 
 	/**
 	 * Handles input_datetime

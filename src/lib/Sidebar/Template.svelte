@@ -4,18 +4,19 @@
 	import { onDestroy } from 'svelte';
 	import type { TemplateItem } from '$lib/Types';
 
-	export let sel: TemplateItem | undefined = undefined;
-	export let demo = false;
+	let { sel = undefined, demo = false }: { sel?: TemplateItem | undefined; demo?: boolean } = $props();
 
 	let unsubscribe: () => void;
 	let id = sel?.id;
-	let error = false;
+	let error = $state(false);
 
-	$: template = sel?.template;
+	let template = $derived(sel?.template);
 
-	$: if ($config?.state === 'RUNNING' && template) {
-		renderTemplate(template);
-	}
+	$effect(() => {
+		if ($config?.state === 'RUNNING' && template) {
+			renderTemplate(template);
+		}
+	});
 
 	/**
 	 * Renders template by id to `$templates`

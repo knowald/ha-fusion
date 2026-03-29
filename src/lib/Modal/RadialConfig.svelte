@@ -19,10 +19,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: RadialItem;
-
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: RadialItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -30,19 +31,19 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
-	let stroke = sel?.stroke;
+	let name = $state(sel?.name);
+	let stroke = $state(sel?.stroke);
 
-	let numberElement: HTMLInputElement;
+	let numberElement: HTMLInputElement = $state(undefined as any);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
 	const range = {
 		min: 1,
 		max: 15
 	};
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function minMax(key: string | number | undefined) {
 		return Math.min(Math.max(parseInt(key as string), range.min), range.max);

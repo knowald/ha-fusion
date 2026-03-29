@@ -3,8 +3,7 @@
 	import { getName } from '$lib/Utils';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 
-	export let sel: any;
-	export let entity: any;
+	let { sel, entity }: { sel: any; entity: any } = $props();
 </script>
 
 <div class="container">

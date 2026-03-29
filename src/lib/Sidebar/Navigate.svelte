@@ -13,33 +13,37 @@
 	import { flip } from 'svelte/animate';
 	import Icon from '@iconify/svelte';
 
-	export let modalTransitionEnd: boolean | undefined = true;
+	let { modalTransitionEnd = true }: { modalTransitionEnd?: boolean | undefined } = $props();
 
 	let container: HTMLDivElement;
-	let clientWidth: number;
+	let clientWidth: number = $state(0);
 	let buttons: { [key: number]: HTMLButtonElement } = {};
 
-	let top: string;
-	let left: string;
-	let height: string;
+	let top: string = $state('');
+	let left: string = $state('');
+	let height: string = $state('');
 
 	let resizeTimeout: ReturnType<typeof setTimeout>;
-	let isResizing: boolean;
+	let isResizing: boolean = $state(false);
 
-	$: transition = `top ${isResizing ? '0' : $motion}ms ease`;
+	let transition = $derived(`top ${isResizing ? '0' : $motion}ms ease`);
 
 	// if width changes don't transition
-	$: if (clientWidth) {
-		isResizing = true;
-		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(() => {
-			isResizing = false;
-		}, $motion);
-	}
+	$effect(() => {
+		if (clientWidth) {
+			isResizing = true;
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
+				isResizing = false;
+			}, $motion);
+		}
+	});
 
-	$: if ($currentViewId && modalTransitionEnd) {
-		setDimensions(buttons[$currentViewId]);
-	}
+	$effect(() => {
+		if ($currentViewId && modalTransitionEnd) {
+			setDimensions(buttons[$currentViewId]);
+		}
+	});
 
 	onMount(() => {
 		// adding new item wait for motion to properly calculate setDimensions

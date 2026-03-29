@@ -4,11 +4,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let confirm: any;
-	export let cancel: any;
-	export let title: string;
-	export let message: string;
-	export let isOpen: boolean;
+	let { confirm, cancel, title, message, isOpen }: { confirm: any; cancel: any; title: string; message: string; isOpen: boolean } = $props();
 
 	let cancelButton: HTMLButtonElement;
 

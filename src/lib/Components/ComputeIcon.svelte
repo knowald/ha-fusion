@@ -4,18 +4,27 @@
 	import { states } from '$lib/Stores';
 	import { computeIcon } from '$lib/Modal/PictureElements/computeIcon';
 	import { getDomain } from '$lib/Utils';
-	export let entity_id: string;
-	export let getIconString: boolean | undefined = undefined;
-	export let skipEntityPicture: boolean | undefined = undefined;
-	export let size: string | undefined = undefined;
-	let stateObj: any;
-	let currentIcon: string | undefined;
-	let src: string | undefined;
-	$: if (entity_id) stateObj = $states?.[entity_id];
-	$: if ($states && entity_id) {
-		currentIcon = getCurrentIcon();
-	}
-	export let oniconString: ((value: string | undefined) => void) | undefined = undefined;
+	let { entity_id, getIconString = undefined, skipEntityPicture = undefined, size = undefined, oniconString = undefined }: {
+		entity_id: string;
+		getIconString?: boolean | undefined;
+		skipEntityPicture?: boolean | undefined;
+		size?: string | undefined;
+		oniconString?: ((value: string | undefined) => void) | undefined;
+	} = $props();
+
+	let stateObj = $state<any>();
+	let currentIcon = $state<string | undefined>();
+	let src = $state<string | undefined>();
+
+	$effect(() => {
+		if (entity_id) stateObj = $states?.[entity_id];
+	});
+
+	$effect(() => {
+		if ($states && entity_id) {
+			currentIcon = getCurrentIcon();
+		}
+	});
 	function dispatchIconString() {
 		if (!getIconString) return;
 		const icon = currentIcon

@@ -12,26 +12,24 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
-	let attributes: any;
 	let interval: ReturnType<typeof setInterval>;
-	let tick = Date.now();
-	let isDragging = false;
-	let debouncePosition = false;
+	let tick = $state(Date.now());
+	let isDragging = $state(false);
+	let debouncePosition = $state(false);
 	let debounceTimeout: ReturnType<typeof setTimeout>;
-	let rangeValue = 0;
+	let rangeValue = $state(0);
 	let pendingRequest = false;
 	let nextPosition: number | undefined = undefined;
-	let currentSliderValue = 0;
+	let currentSliderValue = $state(0);
 
-	$: entity = $states[selected?.entity_id];
-	$: attributes = entity?.attributes;
-	$: playing = entity?.state === 'playing';
-	$: updated_at = new Date(attributes?.media_position_updated_at).getTime();
-	$: diff = (tick - updated_at) / 1000;
-	$: position = attributes?.media_position + (playing ? diff : 0);
+	let entity = $derived($states[selected?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let playing = $derived(entity?.state === 'playing');
+	let updated_at = $derived(new Date(attributes?.media_position_updated_at).getTime());
+	let diff = $derived((tick - updated_at) / 1000);
+	let position = $derived(attributes?.media_position + (playing ? diff : 0));
 
 	const DEBOUNCE_INTERVAL = 2500;
 
@@ -45,10 +43,11 @@
 		}
 	});
 
-	$: rangeValue =
-		!debouncePosition && !isDragging
-			? Math.min(position || 0, attributes?.media_duration || 0)
-			: rangeValue;
+	$effect(() => {
+		if (!debouncePosition && !isDragging) {
+			rangeValue = Math.min(position || 0, attributes?.media_duration || 0);
+		}
+	});
 
 	onMount(() => {
 		// selectedSource = attributes?.source_list?.includes(attributes?.app_name)
@@ -112,7 +111,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(selected, entity)}</h1>
+		{#snippet title()}<h1>{getName(selected, entity)}</h1>{/snippet}
 
 		<h2>
 			{#if attributes?.media_artist}

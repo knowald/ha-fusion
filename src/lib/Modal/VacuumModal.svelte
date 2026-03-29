@@ -8,15 +8,14 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		TURN_ON: 1,
 		TURN_OFF: 2,
 		PAUSE: 4,
@@ -31,12 +30,12 @@
 		MAP: 2048,
 		STATE: 4096,
 		START: 8192
-	});
+	}));
 
-	$: options = attributes?.fan_speed_list?.map((option: string) => ({
+	let options = $derived(attributes?.fan_speed_list?.map((option: string) => ({
 		id: option,
 		label: $lang(option?.toLowerCase())
-	}));
+	})));
 
 	/**
 	 * Handle click

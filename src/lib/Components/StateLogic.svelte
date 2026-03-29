@@ -3,20 +3,24 @@
 	import { getDomain, isTimestamp, relativeTime } from '$lib/Utils';
 	import type { HassEntity } from 'home-assistant-js-websocket';
 
-	export let selected: any;
-	export let contentWidth: number | undefined = undefined;
-	export let entity_id: string | undefined;
+	let { selected, contentWidth = undefined, entity_id }: {
+		selected: any;
+		contentWidth?: number;
+		entity_id: string | undefined;
+	} = $props();
 
-	let entity: HassEntity;
+	let entity: HassEntity = $state(undefined as any);
 
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated)
-		entity = $states?.[entity_id];
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated)
+			entity = $states?.[entity_id];
+	});
 
-	$: attributes = entity?.attributes;
-	$: state = entity?.state;
-	$: brightness = attributes?.brightness;
-	$: percentage = attributes?.percentage;
-	$: media_title = attributes?.media_title;
+	let attributes = $derived(entity?.attributes);
+	let state = $derived(entity?.state);
+	let brightness = $derived(attributes?.brightness);
+	let percentage = $derived(attributes?.percentage);
+	let media_title = $derived(attributes?.media_title);
 </script>
 
 <!-- Light -->

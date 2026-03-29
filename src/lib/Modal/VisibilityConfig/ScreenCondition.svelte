@@ -3,8 +3,7 @@
 	import type { Condition } from '$lib/Types';
 	import { onMount } from 'svelte';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
 	// mobile: "(min-width: 0px) and (max-width: 767px)"
 	// tablet: "(min-width: 768px) and (max-width: 1023px)"
@@ -22,12 +21,12 @@
 	// tablet + desktop + wide: "(min-width: 768px)"
 	// mobile + tablet + desktop + wide: "(min-width: 0px)"
 
-	let mobile = false;
-	let tablet = false;
-	let desktop = false;
-	let wide = false;
+	let mobile = $state(false);
+	let tablet = $state(false);
+	let desktop = $state(false);
+	let wide = $state(false);
 
-	let input = item?.media_query;
+	let input = $state(item?.media_query);
 
 	const breakpoints: {
 		[key: string]: {
@@ -41,9 +40,11 @@
 		wide: { min: 1280, max: Infinity }
 	};
 
-	$: if (typeof input === 'string') {
-		handleChange();
-	}
+	$effect(() => {
+		if (typeof input === 'string') {
+			handleChange();
+		}
+	});
 
 	function handleChange() {
 		items = items.map((condition: Condition) =>

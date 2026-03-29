@@ -23,10 +23,12 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import parser from 'js-yaml';
 
-	export let isOpen: boolean;
-	export let sel: ButtonItem;
-	export let demo: string | undefined = undefined;
-	export let sectionName: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined, sectionName = undefined }: {
+		isOpen: boolean;
+		sel: ButtonItem;
+		demo?: string | undefined;
+		sectionName?: string | undefined;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -34,18 +36,18 @@
 		set('entity_id', demo);
 	}
 
-	$: entity_id = sel?.entity_id;
-	let name = sel?.name;
-	let color = sel?.color;
-	let icon = sel?.icon;
-	let state = sel?.state;
-	let computedIcon: string;
-	let displayOnly = sel?.displayOnly || false;
-	let slideBrightness = sel?.slide_brightness !== false; // Default to true
+	let entity_id = $derived(sel?.entity_id);
+	let name = $state(sel?.name);
+	let color = $state(sel?.color);
+	let icon = $state(sel?.icon);
+	let state = $state(sel?.state);
+	let computedIcon = $state<string>();
+	let displayOnly = $state(sel?.displayOnly || false);
+	let slideBrightness = $state(sel?.slide_brightness !== false);
 
-	$: options = $entityList('');
+	let options = $derived($entityList(''));
 
-	$: template = $templates?.[sel?.id];
+	let template = $derived($templates?.[sel?.id]);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -54,9 +56,11 @@
 
 	onDestroy(() => $record());
 
-	let servicePlaceholder: string;
+	let servicePlaceholder = $state<string>();
 
-	$: if (entity_id || template?.service?.output) updateServicePlaceholder();
+	$effect(() => {
+		if (entity_id || template?.service?.output) updateServicePlaceholder();
+	});
 
 	function updateServicePlaceholder() {
 		try {
@@ -107,9 +111,8 @@
 		return false;
 	}
 
-	// Auto-suggest display-only based on entity type
-	$: suggestDisplayOnly = shouldSuggestDisplayOnly(entity_id);
-	$: isLightEntity = getDomain(entity_id) === 'light';
+	let suggestDisplayOnly = $derived(shouldSuggestDisplayOnly(entity_id));
+	let isLightEntity = $derived(getDomain(entity_id) === 'light');
 </script>
 
 {#if isOpen}

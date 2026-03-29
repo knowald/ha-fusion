@@ -10,37 +10,38 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), sectionName = undefined }: {
+		isOpen: boolean;
+		sel: any;
+		sectionName?: string;
+	} = $props();
 
-	let name: string | undefined = sel?.name;
-	let icon: string | undefined = sel?.icon;
-	let color: string | undefined = sel?.color;
-	let entity_id: string | undefined = sel?.entity_id;
+	let name: string | undefined = $state(sel?.name);
+	let icon: string | undefined = $state(sel?.icon);
+	let color: string | undefined = $state(sel?.color);
+	let entity_id: string | undefined = $state(sel?.entity_id);
 
-	let suggestedEntityId = '';
-	let creatingEntity = false;
-	let entityError = '';
+	let suggestedEntityId = $state('');
+	let creatingEntity = $state(false);
+	let entityError = $state('');
 
-	// Get current timestamp from entity or use current date
-	$: entityState = entity_id ? $states?.[entity_id] : undefined;
-	$: last_reset = entityState?.state;
+	let entityState = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let last_reset = $derived(entityState?.state);
 
-	// Format date for input[type="date"] (YYYY-MM-DD)
-	$: dateInputValue = last_reset
+	let dateInputValue = $derived(last_reset
 		? new Date(last_reset).toISOString().split('T')[0]
-		: new Date().toISOString().split('T')[0];
+		: new Date().toISOString().split('T')[0]);
 
-	// Auto-generate entity_id from name
-	$: if (name && !entity_id) {
-		suggestedEntityId = `input_datetime.days_since_${name
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, '_')
-			.replace(/^_+|_+$/g, '')}`;
-	} else {
-		suggestedEntityId = '';
-	}
+	$effect(() => {
+		if (name && !entity_id) {
+			suggestedEntityId = `input_datetime.days_since_${name
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, '_')
+				.replace(/^_+|_+$/g, '')}`;
+		} else {
+			suggestedEntityId = '';
+		}
+	});
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

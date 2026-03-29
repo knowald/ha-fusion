@@ -5,27 +5,28 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
-	export let showHelp: boolean;
+	let { konva, selectedShape, selectedShapes, setAttribute, showHelp = $bindable() }: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+		showHelp: boolean;
+	} = $props();
 
-	let attributes: any[] = [];
+	let attributes = $state<any[]>([]);
 
-	$: keepRatio = {
+	let keepRatio = $derived({
 		id: 'keepRatio',
 		type: 'button',
 		label: 'Ratio (R)',
 		icon: icons['chain'],
 		onclick: () => {
 			konva?.toggleKeepRatio();
-			keepRatio.selected = konva?.transformer?.keepRatio() || false;
 		},
 		selected: konva?.transformer?.keepRatio() || false
-	};
+	});
 
-	$: if (selectedShapes?.length === 1 && selectedShape?.attrs?.box) {
+	$effect(() => { if (selectedShapes?.length === 1 && selectedShape?.attrs?.box) {
 		// TEXT-BOX
 		attributes = [
 			{
@@ -121,7 +122,7 @@
 			{ id: 'height', label: 'Height', unit: ' px', value: 0, disabled: true },
 			{ id: 'rotation', label: 'Rotation', unit: '°', value: 0, disabled: true }
 		];
-	}
+	} });
 
 	function handleInput(attribute: any, event: Event) {
 		const target = event.target as HTMLInputElement;

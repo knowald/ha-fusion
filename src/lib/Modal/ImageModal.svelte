@@ -4,13 +4,12 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: entity_picture = attributes?.entity_picture;
-	$: name = getName(sel, entity);
+	let entity = $derived($states[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let entity_picture = $derived(attributes?.entity_picture);
+	let name = $derived(getName(sel, entity));
 </script>
 
 {#if isOpen}

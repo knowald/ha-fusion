@@ -23,53 +23,76 @@
 	import { cubicOut, expoOut } from 'svelte/easing';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let {
+		sel,
+		demo = undefined
+	}: {
+		sel: any;
+		demo?: string | undefined;
+	} = $props();
 
 	const debug = false;
 
-	let contentWidth: number;
-	let backgroundImage: string | undefined;
-	let pausedTimeout: ReturnType<typeof setTimeout>;
-	let timeoutOverlay: ReturnType<typeof setTimeout>;
-	let pauseExpired = false;
-	let cancelAsyncFetch: boolean;
-	let remaining: number | undefined;
-	let overlayIconState: string | undefined;
+	let contentWidth: number = $state(0);
+	let backgroundImage: string | undefined = $state(undefined);
+	let pausedTimeout: ReturnType<typeof setTimeout> = $state(undefined as any);
+	let timeoutOverlay: ReturnType<typeof setTimeout> = $state(undefined as any);
+	let pauseExpired = $state(false);
+	let cancelAsyncFetch: boolean = $state(false);
+	let remaining: number | undefined = $state(undefined);
+	let overlayIconState: string | undefined = $state(undefined);
 
 	// nothing_playing entity
-	$: entity = $states?.[demo || sel?.entity_id];
-	$: entity_data = entity?.attributes?.data?.[1];
-	$: fanart = entity_data?.fanart;
-	$: poster = entity_data?.poster;
-	$: entity_entity_picture = entity?.attributes?.entity_picture;
+	let entity = $derived($states?.[demo || sel?.entity_id]);
+	let entity_data = $derived(entity?.attributes?.data?.[1]);
+	let fanart = $derived(entity_data?.fanart);
+	let poster = $derived(entity_data?.poster);
+	let entity_entity_picture = $derived(entity?.attributes?.entity_picture);
 
 	// isolate each attribute to prevent mass reactivity
-	$: current_media_player = getCurrent(sel?.media_players, $states, pauseExpired, timeout);
-	$: currentEntityId = current_media_player?.entity_id;
-	$: currentState = current_media_player?.state;
-	$: currentAttr = current_media_player?.attributes;
-	$: media_artist = currentAttr?.media_artist;
-	$: media_title = currentAttr?.media_title;
-	$: app_id = currentAttr?.app_id;
-	$: entity_picture = currentAttr?.entity_picture;
+	let timeout = $derived(sel?.timeout ?? 900);
+
+	// current_media_player is reassigned in handlePaused, so use $state + $effect
+	let current_media_player: HassEntity | undefined = $state(undefined);
+	$effect(() => {
+		current_media_player = getCurrent(sel?.media_players, $states, pauseExpired, timeout);
+	});
+
+	let currentEntityId = $derived(current_media_player?.entity_id);
+
+	// currentState is reassigned in handleClick, so use $state + $effect
+	let currentState: string | undefined = $state(undefined);
+	$effect(() => {
+		currentState = current_media_player?.state;
+	});
+
+	let currentAttr = $derived(current_media_player?.attributes);
+	let media_artist = $derived(currentAttr?.media_artist);
+	let media_title = $derived(currentAttr?.media_title);
+	let app_id = $derived(currentAttr?.app_id);
+	let entity_picture = $derived(currentAttr?.entity_picture);
 
 	// paused media_player state, expire in seconds
-	$: timeout = sel?.timeout ?? 900;
-	$: if (currentEntityId || currentState || timeout || sel?.show_timeout) handlePaused(false);
+	$effect(() => {
+		if (currentEntityId || currentState || timeout || sel?.show_timeout) {
+			handlePaused(false);
+		}
+	});
 
-	$: active = currentState === 'playing' || (currentState === 'paused' && !pauseExpired);
+	let active = $derived(currentState === 'playing' || (currentState === 'paused' && !pauseExpired));
 
 	// set background image
-	$: if ($youtubeAddon && app_id === 'com.google.ios.youtube' && active) {
-		youtubeThumbnail(media_artist, media_title);
-	} else if (entity_picture && active) {
-		entityPicture();
-	} else if (!entity_picture && active) {
-		noEntityPicture();
-	} else {
-		nothingPlaying(fanart, poster, entity_entity_picture);
-	}
+	$effect(() => {
+		if ($youtubeAddon && app_id === 'com.google.ios.youtube' && active) {
+			youtubeThumbnail(media_artist, media_title);
+		} else if (entity_picture && active) {
+			entityPicture();
+		} else if (!entity_picture && active) {
+			noEntityPicture();
+		} else {
+			nothingPlaying(fanart, poster, entity_entity_picture);
+		}
+	});
 
 	onMount(() => handlePaused(true));
 

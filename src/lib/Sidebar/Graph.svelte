@@ -5,98 +5,112 @@
 	import { extent, bisector } from 'd3-array';
 	import { getName } from '$lib/Utils';
 
-	export let entity_id: string | undefined;
-	export let name: string | undefined = undefined;
-	export let period = 'day';
-	export let stroke = 2;
+	let { entity_id = undefined, name = undefined, period = 'day', stroke = 2 }: {
+		entity_id?: string | undefined;
+		name?: string | undefined;
+		period?: string;
+		stroke?: number;
+	} = $props();
 
-	let width: number;
-	let height: number;
-	let chartData: any[] = [];
+	let width = $state<number>();
+	let height = $state<number>();
+	let chartData = $state<any[]>([]);
 	let resizeTimeout: ReturnType<typeof setTimeout>;
-	let isResizing: boolean;
+	let isResizing = $state<boolean>(false);
 	let start_time = new Date(Date.now() - 2629800 * 1000).toISOString();
 	let end_time = new Date().toISOString();
 	let m = { x: 0, y: 0 };
-	let point: { [x: string]: any };
+	let point = $state<{ [x: string]: any }>();
 	let xAccessor = (d: any) => d.x;
 	let yAccessor = (d: any) => d.y;
 	let interpolation = curveBasis;
-	let hovering = false;
-	let hover_state: string;
-	let hover_date_min: string;
-	let hover_date_max: string;
+	let hovering = $state(false);
+	let hover_state = $state<string>();
+	let hover_date_min = $state<string>();
+	let hover_date_max = $state<string>();
 
-	$: entity = entity_id && $states?.[entity_id];
+	let entity = $derived(entity_id && $states?.[entity_id]);
 
-	$: xScale = scaleTime()
+	let xScale = $derived(scaleTime()
 		.domain(extent(chartData, xAccessor) as any)
-		.range([1, width - 1]);
-	$: yScale = scaleLinear()
+		.range([1, (width ?? 0) - 1]));
+	let yScale = $derived(scaleLinear()
 		.domain(extent(chartData, yAccessor) as any)
-		.range([height - 1, 1])
-		.nice();
+		.range([(height ?? 0) - 1, 1])
+		.nice());
 
-	$: xAccessorScaled = (d: any) => xScale(xAccessor(d));
-	$: yAccessorScaled = (d: any) => yScale(yAccessor(d));
-	$: y0AccessorScaled = yScale(yScale.domain()[0]);
+	let xAccessorScaled = $derived((d: any) => xScale(xAccessor(d)));
+	let yAccessorScaled = $derived((d: any) => yScale(yAccessor(d)));
+	let y0AccessorScaled = $derived(yScale(yScale.domain()[0]));
 
-	$: lineGenerator = line().x(xAccessorScaled).y(yAccessorScaled).curve(interpolation);
-	$: _line = lineGenerator(chartData);
+	let lineGenerator = $derived(line().x(xAccessorScaled).y(yAccessorScaled).curve(interpolation));
+	let _line = $derived(lineGenerator(chartData));
 
-	$: areaGenerator = area()
+	let areaGenerator = $derived(area()
 		.x(xAccessorScaled)
 		.y0(y0AccessorScaled)
 		.y1(yAccessorScaled)
-		.curve(interpolation);
-	$: _area = areaGenerator(chartData);
+		.curve(interpolation));
+	let _area = $derived(areaGenerator(chartData));
 
 	// if width or height changes don't transition
-	$: if (width || height) {
-		isResizing = true;
-		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(() => {
-			isResizing = false;
-		}, 200);
-	}
+	$effect(() => {
+		if (width || height) {
+			isResizing = true;
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
+				isResizing = false;
+			}, 200);
+		}
+	});
 
-	$: if (entity_id || period) {
-		fetchData();
-	}
+	$effect(() => {
+		if (entity_id || period) {
+			fetchData();
+		}
+	});
 
-	$: if (hovering && point?.['y'])
-		hover_state = Intl.NumberFormat($selectedLanguage, { maximumFractionDigits: 1 }).format(
-			point['y']
-		);
+	$effect(() => {
+		if (hovering && point?.['y'])
+			hover_state = Intl.NumberFormat($selectedLanguage, { maximumFractionDigits: 1 }).format(
+				point['y']
+			);
+	});
 
-	$: if (hovering && point?.['x'])
-		hover_date_min = new Intl.DateTimeFormat($selectedLanguage, { weekday: 'short' }).format(
-			new Date(point?.['x'])
-		);
-
-	$: if (hovering && point?.['x'])
-		hover_date_max =
-			' ' +
-			new Intl.DateTimeFormat($selectedLanguage, { timeStyle: 'short' }).format(
+	$effect(() => {
+		if (hovering && point?.['x'])
+			hover_date_min = new Intl.DateTimeFormat($selectedLanguage, { weekday: 'short' }).format(
 				new Date(point?.['x'])
 			);
+	});
 
-	let unit_of_measurement: string;
-	let friendlyName: string | undefined;
-	let state: string;
-	let not_hover_state: string;
+	$effect(() => {
+		if (hovering && point?.['x'])
+			hover_date_max =
+				' ' +
+				new Intl.DateTimeFormat($selectedLanguage, { timeStyle: 'short' }).format(
+					new Date(point?.['x'])
+				);
+	});
 
-	$: if (entity) {
-		unit_of_measurement = entity?.attributes?.unit_of_measurement || '';
+	let unit_of_measurement = $state<string>('');
+	let friendlyName = $state<string | undefined>();
+	let state = $state<string>();
+	let not_hover_state = $state<string>();
 
-		friendlyName = getName({ name }, entity);
+	$effect(() => {
+		if (entity) {
+			unit_of_measurement = entity?.attributes?.unit_of_measurement || '';
 
-		state = entity?.state;
+			friendlyName = getName({ name }, entity);
 
-		not_hover_state = Intl.NumberFormat($selectedLanguage, {
-			maximumFractionDigits: 1
-		}).format(Number(entity?.state));
-	}
+			state = entity?.state;
+
+			not_hover_state = Intl.NumberFormat($selectedLanguage, {
+				maximumFractionDigits: 1
+			}).format(Number(entity?.state));
+		}
+	});
 
 	function fetchData() {
 		if (!entity_id) return;

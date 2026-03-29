@@ -5,7 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import type { SidebarItem } from '$lib/Types';
 
-	export let sel: SidebarItem;
+	let { sel }: { sel: SidebarItem } = $props();
 
 	let timeout: ReturnType<typeof setTimeout> | null;
 

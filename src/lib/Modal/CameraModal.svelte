@@ -4,8 +4,7 @@
 	import { getName } from '$lib/Utils';
 	import Camera from '$lib/Main/Camera.svelte';
 
-	export let sel: any;
-	export let isOpen: boolean;
+	let { sel, isOpen }: { sel: any; isOpen: boolean } = $props();
 
 	// $: supported_features = attributes?.supported_features;
 	// $: supports = getSupport(supported_features, {

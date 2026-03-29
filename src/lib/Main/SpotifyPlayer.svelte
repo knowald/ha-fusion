@@ -6,38 +6,37 @@
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
 	import { onMount } from 'svelte';
 
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let { sel, sectionName = undefined }: { sel: any; sectionName?: string } = $props();
 
-	$: entity_id = sel?.entity_id;
-	$: name = sel?.name;
-	$: icon = sel?.icon || 'mdi:spotify';
-	$: color = sel?.color || 'rgb(30, 215, 96)'; // Spotify green
-	$: show_progress = sel?.show_progress ?? true;
-	$: shortcuts = sel?.shortcuts ?? [];
+	let entity_id = $derived(sel?.entity_id);
+	let name = $derived(sel?.name);
+	let icon = $derived(sel?.icon || 'mdi:spotify');
+	let color = $derived(sel?.color || 'rgb(30, 215, 96)');
+	let show_progress = $derived(sel?.show_progress ?? true);
+	let shortcuts = $derived(sel?.shortcuts ?? []);
 
 	// Get entity state
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	// Media info
-	$: media_title = attributes?.media_title;
-	$: media_artist = attributes?.media_artist;
-	$: media_album_name = attributes?.media_album_name;
-	$: entity_picture = attributes?.entity_picture;
+	let media_title = $derived(attributes?.media_title);
+	let media_artist = $derived(attributes?.media_artist);
+	let media_album_name = $derived(attributes?.media_album_name);
+	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	$: is_playing = state === 'playing';
-	$: is_paused = state === 'paused';
-	$: is_idle = state === 'idle' || !entity;
+	let is_playing = $derived(state === 'playing');
+	let is_paused = $derived(state === 'paused');
+	let is_idle = $derived(state === 'idle' || !entity);
 
 	// Recent track artwork for rotating background
-	let recentArtwork: string[] = [];
-	let rotatingIndex = 0;
-	let rotatingImageA = '';
-	let rotatingImageB = '';
-	let showImageA = true;
+	let recentArtwork: string[] = $state([]);
+	let rotatingIndex = $state(0);
+	let rotatingImageA = $state('');
+	let rotatingImageB = $state('');
+	let showImageA = $state(true);
 
 	function findSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;
@@ -80,36 +79,39 @@
 	onMount(fetchRecentArtwork);
 
 	// Rotate every 8 seconds
-	$: if (recentArtwork.length > 1 && !is_playing && $timer) {
-		const seconds = $timer.getSeconds();
-		if (seconds % 8 === 0) {
-			const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
-			if (nextIndex !== rotatingIndex) {
-				rotatingIndex = nextIndex;
-				if (showImageA) {
-					rotatingImageB = recentArtwork[rotatingIndex];
-				} else {
-					rotatingImageA = recentArtwork[rotatingIndex];
+	$effect(() => {
+		if (recentArtwork.length > 1 && !is_playing && $timer) {
+			const seconds = $timer.getSeconds();
+			if (seconds % 8 === 0) {
+				const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
+				if (nextIndex !== rotatingIndex) {
+					rotatingIndex = nextIndex;
+					if (showImageA) {
+						rotatingImageB = recentArtwork[rotatingIndex];
+					} else {
+						rotatingImageA = recentArtwork[rotatingIndex];
+					}
+					showImageA = !showImageA;
 				}
-				showImageA = !showImageA;
 			}
 		}
-	}
+	});
 
 	// Progress calculation
-	$: media_duration = attributes?.media_duration;
-	$: media_position = attributes?.media_position;
-	$: media_position_updated_at = attributes?.media_position_updated_at;
+	let media_duration = $derived(attributes?.media_duration);
+	let media_position = $derived(attributes?.media_position);
+	let media_position_updated_at = $derived(attributes?.media_position_updated_at);
 
 	// Calculate current position with live updates
-	$: current_position = calculatePosition(
+	let current_position = $derived(calculatePosition(
 		media_position,
 		media_position_updated_at,
 		is_playing,
 		$timer
+	));
+	let progress_percent = $derived(
+		media_duration && current_position ? (current_position / media_duration) * 100 : 0
 	);
-	$: progress_percent =
-		media_duration && current_position ? (current_position / media_duration) * 100 : 0;
 
 	function calculatePosition(
 		position: number | undefined,
@@ -127,8 +129,8 @@
 	}
 
 	// Display text
-	$: display_title = media_title || name || $lang('spotify_player') || 'Spotify';
-	$: display_artist = media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : state);
+	let display_title = $derived(media_title || name || $lang('spotify_player') || 'Spotify');
+	let display_artist = $derived(media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : state));
 
 	function handleClick() {
 		if ($editMode) {

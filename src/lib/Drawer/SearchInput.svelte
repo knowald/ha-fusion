@@ -18,30 +18,36 @@
 	/**
 	 * Handle input focus/blur
 	 */
-	$: if (input) {
-		if ($focusSearch) {
-			input.focus();
-		} else {
-			input.blur();
+	$effect(() => {
+		if (input) {
+			if ($focusSearch) {
+				input.focus();
+			} else {
+				input.blur();
+			}
 		}
-	}
+	});
 
 	/**
 	 * Clear `$drawerSearch` when opening a modal
 	 */
-	$: if ($modals.length !== 0) {
-		setTimeout(() => {
-			$drawerSearch = undefined;
-		}, $motion);
-	}
+	$effect(() => {
+		if ($modals.length !== 0) {
+			setTimeout(() => {
+				$drawerSearch = undefined;
+			}, $motion);
+		}
+	});
 
 	/**
 	 * Set `$filterDashboard` store with filter function
 	 */
-	$: $filterDashboard = filter(
-		$dashboard?.views?.find((view) => view.id === $currentViewId),
-		$drawerSearch?.toLowerCase()
-	);
+	$effect(() => {
+		$filterDashboard = filter(
+			$dashboard?.views?.find((view) => view.id === $currentViewId),
+			$drawerSearch?.toLowerCase()
+		);
+	});
 
 	/**
 	 * Filters the items of current view based on `$drawerSearch`

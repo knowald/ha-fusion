@@ -6,20 +6,26 @@
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
 	let transitionend: boolean;
-	let message: string | undefined;
-	let success = false;
+	let message: string | undefined = $state(undefined);
+	let success = $state(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
 
-	let reloadView = false;
+	let reloadView = $state(false);
 
-	$: init = parser.dump($dashboard);
-	$: value = init;
-	$: changed = init !== value;
+	let init = $derived(parser.dump($dashboard));
+	let value = $state('');
+	let changed = $derived(init !== value);
 
-	$: if (!changed && !success) message = undefined;
+	$effect(() => {
+		value = init;
+	});
+
+	$effect(() => {
+		if (!changed && !success) message = undefined;
+	});
 
 	async function handleKeyDown(event: KeyboardEvent) {
 		if ((event.metaKey || event.ctrlKey) && event.key === 's') {
@@ -173,7 +179,7 @@
 
 {#if isOpen}
 	<Modal size="large" ontransitionend={() => (transitionend = true)}>
-		<h1 slot="title">{$lang('raw')}</h1>
+		{#snippet title()}<h1>{$lang('raw')}</h1>{/snippet}
 
 		<br />
 

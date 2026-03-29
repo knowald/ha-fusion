@@ -4,20 +4,22 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
-	export let entityOptions;
+	let { konva, selectedShape, selectedShapes, setAttribute, entityOptions }: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+		entityOptions: any;
+	} = $props();
 
-	let attributes: Record<string, any>[] = [];
+	let attributes = $state<Record<string, any>[]>([]);
 
 	function handleInput(id: string, key: string, event: Event) {
 		const target = event.target as HTMLInputElement | null;
 		if (target) konva.updateAttr(id, key, target.value, true);
 	}
 
-	$: opacity = {
+	let opacity = $derived({
 		id: 'opacity',
 		label: 'Opacity',
 		type: 'text',
@@ -25,9 +27,9 @@
 		value:
 			selectedShape?.attrs?.opacity != null ? Math.round(selectedShape?.attrs?.opacity * 100) : 100,
 		disabled: !selectedShape?.attrs?.draggable
-	};
+	});
 
-	$: commonTextAttributes = [
+	let commonTextAttributes = $derived([
 		{
 			id: 'box',
 			label: 'Box',
@@ -46,9 +48,9 @@
 			disabled: !selectedShape?.attrs?.draggable
 		},
 		{ ...opacity }
-	];
+	]);
 
-	$: if (selectedShape?.attrs?.type === 'icon') {
+	$effect(() => { if (selectedShape?.attrs?.type === 'icon') {
 		// ICON
 		attributes = [
 			{
@@ -240,7 +242,7 @@
 	} else {
 		// ELSE
 		attributes = [];
-	}
+	} });
 
 	function countGroupShapes(item: any): number {
 		if (!item || typeof item !== 'object') return 0;

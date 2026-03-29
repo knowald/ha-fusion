@@ -19,9 +19,11 @@
 	import { updateObj, getName } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: ButtonItem;
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: ButtonItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -29,12 +31,12 @@
 		set('entity_id', demo);
 	}
 
-	$: entity_id = sel?.entity_id;
-	let name = sel?.name;
-	let icon = sel?.icon;
-	let computedIcon: string;
+	let entity_id = $derived(sel?.entity_id);
+	let name = $state(sel?.name);
+	let icon = $state(sel?.icon);
+	let computedIcon: string = $state('');
 
-	$: options = $entityList('');
+	let options = $derived($entityList(''));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

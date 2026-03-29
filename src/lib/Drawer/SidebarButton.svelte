@@ -3,7 +3,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	export let onclicked: (() => void) | undefined = undefined;
+	let { onclicked = undefined }: { onclicked?: () => void } = $props();
 
 
 	/**

@@ -5,8 +5,7 @@
 	import DeleteButton from '$lib/Main/DeleteButton.svelte';
 	import VisibilitySectionButton from '$lib/Main/VisibilitySectionButton.svelte';
 
-	export let view: any;
-	export let section: any;
+	let { view, section }: { view: any; section: any } = $props();
 </script>
 
 {#if $editMode}

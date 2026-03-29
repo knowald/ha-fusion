@@ -16,25 +16,29 @@
 	 *   - frontend_stream_type will change from hls to web_rtc
 	 */
 
-	export let sel: any;
-	export let entity: any;
-	export let stream_url: any | undefined;
-	export let muted: boolean | undefined = true;
-	export let loaderVisible: boolean | undefined;
-	export let controls: boolean | undefined = false;
-	export let responsive: boolean | undefined = undefined;
-	export let size: string | undefined;
-	export let debug: boolean;
-	export let attachVideo: boolean;
+	let { sel, entity, stream_url = $bindable(), muted = true, loaderVisible = $bindable(), controls = false, responsive = undefined, size, debug, attachVideo }: {
+		sel: any;
+		entity: any;
+		stream_url?: any | undefined;
+		muted?: boolean | undefined;
+		loaderVisible?: boolean | undefined;
+		controls?: boolean | undefined;
+		responsive?: boolean | undefined;
+		size?: string | undefined;
+		debug: boolean;
+		attachVideo: boolean;
+	} = $props();
 
 	let video: HTMLVideoElement;
 	let busy: boolean = false;
 
-	$: if (attachVideo) {
-		attach();
-	} else {
-		detach();
-	}
+	$effect(() => {
+		if (attachVideo) {
+			attach();
+		} else {
+			detach();
+		}
+	});
 
 	async function attach() {
 		if (stream_url || busy) return;

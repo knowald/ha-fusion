@@ -5,8 +5,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 
-	export let isOpen: boolean;
-	export let sel: EmptyItem;
+	let { isOpen, sel }: { isOpen: boolean; sel: EmptyItem } = $props();
 </script>
 
 {#if isOpen}

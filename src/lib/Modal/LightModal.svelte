@@ -11,18 +11,17 @@
 	import { onMount } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 
 	let debounce = false;
 	let timeout: ReturnType<typeof setTimeout>;
-	let rangeValue = 0;
+	let rangeValue = $state(0);
 
 	let groupSel: string | undefined;
 	let groupEntity: HassEntity;
 
-	let selTab: string | undefined;
-	let selTabClicked = false;
+	let selTab: string | undefined = $state(undefined);
+	let selTabClicked = $state(false);
 
 	// https://github.com/home-assistant/frontend/blob/dev/src/data/light.ts
 	const LightColorMode = {
@@ -53,32 +52,35 @@
 		LightColorMode.WHITE
 	];
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attributes = entity?.attributes;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
 
 	// make sure it's an array
-	$: colorModes = Array.isArray(attributes?.supported_color_modes)
+	let colorModes = $derived(Array.isArray(attributes?.supported_color_modes)
 		? attributes?.supported_color_modes
-		: [attributes?.supported_color_modes].filter(Boolean);
+		: [attributes?.supported_color_modes].filter(Boolean));
 
-	$: colorMode = attributes?.color_mode;
-	$: selTab = selTabClicked
-		? selTab
-		: colorMode === 'color_temp' || colorMode === 'white'
-			? colorMode
-			: supports?.COLOR
-				? 'color'
-				: colorMode;
+	let colorMode = $derived(attributes?.color_mode);
 
-	$: toggle = entity?.state === 'on';
-	$: current = Math.round(rangeValue / 2.55);
-	$: brightness = entity?.attributes?.brightness;
-
-	$: supports = {
+	let supports = $derived({
 		COLOR_MODE: colorModes?.includes(colorMode),
 		COLOR: colorModes?.some((mode: LightColorMode) => modesSupportingColor.includes(mode)),
 		BRIGHTNESS: colorModes?.some((mode: LightColorMode) => modesSupportingBrightness.includes(mode))
-	};
+	});
+
+	$effect(() => {
+		selTab = selTabClicked
+			? selTab
+			: colorMode === 'color_temp' || colorMode === 'white'
+				? colorMode
+				: supports?.COLOR
+					? 'color'
+					: colorMode;
+	});
+
+	let toggle = $derived(entity?.state === 'on');
+	let current = $derived(Math.round(rangeValue / 2.55));
+	let brightness = $derived(entity?.attributes?.brightness);
 
 	onMount(() => {
 		groupEntity = entity;
@@ -111,7 +113,7 @@
 		}
 	}
 
-	$: options = [
+	let options = $derived([
 		{
 			id: groupEntity?.entity_id,
 			label: groupEntity?.entity_id
@@ -120,12 +122,12 @@
 			id: option,
 			label: option
 		})) || [])
-	];
+	]);
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		{#if groupEntity?.attributes?.entity_id}
 			<h2>{$lang('group')}</h2>

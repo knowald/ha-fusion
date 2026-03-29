@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 
-	export let konva: KonvaEditor;
+	let { konva }: { konva: KonvaEditor } = $props();
 
 	const arrowKeyAmount = 0.5;
 

@@ -2,15 +2,10 @@
 	import { base } from '$app/paths';
 	import { dashboard } from '$lib/Stores';
 
-	export let initial: any;
+	let { initial = $bindable() }: { initial: any } = $props();
 
-	let css;
-
-	/**
-	 * Map the theme entries into CSS variables
-	 */
-	$: {
-		css = Object.entries(initial?.theme || {})
+	let css = $derived.by(() => {
+		const result = Object.entries(initial?.theme || {})
 			.map(([key, value]) => {
 				if (typeof value === 'string' && value.includes('/themes/')) {
 					value = value.replace('/', `${base}/`);
@@ -24,7 +19,9 @@
 				loadTheme($dashboard.theme);
 			}
 		}
-	}
+
+		return result;
+	});
 
 	/**
 	 * Load theme by name from backend

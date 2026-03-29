@@ -10,30 +10,30 @@
 	import '$lib/Sidebar/Sidebar.css';
 	import type { ComponentType } from 'svelte';
 
-	export let altKeyPressed: boolean;
+	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
 
-	let skipTransformElement = false;
+	let skipTransformElement = $state(false);
 	let importedComponents: (string | undefined)[] = [];
-	let mountedComponents = false;
+	let mountedComponents = $state(false);
 
-	let Bar: ComponentType;
-	let Camera: ComponentType;
-	let Configure: ComponentType;
-	let Date: ComponentType;
-	let Divider: ComponentType;
-	let Graph: ComponentType;
-	let History: ComponentType;
-	let Iframe: ComponentType;
-	let Image: ComponentType;
-	let Navigate: ComponentType;
-	let Notifications: ComponentType;
-	let Radial: ComponentType;
-	let Sensor: ComponentType;
-	let Template: ComponentType;
-	let Time: ComponentType;
-	let Timer: ComponentType;
-	let Weather: ComponentType;
-	let WeatherForecast: ComponentType;
+	let Bar: ComponentType = $state(undefined as any);
+	let Camera: ComponentType = $state(undefined as any);
+	let Configure: ComponentType = $state(undefined as any);
+	let Date: ComponentType = $state(undefined as any);
+	let Divider: ComponentType = $state(undefined as any);
+	let Graph: ComponentType = $state(undefined as any);
+	let History: ComponentType = $state(undefined as any);
+	let Iframe: ComponentType = $state(undefined as any);
+	let Image: ComponentType = $state(undefined as any);
+	let Navigate: ComponentType = $state(undefined as any);
+	let Notifications: ComponentType = $state(undefined as any);
+	let Radial: ComponentType = $state(undefined as any);
+	let Sensor: ComponentType = $state(undefined as any);
+	let Template: ComponentType = $state(undefined as any);
+	let Time: ComponentType = $state(undefined as any);
+	let Timer: ComponentType = $state(undefined as any);
+	let Weather: ComponentType = $state(undefined as any);
+	let WeatherForecast: ComponentType = $state(undefined as any);
 
 	const imports = {
 		bar: () => import('$lib/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),
@@ -58,7 +58,9 @@
 			import('$lib/Sidebar/WeatherForecast.svelte').then((c) => (WeatherForecast = c.default))
 	};
 
-	$: if ($dashboard?.sidebar) importComponents();
+	$effect(() => {
+		if ($dashboard?.sidebar) importComponents();
+	});
 
 	/**
 	 * Dynamically imports sidebar components based on
@@ -201,7 +203,7 @@
 	}
 
 	// media query js
-	let matches = false;
+	let matches = $state(false);
 
 	onMount(() => {
 		const handleMediaQueryChange = (event: { matches: boolean }) => {

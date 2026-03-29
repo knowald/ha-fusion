@@ -9,10 +9,11 @@
 	import type { HistoryItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: HistoryItem;
-
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: HistoryItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -20,7 +21,7 @@
 		set('entity_id', demo);
 	}
 
-	$: options = $entityList('');
+	let options = $derived($entityList(''));
 
 	const periodOptions = [
 		{ id: '5minute', label: $lang('period_5minute') },

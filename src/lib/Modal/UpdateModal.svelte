@@ -12,34 +12,35 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { slide } from 'svelte/transition';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let checked = false;
-	let installed: boolean;
-	let releaseNotes: string | Promise<string>;
+	let checked = $state(false);
+	let installed = $state<boolean>(false);
+	let releaseNotes = $state<string | Promise<string> | undefined>(undefined);
 
-	$: entity = $states[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		INSTALL: 1,
 		SPECIFIC_VERSION: 2,
 		PROGRESS: 4,
 		BACKUP: 8,
 		RELEASE_NOTES: 16
-	});
+	}));
 
 	/**
 	 * Updates `installed` with a number from `attributes?.in_progress`
 	 * `in_progress` cycles through numbers or `false` if not in progress
 	 */
-	$: if (attributes?.in_progress) installed = attributes?.in_progress;
+	$effect(() => {
+		if (attributes?.in_progress) installed = attributes?.in_progress;
+	});
 
-	$: inProgress = typeof attributes?.in_progress === 'number';
-	$: skipped = attributes?.skipped_version === attributes?.latest_version;
-	$: latest = attributes?.installed_version === attributes?.latest_version;
+	let inProgress = $derived(typeof attributes?.in_progress === 'number');
+	let skipped = $derived(attributes?.skipped_version === attributes?.latest_version);
+	let latest = $derived(attributes?.installed_version === attributes?.latest_version);
 
 	// animate progress, don't use `latest`
 	const progress = tweened(attributes?.installed_version === attributes?.latest_version ? 0 : 100, {
@@ -47,7 +48,9 @@
 		easing: cubicOut
 	});
 
-	$: progress.set(inProgress ? attributes?.in_progress : installed ? 100 : 0);
+	$effect(() => {
+		progress.set(inProgress ? attributes?.in_progress : installed ? 100 : 0);
+	});
 
 	onMount(async () => {
 		if (supports?.BACKUP) {

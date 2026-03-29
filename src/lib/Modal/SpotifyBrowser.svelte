@@ -6,15 +6,17 @@
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let entity_id: string;
+	let { isOpen, sel, entity_id }: {
+		isOpen: boolean;
+		sel: any;
+		entity_id: string;
+	} = $props();
 
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: attributes = entity?.attributes;
+	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let attributes = $derived(entity?.attributes);
 
 	type Tab = 'playlists' | 'albums' | 'tracks' | 'artists';
-	let activeTab: Tab = 'playlists';
+	let activeTab: Tab = $state('playlists');
 
 	interface SpotifyItem {
 		id: string;
@@ -27,14 +29,14 @@
 		total_tracks?: number;
 	}
 
-	let playlists: SpotifyItem[] = [];
-	let albums: SpotifyItem[] = [];
-	let tracks: SpotifyItem[] = [];
-	let artists: SpotifyItem[] = [];
+	let playlists: SpotifyItem[] = $state([]);
+	let albums: SpotifyItem[] = $state([]);
+	let tracks: SpotifyItem[] = $state([]);
+	let artists: SpotifyItem[] = $state([]);
 
-	let loading = false;
-	let error = '';
-	let searchQuery = '';
+	let loading = $state(false);
+	let error = $state('');
+	let searchQuery = $state('');
 
 	onMount(() => {
 		console.log('=== SpotifyBrowser mounted ===');
@@ -366,8 +368,7 @@
 		}
 	}
 
-	// Reactive filtering - depends on activeTab, searchQuery, and all item arrays
-	$: filteredItems = (() => {
+	let filteredItems = $derived.by(() => {
 		let items: SpotifyItem[] = [];
 
 		switch (activeTab) {
@@ -396,7 +397,7 @@
 			const albumMatch = item.album?.toLowerCase().includes(query);
 			return nameMatch || artistMatch || albumMatch;
 		});
-	})();
+	});
 </script>
 
 {#if isOpen}

@@ -4,7 +4,7 @@
 	import { expoOut } from 'svelte/easing';
 	import Icon from '@iconify/svelte';
 
-	export let showHelp: boolean;
+	let { showHelp = $bindable() }: { showHelp: boolean } = $props();
 
 	const data = [
 		{

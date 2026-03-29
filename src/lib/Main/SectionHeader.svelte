@@ -6,8 +6,7 @@
 	import SectionTitle from '$lib/Main/SectionTitle.svelte';
 	import { slide } from 'svelte/transition';
 
-	export let view: any;
-	export let section: any;
+	let { view, section }: { view: any; section: any } = $props();
 </script>
 
 {#if section?.name !== '' || $editMode}

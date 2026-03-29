@@ -5,29 +5,31 @@
 	import { writable } from 'svelte/store';
 	import type { CameraItem } from '$lib/Types';
 
-	export let sel: CameraItem;
-	export let demo: string | undefined = undefined;
-	export let responsive: boolean;
-	export let muted: boolean;
-	export let controls: boolean;
+	let { sel, demo = undefined, responsive, muted, controls }: {
+		sel: CameraItem;
+		demo?: string | undefined;
+		responsive: boolean;
+		muted: boolean;
+		controls: boolean;
+	} = $props();
 
 	const debug = false;
 
-	let loaderVisible = true;
-	let stream_url: string | undefined;
-	let attachVideo: boolean;
+	let loaderVisible = $state(true);
+	let stream_url = $state<string | undefined>();
+	let attachVideo = $state<boolean>(false);
 
-	$: entity = (demo && $states?.[demo]) || (sel?.entity_id ? $states?.[sel?.entity_id] : undefined);
-	$: frontend_stream_type = entity?.attributes?.frontend_stream_type;
-	$: size = sel?.size === 'contain' ? 'contain' : 'cover';
+	let entity = $derived((demo && $states?.[demo]) || (sel?.entity_id ? $states?.[sel?.entity_id] : undefined));
+	let frontend_stream_type = $derived(entity?.attributes?.frontend_stream_type);
+	let size = $derived(sel?.size === 'contain' ? 'contain' : 'cover');
 
-	$: props = {
+	let props = $derived({
 		entity,
 		sel,
 		size,
 		responsive,
 		muted
-	};
+	});
 
 	/**
 	 * tame reactivity
@@ -35,14 +37,20 @@
 	const entity_id = writable<string | undefined>(sel?.entity_id);
 	const stream = writable<boolean | undefined>(sel?.stream);
 
-	$: if (sel?.entity_id) $entity_id = sel?.entity_id;
-	$: if (!sel?.stream || sel?.stream) $stream = sel?.stream;
+	$effect(() => {
+		if (sel?.entity_id) $entity_id = sel?.entity_id;
+	});
+	$effect(() => {
+		if (!sel?.stream || sel?.stream) $stream = sel?.stream;
+	});
 
-	$: if ((!muted || $stream === true) && $entity_id && !$editMode) {
-		attachVideo = true;
-	} else if ($stream === false || $stream === undefined || $entity_id) {
-		attachVideo = false;
-	}
+	$effect(() => {
+		if ((!muted || $stream === true) && $entity_id && !$editMode) {
+			attachVideo = true;
+		} else if ($stream === false || $stream === undefined || $entity_id) {
+			attachVideo = false;
+		}
+	});
 
 	entity_id.subscribe((value) => {
 		$entity_id = value;

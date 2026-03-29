@@ -6,13 +6,12 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let showPassword = false;
+	let showPassword = $state(false);
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
+	let entity = $derived($states[sel?.entity_id]);
+	let state = $derived(entity?.state);
 
 	/**
 	 * Handles input_datetime

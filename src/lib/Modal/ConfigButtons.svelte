@@ -5,8 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { fade } from 'svelte/transition';
 
-	export let sel: any = undefined;
-	export let disableChangeType: boolean | undefined = undefined;
+	let { sel = undefined, disableChangeType = undefined }: { sel?: any; disableChangeType?: boolean } = $props();
 
 	/**
 	 * Checks if current id is in/from sidebar

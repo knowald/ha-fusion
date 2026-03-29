@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { states, lang } from '$lib/Stores';
 
-	export let entity_id: string | undefined = undefined;
-	export let url: string | undefined = undefined;
+	let { entity_id = undefined, url = undefined }: {
+		entity_id?: string | undefined;
+		url?: string | undefined;
+	} = $props();
 
-	$: src = entity_id && $states?.[entity_id]?.attributes?.entity_picture;
+	let src = $derived(entity_id && $states?.[entity_id]?.attributes?.entity_picture);
 </script>
 
 {#if url}

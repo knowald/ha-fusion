@@ -17,18 +17,17 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { generateId } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let innerWidth = 0;
-	let draggingGroup = false;
-	let draggedElHeight: number | undefined;
-	let matches: { [key: string]: boolean } = {};
+	let innerWidth = $state(0);
+	let draggingGroup = $state(false);
+	let draggedElHeight: number | undefined = $state(undefined);
+	let matches: { [key: string]: boolean } = $state({});
 
 	/**
 	 * Add id's to to each item
 	 */
-	let items =
+	let items = $state(
 		sel?.visibility?.map((item: Condition) => ({
 			id: generateId($dashboard),
 			...item,
@@ -40,7 +39,7 @@
 						}))
 					}
 				: {})
-		})) || [];
+		})) || []);
 
 	/**
 	 * dnd
@@ -110,7 +109,7 @@
 	 * Get all 'screen' conditions
 	 * { id, media_query }
 	 */
-	$: screenConditions = items.flatMap((item: Condition) =>
+	let screenConditions = $derived(items.flatMap((item: Condition) =>
 		item.condition === 'screen'
 			? [{ id: item.id, media_query: item.media_query }]
 			: item.condition === 'and' || item.condition === 'or'
@@ -118,12 +117,14 @@
 						?.filter((cond) => cond.condition === 'screen')
 						.map(({ id, media_query }) => ({ id, media_query })) ?? [])
 				: []
-	);
+	));
 
 	/**
 	 * Updates `matches`
 	 */
-	$: if (screenConditions) updateMatches();
+	$effect(() => {
+		if (screenConditions) updateMatches();
+	});
 
 	function updateMatches() {
 		matches = Object.fromEntries(
@@ -181,9 +182,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">
-			{$lang('visibility')}
-		</h1>
+		{#snippet title()}<h1>{$lang('visibility')}</h1>{/snippet}
 
 		<Explanation {sel} {items} {matches} />
 
@@ -201,13 +200,13 @@
 				onconsider={dragItem}
 				onfinalize={dragItem}
 			>
-				{#each items as item (`${item?.id}${item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+				{#each items as item, i (`${item?.id}${item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 					<div
 						data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 						class:item
 						animate:flip={{ duration: $motion }}
 					>
-						<ItemHeader bind:item bind:items {matches} {innerWidth} />
+						<ItemHeader item={items[i]} bind:items {matches} {innerWidth} />
 
 						{#if !item?.collapsed}
 							<div class="content" transition:slide={{ duration: $motion, easing: expoOut }}>
@@ -238,13 +237,13 @@
 											onconsider={(event) => dragNestedItem(item.id, event)}
 											onfinalize={(event) => dragNestedItem(item.id, event)}
 										>
-											{#each item.conditions as subItem (`${subItem?.id}${subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+											{#each item.conditions as subItem, j (`${subItem?.id}${subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
 												<div
 													data-is-dnd-shadow-item-hint={subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 													class="item"
 													animate:flip={{ duration: $motion }}
 												>
-													<ItemHeader bind:item={subItem} bind:items {matches} {innerWidth} />
+													<ItemHeader item={item.conditions[j]} bind:items {matches} {innerWidth} />
 
 													{#if !subItem.collapsed}
 														<div

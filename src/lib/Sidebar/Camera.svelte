@@ -2,7 +2,7 @@
 	import Camera from '$lib/Main/Camera.svelte';
 	import { editMode } from '$lib/Stores';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 </script>
 
 <div style:cursor={$editMode ? 'unset' : 'pointer'}>

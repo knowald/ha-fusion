@@ -8,7 +8,7 @@
 	import { onMount } from 'svelte';
 	import type { ComponentType } from 'svelte';
 
-	export let view: ViewItem | undefined;
+	let { view }: { view?: ViewItem } = $props();
 
 	let isOpen = false;
 	let showTriangle = false;

@@ -3,13 +3,12 @@
 	import { onDestroy } from 'svelte';
 	import { getName } from '$lib/Utils';
 
-	export let entity_id: string;
-	export let period: string | undefined = 'hour';
+	let { entity_id, period = 'hour' }: { entity_id: string; period?: string | undefined } = $props();
 
 	let start_time: Date;
 	let end_time: Date;
-	let durationDate: string | undefined;
-	let data: TimelineData = { totalDuration: 0, events: [] };
+	let durationDate: string | undefined = $state(undefined);
+	let data: TimelineData = $state({ totalDuration: 0, events: [] });
 	let unsubscribe: () => void;
 
 	const setTime = () => {
@@ -23,14 +22,17 @@
 	) => new Intl.DateTimeFormat($selectedLanguage, options).format(new Date(date));
 
 	// initial set time
-	$: if (period) {
-		setTime();
-	}
+	$effect(() => {
+		if (period) {
+			setTime();
+		}
+	});
 
 	// update start_time and end_time every minute
 	setInterval(setTime, 60 * 1000);
 
-	$: if (entity_id) {
+	$effect(() => {
+		if (!entity_id) return;
 		connection.subscribe((conn) => {
 			conn
 				?.subscribeMessage(
@@ -53,9 +55,9 @@
 					console.error(error);
 				});
 		});
-	}
+	});
 
-	$: state = $states?.[entity_id]?.state;
+	let state = $derived($states?.[entity_id]?.state);
 
 	type Event = {
 		start: any;

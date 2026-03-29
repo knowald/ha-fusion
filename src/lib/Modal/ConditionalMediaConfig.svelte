@@ -20,9 +20,11 @@
 	import { slide } from 'svelte/transition';
 	import InputClear from '$lib/Components/InputClear.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -32,7 +34,7 @@
 
 	const debug = false;
 
-	let timeout = sel?.timeout;
+	let timeout = $state(sel?.timeout);
 
 	const minExpire = 0;
 	const maxExpire = 86399;
@@ -49,9 +51,9 @@
 		$dashboard = $dashboard;
 	}
 
-	$: options = genOptions($states, '');
-	$: mediaPlayerOptions = genOptions($states, 'media_player.');
-	$: addMediaPlayer = sel?.media_players?.every((item: { entity_id: string }) => item.entity_id);
+	let options = $derived(genOptions($states, ''));
+	let mediaPlayerOptions = $derived(genOptions($states, 'media_player.'));
+	let addMediaPlayer = $derived(sel?.media_players?.every((item: { entity_id: string }) => item.entity_id));
 
 	function genOptions(states: any, domain: string) {
 		return Object.keys(states)

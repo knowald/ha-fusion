@@ -8,18 +8,17 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	// buttons or select, based on how many items
 	const MAX_ITEMS = 4;
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		TARGET_TEMPERATURE: 1,
 		TARGET_TEMPERATURE_RANGE: 2,
 		TARGET_HUMIDITY: 4,
@@ -27,7 +26,7 @@
 		PRESET_MODE: 16,
 		SWING_MODE: 32,
 		AUX_HEAT: 64
-	});
+	}));
 
 	/**
 	 * Handles click
@@ -64,11 +63,11 @@
 		heat_cool: 'mdi:sun-snowflake-variant'
 	};
 
-	$: optionsHvacModes = attributes?.hvac_modes?.map((option: string) => ({
+	let optionsHvacModes = $derived(attributes?.hvac_modes?.map((option: string) => ({
 		id: option,
 		label: $lang(option),
 		icon: hvacModesIcons?.[option] || 'mdi:fan'
-	}));
+	})));
 
 	const fanModeIcons: Record<string, string> = {
 		on: 'mdi:fan',
@@ -82,11 +81,11 @@
 		diffuse: 'mdi:weather-windy'
 	};
 
-	$: optionsFanModes = attributes?.fan_modes?.map((option: string) => ({
+	let optionsFanModes = $derived(attributes?.fan_modes?.map((option: string) => ({
 		id: option,
 		label: $lang(option),
 		icon: fanModeIcons?.[option] || 'mdi:fan'
-	}));
+	})));
 
 	const swingModeIcons: Record<string, string> = {
 		on: 'mdi:arrow-oscillating',
@@ -96,16 +95,16 @@
 		both: 'mdi:arrow-all'
 	};
 
-	$: optionsSwingModes = attributes?.swing_modes?.map((option: string) => ({
+	let optionsSwingModes = $derived(attributes?.swing_modes?.map((option: string) => ({
 		id: option,
 		label: $lang(option),
 		icon: swingModeIcons?.[option] || 'mdi:fan'
-	}));
+	})));
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		{#if attributes?.hvac_modes}
 			<h2>{$lang('hvac_modes')}</h2>

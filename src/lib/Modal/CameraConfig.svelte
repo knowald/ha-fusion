@@ -17,9 +17,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Camera from '$lib/Main/Camera.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -32,9 +34,9 @@
 		$dashboard = $dashboard;
 	}
 
-	$: entity = $states?.[sel?.entity_id];
+	let entity = $derived($states?.[sel?.entity_id]);
 
-	$: options = $entityList('camera');
+	let options = $derived($entityList('camera'));
 
 	onDestroy(() => $record());
 </script>

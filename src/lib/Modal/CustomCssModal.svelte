@@ -6,19 +6,21 @@
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
 	let transitionend: boolean;
-	let message: string | undefined;
-	let success = false;
+	let message: string | undefined = $state(undefined);
+	let success = $state(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let loading = true;
+	let loading = $state(true);
 
-	let init = '';
-	let value = '';
-	$: changed = init !== value;
+	let init = $state('');
+	let value = $state('');
+	let changed = $derived(init !== value);
 
-	$: if (!changed && !success) message = undefined;
+	$effect(() => {
+		if (!changed && !success) message = undefined;
+	});
 
 	onMount(async () => {
 		try {
@@ -110,7 +112,7 @@
 
 {#if isOpen}
 	<Modal size="large" ontransitionend={() => (transitionend = true)}>
-		<h1 slot="title">{$lang('custom_css')}</h1>
+		{#snippet title()}<h1>{$lang('custom_css')}</h1>{/snippet}
 
 		<br />
 

@@ -10,10 +10,11 @@
 	import type { ImageItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: ImageItem;
-
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: ImageItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -21,9 +22,9 @@
 		set('url', demo);
 	}
 
-	let url = sel?.url;
+	let url = $state(sel?.url);
 
-	$: options = $entityList('image');
+	let options = $derived($entityList('image'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

@@ -5,7 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let modified: boolean;
+	let { modified }: { modified: boolean } = $props();
 
 	/**
 	 * Save keyboard shortcut when pressing cmd/ctrl + s

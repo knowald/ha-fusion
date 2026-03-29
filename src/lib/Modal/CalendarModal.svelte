@@ -17,8 +17,7 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import Date from '$lib/Sidebar/Date.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	interface Event {
 		id?: string;
@@ -41,8 +40,8 @@
 	let busy: boolean;
 	let timeout: ReturnType<typeof setTimeout>;
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
 
 	// ec
 	const plugins = [DayGrid, List];
@@ -181,7 +180,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<!-- ec -->
 		<div data-exclude-drag-modal>

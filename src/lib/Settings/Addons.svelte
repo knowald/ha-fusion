@@ -3,7 +3,7 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
 	function handleFocus(event: FocusEvent) {
 		const target = event.target as HTMLInputElement;

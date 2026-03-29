@@ -24,10 +24,9 @@
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let searchString = '';
+	let searchString = $state('');
 	let searchElement: HTMLInputElement;
 
 	// get random preview entities
@@ -64,23 +63,13 @@
 		icons = iconsModule.icons;
 	});
 
-	$: filter = itemTypes
-		.filter(
-			({ id, type }) =>
-				id.toLowerCase().includes(searchString.toLowerCase()) ||
-				type.toLowerCase().includes(searchString.toLowerCase())
-		)
-		.sort((a, b) => a.type.localeCompare(b.type));
-
 	let itemTypes: {
 		id: string;
 		type: string;
 		component?: any;
 		props?: any;
 		style?: any;
-	}[];
-
-	$: itemTypes = [
+	}[] = $derived([
 		{
 			id: 'button',
 			type: $lang('button'),
@@ -151,7 +140,15 @@
 				sel
 			}
 		}
-	];
+	]);
+
+	let filter = $derived(itemTypes
+		.filter(
+			({ id, type }) =>
+				id.toLowerCase().includes(searchString.toLowerCase()) ||
+				type.toLowerCase().includes(searchString.toLowerCase())
+		)
+		.sort((a, b) => a.type.localeCompare(b.type)));
 
 	async function handleClick(id: string) {
 		closeModal();
@@ -236,7 +233,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{$lang('options')}</h1>
+		{#snippet title()}<h1>{$lang('options')}</h1>{/snippet}
 
 		<div class="search">
 			<InputClear

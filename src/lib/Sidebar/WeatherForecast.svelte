@@ -7,21 +7,21 @@
 	import { onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let unsubscribe: any;
-	let busy = false;
+	let busy = $state(false);
 	const debug = false;
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		FORECAST_DAILY: 1,
 		FORECAST_HOURLY: 2,
 		FORECAST_TWICE_DAILY: 4
-	});
+	}));
 
 	/**
 	 * tame reactivity
@@ -29,28 +29,34 @@
 	const entity_id = writable<string | undefined>(sel?.entity_id);
 	const forecast_type = writable<string | undefined>(sel?.forecast_type);
 
-	$: if (sel?.entity_id) $entity_id = sel?.entity_id;
-	$: if (!sel?.forecast_type || sel?.forecast_type) $forecast_type = sel?.forecast_type;
+	$effect(() => {
+		if (sel?.entity_id) $entity_id = sel?.entity_id;
+	});
+	$effect(() => {
+		$forecast_type = sel?.forecast_type;
+	});
 
 	// forecast_type fallback
-	$: defaultForecastType = Object.keys(supports)
+	let defaultForecastType = $derived(Object.keys(supports)
 		?.find((key) => supports?.[key])
 		?.replace('FORECAST_', '')
-		?.toLowerCase();
+		?.toLowerCase());
 
 	// get forecast when not dragging
 	// and when entity_id or forecast_type changes
-	$: if (($forecast_type || !$forecast_type) && $entity_id && !$dragging && defaultForecastType) {
-		getForecast();
+	$effect(() => {
+		if (($forecast_type || !$forecast_type) && $entity_id && !$dragging && defaultForecastType) {
+			getForecast();
 
-		if (debug) {
-			console.debug({
-				$forecast_type,
-				$entity_id,
-				$dragging
-			});
+			if (debug) {
+				console.debug({
+					$forecast_type,
+					$entity_id,
+					$dragging
+				});
+			}
 		}
-	}
+	});
 
 	async function getForecast() {
 		if (busy) return;
@@ -81,21 +87,20 @@
 		}
 	}
 
-	let iconSet: WeatherIconSet;
-	$: {
+	let iconSet: WeatherIconSet = $derived.by(() => {
 		if (sel?.icon_pack === 'materialsymbolslight') {
-			iconSet = iconMapMaterialSymbolsLight;
+			return iconMapMaterialSymbolsLight;
 		} else if (sel?.icon_pack === 'meteocons') {
-			iconSet = iconMapMeteocons;
+			return iconMapMeteocons;
 		} else if (sel?.icon_pack === 'weathericons') {
-			iconSet = iconMapWeatherIcons;
+			return iconMapWeatherIcons;
 		} else {
-			iconSet = iconMapMeteocons;
+			return iconMapMeteocons;
 		}
-	}
+	});
 
 	// Because config may not include days_to_show, and some forecasts proviode 48 datapoints, we need to ensure it's correct
-	$: calculated = Math.min(sel?.days_to_show ?? 7, 7);
+	let calculated = $derived(Math.min(sel?.days_to_show ?? 7, 7));
 
 	interface Forecast {
 		condition: string;
@@ -104,8 +109,7 @@
 		temperature: number;
 	}
 
-	let forecast: Forecast[];
-	$: forecast = $forecasts?.[sel?.id]?.forecast?.slice(0, calculated).map(function (item: any) {
+	let forecast: Forecast[] = $derived($forecasts?.[sel?.id]?.forecast?.slice(0, calculated).map(function (item: any) {
 		let icon: WeatherIconMapping =
 			iconSet.conditions[item?.condition as keyof WeatherIconConditions];
 		let x: Forecast = {
@@ -116,11 +120,11 @@
 		};
 
 		return x;
-	});
+	}));
 
 	// Different forecast providers choose different intervals, we need to figure out display based on this
-	$: forecast_diff =
-		(new Date(forecast?.[1]?.date).valueOf() - new Date(forecast?.[0]?.date).valueOf()) / 3600000;
+	let forecast_diff = $derived(
+		(new Date(forecast?.[1]?.date).valueOf() - new Date(forecast?.[0]?.date).valueOf()) / 3600000);
 
 	// cleanup
 	onDestroy(() => {

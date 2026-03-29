@@ -5,7 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { base } from '$app/paths';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
 	let languages: {
 		id: string;

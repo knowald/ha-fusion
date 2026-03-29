@@ -3,12 +3,9 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	export let onclicked: (() => void) | undefined = undefined;
+	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } = $props();
 
-
-	export let view: any;
-
-	$: noViews = !$dashboard?.views?.length;
+	let noViews = $derived(!$dashboard?.views?.length);
 
 	/**
 	 * Creates a new section object

@@ -3,18 +3,22 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { isTimestamp, relativeTime } from '$lib/Utils';
 
-	export let entity_id: string | undefined = undefined;
-	export let prefix: string | undefined = undefined;
-	export let suffix: string | undefined = undefined;
-	export let date: boolean | undefined = undefined;
+	let { entity_id = undefined, prefix = undefined, suffix = undefined, date = undefined }: {
+		entity_id?: string;
+		prefix?: string;
+		suffix?: string;
+		date?: boolean;
+	} = $props();
 
-	let entity: HassEntity;
+	let entity: HassEntity = $state(undefined as any);
 
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
 
-	$: state = entity?.state;
+	let state = $derived(entity?.state);
 </script>
 
 <div

@@ -11,30 +11,29 @@
 	import { handleVisibility, mediaQueries } from '$lib/Conditional';
 	import { generateId } from '$lib/Utils';
 
-	export let view: any;
-	export let altKeyPressed: boolean;
+	let { view, altKeyPressed }: { view: any; altKeyPressed: boolean } = $props();
 
-	let currentDraggedElement: HTMLElement | undefined;
-	let dragEnteredAnother = false;
+	let currentDraggedElement: HTMLElement | undefined = $state(undefined);
+	let dragEnteredAnother = $state(false);
 
-	let isDraggingHorizontalStack = false;
-	let isDraggingVerticalStack = false;
-	let isDraggingScenes = false;
-	let skipTransformElement = false;
+	let isDraggingHorizontalStack = $state(false);
+	let isDraggingVerticalStack = $state(false);
+	let isDraggingScenes = $state(false);
+	let skipTransformElement = $state(false);
 
 	const stackHeight = $itemHeight * 1.65;
 
-	let mounted = false;
+	let mounted = $state(false);
 	onMount(() => (mounted = true));
 
-	$: dndOptions = {
+	let dndOptions = $derived({
 		flipDurationMs: $motion,
 		dragDisabled: !$editMode,
 		dropTargetStyle: {},
 		zoneTabIndex: -1,
 		dropFromOthersDisabled: false,
 		centreDraggedOnCursor: true
-	};
+	});
 
 	/**
 	 * Drag and drop common code.
@@ -47,9 +46,6 @@
 
 		// increase body height to prevent scroll position from jumping...
 		document.body.style.height = `${parseFloat(getComputedStyle(document.body).height) + 1}px`;
-
-		// // disable consider min-height
-		// (event.target as HTMLDivElement).style.minHeight = `${$itemHeight}px`;
 
 		// handle dnd type
 		callback();
@@ -344,9 +340,11 @@
 		});
 	}
 
-	$: if (dragEnteredAnother && currentDraggedElement) {
-		acrossTypeTransform(currentDraggedElement);
-	}
+	$effect(() => {
+		if (dragEnteredAnother && currentDraggedElement) {
+			acrossTypeTransform(currentDraggedElement);
+		}
+	});
 
 	function acrossTypeTransform(currentDraggedElement: HTMLElement) {
 		currentDraggedElement.innerHTML = '';
@@ -371,11 +369,13 @@
 	 * This statement reactively updates when any of the following change:
 	 * $editMode, mounted, $mediaQueries, view?.sections, $states
 	 */
-	$: viewSections = $editMode
-		? view?.sections
-		: typeof mounted === 'boolean' &&
-			typeof $mediaQueries === 'object' &&
-			handleVisibility($editMode, view?.sections, $states);
+	let viewSections = $derived(
+		$editMode
+			? view?.sections
+			: typeof mounted === 'boolean' &&
+				typeof $mediaQueries === 'object' &&
+				handleVisibility($editMode, view?.sections, $states)
+	);
 </script>
 
 <main

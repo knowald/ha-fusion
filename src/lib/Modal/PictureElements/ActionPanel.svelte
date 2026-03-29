@@ -9,37 +9,46 @@
 	import { slide } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let entityOptions;
+	let { konva, selectedShape, selectedShapes, entityOptions }: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		entityOptions: any;
+	} = $props();
 
-	let collapsed = true;
-	let testState: boolean | undefined = undefined;
+	let collapsed = $state(true);
+	let testState = $state<boolean | undefined>(undefined);
 	let timeout: ReturnType<typeof setTimeout>;
 
-	$: selectedService =
+	let selectedService = $state(
 		selectedShape?.attrs?.onclick?.domain && selectedShape?.attrs?.onclick?.service
 			? `${selectedShape.attrs.onclick.domain}.${selectedShape.attrs.onclick.service}`
-			: '';
+			: ''
+	);
 
-	$: selectedTarget = selectedShape?.attrs?.onclick?.target?.entity_id || '';
+	let selectedTarget = $state(selectedShape?.attrs?.onclick?.target?.entity_id || '');
 
-	$: serviceData = selectedShape?.attrs?.onclick?.data
-		? JSON.stringify(selectedShape.attrs.onclick.data, null, 2)
-		: '';
+	let serviceData = $state(
+		selectedShape?.attrs?.onclick?.data
+			? JSON.stringify(selectedShape.attrs.onclick.data, null, 2)
+			: ''
+	);
 
-	$: if (!selectedShape || selectedShapes.length !== 1) {
-		selectedService = '';
-		selectedTarget = '';
-		serviceData = '';
-	}
+	$effect(() => {
+		if (!selectedShape || selectedShapes.length !== 1) {
+			selectedService = '';
+			selectedTarget = '';
+			serviceData = '';
+		}
+	});
 
-	$: serviceOptions = Object.entries($services || {})
-		.flatMap(([domain, domainServices]) =>
-			Object.keys(domainServices).map((service) => `${domain}.${service}`)
-		)
-		.sort((a, b) => a.localeCompare(b));
+	let serviceOptions = $derived(
+		Object.entries($services || {})
+			.flatMap(([domain, domainServices]) =>
+				Object.keys(domainServices).map((service) => `${domain}.${service}`)
+			)
+			.sort((a, b) => a.localeCompare(b))
+	);
 
 	onMount(async () => {
 		if ($connection && !$services) {
@@ -166,10 +175,11 @@
 		}
 	}
 
-	$: disabled =
+	let disabled = $derived(
 		!selectedShape?.attrs?.draggable ||
 		selectedShapes?.length !== 1 ||
-		['v-guide', 'h-guide', 'group'].includes(selectedShape?.attrs?.type);
+		['v-guide', 'h-guide', 'group'].includes(selectedShape?.attrs?.type)
+	);
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->

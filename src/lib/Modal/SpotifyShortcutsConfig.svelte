@@ -6,13 +6,13 @@
 	import type { SpotifyShortcut } from '$lib/Types';
 	import { updateObj } from '$lib/Utils';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
-	$: shortcuts = (sel?.shortcuts ?? []) as SpotifyShortcut[];
+	let shortcuts = $derived((sel?.shortcuts ?? []) as SpotifyShortcut[]);
 
-	let newName = '';
-	let newUri = '';
-	let newImageUrl = '';
+	let newName = $state('');
+	let newUri = $state('');
+	let newImageUrl = $state('');
 
 	function set(key: string, value: any) {
 		sel = updateObj(sel, key, value);

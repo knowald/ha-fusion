@@ -11,23 +11,22 @@
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let items: any;
-	let todoInput = '';
-	let selectedId: boolean | undefined = undefined;
+	let items: any = $state(undefined);
+	let todoInput = $state('');
+	let selectedId: boolean | undefined = $state(undefined);
 	let tempItemNames: Map<string, string> = new Map();
 
-	$: entity = $states[sel?.entity_id];
+	let entity = $derived($states[sel?.entity_id]);
 
-	$: anyCompleted = getCompleted(items);
+	let anyCompleted = $derived(getCompleted(items));
 
-	$: dndOptions = {
+	let dndOptions = $derived({
 		flipDurationMs: $motion,
 		dropTargetStyle: {},
 		zoneTabIndex: -1
-	};
+	});
 
 	/**
 	 * Checks if any item in items is marked as 'completed'
@@ -187,7 +186,7 @@
 		<!-- ADD -->
 		<h2>{$lang('todo_list')}</h2>
 
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<div class="h-container">
 			<InputClear

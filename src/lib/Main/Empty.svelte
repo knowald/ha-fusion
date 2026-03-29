@@ -2,7 +2,7 @@
 	import { editMode, itemHeight, motion } from '$lib/Stores';
 	import { openModal } from 'svelte-modals/legacy';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	/**
 	 * Handle click

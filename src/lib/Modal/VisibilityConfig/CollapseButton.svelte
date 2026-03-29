@@ -3,7 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
+	let { item = $bindable() }: { item: Condition } = $props();
 
 	/**
 	 * Handles click

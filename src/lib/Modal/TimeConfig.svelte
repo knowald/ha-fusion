@@ -8,8 +8,7 @@
 	import { updateObj } from '$lib/Utils';
 	import type { TimeItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: TimeItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: TimeItem } = $props();
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { timer, selectedLanguage } from '$lib/Stores';
 
-	export let hour12: boolean | undefined = undefined;
-	export let seconds: boolean | undefined = undefined;
+	let { hour12 = undefined, seconds = undefined }: {
+		hour12?: boolean | undefined;
+		seconds?: boolean | undefined;
+	} = $props();
 
-	$: time = $timer.toLocaleTimeString($selectedLanguage, {
+	let time = $derived($timer.toLocaleTimeString($selectedLanguage, {
 		hour: hour12 ? 'numeric' : '2-digit',
 		minute: '2-digit',
 		second: seconds ? '2-digit' : undefined,
 		hour12: hour12
-	});
+	}));
 </script>
 
 <div>

@@ -5,11 +5,10 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: group = entity?.attributes?.entity_id;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let group = $derived(entity?.attributes?.entity_id);
 </script>
 
 {#if isOpen}

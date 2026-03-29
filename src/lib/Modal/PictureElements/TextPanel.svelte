@@ -8,33 +8,35 @@
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { getFontList } from '$lib/Modal/PictureElements/fonts';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
+	let { konva, selectedShape, selectedShapes, setAttribute }: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+	} = $props();
 
-	let collapsed = true;
-	let fonts: string[] = [];
+	let collapsed = $state(true);
+	let fonts = $state<string[]>([]);
 
 	// compare available fonts to font list
 	onMount(async () => {
 		fonts = await getFontList();
 	});
 
-	$: oneSel = selectedShapes?.length === 1;
-	$: attr = selectedShape?.attrs;
-	$: validText = ['text', 'state-label'].includes(attr?.type);
-	$: disabled = !oneSel || !validText || !attr?.draggable;
+	let oneSel = $derived(selectedShapes?.length === 1);
+	let attr = $derived(selectedShape?.attrs);
+	let validText = $derived(['text', 'state-label'].includes(attr?.type));
+	let disabled = $derived(!oneSel || !validText || !attr?.draggable);
 
 	// attrs
-	$: fontFamily = (oneSel && attr?.fontFamily) || 'Inter Variable';
-	$: fontSize = oneSel ? `${attr?.fontSize ?? 0} px` : '14 px';
+	let fontFamily = $derived((oneSel && attr?.fontFamily) || 'Inter Variable');
+	let fontSize = $derived(oneSel ? `${attr?.fontSize ?? 0} px` : '14 px');
 
-	$: letterSpacing = oneSel ? `${attr?.letterSpacing ?? 0} px` : '0 px';
-	$: lineHeight = `${oneSel ? (attr?.lineHeight ?? 1) * 100 : 100}%`;
+	let letterSpacing = $derived(oneSel ? `${attr?.letterSpacing ?? 0} px` : '0 px');
+	let lineHeight = $derived(`${oneSel ? (attr?.lineHeight ?? 1) * 100 : 100}%`);
 
-	$: align = oneSel && validText ? attr?.align || 'left' : undefined;
-	$: ellipsis = oneSel && !!attr?.ellipsis;
+	let align = $derived(oneSel && validText ? attr?.align || 'left' : undefined);
+	let ellipsis = $derived(oneSel && !!attr?.ellipsis);
 
 	// escape input saveState
 	function handleInput(id: string, key: string, event: Event) {

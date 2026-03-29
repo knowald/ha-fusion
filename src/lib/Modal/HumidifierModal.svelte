@@ -9,18 +9,17 @@
 	import Select from '$lib/Components/Select.svelte';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attr = entity?.attributes;
-	$: toggle = entity?.state === 'on';
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attr = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state === 'on');
 
-	$: options = attr?.available_modes?.map((option: string) => ({
+	let options = $derived(attr?.available_modes?.map((option: string) => ({
 		id: option,
 		icon: icons?.[option] || 'mdi:water-percent',
 		label: $lang(`humidifier_mode_${option}`)
-	}));
+	})));
 
 	const icons: Record<string, string> = {
 		auto: 'mdi:refresh-auto',

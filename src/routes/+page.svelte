@@ -27,9 +27,9 @@
 	 * Data from server-side load
 	 * function +page.server.ts
 	 */
-	export let data;
+	let { data }: { data: any } = $props();
 
-	let altKeyPressed = false;
+	let altKeyPressed = $state(false);
 
 	$configuration = data?.configuration;
 	$dashboard = data?.dashboard;
@@ -48,10 +48,10 @@
 	 * filterDashboard is filtered from search input, else
 	 * find `$currentViewId` OR when dragging get `isDndShadowItem`
 	 */
-	$: view = $drawerSearch
+	let view = $derived($drawerSearch
 		? $filterDashboard
 		: $dashboard?.views?.find((view) => view?.id === $currentViewId) ||
-			$dashboard?.views?.find((view) => view?.isDndShadowItem);
+			$dashboard?.views?.find((view) => view?.isDndShadowItem));
 
 	/**
 	 * WebSocket, tries to reconnect if no previous connection has been made.
@@ -86,7 +86,9 @@
 	/**
 	 * Reconnect if long-lived access token changes
 	 */
-	$: if ($configuration?.token) updateConnection();
+	$effect(() => {
+		if ($configuration?.token) updateConnection();
+	});
 
 	function updateConnection() {
 		if (isConnecting || !browser) return;

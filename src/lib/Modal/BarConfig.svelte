@@ -22,10 +22,11 @@
 	import { updateObj, getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: BarItem;
-
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: BarItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -33,13 +34,13 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
+	let name = $state(sel?.name);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
-	$: math = sel?.math || '';
+	let math = $state(sel?.math || '');
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

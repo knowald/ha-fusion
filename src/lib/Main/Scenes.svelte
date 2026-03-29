@@ -9,14 +9,14 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
-	let active = false;
+	let active = $state(false);
 	let timeout: ReturnType<typeof setTimeout>;
 
 	const iconSize = '2rem';
 
-	$: icon = sel?.icon;
+	let icon = $derived(sel?.icon);
 
 	function handleClick() {
 		// config

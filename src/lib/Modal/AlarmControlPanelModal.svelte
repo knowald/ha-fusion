@@ -9,17 +9,16 @@
 	import { onDestroy } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: state = entity?.state;
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let state = $derived(entity?.state);
 
-	let code = '';
-	let reject: boolean;
+	let code = $state('');
+	let reject = $state<boolean>(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let selectedService: string | undefined;
+	let selectedService = $state<string | undefined>(undefined);
 
 	function addCode(key: number) {
 		code += key;

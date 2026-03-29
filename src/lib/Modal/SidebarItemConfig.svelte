@@ -37,12 +37,11 @@
 	import Notifications from '$lib/Sidebar/Notifications.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: SidebarItem;
+	let { isOpen, sel }: { isOpen: boolean; sel: SidebarItem } = $props();
 
-	let searchString = '';
+	let searchString = $state('');
 	let searchElement: HTMLInputElement;
-	let modalTransitionEnd = false;
+	let modalTransitionEnd = $state(false);
 
 	// get random preview entities
 	if (!$demo.graph) getGraphEntity($states, connection, (id) => ($demo.graph = id));
@@ -75,23 +74,13 @@
 		}
 	});
 
-	$: filter = itemTypes
-		.filter(
-			({ id, type }) =>
-				id.toLowerCase().includes(searchString.toLowerCase()) ||
-				type.toLowerCase().includes(searchString.toLowerCase())
-		)
-		.sort((a, b) => a.type.localeCompare(b.type));
-
 	let itemTypes: {
 		id: string;
 		type: string;
 		component?: any;
 		props?: any;
 		style?: any;
-	}[];
-
-	$: itemTypes = [
+	}[] = $derived([
 		{
 			id: 'sensor',
 			type: $lang('sensor'),
@@ -238,7 +227,15 @@
 				}
 			}
 		}
-	];
+	]);
+
+	let filter = $derived(itemTypes
+		.filter(
+			({ id, type }) =>
+				id.toLowerCase().includes(searchString.toLowerCase()) ||
+				type.toLowerCase().includes(searchString.toLowerCase())
+		)
+		.sort((a, b) => a.type.localeCompare(b.type)));
 
 	async function handleClick(id: string) {
 		closeModal();
@@ -380,7 +377,7 @@
 			modalTransitionEnd = true;
 		}}
 	>
-		<h1 slot="title">{$lang('options')}</h1>
+		{#snippet title()}<h1>{$lang('options')}</h1>{/snippet}
 
 		<div class="search">
 			<InputClear

@@ -2,19 +2,22 @@
 	import { motion } from '$lib/Stores';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	export let value: number;
-	export let min: number;
-	export let max: number;
-	export let step: number | undefined = undefined;
-	export let onchange: ((value: string) => void) | undefined = undefined;
-	export let oninput: ((value: number) => void) | undefined = undefined;
+	let { value = $bindable(), min, max, step = undefined, onchange = undefined, oninput = undefined }: {
+		value: number;
+		min: number;
+		max: number;
+		step?: number | undefined;
+		onchange?: ((value: string) => void) | undefined;
+		oninput?: ((value: number) => void) | undefined;
+	} = $props();
+
 	// value in range 0 to 1
-	$: normalized = (value - min) / (max - min);
+	let normalized = $derived((value - min) / (max - min));
 	const fill = tweened(normalized, {
 		duration: $motion,
 		easing: cubicOut
 	});
-	$: fill.set(normalized);
+	$effect(() => { fill.set(normalized); });
 	/**
 	 * Dispatches value on input end
 	 */

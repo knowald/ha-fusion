@@ -10,25 +10,26 @@
 	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), sectionName = undefined }: {
+		isOpen: boolean;
+		sel: any;
+		sectionName?: string;
+	} = $props();
 
-	let name: string | undefined = sel?.name;
-	let icon: string | undefined = sel?.icon;
-	let color: string | undefined = sel?.color;
-	let entity_id: string | undefined = sel?.entity_id;
-	let show_progress: boolean = sel?.show_progress ?? true;
-	let default_device: string | undefined = sel?.default_device;
+	let name: string | undefined = $state(sel?.name);
+	let icon: string | undefined = $state(sel?.icon);
+	let color: string | undefined = $state(sel?.color);
+	let entity_id: string | undefined = $state(sel?.entity_id);
+	let show_progress: boolean = $state(sel?.show_progress ?? true);
+	let default_device: string | undefined = $state(sel?.default_device);
 
-	// Get list of Spotify media players
-	$: spotifyEntities = Object.keys($states || {}).filter((key) =>
+	let spotifyEntities = $derived(Object.keys($states || {}).filter((key) =>
 		key.startsWith('media_player.spotify')
-	);
+	));
 
 	// Device list from SpotifyPlus
 	interface SpDevice { Id: string; Name: string; }
-	let devices: SpDevice[] = [];
+	let devices: SpDevice[] = $state([]);
 
 	function getSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;

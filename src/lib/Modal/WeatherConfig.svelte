@@ -20,9 +20,11 @@
 	import { updateObj } from '$lib/Utils';
 	import type { WeatherItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: WeatherItem;
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: WeatherItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -30,19 +32,19 @@
 		set('entity_id', demo);
 	}
 
-	let icon: string | undefined = sel?.icon;
+	let icon: string | undefined = $state(sel?.icon);
 
-	$: entity = sel?.entity_id && ($states?.[sel?.entity_id] as any);
-	$: attributes = entity && entity?.attributes;
+	let entity = $derived(sel?.entity_id && ($states?.[sel?.entity_id] as any));
+	let attributes = $derived(entity && entity?.attributes);
 
 	const iconOptions = [{ id: 'meteocons', label: 'meteocons' }];
 
-	$: options = $entityList('weather');
+	let options = $derived($entityList('weather'));
 
-	$: sensorOptions = Object.keys($states)
+	let sensorOptions = $derived(Object.keys($states)
 		.filter((key) => key.startsWith('sensor.'))
 		.sort()
-		.map((key) => ({ id: key, label: key }));
+		.map((key) => ({ id: key, label: key })));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

@@ -10,21 +10,25 @@
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { derived } from 'svelte/store';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
+	let { konva, selectedShape, selectedShapes }: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+	} = $props();
 
-	let editingId: string | undefined = undefined;
-	let dragStartOrder: string[] | undefined;
+	let editingId: string | undefined = $state(undefined);
+	let dragStartOrder: string[] | undefined = $state(undefined);
 
-	let layers: any[];
+	let layers: any[] = $state([]);
 
-	$: layers = $uiLayers?.children
-		? [...$uiLayers.children].reverse().map((shape, index) => ({
-				...shape,
-				id: shape?.attrs?.id || `layer-${index}`
-			}))
-		: [];
+	$effect(() => {
+		layers = $uiLayers?.children
+			? [...$uiLayers.children].reverse().map((shape: any, index: number) => ({
+					...shape,
+					id: shape?.attrs?.id || `layer-${index}`
+				}))
+			: [];
+	});
 
 	// derived store that only updates when not dragging
 	const uiLayers: any = derived([konvaStore, dragging], ([$konvaStore, $dragging], set) => {

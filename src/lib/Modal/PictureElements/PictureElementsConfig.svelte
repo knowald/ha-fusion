@@ -15,20 +15,22 @@
 	import { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 	import HelpOverlay from '$lib/Modal/PictureElements/HelpOverlay.svelte';
 
-	export let sel: any;
-	export let isOpen: boolean;
-	export let demo: any | undefined = undefined;
+	let { sel, isOpen, demo = undefined }: {
+		sel: any;
+		isOpen: boolean;
+		demo?: any | undefined;
+	} = $props();
 
-	let konva: KonvaEditor;
-	let container: HTMLDivElement;
+	let konva = $state<KonvaEditor>();
+	let container = $state<HTMLDivElement>();
 
-	let canvas: HTMLDivElement;
-	let offsetWidth: number;
-	let offsetHeight: number;
+	let canvas = $state<HTMLDivElement>();
+	let offsetWidth = $state<number>();
+	let offsetHeight = $state<number>();
 
-	let panelsWidth = 300;
-	let resizing = false;
-	let showHelp = false;
+	let panelsWidth = $state(300);
+	let resizing = $state(false);
+	let showHelp = $state(false);
 
 	// helper function to parse event target value
 	function setAttribute(id: string, key: string, event: Event) {
@@ -37,29 +39,33 @@
 	}
 
 	// state shape and service target entities
-	$: entityOptions = Object.keys($states || {}).sort((a, b) => a.localeCompare(b));
+	let entityOptions = $derived(Object.keys($states || {}).sort((a, b) => a.localeCompare(b)));
 
 	// bridge konva and ui
-	$: selectedShapes = $konvaStore?.selectedShapes;
-	$: selectedShape = selectedShapes?.[0];
+	let selectedShapes = $derived($konvaStore?.selectedShapes);
+	let selectedShape = $derived(selectedShapes?.[0]);
 
 	// common
-	$: props = {
+	let props = $derived({
 		konva,
 		selectedShapes,
 		selectedShape
-	};
+	});
 
 	// responsive stage
-	$: if (offsetWidth) {
-		konva?.stage?.width(offsetWidth);
-		konva?.updateGuidePos();
-	}
+	$effect(() => {
+		if (offsetWidth) {
+			konva?.stage?.width(offsetWidth);
+			konva?.updateGuidePos();
+		}
+	});
 
-	$: if (offsetHeight) {
-		konva?.stage?.height(offsetHeight);
-		konva?.updateGuidePos();
-	}
+	$effect(() => {
+		if (offsetHeight) {
+			konva?.stage?.height(offsetHeight);
+			konva?.updateGuidePos();
+		}
+	});
 
 	onMount(async () => {
 		if (KonvaEditor && canvas) {

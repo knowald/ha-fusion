@@ -3,9 +3,9 @@
 	import Icon from '@iconify/svelte';
 	import { fade } from 'svelte/transition';
 
-	let dragging: boolean;
+	let dragging: boolean = $state(false);
 
-	$: if (!dragging) $record();
+	$effect(() => { if (!dragging) $record(); });
 
 	function handlePointer(event: PointerEvent) {
 		const layoutElement: HTMLElement | null = document.getElementById('layout');

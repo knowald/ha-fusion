@@ -5,6 +5,9 @@
 	import Loader from '$lib/Components/Loader.svelte';
 	import '@fontsource-variable/inter';
 	import { expoOut } from 'svelte/easing';
+	import type { Snippet } from 'svelte';
+
+	let { children }: { children: Snippet } = $props();
 </script>
 
 <svelte:head>
@@ -35,7 +38,7 @@
 	</div>
 </Modals>
 
-<slot />
+{@render children()}
 
 <style>
 	:global(body, html) {

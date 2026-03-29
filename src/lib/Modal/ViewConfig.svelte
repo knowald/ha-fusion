@@ -9,8 +9,7 @@
 	import { updateObj } from '$lib/Utils';
 	import type { ViewItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: ViewItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: ViewItem } = $props();
 
 	let name = sel?.name;
 

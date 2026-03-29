@@ -17,12 +17,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let modified: boolean;
-	export let toggleDrawer: () => void;
+	let { modified, toggleDrawer }: { modified: boolean; toggleDrawer: () => void } = $props();
 
-	let width: number;
+	let width = $state<number>(0);
 
-	$: text = $lang($editMode ? 'done' : 'edit_ui');
+	let text = $derived($lang($editMode ? 'done' : 'edit_ui'));
 
 	/**
 	 * If changes have been made, prompt the user for

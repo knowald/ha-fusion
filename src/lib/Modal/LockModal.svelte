@@ -9,22 +9,21 @@
 	import { onDestroy } from 'svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let opening = false;
+	let opening = $state(false);
 	let timeout: ReturnType<typeof setTimeout>;
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: state = entity?.state;
-	$: toggle = entity?.state === 'unlocking' || entity?.state === 'unlocked';
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let state = $derived(entity?.state);
+	let toggle = $derived(entity?.state === 'unlocking' || entity?.state === 'unlocked');
 
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
-	$: supports = getSupport(supported_features, {
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
+	let supports = $derived(getSupport(supported_features, {
 		OPEN: 1
-	});
+	}));
 
 	function handleClick() {
 		const service = state === 'locked' ? 'unlock' : 'lock';

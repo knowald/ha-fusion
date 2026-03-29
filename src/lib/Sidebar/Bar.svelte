@@ -4,39 +4,43 @@
 	import { onMount } from 'svelte';
 	import { getName } from '$lib/Utils';
 
-	export let entity_id: string | undefined;
-	export let math: string | undefined = undefined;
-	export let name: string | undefined = undefined;
-	export let id: number | undefined = undefined;
+	let { entity_id, math = undefined, name = undefined, id = undefined }: {
+		entity_id: string | undefined;
+		math?: string;
+		name?: string;
+		id?: number;
+	} = $props();
 
-	let entity: HassEntity;
+	let entity: HassEntity = $state(undefined as any);
 	let cache: { [id: number]: { [key: string]: number } } = {};
-	let expression = 0;
-	let mounted: boolean;
+	let expression = $state(0);
+	let mounted: boolean = $state(false);
 
 	const options = {
 		style: 'percent' as 'decimal' | 'currency' | 'percent' | 'unit',
 		maximumFractionDigits: 2
 	};
 
-	$: if (entity_id) entity = $states?.[entity_id];
-	$: state = entity?.state;
-	$: if (math && id) {
-		cache[id] = {};
-	}
-
-	$: if (entity) {
-		/**
-		 * Compute `expression`, first check if cached
-		 * value otherwise evaluate the math expression
-		 */
-		let key = `${state}_${math}`;
-		if (id && cache?.[id]?.[key]) {
-			expression = cache[id][key];
-		} else {
-			expression = evaluate(state, math) || 0;
+	$effect(() => {
+		if (entity_id) entity = $states?.[entity_id];
+	});
+	let state = $derived(entity?.state);
+	$effect(() => {
+		if (math && id) {
+			cache[id] = {};
 		}
-	}
+	});
+
+	$effect(() => {
+		if (entity) {
+			let key = `${state}_${math}`;
+			if (id && cache?.[id]?.[key]) {
+				expression = cache[id][key];
+			} else {
+				expression = evaluate(state, math) || 0;
+			}
+		}
+	});
 
 	onMount(() => {
 		// wait a second before adding transition

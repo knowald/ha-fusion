@@ -6,14 +6,13 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = Number(entity?.state);
-	$: attributes = entity?.attributes;
-	$: canIncrement = state !== attributes?.maximum;
-	$: canDecrement = state !== attributes?.minimum;
+	let entity = $derived($states[sel?.entity_id]);
+	let state = $derived(Number(entity?.state));
+	let attributes = $derived(entity?.attributes);
+	let canIncrement = $derived(state !== attributes?.maximum);
+	let canDecrement = $derived(state !== attributes?.minimum);
 
 	/**
 	 * Handles counter service call

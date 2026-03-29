@@ -10,8 +10,7 @@
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
-	export let item: any;
-	export let sectionName: string | undefined = undefined;
+	let { item, sectionName = undefined }: { item: any; sectionName?: string } = $props();
 
 	const large = ['conditional_media', 'picture_elements', 'camera', 'spotify_player_large'];
 </script>

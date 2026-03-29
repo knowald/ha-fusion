@@ -7,8 +7,7 @@
 	import { updateObj } from '$lib/Utils';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

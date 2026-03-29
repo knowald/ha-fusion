@@ -2,16 +2,23 @@
 	import { motion } from '$lib/Stores';
 	import { fade, scale } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
-	export let condition: any;
-	export let select: boolean | undefined = false;
-	$: padding = condition ? '0.9em 2.5rem 0.9em 0.9em' : '0.9em';
-	export let onclear: (() => void) | undefined = undefined;
+	import type { Snippet } from 'svelte';
+
+	let { condition, select = false, onclear = undefined, children }: {
+		condition: any;
+		select?: boolean;
+		onclear?: (() => void);
+		children: Snippet<[string]>;
+	} = $props();
+
+	let padding = $derived(condition ? '0.9em 2.5rem 0.9em 0.9em' : '0.9em');
+
 	function handleClick() {
 		onclear?.();
 	}
 </script>
 <div class="clear">
-	<slot {padding} />
+	{@render children(padding)}
 	{#if condition}
 		<button
 			class:select

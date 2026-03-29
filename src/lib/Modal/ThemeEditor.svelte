@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 </script>
 
 {#if isOpen}

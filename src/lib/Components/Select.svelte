@@ -6,42 +6,61 @@
 	import { scale, slide } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 	import { expoOut } from 'svelte/easing';
-	export let value: string | undefined;
-	export let placeholder: string;
-	export let computeIcons: boolean | undefined = undefined;
-	export let getIconString: boolean | undefined = undefined;
-	export let defaultIcon: string | undefined = undefined;
-	export let clearable: boolean | undefined = undefined;
-	export let options: {
-		id: string;
-		label: string;
-		hint?: string;
-		icon?: string;
-	}[];
+	let {
+		value = $bindable(undefined),
+		placeholder,
+		computeIcons = undefined,
+		getIconString = undefined,
+		defaultIcon = undefined,
+		clearable = undefined,
+		options,
+		onchange = undefined,
+		oniconString = undefined
+	}: {
+		value?: string | undefined;
+		placeholder: string;
+		computeIcons?: boolean | undefined;
+		getIconString?: boolean | undefined;
+		defaultIcon?: string | undefined;
+		clearable?: boolean | undefined;
+		options: {
+			id: string;
+			label: string;
+			hint?: string;
+			icon?: string;
+		}[];
+		onchange?: ((value: string | undefined) => void) | undefined;
+		oniconString?: ((value: string | undefined) => void) | undefined;
+	} = $props();
+
 	const DEBUG = false;
-	let listOpen = false;
-	let search: string;
-	let wrapper: HTMLDivElement;
-	let input: HTMLInputElement;
-	let selectedIndex: number;
-	let highlightedIndex = 0;
-	let scrollToIndex = 0;
-	let scrollToAlignment: Alignment = 'auto';
+	let listOpen = $state(false);
+	let search = $state('');
+	let wrapper = $state<HTMLDivElement>();
+	let input = $state<HTMLInputElement>();
+	let selectedIndex = $state<number>(0);
+	let highlightedIndex = $state(0);
+	let scrollToIndex = $state(0);
+	let scrollToAlignment = $state<Alignment>('auto');
 	const scrollToBehaviour: ScrollBehaviour = 'instant';
 	const itemSize = 50;
 	const maxHeight = itemSize * 7;
 	const overscanCount = 7;
-	export let onchange: ((value: string | undefined) => void) | undefined = undefined;
-	export let oniconString: ((value: string | undefined) => void) | undefined = undefined;
-	$: if ((value === undefined && clearable) || value) {
-		onchange?.(value);
-	}
-	$: if (!listOpen) {
-		search = '';
-		selectedIndex = options?.findIndex((option: { id: string }) => option.id === value);
-	}
-	$: height = filter && Math.min(filter.length * itemSize, maxHeight);
-	$: filter =
+
+	$effect(() => {
+		if ((value === undefined && clearable) || value) {
+			onchange?.(value);
+		}
+	});
+
+	$effect(() => {
+		if (!listOpen) {
+			search = '';
+			selectedIndex = options?.findIndex((option: { id: string }) => option.id === value);
+		}
+	});
+
+	let filter = $derived(
 		options && listOpen
 			? options.filter(
 					(option: { id: string; label: string }) =>
@@ -49,14 +68,16 @@
 						option.label.toLowerCase().includes(search.toLowerCase()) ||
 						option.id.toLowerCase().includes(search.toLowerCase())
 				)
-			: [];
-	$: itemCount = filter?.length;
-	$: inputProps = {
+			: []
+	);
+	let height = $derived(filter && Math.min(filter.length * itemSize, maxHeight));
+	let itemCount = $derived(filter?.length);
+	let inputProps = $derived({
 		type: 'text',
 		class: 'input',
 		placeholder,
 		style: `padding-left: ${options?.[selectedIndex]?.icon || computeIcons ? '3.1rem' : '1rem'}`
-	};
+	});
 	function handleKeydown(event: any) {
 		if (!listOpen) return;
 		// up

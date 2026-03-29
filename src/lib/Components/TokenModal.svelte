@@ -4,7 +4,7 @@
 	import { base } from '$app/paths';
 	import { closeModal } from 'svelte-modals/legacy';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
 	let token = '';
 

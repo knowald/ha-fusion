@@ -7,14 +7,16 @@
 	import type { Configuration, Dashboard, Translations, ViewItem } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
 
-	export let data: {
-		configuration: Configuration;
-		dashboard: Dashboard;
-		theme: any;
-		translations: Translations;
-	};
-	export let view: ViewItem | undefined;
-	export let toggleDrawer: () => void;
+	let { data, view, toggleDrawer }: {
+		data: {
+			configuration: Configuration;
+			dashboard: Dashboard;
+			theme: any;
+			translations: Translations;
+		};
+		view: ViewItem | undefined;
+		toggleDrawer: () => void;
+	} = $props();
 
 	/** Only display SayButton in Chrome */
 	// let chrome: boolean;
@@ -40,7 +42,7 @@
 	 * Determines whether the dashboard data has been modified,
 	 * property is passed to both `EditModeButton` and `SaveButton`
 	 */
-	$: modified = $history?.[$historyIndex] !== $history?.[0];
+	let modified = $derived($history?.[$historyIndex] !== $history?.[0]);
 </script>
 
 <header id="drawer" transition:slide|global={{ duration: $motion }}>

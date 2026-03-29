@@ -9,8 +9,7 @@
 	import type { TemplateItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: TemplateItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: TemplateItem } = $props();
 
 	let value = sel?.template;
 	let modalTransitionEnd = false;

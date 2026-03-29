@@ -7,7 +7,7 @@
 	import { loadIcons } from '@iconify/svelte';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let konva: KonvaViewer;
 	let canvas: HTMLDivElement;
@@ -43,7 +43,9 @@
 	 * Update konva on dashboard change
 	 * without tearing it down (no compare)
 	 */
-	$: updateKonva($dashboard);
+	$effect(() => {
+		updateKonva($dashboard);
+	});
 
 	async function updateKonva($dashboard: Dashboard) {
 		if (!konva || !canvas || !$dashboard) return;

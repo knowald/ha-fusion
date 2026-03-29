@@ -6,15 +6,14 @@
 	import Select from '$lib/Components/Select.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
+	let entity = $derived($states[sel?.entity_id]);
 
-	$: options = entity?.attributes?.options?.map((option: string) => ({
+	let options = $derived(entity?.attributes?.options?.map((option: string) => ({
 		id: option,
 		label: option
-	}));
+	})));
 
 	function handleChange(option: string) {
 		if (!option || !entity) return;

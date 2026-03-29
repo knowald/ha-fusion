@@ -14,17 +14,15 @@
 	import Logout from '$lib/Settings/Logout.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let data: any;
-	export let isOpen: boolean;
-
-	export let languages: {
-		id: string;
-		label: string;
-	}[];
+	let { data, isOpen, languages }: {
+		data: any;
+		isOpen: boolean;
+		languages: { id: string; label: string }[];
+	} = $props();
 
 	let formElement: HTMLFormElement;
 	let timeout: ReturnType<typeof setTimeout> | null;
-	let responseCode: number | undefined;
+	let responseCode: number | undefined = $state(undefined);
 
 	/**
 	 * Saves form data to /data/configuration.yaml
@@ -117,7 +115,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('settings')}</h1>
+		{#snippet title()}<h1>{$lang('settings')}</h1>{/snippet}
 
 		<form id="settings" name="settings" bind:this={formElement} onsubmit={(e) => e.preventDefault()}>
 			<Language {languages} />

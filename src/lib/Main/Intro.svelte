@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	let animateConfetti = true;
 </script>
 
@@ -9,12 +9,12 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
 	const duration = 1500;
 
-	let displayWelcome = false;
-	let displayMenuButton = false;
+	let displayWelcome = $state(false);
+	let displayMenuButton = $state(false);
 
 	onMount(async () => {
 		const delay = (ms: number) => {
@@ -30,9 +30,11 @@
 		animateConfetti = false;
 	});
 
-	$: if ($connection && data?.configuration?.locale === undefined) {
-		getUserLanguage();
-	}
+	$effect(() => {
+		if ($connection && data?.configuration?.locale === undefined) {
+			getUserLanguage();
+		}
+	});
 
 	async function getUserLanguage() {
 		try {

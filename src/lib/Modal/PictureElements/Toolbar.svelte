@@ -4,7 +4,7 @@
 	import Icon from '@iconify/svelte';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
+	let { konva }: { konva: KonvaEditor } = $props();
 </script>
 
 <button

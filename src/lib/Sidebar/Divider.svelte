@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { motion, editMode } from '$lib/Stores';
 
-	export let defaultValue: string | undefined = '50';
-	export let size: number | undefined = undefined;
-	export let mode: string | undefined = undefined;
+	let { defaultValue = '50', size = undefined, mode = undefined }: {
+		defaultValue?: string | undefined;
+		size?: number | undefined;
+		mode?: string | undefined;
+	} = $props();
 
 	let clientHeight: number;
 </script>

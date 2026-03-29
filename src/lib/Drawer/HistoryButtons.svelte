@@ -23,14 +23,16 @@
 	 * Reactive statement to handle
 	 * changes to `$history` array
 	 */
-	$: if ($editMode && $history.length === 0) {
-		// create initial entry
-		$history = [...$history, JSON.stringify($dashboard)];
-	}
+	$effect(() => {
+		if ($editMode && $history.length === 0) {
+			// create initial entry
+			$history = [...$history, JSON.stringify($dashboard)];
+		}
+	});
 
-	$: canUndo = $historyIndex > 0;
+	let canUndo = $derived($historyIndex > 0);
 
-	$: canRedo = $historyIndex < $history.length - 1;
+	let canRedo = $derived($historyIndex < $history.length - 1);
 
 	/**
 	 * Checks if a key exists directly on the

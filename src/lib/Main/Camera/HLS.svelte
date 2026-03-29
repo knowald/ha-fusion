@@ -10,26 +10,30 @@
 	 * https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8
 	 */
 
-	export let sel: any;
-	export let entity: any;
-	export let stream_url: string | undefined;
-	export let size: string | undefined;
-	export let loaderVisible: boolean | undefined;
-	export let responsive: boolean | undefined = undefined;
-	export let muted: boolean | undefined = true;
-	export let controls: boolean | undefined = false;
-	export let debug: boolean;
-	export let attachVideo: boolean;
+	let { sel, entity, stream_url = $bindable(), size, loaderVisible = $bindable(), responsive = undefined, muted = true, controls = false, debug, attachVideo }: {
+		sel: any;
+		entity: any;
+		stream_url?: string | undefined;
+		size?: string | undefined;
+		loaderVisible?: boolean | undefined;
+		responsive?: boolean | undefined;
+		muted?: boolean | undefined;
+		controls?: boolean | undefined;
+		debug: boolean;
+		attachVideo: boolean;
+	} = $props();
 
 	let hls: Hls | undefined;
 	let video: HTMLVideoElement;
 	let busy: boolean = false;
 
-	$: if (attachVideo) {
-		attach();
-	} else {
-		detach();
-	}
+	$effect(() => {
+		if (attachVideo) {
+			attach();
+		} else {
+			detach();
+		}
+	});
 
 	const playVideo = () => video.play();
 

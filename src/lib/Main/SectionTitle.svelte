@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { editMode, lang, record } from '$lib/Stores';
-	export let value: string;
+	let { value = $bindable(), onsubmit = undefined }: { value: string; onsubmit?: (value: string) => void } = $props();
 	let width: number;
 	let input: HTMLInputElement;
-	export let onsubmit: ((value: string) => void) | undefined = undefined;
 	/**
 	 * Dispatches title change on submit or blur,
 	 * also restores required title if empty

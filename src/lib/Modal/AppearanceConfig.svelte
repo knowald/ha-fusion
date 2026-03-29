@@ -8,12 +8,14 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let highlight = false;
-	export let themes: any = undefined;
+	let { isOpen, highlight = $bindable(false), themes = undefined }: {
+		isOpen: boolean;
+		highlight?: boolean;
+		themes?: any;
+	} = $props();
 
-	$: visibilityNavigate = $dashboard?.hide_views;
-	$: visibilitySidebar = $dashboard?.hide_sidebar;
+	let visibilityNavigate = $derived($dashboard?.hide_views);
+	let visibilitySidebar = $derived($dashboard?.hide_sidebar);
 
 	onMount(async () => {
 		// something needs to be selected, set default
@@ -54,20 +56,22 @@
 		$record();
 	}
 
-	let mounted = false;
-	let gallery: HTMLDivElement;
-	let buttons: { [key: number]: HTMLButtonElement } = {};
+	let mounted = $state(false);
+	let gallery: HTMLDivElement = $state(undefined as any);
+	let buttons: { [key: number]: HTMLButtonElement } = $state({});
 
-	let top: string;
-	let left: string;
-	let width: string;
-	let height: string;
+	let top: string = $state('');
+	let left: string = $state('');
+	let width: string = $state('');
+	let height: string = $state('');
 
-	$: transition = `all ${$motion}ms cubic-bezier(0.18, 0.89, 0.32, 1.1)`;
+	let transition = $derived(`all ${$motion}ms cubic-bezier(0.18, 0.89, 0.32, 1.1)`);
 
-	$: if ($dashboard?.theme && mounted) {
-		setDimensions(buttons[$dashboard?.theme as any]);
-	}
+	$effect(() => {
+		if ($dashboard?.theme && mounted) {
+			setDimensions(buttons[$dashboard?.theme as any]);
+		}
+	});
 
 	function setDimensions(element: HTMLElement) {
 		if (gallery && element) {

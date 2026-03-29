@@ -20,10 +20,11 @@
 	import type { SensorItem } from '$lib/Types';
 	import { isTimestamp } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: SensorItem;
-
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: SensorItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -31,14 +32,14 @@
 		set('entity_id', demo);
 	}
 
-	let prefix: string | undefined = sel?.prefix;
-	let suffix: string | undefined = sel?.suffix;
+	let prefix: string | undefined = $state(sel?.prefix);
+	let suffix: string | undefined = $state(sel?.suffix);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
-	$: date = sel?.date;
+	let date = $derived(sel?.date);
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -51,9 +52,11 @@
 	 * If entity_id changes check if state is a timestamp
 	 */
 
-	$: if (entity_id) {
-		validate();
-	}
+	$effect(() => {
+		if (entity_id) {
+			validate();
+		}
+	});
 
 	async function validate() {
 		await tick();

@@ -4,8 +4,7 @@
 	import { scale } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 
-	export let view: any;
-	export let section: any;
+	let { view, section }: { view: any; section: any } = $props();
 
 	/**
 	 * Removes the section from the `sections` array of the view.

@@ -6,44 +6,43 @@
 	import Icon from '@iconify/svelte';
 	import { openModal } from 'svelte-modals/legacy';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity_id = sel?.entity_id;
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let entity_id = $derived(sel?.entity_id);
+	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	// Media info
-	$: media_title = attributes?.media_title;
-	$: media_artist = attributes?.media_artist;
-	$: media_album_name = attributes?.media_album_name;
-	$: entity_picture = attributes?.entity_picture;
+	let media_title = $derived(attributes?.media_title);
+	let media_artist = $derived(attributes?.media_artist);
+	let media_album_name = $derived(attributes?.media_album_name);
+	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	$: is_playing = state === 'playing';
-	$: is_paused = state === 'paused';
-	$: is_idle = state === 'idle' || !entity;
+	let is_playing = $derived(state === 'playing');
+	let is_paused = $derived(state === 'paused');
+	let is_idle = $derived(state === 'idle' || !entity);
 
 	// Progress
-	$: media_duration = attributes?.media_duration;
-	$: media_position = attributes?.media_position;
-	$: media_position_updated_at = attributes?.media_position_updated_at;
+	let media_duration = $derived(attributes?.media_duration);
+	let media_position = $derived(attributes?.media_position);
+	let media_position_updated_at = $derived(attributes?.media_position_updated_at);
 
 	// Volume
-	$: volume_level = attributes?.volume_level ?? 0;
+	let volume_level = $derived(attributes?.volume_level ?? 0);
 
 	// Devices
-	$: source_list = attributes?.source_list || [];
-	$: current_source = attributes?.source;
+	let source_list = $derived(attributes?.source_list || []);
+	let current_source = $derived(attributes?.source);
 
 	// Calculate current position with live updates
-	$: current_position = calculatePosition(
+	let current_position = $derived(calculatePosition(
 		media_position,
 		media_position_updated_at,
 		is_playing,
 		$timer
-	);
+	));
 
 	function calculatePosition(
 		position: number | undefined,
@@ -151,7 +150,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{sel?.name || $lang('spotify_player') || 'Spotify'}</h1>
+		{#snippet title()}<h1>{sel?.name || $lang('spotify_player') || 'Spotify'}</h1>{/snippet}
 
 		<div class="player">
 			<!-- Main: art left, info+controls right (centered vertically) -->

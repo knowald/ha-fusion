@@ -7,20 +7,19 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let state = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		OPEN: 1,
 		CLOSE: 2,
 		SET_POSITION: 4,
 		STOP: 8
-	});
+	}));
 
 	/**
 	 * Handle click

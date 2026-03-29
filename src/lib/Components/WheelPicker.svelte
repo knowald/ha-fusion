@@ -4,16 +4,18 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import type { HassEntity } from 'home-assistant-js-websocket';
-	export let onchange: ((value: number) => void) | undefined = undefined;
-	export let stateObj: HassEntity;
+	let { onchange = undefined, stateObj }: {
+		onchange?: ((value: number) => void) | undefined;
+		stateObj: HassEntity;
+	} = $props();
 	let container: HTMLDivElement;
-	let pointerDown = false;
+	let pointerDown = $state(false);
 	let touch: boolean;
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let touchScrolling = false;
+	let touchScrolling = $state(false);
 	let startY: number;
 	let scrollY: number;
-	let value: number;
+	let value: number = $state(0);
 	// temperatures
 	let temperatures: number[] = [];
 	const minTemp = stateObj?.attributes?.min_temp;
@@ -23,17 +25,19 @@
 			temperatures.push(i);
 		}
 	}
-	$: min = value === temperatures.length - 1;
-	$: max = value === 0;
-	$: if (mountFix()) {
-		onchange?.(temperatures[value]);
-	}
+	let min = $derived(value === temperatures.length - 1);
+	let max = $derived(value === 0);
+	$effect(() => {
+		if (mountFix()) {
+			onchange?.(temperatures[value]);
+		}
+	});
 	// don't set temperature on mount
 	// rewrite component later...
 	function mountFix() {
 		if (isMounted === true) return true;
 	}
-	let isMounted = false;
+	let isMounted = $state(false);
 	onMount(async () => {
 		touch = 'ontouchstart' in window;
 		// if temperature elements

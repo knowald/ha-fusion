@@ -9,8 +9,7 @@
 	import type { IframeItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: IframeItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: IframeItem } = $props();
 
 	let url = sel?.url;
 	let size = sel?.size;

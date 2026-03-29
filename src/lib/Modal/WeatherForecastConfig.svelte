@@ -17,9 +17,11 @@
 	import { getSupport, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let { isOpen, sel = $bindable(), demo = undefined }: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -27,19 +29,19 @@
 		set('entity_id', demo);
 	}
 
-	$: entity = $states[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
+	let supports = $derived(getSupport(supported_features, {
 		FORECAST_DAILY: 1,
 		FORECAST_HOURLY: 2,
 		FORECAST_TWICE_DAILY: 4
-	});
+	}));
 
-	let days_to_show = sel?.days_to_show ?? 7;
+	let days_to_show = $state(sel?.days_to_show ?? 7);
 
-	let numberElement: HTMLInputElement;
+	let numberElement: HTMLInputElement = $state(undefined as any);
 
 	const iconOptions = [
 		{ id: 'meteocons', label: 'meteocons' },
@@ -47,12 +49,12 @@
 		{ id: 'materialsymbolslight', label: 'materialsymbolslight' }
 	];
 
-	$: options = $entityList('weather');
+	let options = $derived($entityList('weather'));
 
-	$: range = {
+	let range = $derived({
 		min: 1,
 		max: Math.min(entity?.attributes?.forecast?.length ?? 7, 7)
-	};
+	});
 
 	function minMax(key: string | number | undefined) {
 		return Math.min(Math.max(parseInt(key as string), range.min), range.max);

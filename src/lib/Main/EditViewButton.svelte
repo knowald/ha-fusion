@@ -3,14 +3,13 @@
 	import { fade } from 'svelte/transition';
 	import { openModal } from 'svelte-modals/legacy';
 	import Ripple from '$lib/Actions/ripple';
-	export let onclicked: (() => void) | undefined = undefined;
+	let { onclicked = undefined, view, onchange = undefined }: { onclicked?: (() => void) | undefined; view: any; onchange?: ((event: { detail: number }) => void) | undefined } = $props();
 
-	export let view: any;
+	let clientWidth = $state(0);
 
-
-	let clientWidth = 0;
-
-	$: dispatch('change', clientWidth);
+	$effect(() => {
+		onchange?.({ detail: clientWidth });
+	});
 
 	/**
 	 * Opens modal to edit view

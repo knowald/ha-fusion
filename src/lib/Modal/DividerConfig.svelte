@@ -9,8 +9,7 @@
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: SidebarItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();
 
 	let size = sel?.size;
 

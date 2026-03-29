@@ -9,13 +9,13 @@
 	import Ripple from '$lib/Actions/ripple';
 	import type { YouTubeEvent } from '$lib/Types';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
 	let interval: ReturnType<typeof setInterval>;
 	let controller: AbortController;
-	let event: YouTubeEvent | undefined;
-	let data: any;
-	let copied = false;
+	let event: YouTubeEvent | undefined = $state(undefined);
+	let data: any = $state(undefined);
+	let copied = $state(false);
 	let inputCode: HTMLInputElement;
 
 	/**
@@ -166,7 +166,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">YouTube</h1>
+		{#snippet title()}<h1>YouTube</h1>{/snippet}
 
 		<div data-exclude-drag-modal>
 			<!-- title -->

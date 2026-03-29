@@ -1,8 +1,13 @@
 <script lang="ts">
-	export let duration = 15;
-	export let repeat = 2;
-	export let paused = false;
-	export let pauseOnHover = false;
+	import type { Snippet } from 'svelte';
+
+	let { duration = 15, repeat = 2, paused = false, pauseOnHover = false, children }: {
+		duration?: number;
+		repeat?: number;
+		paused?: boolean;
+		pauseOnHover?: boolean;
+		children: Snippet;
+	} = $props();
 
 	let hovered = false;
 
@@ -25,7 +30,7 @@
 	<div class="content" class:paused={paused || (pauseOnHover && hovered)}>
 		{#each Array(repeat) as i}
 			<div class="text" style:animation-duration="{duration}s" title={i}>
-				<slot />
+				{@render children()}
 			</div>
 		{/each}
 	</div>

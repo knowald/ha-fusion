@@ -10,44 +10,54 @@
 	import { StreamLanguage } from '@codemirror/language';
 	import type { Diagnostic } from '@codemirror/lint';
 	import { linter, lintGutter } from '@codemirror/lint';
-	export let type: string;
-	export let value: any;
-	export let transitionend: boolean;
-	export let autocompleteList: any = undefined;
-	export let init: any = undefined;
-	export let reloadView: boolean | undefined = undefined;
+	let { type, value, transitionend, autocompleteList = undefined, init = undefined, reloadView = $bindable(undefined), onchange = undefined }: {
+		type: string;
+		value: any;
+		transitionend: boolean;
+		autocompleteList?: any;
+		init?: any;
+		reloadView?: boolean | undefined;
+		onchange?: ((value: string) => void) | undefined;
+	} = $props();
+
 	let editor: HTMLDivElement;
 	let view: EditorView | null;
 	let timeout: ReturnType<typeof setTimeout>;
-	$: if (transitionend) {
-		// focus on transitionend
-		if (view) {
-			view.focus();
-		}
-	}
-	// figure out how to update codemirror properly
-	$: if (view && reloadView && init) {
-		// current
-		const { anchor, head } = view.state.selection.main;
-		const scrollTop = view.scrollDOM.scrollTop;
-		const scrollLeft = view.scrollDOM.scrollLeft;
-		// update full text
-		view.dispatch({
-			changes: {
-				from: 0,
-				to: view.state.doc.length,
-				insert: init
+
+	$effect(() => {
+		if (transitionend) {
+			// focus on transitionend
+			if (view) {
+				view.focus();
 			}
-		});
-		// restore
-		view.dispatch({
-			selection: { anchor: anchor, head: head }
-		});
-		view.scrollDOM.scrollTop = scrollTop;
-		view.scrollDOM.scrollLeft = scrollLeft;
-		// reset trigger
-		reloadView = false;
-	}
+		}
+	});
+
+	// figure out how to update codemirror properly
+	$effect(() => {
+		if (view && reloadView && init) {
+			// current
+			const { anchor, head } = view.state.selection.main;
+			const scrollTop = view.scrollDOM.scrollTop;
+			const scrollLeft = view.scrollDOM.scrollLeft;
+			// update full text
+			view.dispatch({
+				changes: {
+					from: 0,
+					to: view.state.doc.length,
+					insert: init
+				}
+			});
+			// restore
+			view.dispatch({
+				selection: { anchor: anchor, head: head }
+			});
+			view.scrollDOM.scrollTop = scrollTop;
+			view.scrollDOM.scrollLeft = scrollLeft;
+			// reset trigger
+			reloadView = false;
+		}
+	});
 	const colors = {
 		activeLine: 'rgba(255, 255, 255, 0.05)',
 		gutterBackground: 'rgb(255, 255, 255, 0)',
@@ -129,7 +139,6 @@
 		},
 		{ dark: true }
 	);
-	export let onchange: ((value: string) => void) | undefined = undefined;
 	onMount(async () => {
 		// shared extensions
 		let extensions = [
@@ -221,7 +230,7 @@
 		});
 	}
 	// inserts example template
-	$: if ($pasteContent) insertString();
+	$effect(() => { if ($pasteContent) insertString(); });
 	function insertString() {
 		if (!view || !$pasteContent) return;
 		// clear
