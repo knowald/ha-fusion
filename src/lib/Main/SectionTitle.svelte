@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { editMode, lang, record } from '$lib/Stores';
-	let { value = $bindable(), onsubmit = undefined }: { value: string; onsubmit?: (value: string) => void } = $props();
+	let { value: initialValue, onsubmit = undefined }: { value: string; onsubmit?: (value: string) => void } = $props();
+	let value = $state(initialValue);
 	let width: number;
 	let input: HTMLInputElement;
-	/**
-	 * Dispatches title change on submit or blur,
-	 * also restores required title if empty
-	 */
+
+	$effect(() => { value = initialValue; });
+
 	function handleSubmit() {
 		if (!$editMode) return;
 		onsubmit?.(value);

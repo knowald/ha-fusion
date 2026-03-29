@@ -13,7 +13,7 @@
 	<header transition:slide={{ duration: $motion }}>
 		<h1 style:cursor={$editMode ? 'text' : 'initial'}>
 			{#if $editMode}
-				<SectionTitle bind:value={section.name} />
+				<SectionTitle value={section.name} onsubmit={(v) => { section.name = v; }} />
 			{:else if section?.name === ''}
 				{@html '&nbsp;'}
 			{:else}

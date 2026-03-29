@@ -1,6 +1,6 @@
 <script>
 	// https://svelte.dev/repl/35d77f2ab11e4197a19ffd8e7c4ac74e
-	let { checked = $bindable(false), onchange = undefined } = $props();
+	let { checked = $bindable(), onchange = undefined } = $props();
 </script>
 
 <label class="switch">
