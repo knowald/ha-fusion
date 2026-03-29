@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dashboard, record, lang, motion, ripple, states, connection, demo } from '$lib/Stores';
-	import { openModal, closeModal } from 'svelte-modals';
+	import { openModal, closeModal } from 'svelte-modals/legacy';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -35,7 +35,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Notifications from '$lib/Sidebar/Notifications.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let isOpen: boolean;
 	export let sel: SidebarItem;

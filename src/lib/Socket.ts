@@ -13,7 +13,7 @@ import {
 } from 'home-assistant-js-websocket';
 import type { Auth, AuthData } from 'home-assistant-js-websocket';
 import { states, connection, config, services, connected, event, persistentNotifications } from '$lib/Stores';
-import { openModal, closeModal } from 'svelte-modals';
+import { openModal, closeModal } from 'svelte-modals/legacy';
 import type { Configuration, PersistentNotification } from '$lib/Types';
 
 const options = {

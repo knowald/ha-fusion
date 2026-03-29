@@ -20,7 +20,7 @@
 	import { authentication } from '$lib/Socket';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { modals } from 'svelte-modals';
+	import { modals } from 'svelte-modals/legacy';
 	import Theme from '$lib/Components/Theme.svelte';
 
 	/**

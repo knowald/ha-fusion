@@ -14,7 +14,7 @@
 	import Calendar from '@event-calendar/core';
 	import DayGrid from '@event-calendar/day-grid';
 	import List from '@event-calendar/list';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import Date from '$lib/Sidebar/Date.svelte';
 
 	export let isOpen: boolean;

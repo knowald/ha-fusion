@@ -13,7 +13,7 @@
 	import Icon from '@iconify/svelte';
 	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
 	import { getName } from '$lib/Utils';
-	import { openModal, modals } from 'svelte-modals';
+	import { openModal, modals } from 'svelte-modals/legacy';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { base } from '$app/paths';
 	import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
@@ -21,7 +21,7 @@
 	import Progress from '$lib/Components/Progress.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut, expoOut } from 'svelte/easing';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let sel: any;
 	export let demo: string | undefined = undefined;

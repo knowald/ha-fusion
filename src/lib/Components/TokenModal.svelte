@@ -2,7 +2,7 @@
 	import { configuration, lang, motion } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { base } from '$app/paths';
-	import { closeModal } from 'svelte-modals';
+	import { closeModal } from 'svelte-modals/legacy';
 
 	export let isOpen: boolean;
 

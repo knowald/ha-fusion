@@ -4,8 +4,8 @@
 	import { getSupport, getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
-	import { closeModal } from 'svelte-modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { closeModal } from 'svelte-modals/legacy';
 
 	export let isOpen: boolean;
 	export let sel: any;

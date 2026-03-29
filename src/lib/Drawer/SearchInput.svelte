@@ -10,7 +10,7 @@
 		motion
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
-	import { modals } from 'svelte-modals';
+	import { modals } from 'svelte-modals/legacy';
 	import InputClear from '$lib/Components/InputClear.svelte';
 
 	let input: HTMLInputElement;

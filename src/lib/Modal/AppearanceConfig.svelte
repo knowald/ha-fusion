@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let isOpen: boolean;
 	export let highlight = false;

@@ -2,7 +2,7 @@
 	// eventually merge with SidebarItemConfig.svelte...
 
 	import { dashboard, record, lang, motion, ripple, states, demo } from '$lib/Stores';
-	import { openModal, closeModal } from 'svelte-modals';
+	import { openModal, closeModal } from 'svelte-modals/legacy';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -18,7 +18,7 @@
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';

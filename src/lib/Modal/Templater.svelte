@@ -16,8 +16,8 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import Button from '$lib/Main/Button.svelte';
 	import type { ButtonItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
-	import { closeAllModals, closeModal } from 'svelte-modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { closeAllModals, closeModal } from 'svelte-modals/legacy';
 	import { slide } from 'svelte/transition';
 	import Select from '$lib/Components/Select.svelte';
 	import parser from 'js-yaml';

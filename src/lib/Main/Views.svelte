@@ -12,7 +12,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { slide, fade } from 'svelte/transition';
-	import { modals } from 'svelte-modals';
+	import { modals } from 'svelte-modals/legacy';
 	import { onMount, tick } from 'svelte';
 	import EditViewButton from '$lib/Main/EditViewButton.svelte';
 	import EyeIndicator from '$lib/Main/EyeIndicator.svelte';

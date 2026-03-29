@@ -4,7 +4,7 @@
 	import Timer from '$lib/Sidebar/Timer.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { getName } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import CustomCssModal from '$lib/Modal/CustomCssModal.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	async function openEditor() {
 		openModal(CustomCssModal);

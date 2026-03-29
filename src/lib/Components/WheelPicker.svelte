@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion, ripple } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { createEventDispatcher } from 'svelte';

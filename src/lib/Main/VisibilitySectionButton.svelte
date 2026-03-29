@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion, lang, ripple, states, editMode } from '$lib/Stores';
-	import { modals, openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals, openModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import { scale } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 	import { handleAllConditions } from '$lib/Conditional';

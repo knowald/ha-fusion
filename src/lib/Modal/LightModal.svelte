@@ -4,7 +4,7 @@
 	import LightSlider from '$lib/Components/LightSlider.svelte';
 	import ColorPicker from '$lib/Components/ColorPicker.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { getName } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import Toggle from '$lib/Components/Toggle.svelte';
@@ -25,18 +25,18 @@
 	let selTabClicked = false;
 
 	// https://github.com/home-assistant/frontend/blob/dev/src/data/light.ts
-	enum LightColorMode {
-		UNKNOWN = 'unknown',
-		ONOFF = 'onoff',
-		BRIGHTNESS = 'brightness',
-		COLOR_TEMP = 'color_temp',
-		HS = 'hs',
-		XY = 'xy',
-		RGB = 'rgb',
-		RGBW = 'rgbw',
-		RGBWW = 'rgbww',
-		WHITE = 'white'
-	}
+	const LightColorMode = {
+		UNKNOWN: 'unknown',
+		ONOFF: 'onoff',
+		BRIGHTNESS: 'brightness',
+		COLOR_TEMP: 'color_temp',
+		HS: 'hs',
+		XY: 'xy',
+		RGB: 'rgb',
+		RGBW: 'rgbw',
+		RGBWW: 'rgbww',
+		WHITE: 'white'
+	} as const;
 
 	const modesSupportingColor = [
 		LightColorMode.HS,

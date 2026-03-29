@@ -5,7 +5,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName, getSupport } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onDestroy } from 'svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 

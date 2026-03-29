@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import Icon from '@iconify/svelte';
 
 	export let eyeWidth: number;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { editMode, itemHeight, motion } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 
 	export let sel: any;
 

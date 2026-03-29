@@ -4,7 +4,7 @@
 	import { connection, lang, selectedLanguage, states, ripple } from '$lib/Stores';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Select from '$lib/Components/Select.svelte';
 	import Toggle from '$lib/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';

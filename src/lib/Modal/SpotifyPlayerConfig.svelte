@@ -4,7 +4,7 @@
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';

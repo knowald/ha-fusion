@@ -3,7 +3,7 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
 	export let isOpen: boolean;

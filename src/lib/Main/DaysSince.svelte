@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { editMode, itemHeight, lang, ripple, timer, states } from '$lib/Stores';
 	import Icon, { loadIcon } from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let sel: any;
 	export let sectionName: string | undefined = undefined;

@@ -2,7 +2,7 @@
 	import { showDrawer, motion, lang, ripple } from '$lib/Stores';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let handleClick: () => void;
 

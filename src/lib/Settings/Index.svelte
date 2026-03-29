@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { configuration, editMode, lang, motion, ripple, selectedLanguage } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { modals, closeModal } from 'svelte-modals';
+	import { modals, closeModal } from 'svelte-modals/legacy';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Language from '$lib/Settings/Language.svelte';
 	import Addons from '$lib/Settings/Addons.svelte';
@@ -12,7 +12,7 @@
 	import CustomJs from '$lib/Settings/CustomJs.svelte';
 	import CustomCss from '$lib/Settings/CustomCss.svelte';
 	import Logout from '$lib/Settings/Logout.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let data: any;
 	export let isOpen: boolean;

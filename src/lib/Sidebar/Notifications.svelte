@@ -13,7 +13,7 @@
 	import { relativeTime } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
 	import { slide } from 'svelte/transition';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { marked } from 'marked';
 
 	export let sel: any = undefined;

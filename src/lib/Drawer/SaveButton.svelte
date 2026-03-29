@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { dashboard, editMode, motion, lang, ripple, history, historyIndex } from '$lib/Stores';
 	import { base } from '$app/paths';
-	import { modals } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
 	export let modified: boolean;

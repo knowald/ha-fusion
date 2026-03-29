@@ -4,7 +4,7 @@
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';

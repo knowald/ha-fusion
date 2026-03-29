@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { motion, lang, ripple } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import { createEventDispatcher } from 'svelte';
 
 	export let view: any;

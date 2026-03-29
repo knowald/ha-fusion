@@ -16,7 +16,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj, getName } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';
 
 	export let isOpen: boolean;

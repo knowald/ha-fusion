@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { connection, editMode, itemHeight, lang, ripple, services, states, timer } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
 	import { onMount } from 'svelte';
 

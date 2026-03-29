@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { motion, autocompleteOpen, ripple, dragging } from '$lib/Stores';
 	import { onMount, onDestroy } from 'svelte';
-	import { modals, closeModal } from 'svelte-modals';
+	import { modals, closeModal } from 'svelte-modals/legacy';
 	import { fly, scale } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	import { trapFocus } from '$lib/Modal/trapFocus';
 	import '$lib/Modal/Modal.css';

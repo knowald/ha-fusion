@@ -17,7 +17,7 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import type { GraphItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let isOpen: boolean;
 	export let sel: GraphItem;

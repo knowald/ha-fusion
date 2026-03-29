@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { editMode, itemHeight, states } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import Loader from '$lib/Components/Loader.svelte';
 	import { writable } from 'svelte/store';
 	import type { CameraItem } from '$lib/Types';

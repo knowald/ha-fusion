@@ -2,8 +2,8 @@
 	import { connection, editMode, lang, motion, ripple, states, timers } from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
-	import { modals } from 'svelte-modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { modals } from 'svelte-modals/legacy';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 

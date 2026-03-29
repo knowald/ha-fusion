@@ -11,8 +11,8 @@
 		historyIndex
 	} from '$lib/Stores';
 	import { onDestroy, tick } from 'svelte';
-	import { modals } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
 	historyUpdater(snapshot);

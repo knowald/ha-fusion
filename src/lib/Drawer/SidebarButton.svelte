@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dashboard, lang, ripple, record } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
 	import { createEventDispatcher } from 'svelte';

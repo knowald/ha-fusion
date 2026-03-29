@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { dashboard, record, lang, editMode, ripple, motion } from '$lib/Stores';
 	import { tick } from 'svelte';
-	import { closeModal, openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { closeModal, openModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import { fade } from 'svelte/transition';
 
 	export let sel: any = undefined;

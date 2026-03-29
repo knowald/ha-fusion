@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { openModal, closeModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal, closeModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import { lang, ripple } from '$lib/Stores';
 
 	function handleClick() {

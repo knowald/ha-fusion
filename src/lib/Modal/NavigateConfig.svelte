@@ -3,7 +3,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Navigate from '$lib/Sidebar/Navigate.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { NavigateItem } from '$lib/Types';
 	import { updateObj } from '$lib/Utils';
 	import { onDestroy } from 'svelte';

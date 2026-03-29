@@ -4,7 +4,7 @@
 	import type { Shape, ShapeConfig } from 'konva/lib/Shape';
 	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 	import { konvaStore } from '$lib/Stores';
-	import Icon, { iconExists, loadIcon } from '@iconify/svelte';
+	import Icon, { getIcon, loadIcon } from '@iconify/svelte';
 	import { tick } from 'svelte';
 	import { dragging } from '$lib/Stores';
 	import { icons } from '$lib/Modal/PictureElements/icons';
@@ -224,7 +224,7 @@
 				{#if shape?.attrs?.type === 'icon' || shape?.attrs?.type === 'state-icon'}
 					{#if shape?.attrs?.type === 'state-icon' && !shape?.attrs?.entity_id}
 						<Icon icon="mdi:lightbulb" width="20" height="20" />
-					{:else if iconExists(konvaStoreEquivalent?.attrs?.icon)}
+					{:else if getIcon(konvaStoreEquivalent?.attrs?.icon) != null}
 						<Icon icon={konvaStoreEquivalent?.attrs?.icon} width="20" height="20" />
 					{:else}
 						{#await loadIcon(konvaStoreEquivalent?.attrs?.icon)}

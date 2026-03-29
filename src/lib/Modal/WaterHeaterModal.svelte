@@ -6,7 +6,7 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
 	export let isOpen: boolean;

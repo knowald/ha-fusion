@@ -9,7 +9,7 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { marked } from 'marked';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { slide } from 'svelte/transition';
 
 	export let isOpen: boolean;

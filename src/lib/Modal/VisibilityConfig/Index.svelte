@@ -13,8 +13,8 @@
 	import { expoOut } from 'svelte/easing';
 	import Explanation from '$lib/Modal/VisibilityConfig/Explanation.svelte';
 	import ItemHeader from '$lib/Modal/VisibilityConfig/ItemHeader.svelte';
-	import { closeModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { closeModal } from 'svelte-modals/legacy';
+	import Ripple from '$lib/Actions/ripple';
 	import { generateId } from '$lib/Utils';
 
 	export let isOpen: boolean;

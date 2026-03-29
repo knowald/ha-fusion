@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { itemHeight, editMode, disableMenuButton, showDrawer, motion } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 	import { onDestroy, tick } from 'svelte';
 
 	export let sel: any;

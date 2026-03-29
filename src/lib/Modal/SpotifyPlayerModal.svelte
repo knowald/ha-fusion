@@ -2,9 +2,9 @@
 	import { connection, states, lang, ripple, timer } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from 'svelte-modals/legacy';
 
 	export let isOpen: boolean;
 	export let sel: any;

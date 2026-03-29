@@ -7,7 +7,7 @@
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import { relativeTime } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import StateLogic from '$lib/Components/StateLogic.svelte';

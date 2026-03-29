@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dashboard, lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { Condition } from '$lib/Types';
 	import { generateId } from '$lib/Utils';
 

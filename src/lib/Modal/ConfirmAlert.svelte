@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
 	import { onMount } from 'svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Modal from '$lib/Modal/Index.svelte';
 
 	export let confirm: any;

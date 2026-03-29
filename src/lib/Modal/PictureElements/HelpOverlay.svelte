@@ -104,7 +104,13 @@
 
 <svelte:document on:keydown|stopPropagation={handleKeydown} />
 
-<button transition:fade={{ duration: $motion, easing: expoOut }} on:click={handleClick}>
+<div
+	role="button"
+	tabindex="-1"
+	transition:fade={{ duration: $motion, easing: expoOut }}
+	on:click={handleClick}
+	on:keydown={handleKeydown}
+>
 	<div class="container">
 		{#each data as section}
 			<div class="section">
@@ -120,10 +126,10 @@
 			<Icon icon="mingcute:close-fill" width="20" height="20" />
 		</button>
 	</div>
-</button>
+</div>
 
 <style>
-	button {
+	div[role='button'] {
 		all: unset;
 		position: absolute;
 		inset: 0;
@@ -132,6 +138,7 @@
 		color: inherit;
 		font-family: inherit;
 		overflow: hidden;
+		cursor: pointer;
 	}
 
 	.container {

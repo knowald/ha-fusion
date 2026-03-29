@@ -4,7 +4,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import type { ViewItem } from '$lib/Types';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
 	import type { ComponentType } from 'svelte';
 

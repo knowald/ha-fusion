@@ -8,7 +8,7 @@
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { updateObj } from '$lib/Utils';
 	import type { ImageItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	export let isOpen: boolean;
 	export let sel: ImageItem;
