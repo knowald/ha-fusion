@@ -10,17 +10,17 @@
 
 	let { view }: { view?: ViewItem } = $props();
 
-	let isOpen = false;
-	let showTriangle = false;
+	let isOpen = $state(false);
+	let showTriangle = $state(false);
 	let container: HTMLDivElement;
 
-	let SidebarButton: ComponentType;
-	let ObjectButton: ComponentType;
-	let SectionButton: ComponentType;
-	let HorizontalStackButton: ComponentType;
-	let VerticalStackButton: ComponentType;
-	let ScenesButton: ComponentType;
-	let ViewButton: ComponentType;
+	let SidebarButton: ComponentType = $state(undefined as any);
+	let ObjectButton: ComponentType = $state(undefined as any);
+	let SectionButton: ComponentType = $state(undefined as any);
+	let HorizontalStackButton: ComponentType = $state(undefined as any);
+	let VerticalStackButton: ComponentType = $state(undefined as any);
+	let ScenesButton: ComponentType = $state(undefined as any);
+	let ViewButton: ComponentType = $state(undefined as any);
 
 	onMount(async () => {
 		SidebarButton = (await import('$lib/Drawer/SidebarButton.svelte')).default;
