@@ -12,7 +12,7 @@
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: TemplateItem } = $props();
 
 	let value = sel?.template;
-	let modalTransitionEnd = false;
+	let modalTransitionEnd = $state(false);
 
 	function handleEvent() {
 		modalTransitionEnd = true;

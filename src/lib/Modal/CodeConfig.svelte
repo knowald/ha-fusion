@@ -8,7 +8,7 @@
 
 	let { isOpen }: { isOpen: boolean } = $props();
 
-	let transitionend: boolean;
+	let transitionend: boolean = $state(false);
 	let message: string | undefined = $state(undefined);
 	let success = $state(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;

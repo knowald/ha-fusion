@@ -9,7 +9,7 @@
 		children: Snippet;
 	} = $props();
 
-	let hovered = false;
+	let hovered = $state(false);
 
 	function handleHover(event: MouseEvent | FocusEvent) {
 		if (event?.type === 'mouseover' || event?.type === 'focus') {

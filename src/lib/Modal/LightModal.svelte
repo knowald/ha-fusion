@@ -13,12 +13,12 @@
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 
-	let debounce = false;
+	let debounce = $state(false);
 	let timeout: ReturnType<typeof setTimeout>;
 	let rangeValue = $state(0);
 
-	let groupSel: string | undefined;
-	let groupEntity: HassEntity;
+	let groupSel: string | undefined = $state(undefined);
+	let groupEntity: HassEntity = $state() as HassEntity;
 
 	let selTab: string | undefined = $state(undefined);
 	let selTabClicked = $state(false);

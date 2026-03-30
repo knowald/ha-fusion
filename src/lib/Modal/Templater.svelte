@@ -26,10 +26,10 @@
 	let { isOpen, sel = $bindable(), type }: { isOpen: boolean; sel: ButtonItem; type: 'set_state' | 'name' | 'icon' | 'color' | 'service' | 'state' } = $props();
 
 	let template = sel?.template?.[type];
-	let modalTransitionEnd = false;
+	let modalTransitionEnd = $state(false);
 
-	let service: string | undefined;
-	let servicesOptions: Array<{ id: string; label: string; icon?: string }>;
+	let service: string | undefined = $state(undefined);
+	let servicesOptions: Array<{ id: string; label: string; icon?: string }> = $state([]);
 
 	function handleEvent() {
 		modalTransitionEnd = true;

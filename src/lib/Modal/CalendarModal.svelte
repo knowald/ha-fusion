@@ -36,7 +36,7 @@
 		[key: string]: any;
 	}
 
-	let ec: any;
+	let ec: any = $state(undefined);
 	let busy: boolean;
 	let timeout: ReturnType<typeof setTimeout>;
 

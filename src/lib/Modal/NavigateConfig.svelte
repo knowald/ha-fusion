@@ -10,7 +10,7 @@
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: NavigateItem } = $props();
 
-	let modalTransitionEnd = false;
+	let modalTransitionEnd = $state(false);
 	function handleEvent() {
 		modalTransitionEnd = true;
 	}
