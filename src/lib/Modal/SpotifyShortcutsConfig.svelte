@@ -81,8 +81,8 @@
 	<InputClear
 		condition={newName}
 		onclear={() => (newName = '')}
-		let:padding
 	>
+		{#snippet children(padding)}
 		<input
 			class="input"
 			type="text"
@@ -92,13 +92,14 @@
 			bind:value={newName}
 			style:padding
 		/>
+	{/snippet}
 	</InputClear>
 
 	<InputClear
 		condition={newUri}
 		onclear={() => (newUri = '')}
-		let:padding
 	>
+		{#snippet children(padding)}
 		<input
 			class="input"
 			type="text"
@@ -108,13 +109,14 @@
 			bind:value={newUri}
 			style:padding
 		/>
+	{/snippet}
 	</InputClear>
 
 	<InputClear
 		condition={newImageUrl}
 		onclear={() => (newImageUrl = '')}
-		let:padding
 	>
+		{#snippet children(padding)}
 		<input
 			class="input"
 			type="text"
@@ -124,6 +126,7 @@
 			bind:value={newImageUrl}
 			style:padding
 		/>
+	{/snippet}
 	</InputClear>
 
 	<button

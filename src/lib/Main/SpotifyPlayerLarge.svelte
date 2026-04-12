@@ -4,7 +4,7 @@
 	import { openModal } from 'svelte-modals/legacy';
 	import Ripple from '$lib/Actions/ripple';
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	let { sel, sectionName = undefined }: { sel: any; sectionName?: string } = $props();
 
@@ -79,16 +79,18 @@
 		if (recentArtwork.length > 1 && !is_playing && $timer) {
 			const seconds = $timer.getSeconds();
 			if (seconds % 8 === 0) {
-				const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
-				if (nextIndex !== rotatingIndex) {
-					rotatingIndex = nextIndex;
-					if (showImageA) {
-						rotatingImageB = recentArtwork[rotatingIndex];
-					} else {
-						rotatingImageA = recentArtwork[rotatingIndex];
+				untrack(() => {
+					const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
+					if (nextIndex !== rotatingIndex) {
+						rotatingIndex = nextIndex;
+						if (showImageA) {
+							rotatingImageB = recentArtwork[rotatingIndex];
+						} else {
+							rotatingImageA = recentArtwork[rotatingIndex];
+						}
+						showImageA = !showImageA;
 					}
-					showImageA = !showImageA;
-				}
+				});
 			}
 		}
 	});

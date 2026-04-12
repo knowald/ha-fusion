@@ -113,11 +113,47 @@
 
 	let suggestDisplayOnly = $derived(shouldSuggestDisplayOnly(entity_id));
 	let isLightEntity = $derived(getDomain(entity_id) === 'light');
+	let isVacuumEntity = $derived(getDomain(entity_id) === 'vacuum');
+
+	let hideBattery = $state(sel?.hide_battery || false);
+	let showStatusOnButton = $state(sel?.show_status_on_button || false);
+	let vacuumPlans = $state<string[]>(sel?.vacuum_plans || []);
+	let vacuumRooms = $state<{ id: string; name: string }[]>(sel?.vacuum_rooms || []);
+	let mopIntensityEntity = $state(sel?.vacuum_mop_intensity_entity || '');
+
+	let newPlanEntity = $state('');
+	let newRoomId = $state('');
+	let newRoomName = $state('');
+
+	function addPlan() {
+		if (!newPlanEntity) return;
+		vacuumPlans = [...vacuumPlans, newPlanEntity];
+		set('vacuum_plans', vacuumPlans);
+		newPlanEntity = '';
+	}
+
+	function removePlan(index: number) {
+		vacuumPlans = vacuumPlans.filter((_, i) => i !== index);
+		set('vacuum_plans', vacuumPlans.length ? vacuumPlans : undefined);
+	}
+
+	function addRoom() {
+		if (!newRoomId || !newRoomName) return;
+		vacuumRooms = [...vacuumRooms, { id: newRoomId, name: newRoomName }];
+		set('vacuum_rooms', vacuumRooms);
+		newRoomId = '';
+		newRoomName = '';
+	}
+
+	function removeRoom(index: number) {
+		vacuumRooms = vacuumRooms.filter((_, i) => i !== index);
+		set('vacuum_rooms', vacuumRooms.length ? vacuumRooms : undefined);
+	}
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('button')}</h1>
+		{#snippet title()}<h1>{$lang('button')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -177,8 +213,8 @@
 					name = undefined;
 					set('name');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('name')}
 					class="input"
@@ -194,6 +230,7 @@
 					disabled={Boolean(template?.name?.output)}
 					class:disabled={Boolean(template?.name?.output)}
 				/>
+				{/snippet}
 			</InputClear>
 
 			<button
@@ -223,8 +260,8 @@
 					state = undefined;
 					set('state');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('state')}
 					class="input"
@@ -240,6 +277,7 @@
 					disabled={Boolean(template?.state?.output)}
 					class:disabled={Boolean(template?.state?.output)}
 				/>
+				{/snippet}
 			</InputClear>
 
 			<button
@@ -271,8 +309,8 @@
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('icon')}
 					class="input"
@@ -288,6 +326,7 @@
 					disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
 					class:disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
 				/>
+				{/snippet}
 			</InputClear>
 
 			<button
@@ -329,8 +368,8 @@
 					color = undefined;
 					set('color');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('color')}
 					class="input"
@@ -348,6 +387,7 @@
 					disabled={Boolean(template?.color?.output) || displayOnly}
 					class:disabled={Boolean(template?.color?.output) || displayOnly}
 				/>
+				{/snippet}
 			</InputClear>
 
 			<input
@@ -500,6 +540,125 @@
 			</button>
 		</div>
 
+		{#if isVacuumEntity && !displayOnly}
+			<h2>{$lang('battery') || 'Battery'}</h2>
+			<div class="button-container">
+				<button
+					class:selected={!hideBattery}
+					onclick={() => {
+						hideBattery = false;
+						set('hide_battery');
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('visible') || 'Visible'}
+				</button>
+				<button
+					class:selected={hideBattery}
+					onclick={() => {
+						hideBattery = true;
+						set('hide_battery', true);
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('hidden') || 'Hidden'}
+				</button>
+			</div>
+
+			<h2>{$lang('show_status_on_button') !== 'show_status_on_button' ? $lang('show_status_on_button') : 'Status on button'}</h2>
+			<div class="button-container">
+				<button
+					class:selected={showStatusOnButton}
+					onclick={() => {
+						showStatusOnButton = true;
+						set('show_status_on_button', true);
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('yes')}
+				</button>
+				<button
+					class:selected={!showStatusOnButton}
+					onclick={() => {
+						showStatusOnButton = false;
+						set('show_status_on_button');
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('no')}
+				</button>
+			</div>
+
+			<h2>{$lang('vacuum_plans') !== 'vacuum_plans' ? $lang('vacuum_plans') : 'Cleaning plans'}</h2>
+			<div class="vacuum-list">
+				{#each vacuumPlans as plan, i}
+					<div class="vacuum-list-item">
+						<span class="overflow">{$states[plan]?.attributes?.friendly_name || plan}</span>
+						<button class="vacuum-remove-btn" onclick={() => removePlan(i)}>x</button>
+					</div>
+				{/each}
+			</div>
+			<div class="vacuum-add-row">
+				<div class="full-width">
+					<Select
+						options={$entityList('button')}
+						placeholder={$lang('add') || 'Add plan entity'}
+						value={newPlanEntity}
+						onchange={(event) => {
+							newPlanEntity = event;
+						}}
+						computeIcons={true}
+					/>
+				</div>
+				<button class="icon-gallery" onclick={addPlan} use:Ripple={$ripple} style:padding="0.85rem">
+					+
+				</button>
+			</div>
+
+			<h2>{$lang('rooms') !== 'rooms' ? $lang('rooms') : 'Rooms'}</h2>
+			<div class="vacuum-list">
+				{#each vacuumRooms as room, i}
+					<div class="vacuum-list-item">
+						<span class="overflow">{room.name} ({room.id})</span>
+						<button class="vacuum-remove-btn" onclick={() => removeRoom(i)}>x</button>
+					</div>
+				{/each}
+			</div>
+			<div class="vacuum-add-row">
+				<input
+					class="input"
+					type="text"
+					placeholder="Room ID"
+					bind:value={newRoomId}
+					autocomplete="off"
+				/>
+				<input
+					class="input"
+					type="text"
+					placeholder={$lang('name') || 'Name'}
+					bind:value={newRoomName}
+					autocomplete="off"
+				/>
+				<button class="icon-gallery" onclick={addRoom} use:Ripple={$ripple} style:padding="0.85rem">
+					+
+				</button>
+			</div>
+
+			<h2>{$lang('mop_intensity') !== 'mop_intensity' ? $lang('mop_intensity') : 'Mop intensity entity'}</h2>
+			<div class="full-width">
+				<Select
+					options={$entityList('select')}
+					placeholder={$lang('entity') || 'Select entity'}
+					value={mopIntensityEntity || undefined}
+					onchange={(event) => {
+						mopIntensityEntity = event || '';
+						set('vacuum_mop_intensity_entity', event || undefined);
+					}}
+					computeIcons={true}
+				/>
+			</div>
+		{/if}
+
 		{#if getDomain(entity_id) === 'media_player'}
 			<h2>Marquee</h2>
 
@@ -572,5 +731,38 @@
 		margin: 0.5rem 0 1.5rem 0;
 		border-radius: 0.3rem;
 		font-size: 0.9rem;
+	}
+
+	.vacuum-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.vacuum-list-item {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 0.7rem;
+		background-color: rgba(0, 0, 0, 0.2);
+		border-radius: 0.4rem;
+		font-size: 0.85rem;
+	}
+
+	.vacuum-remove-btn {
+		background: none;
+		border: none;
+		color: #e53935;
+		cursor: pointer;
+		font-size: 1rem;
+		padding: 0 0.3rem;
+		font-family: inherit;
+	}
+
+	.vacuum-add-row {
+		display: flex;
+		gap: 0.5rem;
+		align-items: stretch;
 	}
 </style>

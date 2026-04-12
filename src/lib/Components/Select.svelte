@@ -47,9 +47,13 @@
 	const maxHeight = itemSize * 7;
 	const overscanCount = 7;
 
+	let previousValue = $state(value);
 	$effect(() => {
-		if ((value === undefined && clearable) || value) {
-			onchange?.(value);
+		if (value !== previousValue) {
+			previousValue = value;
+			if ((value === undefined && clearable) || value) {
+				onchange?.(value);
+			}
 		}
 	});
 
