@@ -17,7 +17,6 @@
 
 	historyUpdater(snapshot);
 
-	let ignored: boolean;
 
 	/**
 	 * Reactive statement to handle
@@ -38,28 +37,11 @@
 	 * Checks if a key exists directly on the
 	 * provided object or in its nested objects
 	 */
-	function keyCheck(obj: any, key: string): boolean {
-		if (obj && typeof obj === 'object' && key in obj) {
-			return true;
-		}
-		for (const prop of Object.values(obj)) {
-			if (typeof prop === 'object' && prop !== null) {
-				if (keyCheck(prop, key)) return true;
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * Adds a snapshot of current dashboard to the history array
 	 */
 	function snapshot() {
-		// ignore 'isDndShadowItem' that svelte-dnd-action creates...
-		if (!ignored && keyCheck($dashboard, 'isDndShadowItem')) {
-			ignored = true;
-			return;
-		}
-
 		// after undo, future changes will overwrite history
 		if ($historyIndex < $history.length - 1) {
 			$history = $history.slice(0, $historyIndex + 1);
@@ -133,7 +115,6 @@
 	 */
 	onDestroy(() => {
 		$historyIndex = 0;
-		ignored = false;
 		$history = [];
 	});
 </script>

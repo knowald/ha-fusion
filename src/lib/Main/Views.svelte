@@ -9,8 +9,7 @@
 		highlightView,
 		draggingView
 	} from '$lib/Stores';
-	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
 	import { slide, fade } from 'svelte/transition';
 	import { modals } from 'svelte-modals/legacy';
 	import { onMount, tick } from 'svelte';
@@ -38,33 +37,12 @@
 
 	const borderStyle = '3px solid white';
 
-	/**
-	 * Handle drag event
-	 */
-	async function handleDragEvent(event: CustomEvent<DndEvent>) {
-		$dashboard.views = event.detail.items as any;
-
-		if (event.type === 'consider') {
-			$draggingView = true;
-		}
-
-		if (event?.type === 'finalize') {
-			$record();
-			await tick();
-			$highlightView = true;
-			$draggingView = false;
-		}
-	}
-
-	/**
-	 * Applies border to the dragged element based on the current page ID.
-	 */
-	function addBorder(element: HTMLElement | undefined, data: any) {
-		if (element && $currentViewId === data.id) {
-			element.style.borderBottom = borderStyle;
-		} else {
-			$highlightView = true;
-		}
+	async function handleDragFinalize(newItems: any[]) {
+		$dashboard.views = newItems;
+		$record();
+		await tick();
+		$highlightView = true;
+		$draggingView = false;
 	}
 
 	onMount(() => {
@@ -106,21 +84,19 @@
 					<div class="top-bar">
 						<div
 							id="navigation"
-							use:dndzone={{
-								type: 'navigate',
-								transformDraggedElement: addBorder,
+							use:sortable={{
+								group: { name: 'navigate', pull: false, put: false },
+								animation: $motion,
+								disabled: !$editMode,
+								direction: 'horizontal',
 								items: $dashboard.views,
-								flipDurationMs: $motion,
-								dragDisabled: !$editMode,
-								dropTargetStyle: {},
-								morphDisabled: true,
-								zoneTabIndex: -1
+								onStart: () => { $draggingView = true; },
+								onFinalize: handleDragFinalize,
 							}}
-							onconsider={handleDragEvent}
-							onfinalize={handleDragEvent}
 						>
 							{#each $dashboard.views as view (view.id)}
 								<button
+									data-id={view.id}
 									id={String(view.id)}
 									class="nav-button"
 									bind:this={buttons[view.id || 0]}
@@ -136,7 +112,6 @@
 											$viewUnderline = true;
 										}
 									}}
-									animate:flip={{ duration: $motion }}
 									style:border-bottom={($highlightView || $viewUnderline) &&
 									$currentViewId === view.id
 										? borderStyle

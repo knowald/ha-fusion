@@ -2,8 +2,7 @@
 	// store
 	import { dashboard, motion, showDrawer, editMode, record, dragging } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from 'svelte-dnd-action';
+	import { sortable } from '$lib/Actions/sortable';
 	import { openModal } from 'svelte-modals/legacy';
 	import { generateId, getSelected } from '$lib/Utils';
 	import type { SidebarItem } from '$lib/Types';
@@ -12,7 +11,6 @@
 
 	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
 
-	let skipTransformElement = $state(false);
 	let importedComponents: (string | undefined)[] = [];
 	let mountedComponents = $state(false);
 
@@ -155,51 +153,34 @@
 		}
 	}
 
-	function handleSort(event: CustomEvent<DndEvent>) {
-		$dragging = true;
+	function handleFinalize(newItems: any[]) {
+		if (altKeyPressed) {
+			// Find the item that moved to a new position and clone it
+			const oldIds = new Set($dashboard.sidebar.map((item: any) => item.id));
+			const newOrder = newItems.map((item: any) => item.id);
+			const oldOrder = $dashboard.sidebar.map((item: any) => item.id);
 
-		$dashboard.sidebar = handleCopyOnDrag($dashboard.sidebar, event);
-
-		if (event?.type === 'finalize') {
-			$record();
-			$dragging = false;
-			skipTransformElement = false;
-		}
-	}
-
-	function handleCopyOnDrag(items: any[], event: CustomEvent<DndEvent>) {
-		const { trigger, id: itemId } = event.detail.info;
-
-		if (trigger === TRIGGERS.DRAG_STARTED && altKeyPressed) {
-			const idx = items.findIndex((item) => item.id === itemId);
-			const newId = generateId($dashboard);
-
-			event.detail.items = event.detail.items.filter(
-				(item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-			);
-			event.detail.items.splice(idx, 0, { ...items[idx], id: newId });
-		}
-
-		return event.detail.items;
-	}
-
-	/**
-	 * dnd transformDraggedElement
-	 */
-	function transformDraggedElement(element: HTMLElement | undefined) {
-		if (element) {
-			const container = element.firstElementChild as HTMLDivElement;
-
-			if (!altKeyPressed) skipTransformElement = true;
-
-			if (!skipTransformElement && container) {
-				Object.assign(container.style, {
-					outline: 'rgb(255, 192, 8) dashed 2px',
-					outlineOffset: '-2px',
-					borderRadius: '0.65rem'
-				});
+			// Detect which item moved and where
+			for (let i = 0; i < newOrder.length; i++) {
+				if (newOrder[i] !== oldOrder[i]) {
+					const movedId = newOrder[i];
+					const original = $dashboard.sidebar.find((item: any) => item.id === movedId);
+					if (original) {
+						const cloned = { ...original, id: generateId($dashboard) };
+						// Insert clone at new position, keep original in place
+						const result = [...$dashboard.sidebar];
+						result.splice(i, 0, cloned);
+						$dashboard.sidebar = result;
+					}
+					break;
+				}
 			}
+		} else {
+			$dashboard.sidebar = newItems;
 		}
+
+		$record();
+		$dragging = false;
 	}
 
 	// media query js
@@ -235,25 +216,21 @@
 
 	{#if !$dashboard?.hide_sidebar}
 		<section
-			use:dndzone={{
-				type: 'sidebar',
+			use:sortable={{
+				group: { name: 'sidebar', pull: false, put: false },
 				items: $dashboard?.sidebar,
-				flipDurationMs: $motion,
-				dragDisabled: !$editMode,
-				dropTargetStyle: {},
-				zoneTabIndex: -1,
-				morphDisabled: true,
-				transformDraggedElement
+				animation: $motion,
+				disabled: !$editMode,
+				onStart: () => { $dragging = true; },
+				onFinalize: handleFinalize
 			}}
-			onconsider={handleSort}
-			onfinalize={handleSort}
 		>
 			{#each $dashboard.sidebar as item (item.id)}
 				{@const hide_mobile = matches && item?.hide_mobile && !$editMode}
 
 				<div
 					id={String(item.id)}
-					animate:flip={{ duration: mountedComponents ? $motion : 0 }}
+					data-id={item.id}
 					class="sidebar_edit_mode"
 					style:display={item?.type === 'divider' ||
 					item?.type === 'date' ||
@@ -464,5 +441,9 @@
 	.sidebar_edit_mode {
 		transition: height 200ms ease;
 		display: flex;
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
 	}
 </style>

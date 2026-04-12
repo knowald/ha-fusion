@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { dashboard, dragging, lang, motion, record, ripple } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
-	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
 	import AddConditionButtons from '$lib/Modal/VisibilityConfig/AddConditionButtons.svelte';
 	import StateCondition from '$lib/Modal/VisibilityConfig/StateCondition.svelte';
 	import NumericCondition from '$lib/Modal/VisibilityConfig/NumericCondition.svelte';
@@ -45,64 +44,24 @@
 	 * dnd
 	 */
 
-	const dndOptions = {
-		flipDurationMs: $motion,
-		dropTargetStyle: {},
-		transformDraggedElement
-	};
-
-	function dragItem(event: CustomEvent<DndEvent>) {
-		const draggedItem = event.detail.items.find((section) =>
-			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
-		);
-
-		if (draggedItem && (draggedItem.condition === 'and' || draggedItem.condition === 'or')) {
-			draggingGroup = true;
-		}
-
-		handleDrag(event, () => {
-			items = event.detail.items;
-		});
-	}
-
-	function dragNestedItem(id: string, event: CustomEvent<DndEvent>) {
-		handleDrag(event, () => {
-			const condition = items.find((item: any) => item.id === id);
-
-			if (condition && condition.conditions) {
-				condition.conditions = event.detail.items;
-				items = [...items];
-			}
-		});
-	}
-
-	function handleDrag(event: CustomEvent<DndEvent>, callback: () => void) {
+	function handleDragStart() {
 		$dragging = true;
-
-		callback();
-
-		// reset
-		if (event.type === 'finalize') {
-			$dragging = false;
-			draggingGroup = false;
-			draggedElHeight = undefined;
-		}
 	}
 
-	/**
-	 * Fix visual bugs on dnd
-	 *
-	 * - hide entity select list if open on dragging
-	 * - force fixed element height when dragging
-	 */
-	function transformDraggedElement(draggedEl: HTMLElement | undefined) {
-		if (!draggedEl) return;
+	function handleItemFinalize(newItems: any[]) {
+		items = newItems;
+		$dragging = false;
+		draggingGroup = false;
+	}
 
-		const listOpen = draggedEl.querySelector('.wrapper') as HTMLElement;
-		if (listOpen) listOpen.style.display = 'none';
-
-		if (!draggedElHeight) draggedElHeight = draggedEl.offsetHeight;
-		if (draggedElHeight) draggedEl.style.height = `${draggedElHeight}px`;
+	function handleNestedFinalize(parentId: string, newItems: any[]) {
+		const condition = items.find((item: any) => item.id === parentId);
+		if (condition && condition.conditions) {
+			condition.conditions = newItems;
+			items = [...items];
+		}
+		$dragging = false;
+		draggingGroup = false;
 	}
 
 	/**
@@ -192,19 +151,26 @@
 			<section
 				data-exclude-drag-modal
 				style:padding="1.5rem 0"
-				use:dndzone={{
-					...dndOptions,
-					type: 'condition',
-					items
+				use:sortable={{
+					group: {
+						name: 'condition',
+						put: (_to, _from, dragEl) => {
+							const isGroup = dragEl.dataset.conditionType === 'and' || dragEl.dataset.conditionType === 'or';
+							return !isGroup || !draggingGroup;
+						}
+					},
+					animation: $motion,
+					ghostClass: 'sortable-ghost',
+					items,
+					onStart: handleDragStart,
+					onFinalize: handleItemFinalize,
 				}}
-				onconsider={dragItem}
-				onfinalize={dragItem}
 			>
-				{#each items as item, i (`${item?.id}${item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+				{#each items as item, i (item?.id)}
 					<div
-						data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+						data-id={item?.id}
+						data-condition-type={item?.condition}
 						class:item
-						animate:flip={{ duration: $motion }}
 					>
 						<ItemHeader item={items[i]} bind:items {matches} {innerWidth} />
 
@@ -229,19 +195,20 @@
 											style:background-color={empty ? 'rgba(255, 190, 10, 0.25)' : 'transparent'}
 											style:outline={empty ? '2px dashed #ffc107' : 'none'}
 											style:transition="background-color {$motion}ms ease"
-											use:dndzone={{
-												...dndOptions,
-												type: draggingGroup ? 'group' : 'condition',
-												items: item?.conditions
+											use:sortable={{
+												group: 'condition',
+												animation: $motion,
+												ghostClass: 'sortable-ghost',
+												items: item?.conditions,
+												onStart: handleDragStart,
+												onFinalize: (newItems) => handleNestedFinalize(item.id, newItems),
 											}}
-											onconsider={(event) => dragNestedItem(item.id, event)}
-											onfinalize={(event) => dragNestedItem(item.id, event)}
 										>
-											{#each item.conditions as subItem, j (`${subItem?.id}${subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+											{#each item.conditions as subItem, j (subItem?.id)}
 												<div
-													data-is-dnd-shadow-item-hint={subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+													data-id={subItem?.id}
+													data-condition-type={subItem?.condition}
 													class="item"
-													animate:flip={{ duration: $motion }}
 												>
 													<ItemHeader item={item.conditions[j]} bind:items {matches} {innerWidth} />
 

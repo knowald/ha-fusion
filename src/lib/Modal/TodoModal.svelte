@@ -5,8 +5,7 @@
 	import { getName } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { dndzone } from 'svelte-dnd-action';
+	import { sortable } from '$lib/Actions/sortable';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { callService } from 'home-assistant-js-websocket';
@@ -22,10 +21,12 @@
 
 	let anyCompleted = $derived(getCompleted(items));
 
-	let dndOptions = $derived({
-		flipDurationMs: $motion,
-		dropTargetStyle: {},
-		zoneTabIndex: -1
+	let sortableOptions = $derived({
+		animation: $motion,
+		disabled: false,
+		items: items ?? [],
+		group: { name: 'todo', pull: false as const, put: false as const },
+		onFinalize: handleSortFinalize
 	});
 
 	/**
@@ -139,22 +140,21 @@
 	}
 
 	/**
-	 * Handles drag and drop of a todo item
+	 * Handles finalized drag-and-drop reorder from SortableJS
 	 */
-	function handleDnd(event: any) {
-		items = event.detail.items.map((item: { id: string }) => ({
-			...item,
-			uid: item.id
-		}));
+	function handleSortFinalize(newItems: any[]) {
+		const oldItems = items;
+		items = newItems;
 
-		if (event?.type !== 'finalize') return;
-
-		const uid = event.detail.info.id;
-		const previousUid =
-			items.findIndex((item: { uid: string }) => item.uid === uid) - 1 >= 0
-				? items[items.findIndex((item: { uid: string }) => item.uid === uid) - 1].uid
-				: undefined;
-		handleReorder(uid, previousUid);
+		// Find the item that moved by comparing positions
+		for (let i = 0; i < newItems.length; i++) {
+			if (!oldItems[i] || newItems[i].uid !== oldItems[i].uid) {
+				const uid = newItems[i].uid;
+				const previousUid = i > 0 ? newItems[i - 1].uid : undefined;
+				handleReorder(uid, previousUid);
+				return;
+			}
+		}
 	}
 
 	/**
@@ -226,14 +226,12 @@
 		<!-- ITEMS -->
 		{#if items}
 			<section
-				use:dndzone={{ items, ...dndOptions }}
-				onconsider={handleDnd}
-				onfinalize={handleDnd}
+				use:sortable={sortableOptions}
 			>
 				{#each items as item (item.uid)}
 					<div
 						class="todo-item"
-						animate:flip={{ duration: dndOptions?.flipDurationMs }}
+						data-id={item.id}
 						style:opacity={item.status === 'completed' ? '0.3' : '1'}
 						style:transition="opacity {$motion / 2}ms ease"
 						data-exclude-drag-modal

@@ -27,7 +27,7 @@ export default defineConfig({
 			'maplibre-gl',
 			'marked',
 			'svelte-confetti',
-			'svelte-dnd-action',
+			'sortablejs',
 			'svelte-modals',
 			'svelte-tiny-virtual-list',
 			'weekstart',

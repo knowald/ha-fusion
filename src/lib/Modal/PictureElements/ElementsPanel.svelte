@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
+	import type { SortableEvent } from 'sortablejs';
 	import type { Shape, ShapeConfig } from 'konva/lib/Shape';
 	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 	import { konvaStore } from '$lib/Stores';
@@ -35,75 +35,58 @@
 		if (!$dragging) set($konvaStore);
 	});
 
-	async function handleDragLayers(event: CustomEvent<DndEvent>) {
+	function handleDragStart(evt: SortableEvent) {
 		$dragging = true;
-		const id = event.detail.info.id;
-		const items = event.detail.items;
+		dragStartOrder = [...$konvaStore.children].reverse().map((item) => item?.attrs?.id);
 
-		layers = items;
-
-		if (!dragStartOrder) {
-			dragStartOrder = [...$konvaStore.children].reverse().map((item) => item?.attrs?.id);
-		}
-
-		if (event.type === 'consider' && !selectedShapes.some((shape) => shape.attrs.id === id)) {
+		const id = evt.item?.getAttribute('data-id');
+		if (id && !selectedShapes.some((shape) => shape.attrs.id === id)) {
 			konva.selectShapesById([id]);
-		}
-
-		if (event.type === 'finalize') {
-			const selectedIds = selectedShapes.map((shape) => shape?.attrs?.id);
-			const realItems = items.filter((item) => !item?.id?.startsWith('id:dnd-shadow-placeholder'));
-			const isDraggedItemSelected = selectedIds.includes(id);
-
-			if (isDraggedItemSelected) {
-				// move all selected items
-				const selected = dragStartOrder
-					.filter((id) => selectedIds.includes(id))
-					.map((id) => realItems.find((item) => item.id === id))
-					.filter((item) => item !== undefined);
-
-				const notSelected = realItems.filter((item) => !selectedIds.includes(item.id));
-				// index of the dragged item
-				const draggedIndex = realItems.findIndex((item) => item.id === id);
-
-				let newArrangement;
-				if (draggedIndex < notSelected.length) {
-					newArrangement = [
-						...notSelected.slice(0, draggedIndex),
-						...selected,
-						...notSelected.slice(draggedIndex)
-					];
-				} else {
-					newArrangement = [...notSelected, ...selected];
-				}
-
-				layers = newArrangement;
-
-				await tick();
-				konva.selectShapesById(selectedIds);
-			} else {
-				// only move item
-				layers = realItems;
-
-				await tick();
-				konva.selectShapesById([id]);
-			}
-
-			konva.reorderElements(layers.map((layer) => layer?.id));
-
-			// reset
-			$dragging = false;
-			dragStartOrder = undefined;
 		}
 	}
 
-	function transformDraggedElement(element: HTMLElement | undefined) {
-		if (!element) return;
+	async function handleDragFinalize(items: any[], evt: SortableEvent) {
+		const id = evt.item?.getAttribute('data-id');
+		const selectedIds = selectedShapes.map((shape) => shape?.attrs?.id);
+		const isDraggedItemSelected = id ? selectedIds.includes(id) : false;
 
-		Object.assign(element.style, {
-			outline: 'none',
-			opacity: '0.8'
-		});
+		if (isDraggedItemSelected && dragStartOrder) {
+			// move all selected items
+			const selected = dragStartOrder
+				.filter((sid) => selectedIds.includes(sid))
+				.map((sid) => items.find((item) => item.id === sid))
+				.filter((item) => item !== undefined);
+
+			const notSelected = items.filter((item) => !selectedIds.includes(item.id));
+			const draggedIndex = items.findIndex((item) => item.id === id);
+
+			let newArrangement;
+			if (draggedIndex < notSelected.length) {
+				newArrangement = [
+					...notSelected.slice(0, draggedIndex),
+					...selected,
+					...notSelected.slice(draggedIndex)
+				];
+			} else {
+				newArrangement = [...notSelected, ...selected];
+			}
+
+			layers = newArrangement;
+
+			await tick();
+			konva.selectShapesById(selectedIds);
+		} else {
+			layers = items;
+
+			await tick();
+			if (id) konva.selectShapesById([id]);
+		}
+
+		konva.reorderElements(layers.map((layer) => layer?.id));
+
+		// reset
+		$dragging = false;
+		dragStartOrder = undefined;
 	}
 
 	function handlePointerdown(event: MouseEvent) {
@@ -143,9 +126,6 @@
 		icon.style.display = error ? 'block' : 'none';
 	}
 
-	function handleDragStart(id: string) {
-		konva.selectShapesById([id]);
-	}
 </script>
 
 <svelte:document onpointerdown={handlePointerdown} />
@@ -178,14 +158,13 @@
 
 <div
 	class="items"
-	use:dndzone={{
-		flipDurationMs: 0,
-		dropTargetStyle: {},
-		transformDraggedElement,
-		items: layers
+	use:sortable={{
+		animation: 0,
+		group: { name: 'elements', pull: false, put: false },
+		items: layers,
+		onStart: handleDragStart,
+		onFinalize: handleDragFinalize
 	}}
-	onconsider={handleDragLayers}
-	onfinalize={handleDragLayers}
 >
 	{#each layers as shape (shape.id)}
 		{@const konvaStoreEquivalent = $konvaStore?.children?.find(
@@ -195,9 +174,8 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			class="item"
-			animate:flip={{ duration: 0 }}
+			data-id={shape.id}
 			class:selected={selectedShapes?.some((node) => node?.attrs?.id === shape?.attrs?.id)}
-			ondragstart={() => handleDragStart(shape?.attrs?.id)}
 			onclick={async (event) => {
 				// blur any active attr input to trigger onchange before switching layer
 				if (
@@ -372,5 +350,9 @@
 	.visibility:hover,
 	.inline-lock:hover {
 		background-color: rgba(255, 255, 255, 0.1);
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
 	}
 </style>
