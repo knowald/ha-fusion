@@ -52,7 +52,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">Bar</h1>
+		{#snippet title()}<h1>Bar</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -79,8 +79,8 @@
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				id="bar_name"
 				type="text"
@@ -93,6 +93,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('value')}</h2>
@@ -121,8 +122,8 @@
 				math = '';
 				set('math');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				id="bar_math"
 				class="input"
@@ -135,6 +136,7 @@
 				style="font-family: monospace; font-size: 1rem;"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

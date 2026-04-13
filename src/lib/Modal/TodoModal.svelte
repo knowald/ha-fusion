@@ -191,7 +191,6 @@
 		<div class="h-container">
 			<InputClear
 				condition={todoInput}
-				let:padding
 				onclear={() => {
 					todoInput = '';
 				}}
@@ -206,6 +205,7 @@
 					bind:value={todoInput}
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 
 			<form onsubmit={(e) => { e.preventDefault(); add(e); }}>

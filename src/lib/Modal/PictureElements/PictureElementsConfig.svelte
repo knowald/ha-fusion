@@ -102,7 +102,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{$lang('picture_elements')}</h1>
+		{#snippet title()}<h1>{$lang('picture_elements')}</h1>{/snippet}
 
 		<div class="modal-layout">
 			<div

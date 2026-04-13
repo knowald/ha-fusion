@@ -119,7 +119,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('conditional')} {$lang('media')?.toLocaleLowerCase()}</h1>
+		{#snippet title()}<h1>{$lang('conditional')} {$lang('media')?.toLocaleLowerCase()}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -193,8 +193,8 @@
 				set('timeout');
 				timeout = undefined;
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				min={minExpire}
 				max={maxExpire}
@@ -207,6 +207,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('show_area')?.replace('{area}', $lang('time')?.toLocaleLowerCase())}</h2>

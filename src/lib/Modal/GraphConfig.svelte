@@ -96,7 +96,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('graph')}</h1>
+		{#snippet title()}<h1>{$lang('graph')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -129,8 +129,8 @@
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				name={$lang('name')}
 				class="input"
@@ -143,6 +143,7 @@
 				onchange={(event) => set('name', event)}
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('period')} (data_points)</h2>

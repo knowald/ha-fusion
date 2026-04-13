@@ -54,7 +54,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(selected, entity)}</h1>
+		{#snippet title()}<h1>{getName(selected, entity)}</h1>{/snippet}
 
 		<!-- POSITION -->
 		{#if supports?.SET_POSITION}

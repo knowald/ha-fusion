@@ -14,7 +14,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{name}</h1>
+		{#snippet title()}<h1>{name}</h1>{/snippet}
 
 		<img src={entity_picture} alt={name} />
 

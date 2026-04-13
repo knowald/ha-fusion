@@ -48,7 +48,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('button')}</h1>
+		{#snippet title()}<h1>{$lang('button')}</h1>{/snippet}
 
 		<h2>{$lang('entity')}</h2>
 
@@ -77,8 +77,8 @@
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				name={$lang('name')}
 				class="input"
@@ -90,6 +90,7 @@
 				onchange={(event) => set('name', event)}
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>
@@ -103,8 +104,8 @@
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('icon')}
 					class="input"
@@ -116,6 +117,7 @@
 					onchange={(event) => set('icon', event)}
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 
 			<button

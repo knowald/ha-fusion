@@ -120,7 +120,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('days_since') || 'Days Since'}</h1>
+		{#snippet title()}<h1>{$lang('days_since') || 'Days Since'}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -136,8 +136,8 @@
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				name={$lang('name')}
 				class="input"
@@ -149,6 +149,7 @@
 				onchange={(event) => set('name', event)}
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')}</h2>
@@ -160,8 +161,8 @@
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('icon')}
 					class="input"
@@ -173,6 +174,7 @@
 					onchange={(event) => set('icon', event)}
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 
 			<button
@@ -197,8 +199,8 @@
 					color = undefined;
 					set('color');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('color')}
 					class="input"
@@ -210,6 +212,7 @@
 					onchange={(event) => set('color', event)}
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 
 			<input
@@ -263,8 +266,8 @@
 						entity_id = undefined;
 						set('entity_id');
 					}}
-					let:padding
 				>
+					{#snippet children(padding)}
 					<input
 						name="Entity ID"
 						class="input"
@@ -276,6 +279,7 @@
 						onchange={(event) => set('entity_id', event)}
 						style:padding
 					/>
+				{/snippet}
 				</InputClear>
 
 				{#if entityError}

@@ -43,7 +43,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('camera')}</h1>
+		{#snippet title()}<h1>{$lang('camera')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 

@@ -14,7 +14,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('unknown')}</h1>
+		{#snippet title()}<h1>{$lang('unknown')}</h1>{/snippet}
 
 		{#if domain}
 			<h2>

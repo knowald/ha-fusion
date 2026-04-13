@@ -402,7 +402,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{$lang('browse_library') || 'Browse Library'}</h1>
+		{#snippet title()}<h1>{$lang('browse_library') || 'Browse Library'}</h1>{/snippet}
 
 		<div class="browser-container">
 			<!-- Tabs -->

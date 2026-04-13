@@ -39,7 +39,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('divider')}</h1>
+		{#snippet title()}<h1>{$lang('divider')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -70,8 +70,8 @@
 					set('size');
 					size = undefined;
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					min="20"
 					max="999"
@@ -84,6 +84,7 @@
 					spellcheck="false"
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 		{/if}
 

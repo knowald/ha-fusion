@@ -13,7 +13,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		{#each group as child_entity_id}
 			<h2>{getName(undefined, $states?.[child_entity_id])}</h2>

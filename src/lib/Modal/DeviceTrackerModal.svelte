@@ -251,7 +251,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<!-- container -->
 		<div

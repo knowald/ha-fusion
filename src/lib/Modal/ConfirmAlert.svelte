@@ -15,7 +15,7 @@
 
 {#if isOpen}
 	<Modal backdropImage={false}>
-		<h1 slot="title">{title}</h1>
+		{#snippet title()}<h1>{title}</h1>{/snippet}
 
 		<p>{message}</p>
 

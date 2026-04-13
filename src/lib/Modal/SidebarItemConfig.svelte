@@ -385,8 +385,8 @@
 				onclear={() => {
 					searchString = '';
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					name={$lang('search')}
 					class="input"
@@ -398,6 +398,7 @@
 					bind:value={searchString}
 					style:padding
 				/>
+			{/snippet}
 			</InputClear>
 		</div>
 

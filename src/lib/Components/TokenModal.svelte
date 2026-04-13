@@ -36,7 +36,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('login')}</h1>
+		{#snippet title()}<h1>{$lang('login')}</h1>{/snippet}
 
 		<div data-exclude-drag-modal>
 			<p>

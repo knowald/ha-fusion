@@ -28,7 +28,7 @@
 
 {#if isOpen}
 	<Modal ontransitionend={handleEvent}>
-		<h1 slot="title">{$lang('template')}</h1>
+		{#snippet title()}<h1>{$lang('template')}</h1>{/snippet}
 
 		<h2>
 			{$lang('preview')}

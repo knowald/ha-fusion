@@ -27,7 +27,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('edit_view')}</h1>
+		{#snippet title()}<h1>{$lang('edit_view')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -45,8 +45,8 @@
 				name = '';
 				set('name', nameConst);
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				class="input"
 				type="text"
@@ -57,6 +57,7 @@
 				autocomplete="off"
 				spellcheck="false"
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')} ({$lang('sidebar')?.toLocaleLowerCase()})</h2>
@@ -68,8 +69,8 @@
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
+				{#snippet children(padding)}
 				<input
 					class="input"
 					type="text"
@@ -80,6 +81,7 @@
 					autocomplete="off"
 					spellcheck="false"
 				/>
+			{/snippet}
 			</InputClear>
 
 			<button

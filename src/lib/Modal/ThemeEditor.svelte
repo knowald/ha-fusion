@@ -6,7 +6,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">dev</h1>
+		{#snippet title()}<h1>dev</h1>{/snippet}
 		<br />
 		<a href="/playground/theme_editor" target="_blank">theme_editor (prototype)</a>
 	</Modal>

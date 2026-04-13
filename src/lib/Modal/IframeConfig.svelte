@@ -24,7 +24,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('iframe')}</h1>
+		{#snippet title()}<h1>{$lang('iframe')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -40,8 +40,8 @@
 				url = undefined;
 				set('url');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				type="text"
 				class="input"
@@ -52,6 +52,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>
@@ -62,8 +63,8 @@
 				size = undefined;
 				set('size');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				type="text"
 				class="input"
@@ -74,6 +75,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

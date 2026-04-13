@@ -68,7 +68,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{info?.title || getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{info?.title || getName(sel, entity)}</h1>{/snippet}
 
 		<div class="container">
 			<!-- date -->

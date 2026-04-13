@@ -41,7 +41,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(undefined, entity)}</h1>
+		{#snippet title()}<h1>{getName(undefined, entity)}</h1>{/snippet}
 
 		<h2>{$lang('timer')}</h2>
 

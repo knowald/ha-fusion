@@ -36,7 +36,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('picture')}</h1>
+		{#snippet title()}<h1>{$lang('picture')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -67,8 +67,8 @@
 				url = undefined;
 				set('url');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				type="text"
 				class="input"
@@ -79,6 +79,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

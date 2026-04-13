@@ -74,7 +74,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('sensor')}</h1>
+		{#snippet title()}<h1>{$lang('sensor')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -102,8 +102,8 @@
 				prefix = undefined;
 				set('prefix');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				id="sensor_prefix"
 				class="input"
@@ -115,6 +115,7 @@
 				autocomplete="off"
 				spellcheck="false"
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('after')}</h2>
@@ -125,8 +126,8 @@
 				suffix = undefined;
 				set('suffix');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				id="sensor_suffix"
 				class="input"
@@ -138,6 +139,7 @@
 				autocomplete="off"
 				spellcheck="false"
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('date')}</h2>

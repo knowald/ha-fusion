@@ -20,7 +20,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('time')}</h1>
+		{#snippet title()}<h1>{$lang('time')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 

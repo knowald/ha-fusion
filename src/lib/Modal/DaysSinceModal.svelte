@@ -56,7 +56,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{name}</h1>
+		{#snippet title()}<h1>{name}</h1>{/snippet}
 
 		<div class="counter-display">
 			<div class="days-number">{daysSince}</div>

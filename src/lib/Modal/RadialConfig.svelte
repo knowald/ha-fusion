@@ -65,7 +65,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">Radial</h1>
+		{#snippet title()}<h1>Radial</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -93,8 +93,8 @@
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
+			{#snippet children(padding)}
 			<input
 				type="text"
 				class="input"
@@ -106,6 +106,7 @@
 				spellcheck="false"
 				style:padding
 			/>
+		{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>
