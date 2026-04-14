@@ -36,11 +36,15 @@
 
 		if (!section?.items) return;
 
-		section.items.unshift({
-			type: 'configure',
-			id: generateId($dashboard)
-		});
+		section.items = [
+			{ type: 'configure', id: generateId($dashboard) },
+			...section.items
+		];
 
+		// Replace view object in dashboard.views so $derived produces a new reference
+		$dashboard.views = $dashboard.views.map((v: any) =>
+			v.id === view.id ? { ...v, sections: [...v.sections] } : v
+		);
 		$dashboard = $dashboard;
 		$record();
 
