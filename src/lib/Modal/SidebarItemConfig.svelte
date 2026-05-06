@@ -443,6 +443,7 @@
 		border-radius: 0.8em;
 		background-color: rgba(0, 0, 0, 0.2);
 		height: 10rem;
+		overflow: hidden;
 		outline-offset: -2px;
 	}
 
