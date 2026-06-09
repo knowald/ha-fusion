@@ -195,17 +195,18 @@
 					todoInput = '';
 				}}
 			>
-				<input
-					placeholder={$lang('add_item')}
-					name={$lang('add')}
-					class="input"
-					type="text"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={todoInput}
-					style:padding
-				/>
-			{/snippet}
+				{#snippet children(padding)}
+					<input
+						placeholder={$lang('add_item')}
+						name={$lang('add')}
+						class="input"
+						type="text"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={todoInput}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<form onsubmit={(e) => { e.preventDefault(); add(e); }}>
