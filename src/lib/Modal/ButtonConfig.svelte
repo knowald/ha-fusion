@@ -20,7 +20,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj, getDomain, getName, getTogglableService } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import parser from 'js-yaml';
 
 	let { isOpen, sel = $bindable(), demo = undefined, sectionName = undefined }: {
@@ -82,10 +82,11 @@
 		}
 	}
 
-	function shouldSuggestDisplayOnly(entityId: string): boolean {
+	function shouldSuggestDisplayOnly(entityId: string | undefined): boolean {
 		if (!entityId) return false;
 
 		const domain = getDomain(entityId);
+		if (!domain) return false;
 
 		// List of domains that are typically display-only
 		const displayOnlyDomains = [
@@ -605,7 +606,7 @@
 						placeholder={$lang('add') || 'Add plan entity'}
 						value={newPlanEntity}
 						onchange={(event) => {
-							newPlanEntity = event;
+							newPlanEntity = event ?? '';
 						}}
 						computeIcons={true}
 					/>

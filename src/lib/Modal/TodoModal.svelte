@@ -209,7 +209,7 @@
 				{/snippet}
 			</InputClear>
 
-			<form onsubmit={(e) => { e.preventDefault(); add(e); }}>
+			<form onsubmit={(e) => { e.preventDefault(); add(); }}>
 				<button
 					class="action done submit"
 					type="submit"

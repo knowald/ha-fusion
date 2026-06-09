@@ -78,7 +78,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_playlist_favorites',
@@ -140,7 +140,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_album_favorites',
@@ -204,7 +204,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_track_favorites',
@@ -268,7 +268,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_artists_followed',

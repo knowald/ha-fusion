@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { showDrawer, editMode, motion, lang, ripple, disableMenuButton } from '$lib/Stores';
 	import { onDestroy, tick } from 'svelte';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import type { SidebarItem } from '$lib/Types';
 

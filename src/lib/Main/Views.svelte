@@ -11,7 +11,7 @@
 	} from '$lib/Stores';
 	import { sortable } from '$lib/Actions/sortable';
 	import { slide, fade } from 'svelte/transition';
-	import { modals } from 'svelte-modals/legacy';
+	import { modals } from '$lib/Modals';
 	import { onMount, tick } from 'svelte';
 	import EditViewButton from '$lib/Main/EditViewButton.svelte';
 	import EyeIndicator from '$lib/Main/EyeIndicator.svelte';

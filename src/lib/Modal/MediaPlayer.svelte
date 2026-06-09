@@ -156,12 +156,6 @@
 				oninput={(event) => {
 					handleChange(event);
 				}}
-				ondragging={(value) => {
-					isDragging = value;
-					if (value) {
-						clearTimeout(debounceTimeout);
-					}
-				}}
 			/>
 
 			<br />

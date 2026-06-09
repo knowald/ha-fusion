@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connection, editMode, itemHeight, lang, ripple, services, states, timer } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
 	import { onMount, untrack } from 'svelte';
@@ -52,7 +52,7 @@
 		const spotifyPlusEntity = findSpotifyPlusEntity();
 		if (!spotifyPlusEntity) return;
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_player_recent_tracks',

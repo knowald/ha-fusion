@@ -155,7 +155,7 @@
 		style:transition="color {$motion}ms ease"
 		use:Ripple={{
 			...$ripple,
-			opacity: min ? '0' : $ripple.opacity
+			opacity: min ? 0 : $ripple.opacity
 		}}
 	>
 		<Icon icon="mingcute:down-fill" height="none" />
@@ -187,7 +187,7 @@
 		style:transition="color {$motion}ms ease"
 		use:Ripple={{
 			...$ripple,
-			opacity: max ? '0' : $ripple.opacity
+			opacity: max ? 0 : $ripple.opacity
 		}}
 	>
 		<Icon icon="mingcute:up-fill" height="none" />

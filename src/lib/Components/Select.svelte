@@ -2,7 +2,9 @@
 	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
 	import { motion } from '$lib/Stores';
 	import { tick } from 'svelte';
-	import VirtualList, { type Alignment, type ScrollBehaviour } from 'svelte-tiny-virtual-list';
+	import VirtualList from 'svelte-tiny-virtual-list';
+	type Alignment = 'auto' | 'start' | 'center' | 'end';
+	type ScrollBehaviour = 'auto' | 'smooth' | 'instant';
 	import { scale, slide } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 	import { expoOut } from 'svelte/easing';

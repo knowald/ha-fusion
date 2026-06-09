@@ -59,7 +59,7 @@
 				// 'HH:MM:SS'
 				const timeParts = entityState.split(':');
 				const date = new Date();
-				date.setHours(timeParts[0], timeParts[1], timeParts[2] || 0);
+				date.setHours(Number(timeParts[0]), Number(timeParts[1]), Number(timeParts[2] || 0));
 				return new Intl.DateTimeFormat($selectedLanguage, {
 					hour: 'numeric',
 					minute: '2-digit',

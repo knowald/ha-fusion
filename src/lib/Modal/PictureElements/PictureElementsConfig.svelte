@@ -13,6 +13,7 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { ShapeConfig } from 'konva/lib/Shape';
 	import HelpOverlay from '$lib/Modal/PictureElements/HelpOverlay.svelte';
 
 	let { sel, isOpen, demo = undefined }: {
@@ -35,7 +36,7 @@
 	// helper function to parse event target value
 	function setAttribute(id: string, key: string, event: Event) {
 		const target = event.target as HTMLInputElement | null;
-		if (target) konva.updateAttr(id, key, target.value);
+		if (target) konva?.updateAttr(id, key, target.value);
 	}
 
 	// state shape and service target entities
@@ -45,11 +46,12 @@
 	let selectedShapes = $derived($konvaStore?.selectedShapes);
 	let selectedShape = $derived(selectedShapes?.[0]);
 
-	// common
-	let props = $derived({
-		konva,
-		selectedShapes,
-		selectedShape
+	// common; konva is only undefined before onMount and the panels guard their
+	// calls at runtime, so assert instead of widening every panel's prop types
+	let panelProps = $derived({
+		konva: konva as KonvaEditor,
+		selectedShapes: (selectedShapes ?? []) as ShapeConfig[],
+		selectedShape: selectedShape as ShapeConfig
 	});
 
 	// responsive stage
@@ -90,7 +92,7 @@
 	});
 
 	onDestroy(() => {
-		sel.elements = konva.getElementsData();
+		if (konva) sel.elements = konva.getElementsData();
 		konva?.destroyEditor?.();
 		$dashboard = $dashboard;
 		$record();
@@ -98,7 +100,7 @@
 </script>
 
 <!-- keyboard shortcuts -->
-<KeyboardHandler {konva} />
+<KeyboardHandler konva={panelProps.konva} />
 
 {#if isOpen}
 	<Modal size="large">
@@ -113,15 +115,15 @@
 				style:cursor={resizing ? 'col-resize' : 'default'}
 			>
 				<div class="transform">
-					<TransformAttributes {...props} {setAttribute} bind:showHelp />
+					<TransformAttributes {...panelProps} {setAttribute} bind:showHelp />
 				</div>
 
 				<div class="selected">
-					<SelectedAttributes {...props} {setAttribute} {entityOptions} />
+					<SelectedAttributes {...panelProps} {setAttribute} {entityOptions} />
 				</div>
 
 				<div class="toolbar">
-					<Toolbar {konva} />
+					<Toolbar konva={panelProps.konva} />
 				</div>
 
 				<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
@@ -138,15 +140,15 @@
 				</div>
 
 				<div class="text-panel">
-					<TextPanel {...props} {setAttribute} />
+					<TextPanel {...panelProps} {setAttribute} />
 				</div>
 
 				<div class="action-panel">
-					<ActionPanel {...props} {entityOptions} />
+					<ActionPanel {...panelProps} {entityOptions} />
 				</div>
 
 				<div class="elements-panel">
-					<ElementsPanel {...props} />
+					<ElementsPanel {...panelProps} />
 				</div>
 
 				{#if showHelp}

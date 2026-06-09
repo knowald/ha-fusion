@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 

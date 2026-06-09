@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { Modals, closeModal } from 'svelte-modals/legacy';
+	import { Modals, closeModal } from '$lib/Modals';
 	import Loader from '$lib/Components/Loader.svelte';
 	import '@fontsource-variable/inter';
 	import { expoOut } from 'svelte/easing';

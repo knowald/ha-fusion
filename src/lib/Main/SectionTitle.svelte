@@ -31,7 +31,7 @@
 		{@html value.replaceAll(' ', '&nbsp;')}
 	{/if}
 </div>
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 	<input
 		class="input"
 		name={value}

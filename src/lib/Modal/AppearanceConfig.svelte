@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
@@ -137,7 +137,7 @@
 					<button
 						use:Ripple={{
 							...$ripple,
-							opacity: _theme ? '0' : $ripple.opacity
+							opacity: _theme ? 0 : $ripple.opacity
 						}}
 						class="container"
 						bind:this={buttons[theme?.title]}

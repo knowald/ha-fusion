@@ -31,7 +31,7 @@
 	/**
 	 * Handles click
 	 */
-	function handleClick(service: string, to_state: string) {
+	function handleClick(service: string, to_state: string | number) {
 		callService($connection, 'climate', 'set_' + service, {
 			entity_id,
 			[service]: to_state
@@ -129,7 +129,7 @@
 					placeholder={$lang('hvac_modes')}
 					value={entity?.state}
 					onchange={(event) => {
-						if (event === null) return;
+						if (event == null) return;
 						handleClick('hvac_mode', event);
 					}}
 				/>
@@ -198,7 +198,7 @@
 					placeholder={$lang('fan_modes')}
 					value={attributes?.fan_mode}
 					onchange={(event) => {
-						if (event === null) return;
+						if (event == null) return;
 						handleClick('fan_mode', event);
 					}}
 				/>
@@ -224,7 +224,7 @@
 					placeholder={$lang('swing_modes')}
 					value={attributes?.swing_mode}
 					onchange={(event) => {
-						if (event === null) return;
+						if (event == null) return;
 						handleClick('swing_mode', event);
 					}}
 				/>

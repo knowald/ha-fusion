@@ -64,7 +64,7 @@
 				computeIcons={true}
 				getIconString={true}
 				oniconString={(value) => {
-					computedIcon = value;
+					computedIcon = value ?? '';
 				}}
 			/>
 		</div>

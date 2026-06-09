@@ -2,7 +2,7 @@
 	import { configuration, lang, motion } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { base } from '$app/paths';
-	import { closeModal } from 'svelte-modals/legacy';
+	import { closeModal } from '$lib/Modals';
 
 	let { isOpen }: { isOpen: boolean } = $props();
 
@@ -54,7 +54,7 @@
 			</p>
 		</div>
 
-		<form onsubmit={(e) => { e.preventDefault(); handleClick(e); }}>
+		<form onsubmit={(e) => { e.preventDefault(); handleClick(); }}>
 			<h2>{$lang('token')}</h2>
 
 			<input class="input" type="password" bind:value={token} />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, youtubeAddon } from '$lib/Stores';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
 	let { data }: { data: any } = $props();

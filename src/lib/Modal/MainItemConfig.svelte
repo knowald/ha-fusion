@@ -2,7 +2,7 @@
 	// eventually merge with SidebarItemConfig.svelte...
 
 	import { dashboard, record, lang, motion, ripple, states, demo } from '$lib/Stores';
-	import { openModal, closeModal } from 'svelte-modals/legacy';
+	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';

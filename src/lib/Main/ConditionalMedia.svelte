@@ -13,7 +13,7 @@
 	import Icon from '@iconify/svelte';
 	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
 	import { getName } from '$lib/Utils';
-	import { openModal, modals } from 'svelte-modals/legacy';
+	import { openModal, modals } from '$lib/Modals';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { base } from '$app/paths';
 	import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
@@ -53,7 +53,7 @@
 	let timeout = $derived(sel?.timeout ?? 900);
 
 	// current_media_player is reassigned in handlePaused, so use $state + $effect
-	let current_media_player: HassEntity | undefined = $state(undefined);
+	let current_media_player = $state<HassEntity | undefined>(undefined);
 	$effect(() => {
 		current_media_player = getCurrent(sel?.media_players, $states, pauseExpired, timeout);
 	});
@@ -315,7 +315,7 @@
 	style:cursor={$editMode || !active ? 'unset' : 'pointer'}
 	use:Ripple={{
 		...$ripple,
-		opacity: !$editMode && active ? $ripple.opacity : '0'
+		opacity: !$editMode && active ? $ripple.opacity : 0
 	}}
 >
 	<!-- overlay icon -->

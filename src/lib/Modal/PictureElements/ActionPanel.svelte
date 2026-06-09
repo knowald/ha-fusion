@@ -204,7 +204,7 @@
 		<button
 			title={testState === undefined ? 'Test' : testState ? 'Success' : 'Open Browser Console'}
 			{disabled}
-			onclick={(e) => { e.stopPropagation(); handleClick(e); }}
+			onclick={(e) => { e.stopPropagation(); handleClick(); }}
 		>
 			{#if testState === undefined}
 				<Icon icon={icons['test']} width="20" height="20" />

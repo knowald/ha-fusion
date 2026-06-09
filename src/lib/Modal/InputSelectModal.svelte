@@ -15,7 +15,7 @@
 		label: option
 	})));
 
-	function handleChange(option: string) {
+	function handleChange(option: string | undefined) {
 		if (!option || !entity) return;
 		const service = getDomain(entity?.entity_id) as string;
 

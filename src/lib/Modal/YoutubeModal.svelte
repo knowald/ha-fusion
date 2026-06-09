@@ -3,7 +3,7 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { base } from '$app/paths';
 	import { onDestroy, onMount } from 'svelte';
-	import { closeModal } from 'svelte-modals/legacy';
+	import { closeModal } from '$lib/Modals';
 	import { lang, motion, ripple, youtubeAddon } from '$lib/Stores';
 	import { slide } from 'svelte/transition';
 	import Ripple from '$lib/Actions/ripple';

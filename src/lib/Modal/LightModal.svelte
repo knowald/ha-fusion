@@ -37,7 +37,7 @@
 		WHITE: 'white'
 	} as const;
 
-	const modesSupportingColor = [
+	const modesSupportingColor: string[] = [
 		LightColorMode.HS,
 		LightColorMode.XY,
 		LightColorMode.RGB,
@@ -45,7 +45,7 @@
 		LightColorMode.RGBWW
 	];
 
-	const modesSupportingBrightness = [
+	const modesSupportingBrightness: string[] = [
 		...modesSupportingColor,
 		LightColorMode.COLOR_TEMP,
 		LightColorMode.BRIGHTNESS,
@@ -64,8 +64,8 @@
 
 	let supports = $derived({
 		COLOR_MODE: colorModes?.includes(colorMode),
-		COLOR: colorModes?.some((mode: LightColorMode) => modesSupportingColor.includes(mode)),
-		BRIGHTNESS: colorModes?.some((mode: LightColorMode) => modesSupportingBrightness.includes(mode))
+		COLOR: colorModes?.some((mode: string) => modesSupportingColor.includes(mode)),
+		BRIGHTNESS: colorModes?.some((mode: string) => modesSupportingBrightness.includes(mode))
 	});
 
 	$effect(() => {
@@ -170,7 +170,7 @@
 					value={groupEntity?.entity_id}
 					placeholder={$lang('entity')}
 					onchange={(event) => {
-						if (event === null) return;
+						if (event == null) return;
 
 						groupSel = $states?.[event]?.entity_id;
 						sel = $states?.[event];

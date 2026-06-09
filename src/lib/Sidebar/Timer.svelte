@@ -3,7 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { modals } from 'svelte-modals/legacy';
+	import { modals } from '$lib/Modals';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 
@@ -163,7 +163,7 @@
 				onclick={handleClick}
 				use:Ripple={{
 					...$ripple,
-					opacity: $editMode ? '0' : $ripple.opacity
+					opacity: $editMode ? 0 : $ripple.opacity
 				}}
 			>
 				{#if entityState === 'active'}

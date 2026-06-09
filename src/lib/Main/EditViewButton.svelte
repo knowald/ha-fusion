@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion, lang, ripple } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	let { onclicked = undefined, view, onchange = undefined }: { onclicked?: (() => void) | undefined; view: any; onchange?: ((event: { detail: number }) => void) | undefined } = $props();
 

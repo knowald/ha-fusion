@@ -4,7 +4,7 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
@@ -244,7 +244,7 @@
 				{#if source_list.length > 0}
 					<div class="device">
 						<Icon icon="mdi:speaker" height="0.95rem" style="opacity: 0.35;" />
-						<select onchange={(e) => selectDevice(e.target.value)} class="device-sel">
+						<select onchange={(e) => selectDevice((e.target as HTMLSelectElement).value)} class="device-sel">
 							{#each source_list as device}
 								<option value={device} selected={device === current_source}>
 									{device}

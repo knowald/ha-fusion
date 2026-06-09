@@ -7,7 +7,7 @@
 		min: number;
 		max: number;
 		step?: number | undefined;
-		onchange?: ((value: string) => void) | undefined;
+		onchange?: ((value: number) => void) | undefined;
 		oninput?: ((value: number) => void) | undefined;
 	} = $props();
 
@@ -23,7 +23,7 @@
 	 */
 	function handleChange(event: { currentTarget: HTMLInputElement }) {
 		const val = event.currentTarget.value;
-		onchange?.(val);
+		onchange?.(Number(val));
 	}
 </script>
 <div>

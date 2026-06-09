@@ -10,7 +10,7 @@
 	/**
 	 * Updates `entity` value
 	 */
-	function handleEntity(id: number | undefined, entity_id: string) {
+	function handleEntity(id: number | undefined, entity_id: string | undefined) {
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				return { ...condition, entity: entity_id };

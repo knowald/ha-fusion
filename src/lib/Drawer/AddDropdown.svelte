@@ -6,7 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 
 	let { view }: { view?: ViewItem } = $props();
 
@@ -14,13 +14,13 @@
 	let showTriangle = $state(false);
 	let container: HTMLDivElement;
 
-	let SidebarButton: ComponentType = $state(undefined as any);
-	let ObjectButton: ComponentType = $state(undefined as any);
-	let SectionButton: ComponentType = $state(undefined as any);
-	let HorizontalStackButton: ComponentType = $state(undefined as any);
-	let VerticalStackButton: ComponentType = $state(undefined as any);
-	let ScenesButton: ComponentType = $state(undefined as any);
-	let ViewButton: ComponentType = $state(undefined as any);
+	let SidebarButton: Component<any> = $state(undefined as any);
+	let ObjectButton: Component<any> = $state(undefined as any);
+	let SectionButton: Component<any> = $state(undefined as any);
+	let HorizontalStackButton: Component<any> = $state(undefined as any);
+	let VerticalStackButton: Component<any> = $state(undefined as any);
+	let ScenesButton: Component<any> = $state(undefined as any);
+	let ViewButton: Component<any> = $state(undefined as any);
 
 	onMount(async () => {
 		SidebarButton = (await import('$lib/Drawer/SidebarButton.svelte')).default;

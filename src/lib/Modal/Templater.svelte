@@ -17,7 +17,7 @@
 	import Button from '$lib/Main/Button.svelte';
 	import type { ButtonItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
-	import { closeAllModals, closeModal } from 'svelte-modals/legacy';
+	import { closeAllModals, closeModal } from '$lib/Modals';
 	import { slide } from 'svelte/transition';
 	import Select from '$lib/Components/Select.svelte';
 	import parser from 'js-yaml';
@@ -370,7 +370,7 @@ data: {}`;
 				if (!sel?.template) sel.template = {};
 
 				if (event) {
-					sel.template[type] = event;
+					(sel.template as any)[type] = event;
 
 					// example, remove sel.icon in favour of sel.template.icon
 					if (type !== 'set_state') {

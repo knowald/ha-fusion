@@ -22,7 +22,7 @@
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { marked } from 'marked';
 	import { onDestroy } from 'svelte';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import parser from 'js-yaml';
 
@@ -103,6 +103,7 @@
 
 		// Get domain from entity_id
 		const domain = getDomain(entityId);
+		if (!domain) return false;
 
 		// List of domains that are typically display-only
 		const displayOnlyDomains = [
@@ -743,15 +744,16 @@
 		class="left"
 		onclick={(e) => { e.stopPropagation(); if (!isDisplayOnly) handleEvent(e); }}
 		role="button"
-		tabindex={isDisplayOnly ? '-1' : '0'}
+		tabindex={isDisplayOnly ? -1 : 0}
 	>
 		<div
 			class="icon"
 			data-state={stateOn}
 			data-display-only={isDisplayOnly}
 			style:--icon-color={iconColor}
-			style:background-color={!isDisplayOnly &&
-				(sel?.template?.color && template?.color?.output ? template?.color?.output : undefined)}
+			style:background-color={!isDisplayOnly && sel?.template?.color && template?.color?.output
+				? template?.color?.output
+				: undefined}
 			style:background-image={!icon && attributes?.entity_picture
 				? `url(${attributes?.entity_picture})`
 				: image && icon
@@ -809,7 +811,7 @@
 		onmousedown={handleSlideStart}
 		ontouchstart={handleSlideStart}
 		role="button"
-		tabindex={isDisplayOnly ? '-1' : '0'}
+		tabindex={isDisplayOnly ? -1 : 0}
 		aria-pressed={stateOn}
 		class:sliding={isSliding}
 	>

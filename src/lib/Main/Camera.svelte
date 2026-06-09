@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { editMode, itemHeight, states } from '$lib/Stores';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Loader from '$lib/Components/Loader.svelte';
 	import { writable } from 'svelte/store';
 	import type { CameraItem } from '$lib/Types';
@@ -23,7 +23,7 @@
 	let frontend_stream_type = $derived(entity?.attributes?.frontend_stream_type);
 	let size = $derived(sel?.size === 'contain' ? 'contain' : 'cover');
 
-	let props = $derived({
+	let cameraProps = $derived({
 		entity,
 		sel,
 		size,
@@ -94,7 +94,7 @@
 				this={HLS.default}
 				bind:stream_url
 				bind:loaderVisible
-				{...props}
+				{...cameraProps}
 				{attachVideo}
 				{controls}
 				{debug}
@@ -107,7 +107,7 @@
 				this={WebRTC.default}
 				bind:stream_url
 				bind:loaderVisible
-				{...props}
+				{...cameraProps}
 				{attachVideo}
 				{controls}
 				{debug}
@@ -117,7 +117,7 @@
 
 	<!-- camera_proxy -->
 	{#await import('$lib/Main/Camera/Proxy.svelte') then Proxy}
-		<svelte:component this={Proxy.default} bind:loaderVisible {...props} {stream_url} />
+		<svelte:component this={Proxy.default} bind:loaderVisible {...cameraProps} {stream_url} />
 	{/await}
 
 	<!-- info -->

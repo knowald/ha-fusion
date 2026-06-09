@@ -11,7 +11,7 @@
 		historyIndex
 	} from '$lib/Stores';
 	import { onDestroy, tick } from 'svelte';
-	import { modals } from 'svelte-modals/legacy';
+	import { modals } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
@@ -130,7 +130,7 @@
 	title={$lang('undo')}
 	use:Ripple={{
 		...$ripple,
-		opacity: !canUndo ? '0' : $ripple.opacity
+		opacity: !canUndo ? 0 : $ripple.opacity
 	}}
 >
 	<figure>
@@ -147,7 +147,7 @@
 	title={$lang('forward')}
 	use:Ripple={{
 		...$ripple,
-		opacity: !canRedo ? '0' : $ripple.opacity
+		opacity: !canRedo ? 0 : $ripple.opacity
 	}}
 >
 	<figure>

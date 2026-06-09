@@ -36,6 +36,8 @@ export interface Views {
 	isDndShadowItem?: boolean;
 }
 
+export type Item = ButtonItem | CameraItem | EmptyItem | DaysSinceItem | SpotifyPlayerItem | SpotifyPlayerLargeItem;
+
 export interface Section {
 	id?: number;
 	name?: string;

@@ -44,7 +44,7 @@
 		const spEntity = getSpotifyPlusEntity();
 		if (!spEntity || !$connection || !$services?.spotifyplus) return;
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_spotify_connect_devices',
@@ -242,7 +242,7 @@
 				class="input"
 				value={default_device || ''}
 				onchange={(event) => {
-					default_device = event.target?.value || undefined;
+					default_device = (event.target as HTMLSelectElement)?.value || undefined;
 					set('default_device', default_device ? { target: { value: default_device } } : undefined);
 				}}
 			>

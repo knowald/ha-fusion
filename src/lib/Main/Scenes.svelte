@@ -5,7 +5,7 @@
 	import { getName } from '$lib/Utils';
 	import Icon, { loadIcon } from '@iconify/svelte';
 	import { onDestroy } from 'svelte';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 

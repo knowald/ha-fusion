@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import Icon from '@iconify/svelte';
 
 	let { eyeWidth = $bindable() }: { eyeWidth: number } = $props();

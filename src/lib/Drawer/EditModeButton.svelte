@@ -13,7 +13,7 @@
 		clickOriginatedFromMenu
 	} from '$lib/Stores';
 	import { tick } from 'svelte';
-	import { modals, openModal, closeModal } from 'svelte-modals/legacy';
+	import { modals, openModal, closeModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 

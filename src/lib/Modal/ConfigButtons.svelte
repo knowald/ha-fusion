@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { dashboard, record, lang, editMode, ripple, motion } from '$lib/Stores';
 	import { tick } from 'svelte';
-	import { closeModal, openModal } from 'svelte-modals/legacy';
+	import { closeModal, openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import { fade } from 'svelte/transition';
 

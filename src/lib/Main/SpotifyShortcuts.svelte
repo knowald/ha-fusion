@@ -21,7 +21,7 @@
 
 		// Fetch device list and pick first available
 		try {
-			const response = await $connection!.sendMessagePromise({
+			const response: any = await $connection!.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_spotify_connect_devices',

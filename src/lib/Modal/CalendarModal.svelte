@@ -14,8 +14,7 @@
 	import Calendar from '@event-calendar/core';
 	import DayGrid from '@event-calendar/day-grid';
 	import List from '@event-calendar/list';
-	import { openModal } from 'svelte-modals/legacy';
-	import Date from '$lib/Sidebar/Date.svelte';
+	import { openModal } from '$lib/Modals';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
@@ -23,8 +22,8 @@
 		id?: string;
 		resourceIds?: any[];
 		allDay?: boolean;
-		start?: Date;
-		end?: Date;
+		start?: { date?: string; dateTime?: string };
+		end?: { date?: string; dateTime?: string };
 		title?: string;
 		editable?: boolean | undefined;
 		startEditable?: boolean | undefined;

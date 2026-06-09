@@ -104,7 +104,8 @@
 		});
 	}
 
-	function handleFanSpeedChange(fan_speed: string) {
+	function handleFanSpeedChange(fan_speed: string | undefined) {
+		if (!fan_speed) return;
 		callService($connection, 'vacuum', 'set_fan_speed', {
 			entity_id: entity?.entity_id,
 			fan_speed
@@ -125,7 +126,8 @@
 		});
 	}
 
-	function handleMopIntensityChange(value: string) {
+	function handleMopIntensityChange(value: string | undefined) {
+		if (!value) return;
 		if (!mopIntensityEntity) return;
 		callService($connection, 'select', 'select_option', {
 			entity_id: mopIntensityEntity,

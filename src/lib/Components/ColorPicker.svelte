@@ -88,7 +88,7 @@
 	});
 
 	onMount(async () => {
-		picker = iro.ColorPicker(element, {
+		picker = iro.ColorPicker(element!, {
 			width: 275,
 			color: `rgb(${rgbColor || '255, 255, 255'})`,
 			handleRadius: 20,
@@ -165,7 +165,7 @@
 	}
 
 	function setHandleTransition(value: string) {
-		const handle: SVGElement | null = element.querySelector('svg.IroHandle');
+		const handle: SVGElement | null = element?.querySelector('svg.IroHandle') ?? null;
 		if (handle) handle.style.transition = value;
 	}
 

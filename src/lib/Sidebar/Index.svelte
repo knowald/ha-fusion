@@ -3,35 +3,35 @@
 	import { dashboard, motion, showDrawer, editMode, record, dragging } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
 	import { sortable } from '$lib/Actions/sortable';
-	import { openModal } from 'svelte-modals/legacy';
+	import { openModal } from '$lib/Modals';
 	import { generateId, getSelected } from '$lib/Utils';
 	import type { SidebarItem } from '$lib/Types';
 	import '$lib/Sidebar/Sidebar.css';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 
 	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
 
 	let importedComponents: (string | undefined)[] = [];
 	let mountedComponents = $state(false);
 
-	let Bar: ComponentType = $state(undefined as any);
-	let Camera: ComponentType = $state(undefined as any);
-	let Configure: ComponentType = $state(undefined as any);
-	let Date: ComponentType = $state(undefined as any);
-	let Divider: ComponentType = $state(undefined as any);
-	let Graph: ComponentType = $state(undefined as any);
-	let History: ComponentType = $state(undefined as any);
-	let Iframe: ComponentType = $state(undefined as any);
-	let Image: ComponentType = $state(undefined as any);
-	let Navigate: ComponentType = $state(undefined as any);
-	let Notifications: ComponentType = $state(undefined as any);
-	let Radial: ComponentType = $state(undefined as any);
-	let Sensor: ComponentType = $state(undefined as any);
-	let Template: ComponentType = $state(undefined as any);
-	let Time: ComponentType = $state(undefined as any);
-	let Timer: ComponentType = $state(undefined as any);
-	let Weather: ComponentType = $state(undefined as any);
-	let WeatherForecast: ComponentType = $state(undefined as any);
+	let Bar: Component<any> = $state(undefined as any);
+	let Camera: Component<any> = $state(undefined as any);
+	let Configure: Component<any> = $state(undefined as any);
+	let Date: Component<any> = $state(undefined as any);
+	let Divider: Component<any> = $state(undefined as any);
+	let Graph: Component<any> = $state(undefined as any);
+	let History: Component<any> = $state(undefined as any);
+	let Iframe: Component<any> = $state(undefined as any);
+	let Image: Component<any> = $state(undefined as any);
+	let Navigate: Component<any> = $state(undefined as any);
+	let Notifications: Component<any> = $state(undefined as any);
+	let Radial: Component<any> = $state(undefined as any);
+	let Sensor: Component<any> = $state(undefined as any);
+	let Template: Component<any> = $state(undefined as any);
+	let Time: Component<any> = $state(undefined as any);
+	let Timer: Component<any> = $state(undefined as any);
+	let Weather: Component<any> = $state(undefined as any);
+	let WeatherForecast: Component<any> = $state(undefined as any);
 
 	const imports = {
 		bar: () => import('$lib/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),

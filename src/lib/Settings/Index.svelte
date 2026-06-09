@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { configuration, editMode, lang, motion, ripple, selectedLanguage } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { modals, closeModal } from 'svelte-modals/legacy';
+	import { modals, closeModal } from '$lib/Modals';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Language from '$lib/Settings/Language.svelte';
 	import Addons from '$lib/Settings/Addons.svelte';
@@ -138,7 +138,7 @@
 				<div class="save-container">
 					<button
 						class="action save"
-						onclick={(e) => { e.preventDefault(); handleSubmit(e); }}
+						onclick={(e) => { e.preventDefault(); handleSubmit(); }}
 						use:Ripple={{
 							...$ripple,
 							color: 'rgba(0, 0, 0, 0.35)'
@@ -158,7 +158,7 @@
 					{/if}
 				</div>
 
-				<button class="action done" onclick={(e) => { e.preventDefault(); closeModal(e); }} use:Ripple={$ripple}>
+				<button class="action done" onclick={(e) => { e.preventDefault(); closeModal(); }} use:Ripple={$ripple}>
 					{$lang('done')}
 				</button>
 			</div>

@@ -5,7 +5,7 @@
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { closeModal } from 'svelte-modals/legacy';
+	import { closeModal } from '$lib/Modals';
 
 	let { isOpen, sel, info }: {
 		isOpen: boolean;
@@ -135,7 +135,7 @@
 				class:done={!supports?.DELETE_EVENT || busy}
 				use:Ripple={{
 					...$ripple,
-					opacity: !supports?.DELETE_EVENT || busy ? '0' : $ripple.opacity
+					opacity: !supports?.DELETE_EVENT || busy ? 0 : $ripple.opacity
 				}}
 				style:opacity={!supports?.DELETE_EVENT || busy ? '0.3' : '1'}
 				disabled={!supports?.DELETE_EVENT || busy}

@@ -164,6 +164,7 @@
 				placeholder={$lang('mode')}
 				value={attributes?.preset_mode}
 				onchange={(event) => {
+					if (event == null) return;
 					handleChange('set_preset_mode', 'preset_mode', event);
 				}}
 			/>

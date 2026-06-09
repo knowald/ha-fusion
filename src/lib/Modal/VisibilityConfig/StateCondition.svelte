@@ -15,7 +15,7 @@
 	/**
 	 * Updates `entity` value
 	 */
-	function handleEntity(id: number | undefined, entity_id: string) {
+	function handleEntity(id: number | undefined, entity_id: string | undefined) {
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				return { ...condition, entity: entity_id };
@@ -27,7 +27,8 @@
 	/**
 	 * Updates `state` or `state_not` keys
 	 */
-	function handleEquals(id: number | undefined, key: string) {
+	function handleEquals(id: number | undefined, key: string | undefined) {
+		if (!key) return;
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				const _condition = { ...condition };
