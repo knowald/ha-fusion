@@ -40,7 +40,7 @@
 	let name = $state(sel?.name);
 	let color = $state(sel?.color);
 	let icon = $state(sel?.icon);
-	let state = $state(sel?.state);
+	let stateOverride = $state(sel?.state);
 	let computedIcon = $state<string>();
 	let displayOnly = $state(sel?.displayOnly || false);
 	let slideBrightness = $state(sel?.slide_brightness !== false);
@@ -255,9 +255,9 @@
 
 		<div class="icon-gallery-container">
 			<InputClear
-				condition={state}
+				condition={stateOverride}
 				onclear={() => {
-					state = undefined;
+					stateOverride = undefined;
 					set('state');
 				}}
 			>
@@ -271,7 +271,7 @@
 						$lang('state')}
 					autocomplete="off"
 					spellcheck="false"
-					bind:value={state}
+					bind:value={stateOverride}
 					onchange={(event) => set('state', event)}
 					style:padding
 					disabled={Boolean(template?.state?.output)}

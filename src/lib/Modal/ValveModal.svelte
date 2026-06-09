@@ -10,7 +10,7 @@
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	let entity = $derived($states[sel?.entity_id]);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
@@ -37,7 +37,7 @@
 
 		<h2>{$lang('state')}</h2>
 
-		{$lang(state)}
+		{$lang(entityState)}
 
 		<h2>{$lang('buttons')}</h2>
 

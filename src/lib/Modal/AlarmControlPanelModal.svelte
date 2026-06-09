@@ -13,7 +13,7 @@
 
 	let entity = $derived($states[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 
 	let code = $state('');
 	let reject = $state<boolean>(false);
@@ -97,11 +97,11 @@
 
 		<h2>{$lang('state')}</h2>
 
-		<span class:arming={state === 'arming'}>
+		<span class:arming={entityState === 'arming'}>
 			<StateLogic entity_id={sel?.entity_id} selected={sel} />
 		</span>
 
-		{#if state === 'disarmed'}
+		{#if entityState === 'disarmed'}
 			<h2>{$lang('alarm_modes_label')}</h2>
 
 			<Select

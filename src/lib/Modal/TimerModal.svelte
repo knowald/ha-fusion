@@ -20,7 +20,7 @@
 		}
 	});
 
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 
 	onMount(() => {
@@ -50,7 +50,7 @@
 		<h2>{$lang('options')}</h2>
 
 		<div class="button-container">
-			{#if state === 'active'}
+			{#if entityState === 'active'}
 				<button onclick={() => handleClick('pause')} use:Ripple={$ripple}>
 					{$lang('pause')}
 				</button>
@@ -77,7 +77,7 @@
 			<button
 				class="input overflow"
 				onclick={() => {
-					const prevState = state;
+					const prevState = entityState;
 					callService($connection, 'timer', 'start', { entity_id, duration });
 					if (prevState !== 'active') callService($connection, 'timer', 'pause', { entity_id });
 				}}

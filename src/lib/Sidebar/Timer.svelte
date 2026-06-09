@@ -24,7 +24,7 @@
 		}
 	});
 
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 	let finishes_at = $derived(attributes?.finishes_at);
 	let remaining = $derived(attributes?.remaining);
@@ -32,11 +32,11 @@
 	$effect(() => {
 		if (end) init();
 	});
-	let service = $derived(state === 'active' ? 'pause' : 'start');
+	let service = $derived(entityState === 'active' ? 'pause' : 'start');
 
 	// make pausedState global to sync across components
 	$effect(() => {
-		if (state !== 'paused' || !remaining || clicked) return;
+		if (entityState !== 'paused' || !remaining || clicked) return;
 		timers.update((currentTimers) => {
 			if (entity_id) {
 				return {
@@ -96,7 +96,7 @@
 			callService($connection, 'timer', service, { entity_id });
 
 			// prevents flickering
-			if (state === 'active') {
+			if (entityState === 'active') {
 				// store current time when pausing
 				timers.update((currentTimers) => {
 					if (entity_id) {
@@ -124,10 +124,10 @@
 		class="container"
 		style:pointer-events={$modals.length !== 0 ? 'none' : 'unset'}
 		style:cursor={$editMode || $modals.length !== 0 ? 'unset' : 'pointer'}
-		style:background-color={state === 'active' && entity_id
+		style:background-color={entityState === 'active' && entity_id
 			? 'rgba(0, 0, 0, 0.25)'
 			: 'rgba(0, 0, 0, 0)'}
-		style:padding={state === 'active' && entity_id
+		style:padding={entityState === 'active' && entity_id
 			? '0.35rem 0.65rem 0.35rem 0.45rem'
 			: '0 0.65rem 0 0.45rem'}
 		style:transition="color {$motion}ms ease, background-color {$motion}ms ease, padding {$motion}ms
@@ -143,11 +143,11 @@
 			</div>
 
 			<div class="counter" style:color={finishes_at ? 'orange' : 'rgba(255, 255, 255, 0.5)'}>
-				{#if state === 'active' && entity_id}
+				{#if entityState === 'active' && entity_id}
 					{displayTime || $timers[entity_id].pausedState}
-				{:else if state === 'paused' && entity_id}
+				{:else if entityState === 'paused' && entity_id}
 					{$timers[entity_id].pausedState}
-				{:else if state === 'idle' && attributes?.duration}
+				{:else if entityState === 'idle' && attributes?.duration}
 					{format(...parseRemaining(attributes.duration))}
 				{:else}
 					--:--
@@ -155,7 +155,7 @@
 			</div>
 		</div>
 
-		{#if state}
+		{#if entityState}
 			<button
 				class="start_pause"
 				style:cursor={$editMode ? 'unset' : 'pointer'}
@@ -166,7 +166,7 @@
 					opacity: $editMode ? '0' : $ripple.opacity
 				}}
 			>
-				{#if state === 'active'}
+				{#if entityState === 'active'}
 					<Icon icon="ic:round-pause" height="none" />
 				{:else}
 					<Icon icon="ic:round-play-arrow" height="none" />

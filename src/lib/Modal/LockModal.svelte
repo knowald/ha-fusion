@@ -16,7 +16,7 @@
 
 	let entity = $derived($states[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let toggle = $derived(entity?.state === 'unlocking' || entity?.state === 'unlocked');
 
 	let attributes = $derived(entity?.attributes);
@@ -26,7 +26,7 @@
 	}));
 
 	function handleClick() {
-		const service = state === 'locked' ? 'unlock' : 'lock';
+		const service = entityState === 'locked' ? 'unlock' : 'lock';
 		callService($connection, 'lock', service, { entity_id });
 	}
 

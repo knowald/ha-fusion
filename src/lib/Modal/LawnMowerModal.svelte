@@ -26,7 +26,7 @@
 	// };
 
 	let entity = $derived($states?.[sel?.entity_id]);
-	let state = $derived(entity?.state as 'paused' | 'mowing' | 'docked' | 'error');
+	let entityState = $derived(entity?.state as 'paused' | 'mowing' | 'docked' | 'error');
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
@@ -52,7 +52,7 @@
 
 		<h2>{$lang('state')}</h2>
 
-		{$lang(state)}
+		{$lang(entityState)}
 
 		<h2>{$lang('lawn_mower_commands')?.replace(':', '')}</h2>
 

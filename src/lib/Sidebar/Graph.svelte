@@ -95,7 +95,7 @@
 
 	let unit_of_measurement = $state<string>('');
 	let friendlyName = $state<string | undefined>();
-	let state = $state<string>();
+	let entityState = $state<string>();
 	let not_hover_state = $state<string>();
 
 	$effect(() => {
@@ -104,7 +104,7 @@
 
 			friendlyName = getName({ name }, entity);
 
-			state = entity?.state;
+			entityState = entity?.state;
 
 			not_hover_state = Intl.NumberFormat($selectedLanguage, {
 				maximumFractionDigits: 1
@@ -171,7 +171,7 @@
 		{/if}
 	</p>
 	<p style:margin-bottom="0.25rem">
-		{#if state}
+		{#if entityState}
 			{#if hovering && point?.['y']}
 				{hover_state}
 				{unit_of_measurement}

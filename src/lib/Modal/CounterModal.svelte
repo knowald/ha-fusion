@@ -9,10 +9,10 @@
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	let entity = $derived($states[sel?.entity_id]);
-	let state = $derived(Number(entity?.state));
+	let entityState = $derived(Number(entity?.state));
 	let attributes = $derived(entity?.attributes);
-	let canIncrement = $derived(state !== attributes?.maximum);
-	let canDecrement = $derived(state !== attributes?.minimum);
+	let canIncrement = $derived(entityState !== attributes?.maximum);
+	let canDecrement = $derived(entityState !== attributes?.minimum);
 
 	/**
 	 * Handles counter service call
@@ -46,7 +46,7 @@
 				-
 			</button>
 
-			<span>{state}</span>
+			<span>{entityState}</span>
 
 			<button
 				title={$lang('increment')}

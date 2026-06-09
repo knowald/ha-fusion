@@ -8,7 +8,7 @@
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	let entity = $derived($states[sel?.entity_id]);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let type = $derived(getType(entity?.attributes?.has_date, entity?.attributes?.has_time));
 	let domain = $derived(getDomain(entity.entity_id) as string);
 
@@ -48,16 +48,16 @@
 					day: 'numeric',
 					hour: '2-digit',
 					minute: '2-digit'
-				}).format(new Date(state));
+				}).format(new Date(entityState));
 			} else if (type === 'date') {
 				return new Intl.DateTimeFormat($selectedLanguage, {
 					year: 'numeric',
 					month: 'long',
 					day: 'numeric'
-				}).format(new Date(state));
+				}).format(new Date(entityState));
 			} else if (type === 'time') {
 				// 'HH:MM:SS'
-				const timeParts = state.split(':');
+				const timeParts = entityState.split(':');
 				const date = new Date();
 				date.setHours(timeParts[0], timeParts[1], timeParts[2] || 0);
 				return new Intl.DateTimeFormat($selectedLanguage, {
@@ -74,7 +74,7 @@
 	}
 
 	function convert(state: string) {
-		const date = new Date(state);
+		const date = new Date(entityState);
 		const year = date.getUTCFullYear();
 		const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
 		const day = date.getUTCDate().toString().padStart(2, '0');
@@ -97,14 +97,14 @@
 			{/if}
 
 			<span class="align-right">
-				{format(state, type || 'datetime')}
+				{format(entityState, type || 'datetime')}
 			</span>
 		</h2>
 
 		<input
 			class="input"
 			type={domain === 'datetime' || type === 'datetime' ? 'datetime-local' : type}
-			value={domain === 'datetime' ? convert(state) : state}
+			value={domain === 'datetime' ? convert(entityState) : entityState}
 			onchange={handleChange}
 		/>
 

@@ -10,7 +10,7 @@
 
 	let entity_id = $derived(sel?.entity_id);
 	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 
 	// Media info
@@ -20,9 +20,9 @@
 	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	let is_playing = $derived(state === 'playing');
-	let is_paused = $derived(state === 'paused');
-	let is_idle = $derived(state === 'idle' || !entity);
+	let is_playing = $derived(entityState === 'playing');
+	let is_paused = $derived(entityState === 'paused');
+	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Progress
 	let media_duration = $derived(attributes?.media_duration);

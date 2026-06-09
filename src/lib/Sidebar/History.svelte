@@ -57,7 +57,7 @@
 		});
 	});
 
-	let state = $derived($states?.[entity_id]?.state);
+	let entityState = $derived($states?.[entity_id]?.state);
 
 	type Event = {
 		start: any;
@@ -153,8 +153,8 @@
 
 		{#if durationDate}
 			{durationDate || ''} &nbsp;
-		{:else if state}
-			{$lang(state) || ''} &nbsp;
+		{:else if entityState}
+			{$lang(entityState) || ''} &nbsp;
 		{:else}
 			&nbsp;
 		{/if}

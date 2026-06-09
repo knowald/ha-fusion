@@ -24,7 +24,7 @@
 	$effect(() => {
 		if (entity_id) entity = $states?.[entity_id];
 	});
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	$effect(() => {
 		if (math && id) {
 			cache[id] = {};
@@ -33,11 +33,11 @@
 
 	$effect(() => {
 		if (entity) {
-			let key = `${state}_${math}`;
+			let key = `${entityState}_${math}`;
 			if (id && cache?.[id]?.[key]) {
 				expression = cache[id][key];
 			} else {
-				expression = evaluate(state, math) || 0;
+				expression = evaluate(entityState, math) || 0;
 			}
 		}
 	});
@@ -54,7 +54,7 @@
 	 * applyMathExpression(5, "x*2");  // returns 10
 	 */
 	function evaluate(state: string, math: string | undefined) {
-		if (!math || !id || math.trim() === 'x') return Number(state);
+		if (!math || !id || math.trim() === 'x') return Number(entityState);
 
 		// trim white space and use dots
 		const format = math.trim().replace(',', '.');
@@ -62,10 +62,10 @@
 		try {
 			// evaluate math expression
 			const func = new Function('x', `return ${format}`);
-			const result = func(Number(state));
+			const result = func(Number(entityState));
 			if (typeof result === 'number') {
 				cache[id] = cache[id] || {};
-				cache[id][`${state}_${math}`] = result;
+				cache[id][`${entityState}_${math}`] = result;
 
 				// clear error
 				if (id) delete $barErrors[id];

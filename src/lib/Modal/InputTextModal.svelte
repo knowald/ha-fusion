@@ -11,7 +11,7 @@
 	let showPassword = $state(false);
 
 	let entity = $derived($states[sel?.entity_id]);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 
 	/**
 	 * Handles input_datetime
@@ -45,7 +45,7 @@
 			class="input"
 			min={entity?.attributes?.min}
 			max={entity?.attributes?.max}
-			value={state === 'unknown' ? '' : state}
+			value={entityState === 'unknown' ? '' : entityState}
 			type={entity?.attributes?.mode === 'password' ? (showPassword ? 'text' : 'password') : 'text'}
 			onchange={handleChange}
 		/>

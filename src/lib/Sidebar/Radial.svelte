@@ -29,7 +29,7 @@
 		}, $motion);
 	});
 
-	let state = $derived(Math.min(Math.max(Number(entity?.state || 0), 0), 100));
+	let entityState = $derived(Math.min(Math.max(Number(entity?.state || 0), 0), 100));
 
 	let stroke = $derived(strokeWidth === null || !strokeWidth ? 9 : strokeWidth);
 
@@ -55,7 +55,7 @@
 					{...attributes}
 					stroke={color.fillColor}
 					stroke-dasharray={circumference}
-					style:--dashoffset={circumference * (1 - state / 100)}
+					style:--dashoffset={circumference * (1 - entityState / 100)}
 					style:transition="stroke-dashoffset {mounted ? $motion : 0}ms ease"
 				/>
 			{/if}
@@ -70,7 +70,7 @@
 			style: 'percent',
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 1
-		}).format(state / 100)}
+		}).format(entityState / 100)}
 	</div>
 </div>
 

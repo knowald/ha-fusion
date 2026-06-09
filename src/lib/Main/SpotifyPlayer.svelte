@@ -17,7 +17,7 @@
 
 	// Get entity state
 	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 
 	// Media info
@@ -27,9 +27,9 @@
 	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	let is_playing = $derived(state === 'playing');
-	let is_paused = $derived(state === 'paused');
-	let is_idle = $derived(state === 'idle' || !entity);
+	let is_playing = $derived(entityState === 'playing');
+	let is_paused = $derived(entityState === 'paused');
+	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Recent track artwork for rotating background
 	let recentArtwork: string[] = $state([]);
@@ -130,7 +130,7 @@
 
 	// Display text
 	let display_title = $derived(media_title || name || $lang('spotify_player') || 'Spotify');
-	let display_artist = $derived(media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : state));
+	let display_artist = $derived(media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : entityState));
 
 	function handleClick() {
 		if ($editMode) {

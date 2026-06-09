@@ -13,7 +13,7 @@
 	const MAX_ITEMS = 4;
 
 	let entity = $derived($states[sel?.entity_id]);
-	let state = $derived(entity?.state);
+	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
@@ -73,7 +73,7 @@
 					: '#43a047'
 	);
 
-	let statusText = $derived(getStatusText(state, attributes));
+	let statusText = $derived(getStatusText(entityState, attributes));
 	let hideBattery = $derived(sel?.hide_battery || false);
 	let plans = $derived((sel?.vacuum_plans as string[]) || []);
 	let rooms = $derived((sel?.vacuum_rooms as { id: string; name: string }[]) || []);
