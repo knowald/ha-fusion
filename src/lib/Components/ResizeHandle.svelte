@@ -5,8 +5,6 @@
 
 	let dragging: boolean = $state(false);
 
-	$effect(() => { if (!dragging) $record(); });
-
 	function handlePointer(event: PointerEvent) {
 		const layoutElement: HTMLElement | null = document.getElementById('layout');
 		if (!layoutElement) return;
@@ -17,6 +15,10 @@
 		} else if (event?.type === 'pointerup') {
 			dragging = false;
 			layoutElement.style.transition = `all ${$motion}ms ease`;
+			// snapshot the resized width for undo history; was an `$effect` on
+			// `dragging`, but snapshot() reads $dashboard so the effect re-ran on
+			// every dashboard change (e.g. undo) and truncated the redo future
+			$record();
 		}
 	}
 

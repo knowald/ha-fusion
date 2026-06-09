@@ -23,6 +23,11 @@
 	}
 
 	async function handleDragEnd() {
+		// `view` is a plain prop object, so sortable's mutations don't notify the
+		// $dashboard store and keyed each blocks keep stale refs - the UI would
+		// render the pre-drag order while the data already changed. Deep clone to
+		// refresh all refs, same as undo/redo does when restoring history.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
 		$record();
 		$dragging = false;
 		await tick();
