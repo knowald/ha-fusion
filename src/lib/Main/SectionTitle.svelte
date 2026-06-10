@@ -5,7 +5,7 @@
 		onsubmit = undefined
 	}: { value: string; onsubmit?: (value: string) => void } = $props();
 	let value = $derived(initialValue);
-	let width: number;
+	let width: number = $state(undefined as any);
 	let input: HTMLInputElement;
 
 	function handleSubmit() {

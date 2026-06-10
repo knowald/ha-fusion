@@ -12,7 +12,7 @@
 		isOpen
 	}: { confirm: any; cancel: any; title: string; message: string; isOpen: boolean } = $props();
 
-	let cancelButton: HTMLButtonElement;
+	let cancelButton = $state<HTMLButtonElement>();
 
 	onMount(() => {
 		if (cancelButton) cancelButton.focus();

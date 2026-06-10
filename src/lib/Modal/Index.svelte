@@ -204,9 +204,7 @@
 			class:warning={!backdropImage}
 		>
 			<div class="header">
-				<h1>
-					{#if title}{@render title()}{/if}
-				</h1>
+				{#if title}{@render title()}{/if}
 
 				<button
 					onclick={() => {

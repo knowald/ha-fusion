@@ -13,7 +13,7 @@
 	} = $props();
 	let container: HTMLDivElement;
 	let pointerDown = $state(false);
-	let touch: boolean;
+	let touch = $state<boolean>();
 	let timeout: ReturnType<typeof setTimeout> | undefined;
 	let touchScrolling = $state(false);
 	let startY: number;

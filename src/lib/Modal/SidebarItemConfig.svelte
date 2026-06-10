@@ -40,7 +40,7 @@
 	let { isOpen, sel }: { isOpen: boolean; sel: SidebarItem } = $props();
 
 	let searchString = $state('');
-	let searchElement: HTMLInputElement;
+	let searchElement = $state<HTMLInputElement>();
 	let modalTransitionEnd = $state(false);
 
 	// get random preview entities
@@ -405,7 +405,7 @@
 		</div>
 
 		<div class="container">
-			{#each filter as { id, type, component, props, style } (id)}
+			{#each filter as { id, type, component: Component, props, style } (id)}
 				<button
 					onclick={() => handleClick(id)}
 					animate:flip={{ duration: $motion }}
@@ -417,7 +417,7 @@
 					</div>
 
 					<div class="preview" class:camera={id === 'camera'}>
-						<svelte:component this={component} {...props} />
+						<Component {...props} />
 					</div>
 				</button>
 			{/each}

@@ -11,11 +11,11 @@
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: ViewItem } = $props();
 
-	let name = sel?.name;
+	const nameConst = sel?.name;
 
-	let icon: string | undefined = sel?.icon;
+	let name = $state(sel?.name);
 
-	const nameConst = name;
+	let icon: string | undefined = $state(sel?.icon);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

@@ -35,7 +35,7 @@
 	} = $props();
 
 	let hls: Hls | undefined;
-	let video: HTMLVideoElement;
+	let video: HTMLVideoElement = $state(undefined as any);
 	let busy: boolean = false;
 
 	$effect(() => {

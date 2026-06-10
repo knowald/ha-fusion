@@ -11,7 +11,7 @@
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();
 
-	let size = sel?.size;
+	let size = $state(sel?.size);
 
 	const defaultValue = '50';
 

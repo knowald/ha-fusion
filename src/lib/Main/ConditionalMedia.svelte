@@ -402,7 +402,7 @@
 							{#await import('$lib/Components/Marquee.svelte')}
 								loading
 							{:then Marquee}
-								<svelte:component this={Marquee.default}>
+								<Marquee.default>
 									<!-- snippet -->
 									{#if media_artist && media_title}
 										{media_artist} - {media_title}
@@ -414,7 +414,7 @@
 										<StateLogic entity_id={current_media_player?.entity_id} selected={undefined} />
 									{/if}
 									{@html '&nbsp;'.repeat(4)}
-								</svelte:component>
+								</Marquee.default>
 							{/await}
 						{:else}
 							<!-- snippet -->
@@ -456,7 +456,7 @@
 							{#await import('$lib/Components/Marquee.svelte')}
 								loading
 							{:then Marquee}
-								<svelte:component this={Marquee.default}>
+								<Marquee.default>
 									<!-- snippet -->
 									{#if entity_data?.title}
 										{entity_data?.title}
@@ -468,7 +468,7 @@
 										<StateLogic entity_id={sel?.entity_id} selected={sel} />
 									{/if}
 									{@html '&nbsp;'.repeat(4)}
-								</svelte:component>
+								</Marquee.default>
 							{/await}
 						{:else}
 							<!-- snippet -->

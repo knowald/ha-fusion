@@ -80,20 +80,20 @@
 			out:fade={{ duration: $motion / 3, easing: cubicOut }}
 		>
 			{#if !$dashboard.hide_sidebar}
-				<svelte:component this={SidebarButton} onclicked={handleClick} />
+				<SidebarButton onclicked={handleClick} />
 			{/if}
 
-			<svelte:component this={ObjectButton} {view} onclicked={handleClick} />
+			<ObjectButton {view} onclicked={handleClick} />
 
-			<svelte:component this={SectionButton} {view} onclicked={handleClick} />
+			<SectionButton {view} onclicked={handleClick} />
 
-			<svelte:component this={HorizontalStackButton} {view} onclicked={handleClick} />
+			<HorizontalStackButton {view} onclicked={handleClick} />
 
-			<svelte:component this={VerticalStackButton} {view} onclicked={handleClick} />
+			<VerticalStackButton {view} onclicked={handleClick} />
 
-			<svelte:component this={ScenesButton} {view} onclicked={handleClick} />
+			<ScenesButton {view} onclicked={handleClick} />
 
-			<svelte:component this={ViewButton} onclicked={handleClick} />
+			<ViewButton onclicked={handleClick} />
 		</div>
 	{/if}
 

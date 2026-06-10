@@ -11,8 +11,8 @@
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: IframeItem } = $props();
 
-	let url = sel?.url;
-	let size = sel?.size;
+	let url = $state(sel?.url);
+	let size = $state(sel?.size);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);

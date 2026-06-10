@@ -6,7 +6,7 @@
 
 	let { isOpen }: { isOpen: boolean } = $props();
 
-	let token = '';
+	let token = $state('');
 
 	async function handleClick() {
 		if (!token) return;

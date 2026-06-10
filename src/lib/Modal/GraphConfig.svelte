@@ -31,12 +31,12 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
+	let name = $state(sel?.name);
 
-	let options: { id: string; label: string }[];
-	let stroke = sel?.stroke;
+	let options = $state<{ id: string; label: string }[]>();
+	let stroke = $state(sel?.stroke);
 
-	let numberElement: HTMLInputElement;
+	let numberElement = $state<HTMLInputElement>();
 
 	const range = {
 		min: 0,

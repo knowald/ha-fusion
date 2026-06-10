@@ -24,7 +24,7 @@
 		languages: { id: string; label: string }[];
 	} = $props();
 
-	let formElement: HTMLFormElement;
+	let formElement: HTMLFormElement = $state(undefined as any);
 	let timeout: ReturnType<typeof setTimeout> | null;
 	let responseCode: number | undefined = $state(undefined);
 

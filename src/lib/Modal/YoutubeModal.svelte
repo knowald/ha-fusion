@@ -16,7 +16,7 @@
 	let event: YouTubeEvent | undefined = $state(undefined);
 	let data: any = $state(undefined);
 	let copied = $state(false);
-	let inputCode: HTMLInputElement;
+	let inputCode = $state<HTMLInputElement>();
 
 	/**
 	 * If no credentials are saved, it starts the auth flow

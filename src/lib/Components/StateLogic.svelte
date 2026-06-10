@@ -43,10 +43,10 @@
 		{#await import('$lib/Components/Marquee.svelte')}
 			{@html title}
 		{:then Marquee}
-			<svelte:component this={Marquee.default}>
+			<Marquee.default>
 				{media_title}
 				{@html '&nbsp;'.repeat(4)}
-			</svelte:component>
+			</Marquee.default>
 		{/await}
 	{:else}
 		{@html title}
@@ -115,7 +115,7 @@
 {:else if entityState}
 	{#if selected?.marquee && contentWidth && contentWidth > 153 && !$editMode}
 		{#await import('$lib/Components/Marquee.svelte') then Marquee}
-			<svelte:component this={Marquee.default}>
+			<Marquee.default>
 				{@html $lang(entityState)}
 
 				<!-- Unit -->
@@ -123,7 +123,7 @@
 					{attributes.unit_of_measurement}
 				{/if}
 				{@html '&nbsp;'.repeat(4)}
-			</svelte:component>
+			</Marquee.default>
 		{/await}
 	{:else}
 		{@html $lang(entityState)}

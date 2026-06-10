@@ -15,12 +15,12 @@
 	let entity = $state<HassEntity>(undefined!);
 	let map: Map;
 	let popup: Popup;
-	let mode: 'demo' | 'light' | 'dark';
-	let container: HTMLDivElement;
-	let geolocate: HTMLDivElement;
-	let theme: HTMLDivElement;
-	let markerContainer: HTMLDivElement;
-	let markerIcon: HTMLButtonElement;
+	let mode: 'demo' | 'light' | 'dark' = $state(undefined as any);
+	let container: HTMLDivElement = $state(undefined as any);
+	let geolocate: HTMLDivElement = $state(undefined as any);
+	let theme: HTMLDivElement = $state(undefined as any);
+	let markerContainer: HTMLDivElement = $state(undefined as any);
+	let markerIcon = $state<HTMLButtonElement>();
 	let controlButtonsIconColor: string;
 	let loadError = $state<boolean>(false);
 

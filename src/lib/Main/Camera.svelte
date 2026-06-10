@@ -98,8 +98,7 @@
 	{#if frontend_stream_type === 'hls'}
 		<!-- hls -->
 		{#await import('$lib/Main/Camera/HLS.svelte') then HLS}
-			<svelte:component
-				this={HLS.default}
+			<HLS.default
 				bind:stream_url
 				bind:loaderVisible
 				{...cameraProps}
@@ -111,8 +110,7 @@
 	{:else if frontend_stream_type === 'web_rtc'}
 		<!-- web_rtc -->
 		{#await import('$lib/Main/Camera/WebRTC.svelte') then WebRTC}
-			<svelte:component
-				this={WebRTC.default}
+			<WebRTC.default
 				bind:stream_url
 				bind:loaderVisible
 				{...cameraProps}
@@ -125,13 +123,13 @@
 
 	<!-- camera_proxy -->
 	{#await import('$lib/Main/Camera/Proxy.svelte') then Proxy}
-		<svelte:component this={Proxy.default} bind:loaderVisible {...cameraProps} {stream_url} />
+		<Proxy.default bind:loaderVisible {...cameraProps} {stream_url} />
 	{/await}
 
 	<!-- info -->
 	{#if muted && !responsive}
 		{#await import('$lib/Main/Camera/Info.svelte') then Info}
-			<svelte:component this={Info.default} {sel} {entity} />
+			<Info.default {sel} {entity} />
 		{/await}
 	{/if}
 </button>

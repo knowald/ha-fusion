@@ -11,7 +11,7 @@
 		mode?: string | undefined;
 	} = $props();
 
-	let clientHeight: number;
+	let clientHeight = $state<number>();
 </script>
 
 <div

@@ -1,5 +1,5 @@
 <script module lang="ts">
-	let animateConfetti = true;
+	let animateConfetti = $state(true);
 </script>
 
 <script lang="ts">

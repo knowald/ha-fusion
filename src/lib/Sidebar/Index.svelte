@@ -196,7 +196,7 @@
 >
 	{#if $editMode}
 		{#await import('$lib/Components/ResizeHandle.svelte') then ResizeHandle}
-			<svelte:component this={ResizeHandle.default} />
+			<ResizeHandle.default />
 		{/await}
 	{/if}
 
@@ -232,32 +232,25 @@
 					<!-- BAR -->
 					{#if Bar && item?.type === 'bar' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Bar}
-								entity_id={item?.entity_id}
-								name={item?.name}
-								math={item?.math}
-								id={item?.id}
-							/>
+							<Bar entity_id={item?.entity_id} name={item?.name} math={item?.math} id={item?.id} />
 						</button>
 
 						<!-- CAMERA -->
 					{:else if Camera && item?.type === 'camera' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Camera} sel={item} />
+							<Camera sel={item} />
 						</button>
 
 						<!-- CONFIGURE -->
 					{:else if Configure && item?.type === 'configure'}
 						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
-							<svelte:component this={Configure} sel={item} />
+							<Configure sel={item} />
 						</div>
 
 						<!-- DATE -->
 					{:else if Date && item?.type === 'date' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Date}
+							<Date
 								short_day={item?.short_day}
 								short_month={item?.short_month}
 								hide={item?.hide}
@@ -268,14 +261,13 @@
 						<!-- DIVIDER -->
 					{:else if Divider && item?.type === 'divider' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
-							<svelte:component this={Divider} mode={item?.mode} size={item?.size} />
+							<Divider mode={item?.mode} size={item?.size} />
 						</button>
 
 						<!-- GRAPH -->
 					{:else if Graph && item?.type === 'graph' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Graph}
+							<Graph
 								entity_id={item?.entity_id}
 								name={item?.name}
 								period={item?.period}
@@ -286,29 +278,25 @@
 						<!-- HISTORY -->
 					{:else if History && item?.type === 'history' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component
-								this={History}
-								entity_id={item?.entity_id || ''}
-								period={item?.period}
-							/>
+							<History entity_id={item?.entity_id || ''} period={item?.period} />
 						</button>
 
 						<!-- IFRAME -->
 					{:else if Iframe && item?.type === 'iframe' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Iframe} url={item?.url} size={item?.size} />
+							<Iframe url={item?.url} size={item?.size} />
 						</button>
 
 						<!-- NOTIFICATIONS -->
 					{:else if Notifications && item?.type === 'notifications' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Notifications} sel={item} />
+							<Notifications sel={item} />
 						</button>
 
 						<!-- IMAGE -->
 					{:else if Image && item?.type === 'image' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Image} entity_id={item?.entity_id} url={item?.url} />
+							<Image entity_id={item?.entity_id} url={item?.url} />
 						</button>
 
 						<!-- NAVIGATE -->
@@ -322,26 +310,20 @@
 								role="button"
 								tabindex="0"
 							>
-								<svelte:component this={Navigate} />
+								<Navigate />
 							</div>
 						{/key}
 
 						<!-- RADIAL -->
 					{:else if Radial && item?.type === 'radial' && !hide_mobile}
 						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
-							<svelte:component
-								this={Radial}
-								entity_id={item?.entity_id}
-								name={item?.name}
-								strokeWidth={item?.stroke}
-							/>
+							<Radial entity_id={item?.entity_id} name={item?.name} strokeWidth={item?.stroke} />
 						</div>
 
 						<!-- SENSOR -->
 					{:else if Sensor && item?.type === 'sensor' && !hide_mobile}
 						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
-							<svelte:component
-								this={Sensor}
+							<Sensor
 								entity_id={item?.entity_id}
 								prefix={item?.prefix}
 								suffix={item?.suffix}
@@ -352,35 +334,31 @@
 						<!-- TEMPLATE -->
 					{:else if Template && item?.type === 'template' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Template} sel={item} />
+							<Template sel={item} />
 						</button>
 
 						<!-- TIME -->
 					{:else if Time && item?.type === 'time' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Time}
-								seconds={item?.seconds}
-								hour12={item?.hour12 || false}
-							/>
+							<Time seconds={item?.seconds} hour12={item?.hour12 || false} />
 						</button>
 
 						<!-- TIMER -->
 					{:else if Timer && item?.type === 'timer' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Timer} sel={item} />
+							<Timer sel={item} />
 						</button>
 
 						<!-- WEATHER -->
 					{:else if Weather && item?.type === 'weather' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={Weather} sel={item} />
+							<Weather sel={item} />
 						</button>
 
 						<!-- WEATHER FORECAST -->
 					{:else if WeatherForecast && item?.type === 'weather_forecast' && !hide_mobile}
 						<button onclick={() => handleClick(item?.id)}>
-							<svelte:component this={WeatherForecast} sel={item} />
+							<WeatherForecast sel={item} />
 						</button>
 					{/if}
 				</div>
@@ -388,7 +366,7 @@
 		</section>
 
 		{#await import('$lib/Sidebar/Toast.svelte') then Toast}
-			<svelte:component this={Toast.default} />
+			<Toast.default />
 		{/await}
 	{/if}
 </aside>

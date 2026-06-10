@@ -33,7 +33,7 @@
 		type: 'set_state' | 'name' | 'icon' | 'color' | 'service' | 'state';
 	} = $props();
 
-	let template = sel?.template?.[type];
+	let template = $state(sel?.template?.[type]);
 	let modalTransitionEnd = $state(false);
 
 	let service: string | undefined = $state(undefined);

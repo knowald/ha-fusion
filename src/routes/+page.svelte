@@ -205,49 +205,49 @@
 >
 	<!-- nav -->
 	{#await import('$lib/Main/Views.svelte') then Views}
-		<svelte:component this={Views.default} {view} />
+		<Views.default {view} />
 	{/await}
 
 	<!-- main -->
 	{#if view?.sections}
 		{#await import('$lib/Main/Index.svelte') then Main}
-			<svelte:component this={Main.default} {view} {altKeyPressed} />
+			<Main.default {view} {altKeyPressed} />
 		{/await}
 	{:else if $connection}
 		{#await import('$lib/Main/Intro.svelte') then Intro}
-			<svelte:component this={Intro.default} {data} />
+			<Intro.default {data} />
 		{/await}
 	{/if}
 
 	<!-- aside -->
 	{#await import('$lib/Sidebar/Index.svelte') then Sidebar}
-		<svelte:component this={Sidebar.default} {altKeyPressed} />
+		<Sidebar.default {altKeyPressed} />
 	{/await}
 
 	<!-- menu -->
 	{#if !$disableMenuButton}
 		{#await import('$lib/Drawer/MenuButton.svelte') then MenuButton}
-			<svelte:component this={MenuButton.default} {handleClick} />
+			<MenuButton.default {handleClick} />
 		{/await}
 	{/if}
 
 	<!-- header -->
 	{#if $showDrawer}
 		{#await import('$lib/Drawer/Index.svelte') then Drawer}
-			<svelte:component this={Drawer.default} {view} {data} {toggleDrawer} />
+			<Drawer.default {view} {data} {toggleDrawer} />
 		{/await}
 	{/if}
 
 	<!-- modules -->
 	{#if $customJs}
 		{#await import('$lib/Components/CustomJs.svelte') then CustomJs}
-			<svelte:component this={CustomJs.default} />
+			<CustomJs.default />
 		{/await}
 	{/if}
 
 	<!-- custom css -->
 	{#await import('$lib/Components/CustomCss.svelte') then CustomCss}
-		<svelte:component this={CustomCss.default} />
+		<CustomCss.default />
 	{/await}
 </div>
 
