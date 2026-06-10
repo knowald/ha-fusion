@@ -2,7 +2,11 @@
 	import { editMode, lang } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 
-	let { url = undefined, size = undefined, preview = false }: {
+	let {
+		url = undefined,
+		size = undefined,
+		preview = false
+	}: {
 		url?: string | undefined;
 		size?: string | undefined;
 		preview?: boolean;

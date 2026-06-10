@@ -3,7 +3,15 @@
 	import { onMount } from 'svelte';
 	import Broken from '$lib/Main/Camera/Broken.svelte';
 
-	let { sel, entity, size, stream_url, loaderVisible = $bindable(), responsive = undefined, muted = true }: {
+	let {
+		sel,
+		entity,
+		size,
+		stream_url,
+		loaderVisible = $bindable(),
+		responsive = undefined,
+		muted = true
+	}: {
 		sel: any;
 		entity: any;
 		size?: string | undefined;

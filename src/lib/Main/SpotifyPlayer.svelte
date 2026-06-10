@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { connection, editMode, itemHeight, lang, ripple, services, states, timer } from '$lib/Stores';
+	import {
+		connection,
+		editMode,
+		itemHeight,
+		lang,
+		ripple,
+		services,
+		states,
+		timer
+	} from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
@@ -23,12 +32,10 @@
 	// Media info
 	let media_title = $derived(attributes?.media_title);
 	let media_artist = $derived(attributes?.media_artist);
-	let media_album_name = $derived(attributes?.media_album_name);
 	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
 	let is_playing = $derived(entityState === 'playing');
-	let is_paused = $derived(entityState === 'paused');
 	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Recent track artwork for rotating background
@@ -103,12 +110,9 @@
 	let media_position_updated_at = $derived(attributes?.media_position_updated_at);
 
 	// Calculate current position with live updates
-	let current_position = $derived(calculatePosition(
-		media_position,
-		media_position_updated_at,
-		is_playing,
-		$timer
-	));
+	let current_position = $derived(
+		calculatePosition(media_position, media_position_updated_at, is_playing, $timer)
+	);
 	let progress_percent = $derived(
 		media_duration && current_position ? (current_position / media_duration) * 100 : 0
 	);
@@ -130,7 +134,9 @@
 
 	// Display text
 	let display_title = $derived(media_title || name || $lang('spotify_player') || 'Spotify');
-	let display_artist = $derived(media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : entityState));
+	let display_artist = $derived(
+		media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : entityState)
+	);
 
 	function handleClick() {
 		if ($editMode) {
@@ -187,7 +193,7 @@
 		<!-- ICON -->
 		<div class="left">
 			<div class="icon" style:--icon-color={color} style:background-color={color}>
-				<Icon icon={icon} height="none" width="100%" />
+				<Icon {icon} height="none" width="100%" />
 				{#if is_playing}
 					<div class="playing-indicator">
 						<Icon icon="mdi:music-note" height="1rem" />
@@ -218,7 +224,12 @@
 
 			<!-- SHORTCUTS (not playing) -->
 			{#if !is_playing && shortcuts.length > 0}
-				<SpotifyShortcuts {shortcuts} {entity_id} default_device={sel?.default_device} layout="compact" />
+				<SpotifyShortcuts
+					{shortcuts}
+					{entity_id}
+					default_device={sel?.default_device}
+					layout="compact"
+				/>
 			{/if}
 		</div>
 	</div>

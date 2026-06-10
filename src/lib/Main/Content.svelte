@@ -10,8 +10,6 @@
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
 	let { item, sectionName = undefined }: { item: any; sectionName?: string } = $props();
-
-	const large = ['conditional_media', 'picture_elements', 'camera', 'spotify_player_large'];
 </script>
 
 {#if item?.type === 'configure'}
@@ -36,4 +34,3 @@
 	<!-- if types are changed internally, don't break ui -->
 	<Configure sel={{ id: item?.id }} />
 {/if}
-

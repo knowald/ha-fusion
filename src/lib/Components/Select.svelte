@@ -138,6 +138,7 @@
 		}
 	}
 </script>
+
 <svelte:window onpointerdown={handlePointerDown} onkeydowncapture={handleKeydown} />
 {#if DEBUG}
 	<code style:color="#dfdf00">
@@ -266,6 +267,7 @@
 		</VirtualList>
 	</div>
 {/if}
+
 <style>
 	.container {
 		position: relative;

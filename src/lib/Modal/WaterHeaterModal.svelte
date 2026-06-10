@@ -16,17 +16,21 @@
 	let toggle = $derived(entity?.state !== 'off');
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		TARGET_TEMPERATURE: 1,
-		OPERATION_MODE: 2,
-		AWAY_MODE: 4
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			TARGET_TEMPERATURE: 1,
+			OPERATION_MODE: 2,
+			AWAY_MODE: 4
+		})
+	);
 
-	let options = $derived(attributes?.operation_list?.map((option: string) => ({
-		id: option,
-		icon: icons?.[option] || 'mdi:water-percent',
-		label: $lang(`water_heater_${option}`)
-	})));
+	let options = $derived(
+		attributes?.operation_list?.map((option: string) => ({
+			id: option,
+			icon: icons?.[option] || 'mdi:water-percent',
+			label: $lang(`water_heater_${option}`)
+		}))
+	);
 
 	const icons: Record<string, string> = {
 		eco: 'mdi:leaf',

@@ -19,7 +19,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: RadialItem;
 		demo?: string;
@@ -95,18 +99,18 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				type="text"
-				class="input"
-				class:placeholder={!name}
-				bind:value={name}
-				placeholder={getName(sel, (sel?.entity_id && $states[sel.entity_id]) || undefined)}
-				onchange={(event) => set('name', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					type="text"
+					class="input"
+					class:placeholder={!name}
+					bind:value={name}
+					placeholder={getName(sel, (sel?.entity_id && $states[sel.entity_id]) || undefined)}
+					onchange={(event) => set('name', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>

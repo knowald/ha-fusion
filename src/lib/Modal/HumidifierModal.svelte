@@ -15,11 +15,13 @@
 	let attr = $derived(entity?.attributes);
 	let toggle = $derived(entity?.state === 'on');
 
-	let options = $derived(attr?.available_modes?.map((option: string) => ({
-		id: option,
-		icon: icons?.[option] || 'mdi:water-percent',
-		label: $lang(`humidifier_mode_${option}`)
-	})));
+	let options = $derived(
+		attr?.available_modes?.map((option: string) => ({
+			id: option,
+			icon: icons?.[option] || 'mdi:water-percent',
+			label: $lang(`humidifier_mode_${option}`)
+		}))
+	);
 
 	const icons: Record<string, string> = {
 		auto: 'mdi:refresh-auto',

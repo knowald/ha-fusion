@@ -17,7 +17,11 @@
 	import { getSupport, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: any;
 		demo?: string;
@@ -33,11 +37,13 @@
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		FORECAST_DAILY: 1,
-		FORECAST_HOURLY: 2,
-		FORECAST_TWICE_DAILY: 4
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			FORECAST_DAILY: 1,
+			FORECAST_HOURLY: 2,
+			FORECAST_TWICE_DAILY: 4
+		})
+	);
 
 	let days_to_show = $state(sel?.days_to_show ?? 7);
 

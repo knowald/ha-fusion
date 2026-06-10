@@ -48,10 +48,12 @@
 	 * filterDashboard is filtered from search input, else
 	 * find `$currentViewId` OR when dragging get `isDndShadowItem`
 	 */
-	let view = $derived($drawerSearch
-		? $filterDashboard
-		: $dashboard?.views?.find((view) => view?.id === $currentViewId) ||
-			$dashboard?.views?.find((view) => view?.isDndShadowItem));
+	let view = $derived(
+		$drawerSearch
+			? $filterDashboard
+			: $dashboard?.views?.find((view) => view?.id === $currentViewId) ||
+					$dashboard?.views?.find((view) => view?.isDndShadowItem)
+	);
 
 	/**
 	 * WebSocket, tries to reconnect if no previous connection has been made.

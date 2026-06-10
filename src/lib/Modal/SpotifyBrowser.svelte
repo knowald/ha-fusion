@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { connection, states, lang, ripple, services } from '$lib/Stores';
-	import { callService } from 'home-assistant-js-websocket';
+	import { connection, lang, ripple, services } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 
-	let { isOpen, sel, entity_id }: {
+	let {
+		isOpen,
+		entity_id
+	}: {
 		isOpen: boolean;
 		sel: any;
 		entity_id: string;
 	} = $props();
-
-	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
-	let attributes = $derived(entity?.attributes);
 
 	type Tab = 'playlists' | 'albums' | 'tracks' | 'artists';
 	let activeTab: Tab = $state('playlists');
@@ -45,13 +44,14 @@
 		console.log('Spotify domain:', $services?.spotify);
 
 		// Check for media_player related services
-		const mediaPlayerServices = Object.keys($services || {}).filter(d =>
-			d.includes('media') || d.includes('spotify') || d.includes('music')
+		const mediaPlayerServices = Object.keys($services || {}).filter(
+			(d) => d.includes('media') || d.includes('spotify') || d.includes('music')
 		);
 		console.log('Media/Spotify related domains:', mediaPlayerServices);
 
 		if (!$services?.spotifyplus) {
-			error = 'SpotifyPlus integration not installed. Please install SpotifyPlus from HACS: https://github.com/thlucas1/homeassistantcomponent_spotifyplus';
+			error =
+				'SpotifyPlus integration not installed. Please install SpotifyPlus from HACS: https://github.com/thlucas1/homeassistantcomponent_spotifyplus';
 			return;
 		}
 
@@ -59,13 +59,13 @@
 		console.log('SpotifyPlus services:', spotifyServices);
 
 		// Find services with "favorite" or "follow" in the name
-		const favoriteServices = spotifyServices.filter(s =>
-			s.includes('favorite') || s.includes('follow') || s.includes('get')
+		const favoriteServices = spotifyServices.filter(
+			(s) => s.includes('favorite') || s.includes('follow') || s.includes('get')
 		);
 		console.log('Get/Favorite/Follow services:', favoriteServices);
 
 		// Find play-related services
-		const playServices = spotifyServices.filter(s => s.includes('play'));
+		const playServices = spotifyServices.filter((s) => s.includes('play'));
 		console.log('Play services:', playServices);
 
 		loadPlaylists();
@@ -391,9 +391,9 @@
 		if (!searchQuery) return items;
 
 		const query = searchQuery.toLowerCase();
-		return items.filter(item => {
+		return items.filter((item) => {
 			const nameMatch = item.name.toLowerCase().includes(query);
-			const artistMatch = item.artists?.some(a => a.toLowerCase().includes(query));
+			const artistMatch = item.artists?.some((a) => a.toLowerCase().includes(query));
 			const albumMatch = item.album?.toLowerCase().includes(query);
 			return nameMatch || artistMatch || albumMatch;
 		});

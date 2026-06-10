@@ -17,16 +17,18 @@
 
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		OPEN: 1,
-		CLOSE: 2,
-		SET_POSITION: 4,
-		STOP: 8,
-		OPEN_TILT: 16,
-		CLOSE_TILT: 32,
-		STOP_TILT: 64,
-		SET_TILT_POSITION: 128
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			OPEN: 1,
+			CLOSE: 2,
+			SET_POSITION: 4,
+			STOP: 8,
+			OPEN_TILT: 16,
+			CLOSE_TILT: 32,
+			STOP_TILT: 64,
+			SET_TILT_POSITION: 128
+		})
+	);
 
 	async function handleChange(service: string, attribute: string, position: number) {
 		if (request) return;

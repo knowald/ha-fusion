@@ -4,10 +4,15 @@
 	import Icon from '@iconify/svelte';
 	import type { Snippet } from 'svelte';
 
-	let { condition, select = false, onclear = undefined, children }: {
+	let {
+		condition,
+		select = false,
+		onclear = undefined,
+		children
+	}: {
 		condition: any;
 		select?: boolean;
-		onclear?: (() => void);
+		onclear?: () => void;
 		children: Snippet<[string]>;
 	} = $props();
 
@@ -17,6 +22,7 @@
 		onclear?.();
 	}
 </script>
+
 <div class="clear">
 	{@render children(padding)}
 	{#if condition}
@@ -33,6 +39,7 @@
 		<div class="divider" transition:fade={{ duration: $motion / 2 }}></div>
 	{/if}
 </div>
+
 <style>
 	.clear {
 		display: grid;

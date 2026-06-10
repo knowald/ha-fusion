@@ -3,7 +3,11 @@
 	import { handleAllConditions } from '$lib/Conditional';
 	import type { Condition } from '$lib/Types';
 
-	let { sel, items, matches }: {
+	let {
+		sel,
+		items,
+		matches
+	}: {
 		sel: any;
 		items: Condition[];
 		matches: { [key: string]: boolean };

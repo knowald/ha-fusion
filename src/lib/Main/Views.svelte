@@ -59,7 +59,9 @@
 	// navbar = 100% - (sidebar & padding & eye & button & padding + safety margin)
 	let editViewButtonWidth = $state<number>(0);
 	let eyeWidth = $state<number>(0);
-	let navWidth = $derived(`calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`);
+	let navWidth = $derived(
+		`calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`
+	);
 </script>
 
 <nav>
@@ -90,8 +92,10 @@
 								disabled: !$editMode,
 								direction: 'horizontal',
 								items: $dashboard.views,
-								onStart: () => { $draggingView = true; },
-								onFinalize: handleDragFinalize,
+								onStart: () => {
+									$draggingView = true;
+								},
+								onFinalize: handleDragFinalize
 							}}
 						>
 							{#each $dashboard.views as view (view.id)}

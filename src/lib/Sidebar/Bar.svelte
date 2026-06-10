@@ -4,7 +4,12 @@
 	import { onMount } from 'svelte';
 	import { getName } from '$lib/Utils';
 
-	let { entity_id, math = undefined, name = undefined, id = undefined }: {
+	let {
+		entity_id,
+		math = undefined,
+		name = undefined,
+		id = undefined
+	}: {
 		entity_id: string | undefined;
 		math?: string;
 		name?: string;

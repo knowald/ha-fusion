@@ -224,6 +224,7 @@
 						{@html localeAuthMessage}
 					{:else}
 						To link your Google account, visit the
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link -->
 						<a href={verification_url} target="_blank">{verification_url}</a> and enter code:
 					{/if}
 

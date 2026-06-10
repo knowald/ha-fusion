@@ -42,17 +42,17 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				type="text"
-				class="input"
-				bind:value={url}
-				placeholder="https://"
-				onchange={(event) => set('url', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					type="text"
+					class="input"
+					bind:value={url}
+					placeholder="https://"
+					onchange={(event) => set('url', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>
@@ -65,17 +65,17 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				type="text"
-				class="input"
-				bind:value={size}
-				placeholder="150px"
-				onchange={(event) => set('size', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					type="text"
+					class="input"
+					bind:value={size}
+					placeholder="150px"
+					onchange={(event) => set('size', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

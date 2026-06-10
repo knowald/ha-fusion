@@ -35,19 +35,6 @@ function getItemId(el: Element, idAttr: string): string {
 	return el.getAttribute(idAttr) ?? '';
 }
 
-function reorderItems(
-	items: any[],
-	itemKey: string,
-	container: Element,
-	idAttr: string
-): any[] {
-	const domIds = Array.from(container.children)
-		.map((el) => getItemId(el, idAttr))
-		.filter((id) => id !== '');
-	const itemMap = new Map(items.map((item) => [String(item[itemKey]), item]));
-	return domIds.map((id) => itemMap.get(id)).filter((item): item is any => item != null);
-}
-
 export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<DndOptions> {
 	const idAttr = options.idAttr ?? 'data-id';
 	const itemKey = options.itemKey ?? 'id';
@@ -99,9 +86,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 					// The source will be notified via onRemove
 					const movedId = getItemId(draggedEl, idAttr);
 					const sourceItems = opts.items;
-					const movedItem = sourceItems.find(
-						(item) => String(item[itemKey]) === movedId
-					);
+					const movedItem = sourceItems.find((item) => String(item[itemKey]) === movedId);
 
 					if (movedItem) {
 						opts.onRemove?.(movedId, evt);
@@ -139,7 +124,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 		};
 	}
 
-	let instance = Sortable.create(node, buildSortableOptions(options));
+	const instance = Sortable.create(node, buildSortableOptions(options));
 
 	return {
 		update(newOptions: DndOptions) {

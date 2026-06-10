@@ -4,7 +4,9 @@
 
 	let checked = $state($motion === 190);
 
-	$effect(() => { $motion = checked ? 190 : 0; });
+	$effect(() => {
+		$motion = checked ? 190 : 0;
+	});
 </script>
 
 <div class="container">

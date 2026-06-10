@@ -10,6 +10,7 @@
 	let { sel }: { sel: any } = $props();
 
 	let interval: ReturnType<typeof setInterval>;
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- only read inside the interval callback
 	let currentDate = new Date();
 	let displayTime: string = $state('');
 	let entity: HassEntity = $state(undefined as any);

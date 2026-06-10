@@ -18,17 +18,21 @@
 	let toggle = $derived(entity?.state === 'on');
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		SET_SPEED: 1,
-		OSCILLATE: 2,
-		DIRECTION: 4,
-		PRESET_MODE: 8
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			SET_SPEED: 1,
+			OSCILLATE: 2,
+			DIRECTION: 4,
+			PRESET_MODE: 8
+		})
+	);
 
-	let options = $derived(attributes?.preset_modes?.map((option: string) => ({
-		id: option,
-		label: option
-	})));
+	let options = $derived(
+		attributes?.preset_modes?.map((option: string) => ({
+			id: option,
+			label: option
+		}))
+	);
 
 	async function handleChange(
 		service: string,

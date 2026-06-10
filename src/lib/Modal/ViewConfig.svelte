@@ -47,17 +47,17 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				class="input"
-				type="text"
-				bind:value={name}
-				placeholder={nameConst}
-				onchange={(event) => set('name', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
-		{/snippet}
+				<input
+					class="input"
+					type="text"
+					bind:value={name}
+					placeholder={nameConst}
+					onchange={(event) => set('name', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')} ({$lang('sidebar')?.toLocaleLowerCase()})</h2>
@@ -71,17 +71,17 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					class="input"
-					type="text"
-					placeholder={'fluent:tab-add-24-filled'}
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-					autocomplete="off"
-					spellcheck="false"
-				/>
-			{/snippet}
+					<input
+						class="input"
+						type="text"
+						placeholder="fluent:tab-add-24-filled"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+						autocomplete="off"
+						spellcheck="false"
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button

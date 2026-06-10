@@ -10,7 +10,13 @@
 	import { trapFocus } from '$lib/Modal/trapFocus';
 	import '$lib/Modal/Modal.css';
 
-	let { backdropImage = true, size = undefined, ontransitionend = undefined, children, title }: {
+	let {
+		backdropImage = true,
+		size = undefined,
+		ontransitionend = undefined,
+		children,
+		title
+	}: {
 		backdropImage?: boolean;
 		size?: string | undefined;
 		ontransitionend?: (() => void) | undefined;

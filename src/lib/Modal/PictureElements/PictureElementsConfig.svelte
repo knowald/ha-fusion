@@ -16,7 +16,11 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import HelpOverlay from '$lib/Modal/PictureElements/HelpOverlay.svelte';
 
-	let { sel, isOpen, demo = undefined }: {
+	let {
+		sel,
+		isOpen,
+		demo = undefined
+	}: {
 		sel: any;
 		isOpen: boolean;
 		demo?: any | undefined;

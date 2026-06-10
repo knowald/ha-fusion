@@ -10,10 +10,12 @@
 
 	let entity = $derived($states[sel?.entity_id]);
 
-	let options = $derived(entity?.attributes?.options?.map((option: string) => ({
-		id: option,
-		label: option
-	})));
+	let options = $derived(
+		entity?.attributes?.options?.map((option: string) => ({
+			id: option,
+			label: option
+		}))
+	);
 
 	function handleChange(option: string | undefined) {
 		if (!option || !entity) return;

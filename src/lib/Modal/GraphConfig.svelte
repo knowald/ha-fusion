@@ -19,7 +19,11 @@
 	import type { GraphItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: { isOpen: boolean; sel: GraphItem; demo?: string } = $props();
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: { isOpen: boolean; sel: GraphItem; demo?: string } = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -131,19 +135,19 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={getName(sel, (sel.entity_id && $states[sel.entity_id]) || undefined) ||
-					$lang('name')}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				onchange={(event) => set('name', event)}
-				style:padding
-			/>
-		{/snippet}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={getName(sel, (sel.entity_id && $states[sel.entity_id]) || undefined) ||
+						$lang('name')}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('period')} (data_points)</h2>

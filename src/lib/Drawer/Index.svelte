@@ -7,7 +7,11 @@
 	import type { Configuration, Dashboard, Translations, ViewItem } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
 
-	let { data, view, toggleDrawer }: {
+	let {
+		data,
+		view,
+		toggleDrawer
+	}: {
 		data: {
 			configuration: Configuration;
 			dashboard: Dashboard;

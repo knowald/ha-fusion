@@ -2,7 +2,11 @@
 	import { states, lang, editMode } from '$lib/Stores';
 	import { handleState, handleNumericState, handleAnd, handleOr } from '$lib/Conditional';
 
-	let { item, matches, innerWidth }: { item: any; matches: { [key: string]: boolean }; innerWidth: number } = $props();
+	let {
+		item,
+		matches,
+		innerWidth
+	}: { item: any; matches: { [key: string]: boolean }; innerWidth: number } = $props();
 
 	const condition = item?.condition;
 	const title = `${$lang('state')} (${$lang('current_state')})`;

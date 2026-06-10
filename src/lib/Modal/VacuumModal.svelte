@@ -44,9 +44,7 @@
 	);
 
 	// battery_level may be in vacuum attributes or in a separate sensor entity
-	let batteryEntity = $derived(
-		$states[sel?.entity_id?.replace('vacuum.', 'sensor.') + '_battery']
-	);
+	let batteryEntity = $derived($states[sel?.entity_id?.replace('vacuum.', 'sensor.') + '_battery']);
 	let batteryLevel = $derived(
 		attributes?.battery_level ?? (batteryEntity ? Number(batteryEntity.state) : null)
 	);
@@ -164,13 +162,9 @@
 		{#if plans.length > 0}
 			<h2>{$lang('vacuum_plans') !== 'vacuum_plans' ? $lang('vacuum_plans') : 'Cleaning plans'}</h2>
 			<div class="plans-grid">
-				{#each plans as planId}
+				{#each plans as planId, i (i)}
 					{@const planEntity = $states[planId]}
-					<button
-						class="plan-button"
-						onclick={() => handlePlanPress(planId)}
-						use:Ripple={$ripple}
-					>
+					<button class="plan-button" onclick={() => handlePlanPress(planId)} use:Ripple={$ripple}>
 						<div class="plan-icon">
 							<Icon icon="mdi:play-circle-outline" height="none" />
 						</div>
@@ -185,7 +179,7 @@
 		{#if rooms.length > 0}
 			<h2>{$lang('rooms') !== 'rooms' ? $lang('rooms') : 'Rooms'}</h2>
 			<div class="plans-grid">
-				{#each rooms as room}
+				{#each rooms as room, i (i)}
 					<button
 						class="plan-button"
 						onclick={() => handleRoomClean([room.id])}
@@ -205,7 +199,7 @@
 
 			{#if fanSpeedOptions.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each fanSpeedOptions as option}
+					{#each fanSpeedOptions as option (option.id)}
 						<button
 							class:selected={attributes?.fan_speed === option.id}
 							onclick={() => handleFanSpeedChange(option.id)}
@@ -226,11 +220,13 @@
 		{/if}
 
 		{#if mopEntity && mopOptions}
-			<h2>{$lang('mop_intensity') !== 'mop_intensity' ? $lang('mop_intensity') : 'Mop intensity'}</h2>
+			<h2>
+				{$lang('mop_intensity') !== 'mop_intensity' ? $lang('mop_intensity') : 'Mop intensity'}
+			</h2>
 
 			{#if mopOptions.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each mopOptions as option}
+					{#each mopOptions as option (option.id)}
 						<button
 							class:selected={mopEntity?.state === option.id}
 							onclick={() => handleMopIntensityChange(option.id)}
@@ -334,11 +330,7 @@
 			{/if}
 
 			{#if supports?.LOCATE}
-				<button
-					title={$lang('locate')}
-					onclick={() => handleClick('locate')}
-					use:Ripple={$ripple}
-				>
+				<button title={$lang('locate')} onclick={() => handleClick('locate')} use:Ripple={$ripple}>
 					<div class="icon" style="transform: scale(0.65);">
 						<Icon icon="fa:search" height="none" />
 					</div>

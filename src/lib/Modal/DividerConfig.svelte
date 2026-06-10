@@ -72,19 +72,19 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					min="20"
-					max="999"
-					type="number"
-					class="input"
-					bind:value={size}
-					placeholder={defaultValue}
-					onchange={handleChange}
-					autocomplete="off"
-					spellcheck="false"
-					style:padding
-				/>
-			{/snippet}
+					<input
+						min="20"
+						max="999"
+						type="number"
+						class="input"
+						bind:value={size}
+						placeholder={defaultValue}
+						onchange={handleChange}
+						autocomplete="off"
+						spellcheck="false"
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		{/if}
 

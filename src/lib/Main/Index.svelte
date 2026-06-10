@@ -76,8 +76,8 @@
 		$editMode
 			? view?.sections
 			: typeof mounted === 'boolean' &&
-				typeof $mediaQueries === 'object' &&
-				handleVisibility($editMode, view?.sections, $states)
+					typeof $mediaQueries === 'object' &&
+					handleVisibility($editMode, view?.sections, $states)
 	);
 </script>
 
@@ -94,15 +94,11 @@
 		onFinalize: async (newItems) => {
 			view.sections = newItems;
 			await handleDragEnd();
-		},
+		}
 	}}
 >
 	{#each viewSections as section (section?.id)}
-		<section
-			id={String(section?.id)}
-			data-id={section?.id}
-			data-section-type={section?.type}
-		>
+		<section id={String(section?.id)} data-id={section?.id} data-section-type={section?.type}>
 			<!-- horizontal stack -->
 			{#if section?.type === 'horizontal-stack'}
 				<HorizontalStackHeader {view} {section} />
@@ -121,14 +117,19 @@
 						onStart: handleDragStart,
 						onFinalize: async (newItems) => {
 							const stack = view?.sections.find(
-								(s: any) => s.id === section.id && (s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
 							);
 							if (stack) {
-								stack.sections = newItems.map((item: any) => ({ ...item, items: item.items ?? [] }));
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
 								view.sections = [...view.sections];
 							}
 							await handleDragEnd();
-						},
+						}
 					}}
 				>
 					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
@@ -163,12 +164,15 @@
 													(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
 												);
 												if (nestedStack) {
-													nestedStack.sections = newItems.map((item: any) => ({ ...item, items: item.items ?? [] }));
+													nestedStack.sections = newItems.map((item: any) => ({
+														...item,
+														items: item.items ?? []
+													}));
 													view.sections = [...view.sections];
 												}
 											}
 											await handleDragEnd();
-										},
+										}
 									}}
 								>
 									{#each stackSection?.sections ?? [] as nestedSection (nestedSection?.id)}
@@ -199,15 +203,21 @@
 																(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
 															);
 															if (ns) {
-																const sec = ns.sections?.find((s: any) => s.id === nestedSection.id);
+																const sec = ns.sections?.find(
+																	(s: any) => s.id === nestedSection.id
+																);
 																if (sec) {
-																	sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+																	sec.items = maybeCloneItem(
+																		newItems,
+																		evt.oldIndex ?? 0,
+																		evt.newIndex ?? 0
+																	);
 																	view.sections = [...view.sections];
 																}
 															}
 														}
 														await handleDragEnd();
-													},
+													}
 												}}
 											>
 												{#each nestedSection?.items ?? [] as item (item.id)}
@@ -240,14 +250,16 @@
 										onStart: handleDragStart,
 										onFinalize: async (newItems, evt) => {
 											const sec = view?.sections
-												.find((s: any) => s.sections?.some((sub: any) => sub.id === stackSection.id))
+												.find((s: any) =>
+													s.sections?.some((sub: any) => sub.id === stackSection.id)
+												)
 												?.sections.find((sub: any) => sub.id === stackSection.id);
 											if (sec) {
 												sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
 												view.sections = [...view.sections];
 											}
 											await handleDragEnd();
-										},
+										}
 									}}
 								>
 									{#each stackSection?.items ?? [] as item (item.id)}
@@ -284,14 +296,19 @@
 						onStart: handleDragStart,
 						onFinalize: async (newItems) => {
 							const stack = view?.sections.find(
-								(s: any) => s.id === section.id && (s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
 							);
 							if (stack) {
-								stack.sections = newItems.map((item: any) => ({ ...item, items: item.items ?? [] }));
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
 								view.sections = [...view.sections];
 							}
 							await handleDragEnd();
-						},
+						}
 					}}
 				>
 					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
@@ -322,16 +339,11 @@
 											view.sections = [...view.sections];
 										}
 										await handleDragEnd();
-									},
+									}
 								}}
 							>
 								{#each stackSection?.items ?? [] as item (item.id)}
-									<div
-										data-id={item?.id}
-										class="item"
-										tabindex="-1"
-										style={itemStyles(item?.type)}
-									>
+									<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
 										<Content {item} sectionName={stackSection?.name} />
 									</div>
 								{/each}
@@ -361,7 +373,7 @@
 								view.sections = [...view.sections];
 							}
 							await handleDragEnd();
-						},
+						}
 					}}
 				>
 					{#each section?.items ?? [] as item, index (item.id)}
@@ -398,16 +410,11 @@
 								view.sections = [...view.sections];
 							}
 							await handleDragEnd();
-						},
+						}
 					}}
 				>
 					{#each section?.items ?? [] as item (item.id)}
-						<div
-							data-id={item?.id}
-							class="item"
-							tabindex="-1"
-							style={itemStyles(item?.type)}
-						>
+						<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
 							<Content {item} sectionName={section?.name} />
 						</div>
 					{/each}

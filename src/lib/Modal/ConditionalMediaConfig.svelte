@@ -20,7 +20,11 @@
 	import { slide } from 'svelte/transition';
 	import InputClear from '$lib/Components/InputClear.svelte';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: any;
 		demo?: string;
@@ -53,7 +57,9 @@
 
 	let options = $derived(genOptions($states, ''));
 	let mediaPlayerOptions = $derived(genOptions($states, 'media_player.'));
-	let addMediaPlayer = $derived(sel?.media_players?.every((item: { entity_id: string }) => item.entity_id));
+	let addMediaPlayer = $derived(
+		sel?.media_players?.every((item: { entity_id: string }) => item.entity_id)
+	);
 
 	function genOptions(states: any, domain: string) {
 		return Object.keys(states)
@@ -73,6 +79,7 @@
 	}
 
 	function formatPausedDuration(seconds: number) {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 		const now = new Date();
 		if (seconds > maxExpire) {
 			now.setSeconds(now.getSeconds() + maxExpire);
@@ -119,7 +126,10 @@
 
 {#if isOpen}
 	<Modal>
-		{#snippet title()}<h1>{$lang('conditional')} {$lang('media')?.toLocaleLowerCase()}</h1>{/snippet}
+		{#snippet title()}<h1>
+				{$lang('conditional')}
+				{$lang('media')?.toLocaleLowerCase()}
+			</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -144,7 +154,7 @@
 
 		{#if sel?.media_players?.length}
 			<div>
-				{#each sel.media_players as item, index}
+				{#each sel.media_players as item, index (index)}
 					<div transition:slide={{ duration: $motion }}>
 						<Select
 							computeIcons={true}
@@ -195,19 +205,19 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				min={minExpire}
-				max={maxExpire}
-				type="number"
-				class="input"
-				bind:value={timeout}
-				placeholder={timeout?.toString() || defaultExpire?.toString()}
-				onchange={handleChange}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					min={minExpire}
+					max={maxExpire}
+					type="number"
+					class="input"
+					bind:value={timeout}
+					placeholder={timeout?.toString() || defaultExpire?.toString()}
+					onchange={handleChange}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('show_area')?.replace('{area}', $lang('time')?.toLocaleLowerCase())}</h2>

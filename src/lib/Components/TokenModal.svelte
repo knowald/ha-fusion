@@ -44,7 +44,7 @@
 				Home Assistant Companion app simultaneously.
 			</p>
 			<p>
-				Open your user profile, <a
+				Open your user profile, <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link --><a
 					href="{$configuration?.hassUrl}/profile/security"
 					target="_blank"
 				>
@@ -54,7 +54,12 @@
 			</p>
 		</div>
 
-		<form onsubmit={(e) => { e.preventDefault(); handleClick(); }}>
+		<form
+			onsubmit={(e) => {
+				e.preventDefault();
+				handleClick();
+			}}
+		>
 			<h2>{$lang('token')}</h2>
 
 			<input class="input" type="password" bind:value={token} />

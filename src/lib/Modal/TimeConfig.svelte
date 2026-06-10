@@ -39,11 +39,7 @@
 				{$lang('time_format_24')}
 			</button>
 
-			<button
-				class:selected={sel?.hour12}
-				onclick={() => set('hour12', true)}
-				use:Ripple={$ripple}
-			>
+			<button class:selected={sel?.hour12} onclick={() => set('hour12', true)} use:Ripple={$ripple}>
 				{$lang('time_format_12')}
 			</button>
 		</div>

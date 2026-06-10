@@ -3,7 +3,8 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } = $props();
+	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } =
+		$props();
 
 	let noViews = $derived(!$dashboard?.views?.length);
 

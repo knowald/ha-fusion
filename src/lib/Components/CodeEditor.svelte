@@ -10,7 +10,15 @@
 	import { StreamLanguage } from '@codemirror/language';
 	import type { Diagnostic } from '@codemirror/lint';
 	import { linter, lintGutter } from '@codemirror/lint';
-	let { type, value = $bindable(), transitionend, autocompleteList = undefined, init = undefined, reloadView = $bindable(undefined), onchange = undefined }: {
+	let {
+		type,
+		value = $bindable(),
+		transitionend,
+		autocompleteList = undefined,
+		init = undefined,
+		reloadView = $bindable(undefined),
+		onchange = undefined
+	}: {
 		type: string;
 		value: any;
 		transitionend: boolean;
@@ -230,7 +238,9 @@
 		});
 	}
 	// inserts example template
-	$effect(() => { if ($pasteContent) insertString(); });
+	$effect(() => {
+		if ($pasteContent) insertString();
+	});
 	function insertString() {
 		if (!view || !$pasteContent) return;
 		// clear
@@ -251,7 +261,9 @@
 		view.focus();
 	}
 </script>
+
 <div class="editor" bind:this={editor}></div>
+
 <style>
 	.editor {
 		position: relative;

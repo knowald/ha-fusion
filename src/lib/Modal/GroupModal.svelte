@@ -15,7 +15,7 @@
 	<Modal>
 		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
-		{#each group as child_entity_id}
+		{#each group as child_entity_id (child_entity_id)}
 			<h2>{getName(undefined, $states?.[child_entity_id])}</h2>
 
 			<StateLogic entity_id={child_entity_id} selected={undefined} />

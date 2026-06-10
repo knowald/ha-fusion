@@ -20,7 +20,7 @@
 	let groupSel: string | undefined = $state(undefined);
 	let groupEntity: HassEntity = $state() as HassEntity;
 
-	let selTab: string | undefined = $state(undefined);
+	let manualTab: string | undefined = $state(undefined);
 	let selTabClicked = $state(false);
 
 	// https://github.com/home-assistant/frontend/blob/dev/src/data/light.ts
@@ -56,9 +56,11 @@
 	let attributes = $derived(entity?.attributes);
 
 	// make sure it's an array
-	let colorModes = $derived(Array.isArray(attributes?.supported_color_modes)
-		? attributes?.supported_color_modes
-		: [attributes?.supported_color_modes].filter(Boolean));
+	let colorModes = $derived(
+		Array.isArray(attributes?.supported_color_modes)
+			? attributes?.supported_color_modes
+			: [attributes?.supported_color_modes].filter(Boolean)
+	);
 
 	let colorMode = $derived(attributes?.color_mode);
 
@@ -68,15 +70,16 @@
 		BRIGHTNESS: colorModes?.some((mode: string) => modesSupportingBrightness.includes(mode))
 	});
 
-	$effect(() => {
-		selTab = selTabClicked
-			? selTab
+	// follows the entity's color mode until the user picks a tab manually
+	let selTab: string | undefined = $derived(
+		selTabClicked
+			? manualTab
 			: colorMode === 'color_temp' || colorMode === 'white'
 				? colorMode
 				: supports?.COLOR
 					? 'color'
-					: colorMode;
-	});
+					: colorMode
+	);
 
 	let toggle = $derived(entity?.state === 'on');
 	let current = $derived(Math.round(rangeValue / 2.55));
@@ -103,7 +106,7 @@
 	 */
 	function handleSelTabClick(mode: string) {
 		selTabClicked = true;
-		selTab = mode;
+		manualTab = mode;
 
 		if (mode === 'white') {
 			callService($connection, 'light', 'turn_on', {
@@ -146,7 +149,7 @@
 							rangeValue = brightness || 0;
 						}}>{getName(undefined, groupEntity)}</button
 					>
-					{#each groupEntity?.attributes?.entity_id as selEntity}
+					{#each groupEntity?.attributes?.entity_id as selEntity (selEntity)}
 						<button
 							class:selected={$states?.[selEntity]?.entity_id === groupSel}
 							onclick={() => {

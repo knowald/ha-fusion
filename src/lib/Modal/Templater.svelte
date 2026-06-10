@@ -23,7 +23,15 @@
 	import parser from 'js-yaml';
 	import { subscribeServices } from 'home-assistant-js-websocket';
 
-	let { isOpen, sel = $bindable(), type }: { isOpen: boolean; sel: ButtonItem; type: 'set_state' | 'name' | 'icon' | 'color' | 'service' | 'state' } = $props();
+	let {
+		isOpen,
+		sel = $bindable(),
+		type
+	}: {
+		isOpen: boolean;
+		sel: ButtonItem;
+		type: 'set_state' | 'name' | 'icon' | 'color' | 'service' | 'state';
+	} = $props();
 
 	let template = sel?.template?.[type];
 	let modalTransitionEnd = $state(false);

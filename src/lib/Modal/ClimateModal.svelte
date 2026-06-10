@@ -18,15 +18,17 @@
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		TARGET_TEMPERATURE: 1,
-		TARGET_TEMPERATURE_RANGE: 2,
-		TARGET_HUMIDITY: 4,
-		FAN_MODE: 8,
-		PRESET_MODE: 16,
-		SWING_MODE: 32,
-		AUX_HEAT: 64
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			TARGET_TEMPERATURE: 1,
+			TARGET_TEMPERATURE_RANGE: 2,
+			TARGET_HUMIDITY: 4,
+			FAN_MODE: 8,
+			PRESET_MODE: 16,
+			SWING_MODE: 32,
+			AUX_HEAT: 64
+		})
+	);
 
 	/**
 	 * Handles click
@@ -63,11 +65,13 @@
 		heat_cool: 'mdi:sun-snowflake-variant'
 	};
 
-	let optionsHvacModes = $derived(attributes?.hvac_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: hvacModesIcons?.[option] || 'mdi:fan'
-	})));
+	let optionsHvacModes = $derived(
+		attributes?.hvac_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: hvacModesIcons?.[option] || 'mdi:fan'
+		}))
+	);
 
 	const fanModeIcons: Record<string, string> = {
 		on: 'mdi:fan',
@@ -81,11 +85,13 @@
 		diffuse: 'mdi:weather-windy'
 	};
 
-	let optionsFanModes = $derived(attributes?.fan_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: fanModeIcons?.[option] || 'mdi:fan'
-	})));
+	let optionsFanModes = $derived(
+		attributes?.fan_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: fanModeIcons?.[option] || 'mdi:fan'
+		}))
+	);
 
 	const swingModeIcons: Record<string, string> = {
 		on: 'mdi:arrow-oscillating',
@@ -95,11 +101,13 @@
 		both: 'mdi:arrow-all'
 	};
 
-	let optionsSwingModes = $derived(attributes?.swing_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: swingModeIcons?.[option] || 'mdi:fan'
-	})));
+	let optionsSwingModes = $derived(
+		attributes?.swing_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: swingModeIcons?.[option] || 'mdi:fan'
+		}))
+	);
 </script>
 
 {#if isOpen}
@@ -111,7 +119,7 @@
 
 			{#if attributes?.hvac_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.hvac_modes as hvacMode}
+					{#each attributes?.hvac_modes as hvacMode (hvacMode)}
 						<button
 							title={$lang(hvacMode)}
 							onclick={() => handleClick('hvac_mode', hvacMode)}
@@ -183,7 +191,7 @@
 			<h2>{$lang('fan_modes')}</h2>
 			{#if attributes?.fan_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.fan_modes as fanMode}
+					{#each attributes?.fan_modes as fanMode (fanMode)}
 						<button
 							onclick={() => handleClick('fan_mode', fanMode)}
 							class:selected={attributes?.fan_mode === fanMode}
@@ -209,7 +217,7 @@
 			<h2>{$lang('swing_modes')}</h2>
 			{#if attributes?.swing_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.swing_modes as swingMode}
+					{#each attributes?.swing_modes as swingMode (swingMode)}
 						<button
 							onclick={() => handleClick('swing_mode', swingMode)}
 							class:selected={attributes?.swing_mode === swingMode}

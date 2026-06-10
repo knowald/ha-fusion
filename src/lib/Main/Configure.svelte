@@ -35,7 +35,6 @@
 	style:min-height="{$itemHeight}px"
 	onclick={handleClick}
 	style:cursor={$editMode ? 'unset' : 'pointer'}
-
 	role="button"
 	tabindex="0"
 ></div>

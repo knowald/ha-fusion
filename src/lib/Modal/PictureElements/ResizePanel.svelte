@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let { resizing = $bindable(), container, panelsWidth = $bindable() }: { resizing: boolean; container: HTMLDivElement; panelsWidth: number } = $props();
+	let {
+		resizing = $bindable(),
+		container,
+		panelsWidth = $bindable()
+	}: { resizing: boolean; container: HTMLDivElement; panelsWidth: number } = $props();
 
 	let minWidth: number;
 

@@ -5,7 +5,12 @@
 	import { extent, bisector } from 'd3-array';
 	import { getName } from '$lib/Utils';
 
-	let { entity_id = undefined, name = undefined, period = 'day', stroke = 2 }: {
+	let {
+		entity_id = undefined,
+		name = undefined,
+		period = 'day',
+		stroke = 2
+	}: {
 		entity_id?: string | undefined;
 		name?: string | undefined;
 		period?: string;
@@ -31,13 +36,17 @@
 
 	let entity = $derived(entity_id && $states?.[entity_id]);
 
-	let xScale = $derived(scaleTime()
-		.domain(extent(chartData, xAccessor) as any)
-		.range([1, (width ?? 0) - 1]));
-	let yScale = $derived(scaleLinear()
-		.domain(extent(chartData, yAccessor) as any)
-		.range([(height ?? 0) - 1, 1])
-		.nice());
+	let xScale = $derived(
+		scaleTime()
+			.domain(extent(chartData, xAccessor) as any)
+			.range([1, (width ?? 0) - 1])
+	);
+	let yScale = $derived(
+		scaleLinear()
+			.domain(extent(chartData, yAccessor) as any)
+			.range([(height ?? 0) - 1, 1])
+			.nice()
+	);
 
 	let xAccessorScaled = $derived((d: any) => xScale(xAccessor(d)));
 	let yAccessorScaled = $derived((d: any) => yScale(yAccessor(d)));
@@ -46,11 +55,9 @@
 	let lineGenerator = $derived(line().x(xAccessorScaled).y(yAccessorScaled).curve(interpolation));
 	let _line = $derived(lineGenerator(chartData));
 
-	let areaGenerator = $derived(area()
-		.x(xAccessorScaled)
-		.y0(y0AccessorScaled)
-		.y1(yAccessorScaled)
-		.curve(interpolation));
+	let areaGenerator = $derived(
+		area().x(xAccessorScaled).y0(y0AccessorScaled).y1(yAccessorScaled).curve(interpolation)
+	);
 	let _area = $derived(areaGenerator(chartData));
 
 	// if width or height changes don't transition

@@ -21,7 +21,6 @@
 
 	// Playback state
 	let is_playing = $derived(entityState === 'playing');
-	let is_paused = $derived(entityState === 'paused');
 	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Progress
@@ -37,12 +36,9 @@
 	let current_source = $derived(attributes?.source);
 
 	// Calculate current position with live updates
-	let current_position = $derived(calculatePosition(
-		media_position,
-		media_position_updated_at,
-		is_playing,
-		$timer
-	));
+	let current_position = $derived(
+		calculatePosition(media_position, media_position_updated_at, is_playing, $timer)
+	);
 
 	function calculatePosition(
 		position: number | undefined,
@@ -244,8 +240,11 @@
 				{#if source_list.length > 0}
 					<div class="device">
 						<Icon icon="mdi:speaker" height="0.95rem" style="opacity: 0.35;" />
-						<select onchange={(e) => selectDevice((e.target as HTMLSelectElement).value)} class="device-sel">
-							{#each source_list as device}
+						<select
+							onchange={(e) => selectDevice((e.target as HTMLSelectElement).value)}
+							class="device-sel"
+						>
+							{#each source_list as device, i (i)}
 								<option value={device} selected={device === current_source}>
 									{device}
 								</option>

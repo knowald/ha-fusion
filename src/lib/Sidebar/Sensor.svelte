@@ -3,7 +3,12 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { isTimestamp, relativeTime } from '$lib/Utils';
 
-	let { entity_id = undefined, prefix = undefined, suffix = undefined, date = undefined }: {
+	let {
+		entity_id = undefined,
+		prefix = undefined,
+		suffix = undefined,
+		date = undefined
+	}: {
 		entity_id?: string;
 		prefix?: string;
 		suffix?: string;

@@ -20,7 +20,6 @@
 
 	let innerWidth = $state(0);
 	let draggingGroup = $state(false);
-	let draggedElHeight: number | undefined = $state(undefined);
 	let matches: { [key: string]: boolean } = $state({});
 
 	/**
@@ -38,7 +37,8 @@
 						}))
 					}
 				: {})
-		})) || []);
+		})) || []
+	);
 
 	/**
 	 * dnd
@@ -68,15 +68,17 @@
 	 * Get all 'screen' conditions
 	 * { id, media_query }
 	 */
-	let screenConditions = $derived(items.flatMap((item: Condition) =>
-		item.condition === 'screen'
-			? [{ id: item.id, media_query: item.media_query }]
-			: item.condition === 'and' || item.condition === 'or'
-				? (item.conditions
-						?.filter((cond) => cond.condition === 'screen')
-						.map(({ id, media_query }) => ({ id, media_query })) ?? [])
-				: []
-	));
+	let screenConditions = $derived(
+		items.flatMap((item: Condition) =>
+			item.condition === 'screen'
+				? [{ id: item.id, media_query: item.media_query }]
+				: item.condition === 'and' || item.condition === 'or'
+					? (item.conditions
+							?.filter((cond) => cond.condition === 'screen')
+							.map(({ id, media_query }) => ({ id, media_query })) ?? [])
+					: []
+		)
+	);
 
 	/**
 	 * Updates `matches`
@@ -155,7 +157,8 @@
 					group: {
 						name: 'condition',
 						put: (_to, _from, dragEl) => {
-							const isGroup = dragEl.dataset.conditionType === 'and' || dragEl.dataset.conditionType === 'or';
+							const isGroup =
+								dragEl.dataset.conditionType === 'and' || dragEl.dataset.conditionType === 'or';
 							return !isGroup || !draggingGroup;
 						}
 					},
@@ -163,15 +166,11 @@
 					ghostClass: 'sortable-ghost',
 					items,
 					onStart: handleDragStart,
-					onFinalize: handleItemFinalize,
+					onFinalize: handleItemFinalize
 				}}
 			>
 				{#each items as item, i (item?.id)}
-					<div
-						data-id={item?.id}
-						data-condition-type={item?.condition}
-						class:item
-					>
+					<div data-id={item?.id} data-condition-type={item?.condition} class:item>
 						<ItemHeader item={items[i]} bind:items {matches} {innerWidth} />
 
 						{#if !item?.collapsed}
@@ -201,7 +200,7 @@
 												ghostClass: 'sortable-ghost',
 												items: item?.conditions,
 												onStart: handleDragStart,
-												onFinalize: (newItems) => handleNestedFinalize(item.id, newItems),
+												onFinalize: (newItems) => handleNestedFinalize(item.id, newItems)
 											}}
 										>
 											{#each item.conditions as subItem, j (subItem?.id)}

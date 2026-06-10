@@ -58,7 +58,6 @@
 			if ($editMode || empty) return;
 			expanded = !expanded;
 		}}
-	
 		role="button"
 		tabindex="0"
 	>

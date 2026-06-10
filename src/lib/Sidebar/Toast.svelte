@@ -98,7 +98,9 @@
 	onDestroy(() => clearTimeout(timeout));
 
 	// external event toast
-	$effect(() => { if ($event) displayEvent(); });
+	$effect(() => {
+		if ($event) displayEvent();
+	});
 	function displayEvent() {
 		clearTimeout(timeout);
 		message = $lang('event_fired')?.replace('{type}', `"${$event}"`);

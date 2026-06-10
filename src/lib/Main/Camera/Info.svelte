@@ -9,7 +9,7 @@
 <div class="container">
 	<div class="left">
 		<div class="icon">
-			<Icon icon={'mdi:camera'} height="auto" width="100%" />
+			<Icon icon="mdi:camera" height="auto" width="100%" />
 		</div>
 	</div>
 

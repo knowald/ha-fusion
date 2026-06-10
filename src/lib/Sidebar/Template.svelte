@@ -4,7 +4,8 @@
 	import { onDestroy } from 'svelte';
 	import type { TemplateItem } from '$lib/Types';
 
-	let { sel = undefined, demo = false }: { sel?: TemplateItem | undefined; demo?: boolean } = $props();
+	let { sel = undefined, demo = false }: { sel?: TemplateItem | undefined; demo?: boolean } =
+		$props();
 
 	let unsubscribe: () => void;
 	let id = sel?.id;
@@ -79,13 +80,7 @@
 	});
 </script>
 
-<div
-	id="markdown"
-	onclick={handleEvent}
-	onpointerenter={handleEvent}
-	role="button"
-	tabindex="0"
->
+<div id="markdown" onclick={handleEvent} onpointerenter={handleEvent} role="button" tabindex="0">
 	{#if demo}
 		<div class="template">
 			<span>&#123;&#123;</span> template <span>&#125;&#125;</span>

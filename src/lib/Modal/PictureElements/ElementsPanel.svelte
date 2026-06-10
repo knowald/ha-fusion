@@ -10,7 +10,11 @@
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { derived } from 'svelte/store';
 
-	let { konva, selectedShape, selectedShapes }: {
+	let {
+		konva,
+		selectedShape,
+		selectedShapes
+	}: {
 		konva: KonvaEditor;
 		selectedShape: ShapeConfig;
 		selectedShapes: ShapeConfig[];
@@ -19,21 +23,20 @@
 	let editingId: string | undefined = $state(undefined);
 	let dragStartOrder: string[] | undefined = $state(undefined);
 
-	let layers: any[] = $state([]);
-
-	$effect(() => {
-		layers = $uiLayers?.children
-			? [...$uiLayers.children].reverse().map((shape: any, index: number) => ({
-					...shape,
-					id: shape?.attrs?.id || `layer-${index}`
-				}))
-			: [];
-	});
-
 	// derived store that only updates when not dragging
 	const uiLayers: any = derived([konvaStore, dragging], ([$konvaStore, $dragging], set) => {
 		if (!$dragging) set($konvaStore);
 	});
+
+	// writable derived: reassigned by drag handlers
+	let layers: any[] = $derived(
+		$uiLayers?.children
+			? [...$uiLayers.children].reverse().map((shape: any, index: number) => ({
+					...shape,
+					id: shape?.attrs?.id || `layer-${index}`
+				}))
+			: []
+	);
 
 	function handleDragStart(evt: SortableEvent) {
 		$dragging = true;
@@ -125,7 +128,6 @@
 		image.style.display = error ? 'none' : 'block';
 		icon.style.display = error ? 'block' : 'none';
 	}
-
 </script>
 
 <svelte:document onpointerdown={handlePointerdown} />
@@ -192,7 +194,10 @@
 			<button
 				class="visibility"
 				title={shape?.attrs?.visible === false ? 'Show' : 'Hide'}
-				onclick={(e) => { e.stopPropagation(); konva.toggleVisibility(shape?.attrs?.id); }}
+				onclick={(e) => {
+					e.stopPropagation();
+					konva.toggleVisibility(shape?.attrs?.id);
+				}}
 			>
 				<Icon
 					icon={icons?.[shape?.attrs?.visible === false ? 'hidden' : 'visible']}
@@ -258,7 +263,10 @@
 				<button
 					class="inline-lock"
 					title="Unlock"
-					onclick={(e) => { e.stopPropagation(); konva.toggleDraggable(shape?.attrs?.id); }}
+					onclick={(e) => {
+						e.stopPropagation();
+						konva.toggleDraggable(shape?.attrs?.id);
+					}}
 				>
 					<Icon icon={icons['locked']} width="20" height="20" />
 				</button>

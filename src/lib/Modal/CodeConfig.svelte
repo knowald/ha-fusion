@@ -16,12 +16,8 @@
 	let reloadView = $state(false);
 
 	let init = $derived(parser.dump($dashboard));
-	let value = $state('');
+	let value = $derived(init);
 	let changed = $derived(init !== value);
-
-	$effect(() => {
-		value = init;
-	});
 
 	$effect(() => {
 		if (!changed && !success) message = undefined;
@@ -88,6 +84,7 @@
 	function validate(data: any): boolean {
 		try {
 			if (!data) return false;
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 			const ids: Set<number> = new Set();
 
 			// validate entity_id

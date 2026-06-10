@@ -9,7 +9,11 @@
 	import type { HistoryItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: HistoryItem;
 		demo?: string;

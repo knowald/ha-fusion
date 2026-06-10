@@ -3,13 +3,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } = $props();
+	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } =
+		$props();
 
 	let noViewsOrSectionsOrStacks = $derived(
-		!view ||
-		!view.sections ||
-		view.sections.length === 0 ||
-		checkForStackOnly(view.sections)
+		!view || !view.sections || view.sections.length === 0 || checkForStackOnly(view.sections)
 	);
 
 	function checkForStackOnly(sections: any[]): boolean {
@@ -36,10 +34,7 @@
 
 		if (!section?.items) return;
 
-		section.items = [
-			{ type: 'configure', id: generateId($dashboard) },
-			...section.items
-		];
+		section.items = [{ type: 'configure', id: generateId($dashboard) }, ...section.items];
 
 		// Replace view object in dashboard.views so $derived produces a new reference
 		$dashboard.views = $dashboard.views.map((v: any) =>

@@ -9,13 +9,14 @@
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { callService } from 'home-assistant-js-websocket';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	let items: any = $state(undefined);
 	let todoInput = $state('');
 	let selectedId: boolean | undefined = $state(undefined);
-	let tempItemNames: Map<string, string> = new Map();
+	let tempItemNames: SvelteMap<string, string> = new SvelteMap();
 
 	let entity = $derived($states[sel?.entity_id]);
 
@@ -209,7 +210,12 @@
 				{/snippet}
 			</InputClear>
 
-			<form onsubmit={(e) => { e.preventDefault(); add(); }}>
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					add();
+				}}
+			>
 				<button
 					class="action done submit"
 					type="submit"
@@ -226,9 +232,7 @@
 
 		<!-- ITEMS -->
 		{#if items}
-			<section
-				use:sortable={sortableOptions}
-			>
+			<section use:sortable={sortableOptions}>
 				{#each items as item (item.uid)}
 					<div
 						class="todo-item"
@@ -258,7 +262,6 @@
 										inputElement.focus();
 									}
 								}}
-							
 								role="button"
 								tabindex="0"
 							>

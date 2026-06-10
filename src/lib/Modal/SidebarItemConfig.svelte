@@ -229,13 +229,15 @@
 		}
 	]);
 
-	let filter = $derived(itemTypes
-		.filter(
-			({ id, type }) =>
-				id.toLowerCase().includes(searchString.toLowerCase()) ||
-				type.toLowerCase().includes(searchString.toLowerCase())
-		)
-		.sort((a, b) => a.type.localeCompare(b.type)));
+	let filter = $derived(
+		itemTypes
+			.filter(
+				({ id, type }) =>
+					id.toLowerCase().includes(searchString.toLowerCase()) ||
+					type.toLowerCase().includes(searchString.toLowerCase())
+			)
+			.sort((a, b) => a.type.localeCompare(b.type))
+	);
 
 	async function handleClick(id: string) {
 		closeModal();
@@ -387,18 +389,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('search')}
-					class="input"
-					type="text"
-					placeholder={$lang('search')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:this={searchElement}
-					bind:value={searchString}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('search')}
+						class="input"
+						type="text"
+						placeholder={$lang('search')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:this={searchElement}
+						bind:value={searchString}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		</div>
 

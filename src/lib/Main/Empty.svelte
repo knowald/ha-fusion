@@ -20,7 +20,6 @@
 	style:height="{$itemHeight}px"
 	style:opacity={$editMode ? '1' : '0'}
 	style:transition="opacity {$motion}ms ease"
-
 	role="button"
 	tabindex="0"
 ></div>

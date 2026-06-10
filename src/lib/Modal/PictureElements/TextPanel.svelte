@@ -8,7 +8,12 @@
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { getFontList } from '$lib/Modal/PictureElements/fonts';
 
-	let { konva, selectedShape, selectedShapes, setAttribute }: {
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		setAttribute
+	}: {
 		konva: KonvaEditor;
 		selectedShape: ShapeConfig;
 		selectedShapes: ShapeConfig[];
@@ -63,6 +68,7 @@
 	const bold = '600';
 
 	function handleFontStyle(fontStyle: string | undefined, value: '600' | 'italic') {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 		const parts = new Set(fontStyle?.split(' ') || []);
 		parts.delete('normal');
 
@@ -107,7 +113,10 @@
 
 		<button
 			title={selectedShape?.attrs?.box ? 'Disable Text Box' : 'Enable Text Box'}
-			onclick={(e) => { e.stopPropagation(); konva.toggleTextBox(selectedShape?.attrs?.id); }}
+			onclick={(e) => {
+				e.stopPropagation();
+				konva.toggleTextBox(selectedShape?.attrs?.id);
+			}}
 			disabled={selectedShapes?.length !== 1 ||
 				!selectedShape?.attrs?.draggable ||
 				!['text', 'state-label'].includes(selectedShape?.attrs?.type)}
@@ -135,7 +144,7 @@
 				/>
 
 				<datalist id="font-list">
-					{#each fonts as font}
+					{#each fonts as font (font)}
 						<option value={font}></option>
 					{/each}
 				</datalist>

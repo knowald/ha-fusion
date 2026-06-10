@@ -4,7 +4,10 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import type { HassEntity } from 'home-assistant-js-websocket';
-	let { onchange = undefined, stateObj }: {
+	let {
+		onchange = undefined,
+		stateObj
+	}: {
 		onchange?: ((value: number) => void) | undefined;
 		stateObj: HassEntity;
 	} = $props();
@@ -141,6 +144,7 @@
 		}
 	}
 </script>
+
 <svelte:document
 	onpointerdown={handleMouseDown}
 	onpointerup={handleMouseUp}
@@ -168,7 +172,7 @@
 		style:cursor={pointerDown ? 'grabbing' : 'grab'}
 		style:scroll-snap-type={touch ? 'y mandatory' : 'unset'}
 	>
-		{#each temperatures as temperature, index}
+		{#each temperatures as temperature, index (index)}
 			<div
 				class="item"
 				data-exclude-drag-modal
@@ -193,6 +197,7 @@
 		<Icon icon="mingcute:up-fill" height="none" />
 	</button>
 </div>
+
 <style>
 	:root {
 		--width: 7.2rem;

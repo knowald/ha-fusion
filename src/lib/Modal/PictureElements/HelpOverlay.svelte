@@ -102,7 +102,12 @@
 	}
 </script>
 
-<svelte:document onkeydown={(e) => { e.stopPropagation(); handleKeydown(e); }} />
+<svelte:document
+	onkeydown={(e) => {
+		e.stopPropagation();
+		handleKeydown(e);
+	}}
+/>
 
 <div
 	role="button"
@@ -112,11 +117,11 @@
 	onkeydown={handleKeydown}
 >
 	<div class="container">
-		{#each data as section}
+		{#each data as section, i (i)}
 			<div class="section">
 				<h2>{section.title}</h2>
 				<ul>
-					{#each Object.entries(section.items) as [key, value]}
+					{#each Object.entries(section.items) as [key, value] (key)}
 						<li><kbd>{key}</kbd> {value}</li>
 					{/each}
 				</ul>

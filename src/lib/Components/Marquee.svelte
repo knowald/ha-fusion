@@ -1,7 +1,13 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	let { duration = 15, repeat = 2, paused = false, pauseOnHover = false, children }: {
+	let {
+		duration = 15,
+		repeat = 2,
+		paused = false,
+		pauseOnHover = false,
+		children
+	}: {
 		duration?: number;
 		repeat?: number;
 		paused?: boolean;
@@ -28,7 +34,7 @@
 	onblur={handleHover}
 >
 	<div class="content" class:paused={paused || (pauseOnHover && hovered)}>
-		{#each Array(repeat) as i}
+		{#each Array(repeat) as i, index (index)}
 			<div class="text" style:animation-duration="{duration}s" title={i}>
 				{@render children()}
 			</div>

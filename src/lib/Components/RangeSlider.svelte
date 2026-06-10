@@ -2,7 +2,14 @@
 	import { motion } from '$lib/Stores';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-	let { value = $bindable(), min, max, step = undefined, onchange = undefined, oninput = undefined }: {
+	let {
+		value = $bindable(),
+		min,
+		max,
+		step = undefined,
+		onchange = undefined,
+		oninput = undefined
+	}: {
 		value: number;
 		min: number;
 		max: number;
@@ -17,7 +24,9 @@
 		duration: $motion,
 		easing: cubicOut
 	});
-	$effect(() => { fill.set(normalized); });
+	$effect(() => {
+		fill.set(normalized);
+	});
 	/**
 	 * Dispatches value on input end
 	 */
@@ -26,6 +35,7 @@
 		onchange?.(Number(val));
 	}
 </script>
+
 <div>
 	<span style:width="{$fill * 100}%"></span>
 	<input
@@ -41,6 +51,7 @@
 		onchange={handleChange}
 	/>
 </div>
+
 <style>
 	:root {
 		--slider-height: 3rem;

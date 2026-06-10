@@ -44,7 +44,7 @@ Full-featured Spotify media player widgets with two layout options.
   entity_id: media_player.spotify_username
   name: Spotify
   icon: mdi:spotify
-  color: "rgb(30, 215, 96)"
+  color: 'rgb(30, 215, 96)'
   show_progress: true
 ```
 
@@ -69,7 +69,7 @@ A counter widget that tracks days elapsed since a timestamp stored in a Home Ass
   entity_id: input_datetime.last_filter_change
   name: Filter Changed
   icon: mdi:air-filter
-  color: "rgb(75, 166, 237)"
+  color: 'rgb(75, 166, 237)'
 ```
 
 ### Display-Only Buttons
@@ -92,7 +92,7 @@ Adjust light brightness by sliding horizontally on button widgets. Enabled by de
 - type: button
   id: 1234567890
   entity_id: light.living_room
-  slide_brightness: false  # disable slide control
+  slide_brightness: false # disable slide control
 ```
 
 ### Optimistic UI Updates

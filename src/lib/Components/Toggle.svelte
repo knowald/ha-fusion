@@ -4,7 +4,7 @@
 </script>
 
 <label class="switch">
-	<input name="toggle" type="checkbox" bind:checked onchange={onchange} />
+	<input name="toggle" type="checkbox" bind:checked {onchange} />
 	<span class="slider" data-exclude-drag-modal></span>
 </label>
 

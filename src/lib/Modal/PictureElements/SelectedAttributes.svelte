@@ -4,7 +4,13 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	let { konva, selectedShape, selectedShapes, setAttribute, entityOptions }: {
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		setAttribute,
+		entityOptions
+	}: {
 		konva: KonvaEditor;
 		selectedShape: ShapeConfig;
 		selectedShapes: ShapeConfig[];
@@ -50,199 +56,201 @@
 		{ ...opacity }
 	]);
 
-	$effect(() => { if (selectedShape?.attrs?.type === 'icon') {
-		// ICON
-		attributes = [
-			{
-				id: 'icon',
-				label: 'Icon',
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.icon
-			},
-			{
-				id: 'color',
-				label: 'Color',
-				type: 'color',
-				width: '2.5rem',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.color
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.width,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.height,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'state-icon') {
-		// STATE-ICON
-		attributes = [
-			{
-				id: 'entity_id',
-				label: 'Entity',
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.entity_id,
-				list: 'entityOptions'
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.width,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.height,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'color',
-				label: 'Color',
-				type: 'color',
-				width: '2.5rem',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.color || selectedShape.attrs.state_color || '#ffffff'
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'text') {
-		// TEXT
-		attributes = [
-			{
-				id: 'text',
-				label: 'Text',
-				value: selectedShape?.attrs?.text,
-				type: 'textarea',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			...commonTextAttributes
-		];
-	} else if (selectedShape?.attrs?.type === 'state-label') {
-		// STATE LABEL
-		attributes = [
-			{
-				id: 'entity_id',
-				label: 'Entity',
-				value: selectedShape?.attrs?.entity_id,
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable,
-				list: 'entityOptions'
-			},
-			...commonTextAttributes
-		];
-	} else if (selectedShape?.attrs?.type === 'image') {
-		// IMAGE
-		attributes = [
-			{
-				id: 'src',
-				label: 'Source',
-				value: selectedShape?.attrs?.src,
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.width,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.height,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'rectangle') {
-		// RECTANGLE
-		attributes = [
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.width,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.height,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'fill',
-				label: 'Fill',
-				type: 'color',
-				value: selectedShape?.attrs?.fill,
-				width: '2.5rem',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'cornerRadius',
-				label: 'Radius',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.cornerRadius,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'circle') {
-		// CIRCLE
-		attributes = [
-			{
-				id: 'radius',
-				label: 'Radius',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.radius,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'fill',
-				label: 'Fill',
-				type: 'color',
-				value: selectedShape?.attrs?.fill,
-				width: '2.5rem',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else {
-		// ELSE
-		attributes = [];
-	} });
+	$effect(() => {
+		if (selectedShape?.attrs?.type === 'icon') {
+			// ICON
+			attributes = [
+				{
+					id: 'icon',
+					label: 'Icon',
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.icon
+				},
+				{
+					id: 'color',
+					label: 'Color',
+					type: 'color',
+					width: '2.5rem',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.color
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.width,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.height,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'state-icon') {
+			// STATE-ICON
+			attributes = [
+				{
+					id: 'entity_id',
+					label: 'Entity',
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.entity_id,
+					list: 'entityOptions'
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.width,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.height,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'color',
+					label: 'Color',
+					type: 'color',
+					width: '2.5rem',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.color || selectedShape.attrs.state_color || '#ffffff'
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'text') {
+			// TEXT
+			attributes = [
+				{
+					id: 'text',
+					label: 'Text',
+					value: selectedShape?.attrs?.text,
+					type: 'textarea',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				...commonTextAttributes
+			];
+		} else if (selectedShape?.attrs?.type === 'state-label') {
+			// STATE LABEL
+			attributes = [
+				{
+					id: 'entity_id',
+					label: 'Entity',
+					value: selectedShape?.attrs?.entity_id,
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable,
+					list: 'entityOptions'
+				},
+				...commonTextAttributes
+			];
+		} else if (selectedShape?.attrs?.type === 'image') {
+			// IMAGE
+			attributes = [
+				{
+					id: 'src',
+					label: 'Source',
+					value: selectedShape?.attrs?.src,
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.width,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.height,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'rectangle') {
+			// RECTANGLE
+			attributes = [
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.width,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.height,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'fill',
+					label: 'Fill',
+					type: 'color',
+					value: selectedShape?.attrs?.fill,
+					width: '2.5rem',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'cornerRadius',
+					label: 'Radius',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.cornerRadius,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'circle') {
+			// CIRCLE
+			attributes = [
+				{
+					id: 'radius',
+					label: 'Radius',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.radius,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'fill',
+					label: 'Fill',
+					type: 'color',
+					value: selectedShape?.attrs?.fill,
+					width: '2.5rem',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else {
+			// ELSE
+			attributes = [];
+		}
+	});
 
 	function countGroupShapes(item: any): number {
 		if (!item || typeof item !== 'object') return 0;
@@ -280,7 +288,7 @@
 			<span class="icon">
 				<Icon icon={icons?.[selectedShape?.attrs?.type]} width="20" height="20" />
 			</span>
-			{#each attributes as attr}
+			{#each attributes as attr (attr.id)}
 				<div class="konva-attribute" class:grow={attr?.className === 'grow-item'}>
 					<label for={attr?.id}>
 						{attr?.label}:
@@ -322,7 +330,7 @@
 				</div>
 			{/each}
 			<datalist id="entityOptions">
-				{#each entityOptions as entityId}
+				{#each entityOptions as entityId (entityId)}
 					<option value={entityId}></option>
 				{/each}
 			</datalist>

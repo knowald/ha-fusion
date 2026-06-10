@@ -22,13 +22,15 @@
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		INSTALL: 1,
-		SPECIFIC_VERSION: 2,
-		PROGRESS: 4,
-		BACKUP: 8,
-		RELEASE_NOTES: 16
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			INSTALL: 1,
+			SPECIFIC_VERSION: 2,
+			PROGRESS: 4,
+			BACKUP: 8,
+			RELEASE_NOTES: 16
+		})
+	);
 
 	/**
 	 * Updates `installed` with a number from `attributes?.in_progress`
@@ -137,6 +139,7 @@
 
 		{#if attributes?.release_url}
 			<p>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link -->
 				<a href={attributes?.release_url} target="_blank">{$lang('update_release_notes')}</a>
 			</p>
 		{/if}

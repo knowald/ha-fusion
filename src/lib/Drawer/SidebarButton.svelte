@@ -5,7 +5,6 @@
 	import { generateId } from '$lib/Utils';
 	let { onclicked = undefined }: { onclicked?: () => void } = $props();
 
-
 	/**
 	 * Creates a new sidebar object in sidebar items
 	 */

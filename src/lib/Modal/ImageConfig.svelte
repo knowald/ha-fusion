@@ -10,7 +10,11 @@
 	import type { ImageItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: ImageItem;
 		demo?: string;
@@ -69,17 +73,17 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				type="text"
-				class="input"
-				bind:value={url}
-				placeholder="https://"
-				onchange={(event) => set('url', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					type="text"
+					class="input"
+					bind:value={url}
+					placeholder="https://"
+					onchange={(event) => set('url', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

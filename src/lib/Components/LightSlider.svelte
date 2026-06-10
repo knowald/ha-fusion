@@ -3,7 +3,14 @@
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 
-	let { entity, brightness, current = $bindable(), debounce = $bindable(), timeout = $bindable(), rangeValue = $bindable() }: {
+	let {
+		entity,
+		brightness,
+		current = $bindable(),
+		debounce = $bindable(),
+		timeout = $bindable(),
+		rangeValue = $bindable()
+	}: {
 		entity: HassEntity;
 		brightness: number;
 		current: number;

@@ -46,12 +46,13 @@
 <h2>{$lang('quick_play') || 'Quick Play Shortcuts'}</h2>
 
 <p class="description">
-	{$lang('quick_play_description') || 'Shown when nothing is playing. Add Spotify URIs for playlists, albums, or tracks.'}
+	{$lang('quick_play_description') ||
+		'Shown when nothing is playing. Add Spotify URIs for playlists, albums, or tracks.'}
 </p>
 
 {#if shortcuts.length > 0}
 	<div class="shortcut-list">
-		{#each shortcuts as shortcut, index}
+		{#each shortcuts as shortcut, index (index)}
 			<div class="shortcut-item">
 				{#if shortcut.image_url}
 					<img src={shortcut.image_url} alt={shortcut.name} class="shortcut-thumb" />
@@ -78,55 +79,49 @@
 {/if}
 
 <div class="add-form">
-	<InputClear
-		condition={newName}
-		onclear={() => (newName = '')}
-	>
+	<InputClear condition={newName} onclear={() => (newName = '')}>
 		{#snippet children(padding)}
-		<input
-			class="input"
-			type="text"
-			placeholder={$lang('name') || 'Name'}
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newName}
-			style:padding
-		/>
-	{/snippet}
+			<input
+				class="input"
+				type="text"
+				placeholder={$lang('name') || 'Name'}
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newName}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
-	<InputClear
-		condition={newUri}
-		onclear={() => (newUri = '')}
-	>
+	<InputClear condition={newUri} onclear={() => (newUri = '')}>
 		{#snippet children(padding)}
-		<input
-			class="input"
-			type="text"
-			placeholder="spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newUri}
-			style:padding
-		/>
-	{/snippet}
+			<input
+				class="input"
+				type="text"
+				placeholder="spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newUri}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
-	<InputClear
-		condition={newImageUrl}
-		onclear={() => (newImageUrl = '')}
-	>
+	<InputClear condition={newImageUrl} onclear={() => (newImageUrl = '')}>
 		{#snippet children(padding)}
-		<input
-			class="input"
-			type="text"
-			placeholder={($lang('image_url') || 'Image URL') + ' (' + ($lang('optional') || 'optional') + ')'}
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newImageUrl}
-			style:padding
-		/>
-	{/snippet}
+			<input
+				class="input"
+				type="text"
+				placeholder={($lang('image_url') || 'Image URL') +
+					' (' +
+					($lang('optional') || 'optional') +
+					')'}
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newImageUrl}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
 	<button

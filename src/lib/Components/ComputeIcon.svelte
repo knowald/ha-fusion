@@ -4,7 +4,13 @@
 	import { states } from '$lib/Stores';
 	import { computeIcon } from '$lib/Modal/PictureElements/computeIcon';
 	import { getDomain } from '$lib/Utils';
-	let { entity_id, getIconString = undefined, skipEntityPicture = undefined, size = undefined, oniconString = undefined }: {
+	let {
+		entity_id,
+		getIconString = undefined,
+		skipEntityPicture = undefined,
+		size = undefined,
+		oniconString = undefined
+	}: {
 		entity_id: string;
 		getIconString?: boolean | undefined;
 		skipEntityPicture?: boolean | undefined;
@@ -57,6 +63,7 @@
 		return entity && computedIcon ? computedIcon : 'mdi:room-service';
 	}
 </script>
+
 {#if currentIcon === 'entity_picture'}
 	<!--  entity_picture  -->
 	{#if src}
@@ -70,6 +77,7 @@
 {:else if entity_id && stateObj}
 	<!-- {(console.warn('icon missing ', entity_id, stateObj), '')} -->
 {/if}
+
 <style>
 	img {
 		width: 100%;

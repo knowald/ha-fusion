@@ -107,7 +107,7 @@
 			<Select
 				{options}
 				placeholder={$lang('alarm_modes_label')}
-				value={'alarm_disarm'}
+				value="alarm_disarm"
 				onchange={(event) => {
 					selectedService = event;
 				}}
@@ -118,7 +118,7 @@
 			<input type="password" class:reject bind:value={code} />
 
 			<div class="buttons">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit}
+				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit (digit)}
 					<button onclick={() => addCode(digit)} use:Ripple={$ripple}>
 						{digit}
 					</button>

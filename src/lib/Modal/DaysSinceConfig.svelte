@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, record, lang, ripple, history, historyIndex, connection, states } from '$lib/Stores';
+	import { dashboard, record, lang, ripple, connection, states } from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
@@ -10,7 +10,11 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	let { isOpen, sel = $bindable(), sectionName = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		sectionName = undefined
+	}: {
 		isOpen: boolean;
 		sel: any;
 		sectionName?: string;
@@ -22,15 +26,16 @@
 	let entity_id: string | undefined = $state(sel?.entity_id);
 
 	let suggestedEntityId = $state('');
-	let creatingEntity = $state(false);
 	let entityError = $state('');
 
 	let entityState = $derived(entity_id ? $states?.[entity_id] : undefined);
 	let last_reset = $derived(entityState?.state);
 
-	let dateInputValue = $derived(last_reset
-		? new Date(last_reset).toISOString().split('T')[0]
-		: new Date().toISOString().split('T')[0]);
+	let dateInputValue = $derived(
+		last_reset
+			? new Date(last_reset).toISOString().split('T')[0]
+			: new Date().toISOString().split('T')[0]
+	);
 
 	$effect(() => {
 		if (name && !entity_id) {
@@ -79,35 +84,6 @@
 		}
 	}
 
-	async function createEntity() {
-		if (!suggestedEntityId || !$connection) return;
-
-		creatingEntity = true;
-		entityError = '';
-
-		try {
-			// Check if entity already exists
-			if ($states?.[suggestedEntityId]) {
-				// Entity exists, just link it
-				entity_id = suggestedEntityId;
-				set('entity_id', { target: { value: entity_id } });
-				return;
-			}
-
-			// Create the input_datetime entity
-			await callService($connection, 'input_datetime', 'reload', {});
-
-			// Note: Creating input_datetime via service call isn't directly supported
-			// User needs to create it manually via HA UI or configuration.yaml
-			entityError = 'Please create the input_datetime entity manually in Home Assistant configuration.';
-		} catch (error: any) {
-			console.error('Failed to create entity:', error);
-			entityError = error.message || 'Failed to create entity';
-		} finally {
-			creatingEntity = false;
-		}
-	}
-
 	function linkEntity() {
 		if (suggestedEntityId) {
 			entity_id = suggestedEntityId;
@@ -138,18 +114,18 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={$lang('name') || 'Name'}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				onchange={(event) => set('name', event)}
-				style:padding
-			/>
-		{/snippet}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={$lang('name') || 'Name'}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')}</h2>
@@ -163,18 +139,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder="mdi:calendar-clock"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder="mdi:calendar-clock"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
@@ -201,18 +177,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('color')}
-					class="input"
-					type="text"
-					placeholder="rgb(75, 166, 237)"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={color}
-					onchange={(event) => set('color', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('color')}
+						class="input"
+						type="text"
+						placeholder="rgb(75, 166, 237)"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={color}
+						onchange={(event) => set('color', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<input
@@ -233,8 +209,7 @@
 		{#if !entity_id}
 			<div class="entity-setup">
 				<p class="entity-help">
-					This counter needs an <code>input_datetime</code> entity in Home Assistant to store the
-					timestamp.
+					This counter needs an <code>input_datetime</code> entity in Home Assistant to store the timestamp.
 				</p>
 
 				{#if suggestedEntityId}
@@ -250,8 +225,7 @@
 								Entity doesn't exist. Create it in Home Assistant:
 								<br />
 								<strong
-									>Settings → Devices & Services → Helpers → Create Helper → Date and/or
-									Time</strong
+									>Settings → Devices & Services → Helpers → Create Helper → Date and/or Time</strong
 								>
 								<br />
 								Then use entity ID: <code>{suggestedEntityId}</code>
@@ -268,18 +242,18 @@
 					}}
 				>
 					{#snippet children(padding)}
-					<input
-						name="Entity ID"
-						class="input"
-						type="text"
-						placeholder="input_datetime.days_since_..."
-						autocomplete="off"
-						spellcheck="false"
-						bind:value={entity_id}
-						onchange={(event) => set('entity_id', event)}
-						style:padding
-					/>
-				{/snippet}
+						<input
+							name="Entity ID"
+							class="input"
+							type="text"
+							placeholder="input_datetime.days_since_..."
+							autocomplete="off"
+							spellcheck="false"
+							bind:value={entity_id}
+							onchange={(event) => set('entity_id', event)}
+							style:padding
+						/>
+					{/snippet}
 				</InputClear>
 
 				{#if entityError}

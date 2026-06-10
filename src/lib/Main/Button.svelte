@@ -72,8 +72,8 @@
 	// Check if this is a light entity that supports brightness and has slide_brightness enabled
 	let isLightWithBrightness = $derived(
 		getDomain(entity_id) === 'light' &&
-		entity?.attributes?.brightness !== undefined &&
-		sel?.slide_brightness !== false
+			entity?.attributes?.brightness !== undefined &&
+			sel?.slide_brightness !== false
 	);
 
 	// Get current brightness (0-255 range from HA, convert to 0-100 percentage)
@@ -742,7 +742,10 @@
 
 	<div
 		class="left"
-		onclick={(e) => { e.stopPropagation(); if (!isDisplayOnly) handleEvent(e); }}
+		onclick={(e) => {
+			e.stopPropagation();
+			if (!isDisplayOnly) handleEvent(e);
+		}}
 		role="button"
 		tabindex={isDisplayOnly ? -1 : 0}
 	>

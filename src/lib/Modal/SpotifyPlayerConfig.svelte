@@ -10,7 +10,11 @@
 	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	let { isOpen, sel = $bindable(), sectionName = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		sectionName = undefined
+	}: {
 		isOpen: boolean;
 		sel: any;
 		sectionName?: string;
@@ -23,12 +27,15 @@
 	let show_progress: boolean = $state(sel?.show_progress ?? true);
 	let default_device: string | undefined = $state(sel?.default_device);
 
-	let spotifyEntities = $derived(Object.keys($states || {}).filter((key) =>
-		key.startsWith('media_player.spotify')
-	));
+	let spotifyEntities = $derived(
+		Object.keys($states || {}).filter((key) => key.startsWith('media_player.spotify'))
+	);
 
 	// Device list from SpotifyPlus
-	interface SpDevice { Id: string; Name: string; }
+	interface SpDevice {
+		Id: string;
+		Name: string;
+	}
 	let devices: SpDevice[] = $state([]);
 
 	function getSpotifyPlusEntity(): string | undefined {
@@ -81,13 +88,9 @@
 		<h2>{$lang('entity') || 'Entity'}</h2>
 
 		{#if spotifyEntities.length > 0}
-			<select
-				class="input"
-				bind:value={entity_id}
-				onchange={(event) => set('entity_id', event)}
-			>
+			<select class="input" bind:value={entity_id} onchange={(event) => set('entity_id', event)}>
 				<option value={undefined}>{$lang('select_entity') || 'Select entity'}</option>
-				{#each spotifyEntities as entity}
+				{#each spotifyEntities as entity (entity)}
 					<option value={entity}>{entity}</option>
 				{/each}
 			</select>
@@ -107,18 +110,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name="Entity ID"
-					class="input"
-					type="text"
-					placeholder="media_player.spotify_username"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={entity_id}
-					onchange={(event) => set('entity_id', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name="Entity ID"
+						class="input"
+						type="text"
+						placeholder="media_player.spotify_username"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={entity_id}
+						onchange={(event) => set('entity_id', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		{/if}
 
@@ -132,18 +135,18 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={$lang('name') || 'Name'}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				onchange={(event) => set('name', event)}
-				style:padding
-			/>
-		{/snippet}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={$lang('name') || 'Name'}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')}</h2>
@@ -157,18 +160,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder="mdi:spotify"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder="mdi:spotify"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
@@ -195,18 +198,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('color')}
-					class="input"
-					type="text"
-					placeholder="rgb(30, 215, 96)"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={color}
-					onchange={(event) => set('color', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('color')}
+						class="input"
+						type="text"
+						placeholder="rgb(30, 215, 96)"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={color}
+						onchange={(event) => set('color', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<input
@@ -247,7 +250,7 @@
 				}}
 			>
 				<option value="">{$lang('auto') || 'Auto'}</option>
-				{#each devices as device}
+				{#each devices as device, i (i)}
 					<option value={device.Name}>{device.Name}</option>
 				{/each}
 			</select>

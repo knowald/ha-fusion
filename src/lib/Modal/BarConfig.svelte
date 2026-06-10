@@ -22,7 +22,11 @@
 	import { updateObj, getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: BarItem;
 		demo?: string;
@@ -81,19 +85,19 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				id="bar_name"
-				type="text"
-				bind:value={name}
-				onchange={(event) => set('name', event)}
-				placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
-				class:input={true}
-				class:placeholder={!name}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					id="bar_name"
+					type="text"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
+					class:input={true}
+					class:placeholder={!name}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('value')}</h2>
@@ -107,7 +111,7 @@
 				{@const formulas = ['x', '100 - x', 'Math.round(x)', 'x * 100']}
 
 				<div class="pre-container" transition:slide={{ duration: $motion / 1.5 }}>
-					{#each formulas as formula}
+					{#each formulas as formula (formula)}
 						<button class="math" onclick={() => set('math', formula)} use:Ripple={$ripple}>
 							<pre>{formula}</pre>
 						</button>
@@ -124,19 +128,19 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				id="bar_math"
-				class="input"
-				type="text"
-				oninput={(event) => set('math', event)}
-				bind:value={math}
-				placeholder="x"
-				autocomplete="off"
-				spellcheck="false"
-				style="font-family: monospace; font-size: 1rem;"
-				style:padding
-			/>
-		{/snippet}
+				<input
+					id="bar_math"
+					class="input"
+					type="text"
+					oninput={(event) => set('math', event)}
+					bind:value={math}
+					placeholder="x"
+					autocomplete="off"
+					spellcheck="false"
+					style="font-family: monospace; font-size: 1rem;"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>

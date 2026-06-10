@@ -43,6 +43,7 @@
 		onclicked?.();
 	}
 </script>
+
 <button class="button dropdown" onclick={handleClick} use:Ripple={$ripple}>
 	<figure style:width="1.35rem">
 		<Icon icon="fluent:tab-add-24-filled" height="none" />

@@ -3,7 +3,10 @@
 	import { fade } from 'svelte/transition';
 	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
-	let { onclicked = undefined, view, onchange = undefined }: { onclicked?: (() => void) | undefined; view: any; onchange?: ((event: { detail: number }) => void) | undefined } = $props();
+	let {
+		view,
+		onchange = undefined
+	}: { view: any; onchange?: ((event: { detail: number }) => void) | undefined } = $props();
 
 	let clientWidth = $state(0);
 

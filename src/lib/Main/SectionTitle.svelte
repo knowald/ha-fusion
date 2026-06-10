@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { editMode, lang, record } from '$lib/Stores';
-	let { value: initialValue, onsubmit = undefined }: { value: string; onsubmit?: (value: string) => void } = $props();
-	let value = $state(initialValue);
+	let {
+		value: initialValue,
+		onsubmit = undefined
+	}: { value: string; onsubmit?: (value: string) => void } = $props();
+	let value = $derived(initialValue);
 	let width: number;
 	let input: HTMLInputElement;
-
-	$effect(() => { value = initialValue; });
 
 	function handleSubmit() {
 		if (!$editMode) return;
@@ -23,6 +24,7 @@
 		}
 	}
 </script>
+
 <!-- reference width -->
 <div class="hidden" bind:offsetWidth={width}>
 	{#if value === ''}
@@ -31,7 +33,12 @@
 		{@html value.replaceAll(' ', '&nbsp;')}
 	{/if}
 </div>
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+>
 	<input
 		class="input"
 		name={value}
@@ -45,6 +52,7 @@
 		placeholder={$lang('section')}
 	/>
 </form>
+
 <style>
 	.hidden {
 		position: absolute;

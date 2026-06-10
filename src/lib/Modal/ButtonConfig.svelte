@@ -23,7 +23,12 @@
 	import { openModal } from '$lib/Modals';
 	import parser from 'js-yaml';
 
-	let { isOpen, sel = $bindable(), demo = undefined, sectionName = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined,
+		sectionName = undefined
+	}: {
 		isOpen: boolean;
 		sel: ButtonItem;
 		demo?: string | undefined;
@@ -216,21 +221,21 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('name')}
-					class="input"
-					type="text"
-					placeholder={template?.name?.output ||
-						getName(sel, (entity_id && $states[entity_id]) || undefined) ||
-						$lang('name')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={name}
-					onchange={(event) => set('name', event)}
-					style:padding
-					disabled={Boolean(template?.name?.output)}
-					class:disabled={Boolean(template?.name?.output)}
-				/>
+					<input
+						name={$lang('name')}
+						class="input"
+						type="text"
+						placeholder={template?.name?.output ||
+							getName(sel, (entity_id && $states[entity_id]) || undefined) ||
+							$lang('name')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={name}
+						onchange={(event) => set('name', event)}
+						style:padding
+						disabled={Boolean(template?.name?.output)}
+						class:disabled={Boolean(template?.name?.output)}
+					/>
 				{/snippet}
 			</InputClear>
 
@@ -263,21 +268,21 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('state')}
-					class="input"
-					type="text"
-					placeholder={template?.state?.output ||
-						(entity_id && $states?.[entity_id]?.state) ||
-						$lang('state')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={stateOverride}
-					onchange={(event) => set('state', event)}
-					style:padding
-					disabled={Boolean(template?.state?.output)}
-					class:disabled={Boolean(template?.state?.output)}
-				/>
+					<input
+						name={$lang('state')}
+						class="input"
+						type="text"
+						placeholder={template?.state?.output ||
+							(entity_id && $states?.[entity_id]?.state) ||
+							$lang('state')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={stateOverride}
+						onchange={(event) => set('state', event)}
+						style:padding
+						disabled={Boolean(template?.state?.output)}
+						class:disabled={Boolean(template?.state?.output)}
+					/>
 				{/snippet}
 			</InputClear>
 
@@ -312,21 +317,21 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder={(sel?.template?.icon && template?.icon?.output) ||
-						computedIcon ||
-						$lang('icon')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-					disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
-					class:disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
-				/>
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder={(sel?.template?.icon && template?.icon?.output) ||
+							computedIcon ||
+							$lang('icon')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+						disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
+						class:disabled={Boolean(sel?.template?.icon && template?.icon?.output)}
+					/>
 				{/snippet}
 			</InputClear>
 
@@ -371,23 +376,23 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('color')}
-					class="input"
-					type="text"
-					placeholder={sel?.template?.color && template?.color?.output
-						? template?.color?.output
-						: $states?.[sel?.entity_id]?.attributes?.hs_color
-							? `hsl(${$states?.[sel?.entity_id]?.attributes?.hs_color}%, 50%)`
-							: 'rgb(75, 166, 237)'}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={color}
-					onchange={(event) => set('color', event)}
-					style:padding
-					disabled={Boolean(template?.color?.output) || displayOnly}
-					class:disabled={Boolean(template?.color?.output) || displayOnly}
-				/>
+					<input
+						name={$lang('color')}
+						class="input"
+						type="text"
+						placeholder={sel?.template?.color && template?.color?.output
+							? template?.color?.output
+							: $states?.[sel?.entity_id]?.attributes?.hs_color
+								? `hsl(${$states?.[sel?.entity_id]?.attributes?.hs_color}%, 50%)`
+								: 'rgb(75, 166, 237)'}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={color}
+						onchange={(event) => set('color', event)}
+						style:padding
+						disabled={Boolean(template?.color?.output) || displayOnly}
+						class:disabled={Boolean(template?.color?.output) || displayOnly}
+					/>
 				{/snippet}
 			</InputClear>
 
@@ -566,7 +571,11 @@
 				</button>
 			</div>
 
-			<h2>{$lang('show_status_on_button') !== 'show_status_on_button' ? $lang('show_status_on_button') : 'Status on button'}</h2>
+			<h2>
+				{$lang('show_status_on_button') !== 'show_status_on_button'
+					? $lang('show_status_on_button')
+					: 'Status on button'}
+			</h2>
 			<div class="button-container">
 				<button
 					class:selected={showStatusOnButton}
@@ -592,7 +601,7 @@
 
 			<h2>{$lang('vacuum_plans') !== 'vacuum_plans' ? $lang('vacuum_plans') : 'Cleaning plans'}</h2>
 			<div class="vacuum-list">
-				{#each vacuumPlans as plan, i}
+				{#each vacuumPlans as plan, i (i)}
 					<div class="vacuum-list-item">
 						<span class="overflow">{$states[plan]?.attributes?.friendly_name || plan}</span>
 						<button class="vacuum-remove-btn" onclick={() => removePlan(i)}>x</button>
@@ -618,7 +627,7 @@
 
 			<h2>{$lang('rooms') !== 'rooms' ? $lang('rooms') : 'Rooms'}</h2>
 			<div class="vacuum-list">
-				{#each vacuumRooms as room, i}
+				{#each vacuumRooms as room, i (i)}
 					<div class="vacuum-list-item">
 						<span class="overflow">{room.name} ({room.id})</span>
 						<button class="vacuum-remove-btn" onclick={() => removeRoom(i)}>x</button>
@@ -645,7 +654,11 @@
 				</button>
 			</div>
 
-			<h2>{$lang('mop_intensity') !== 'mop_intensity' ? $lang('mop_intensity') : 'Mop intensity entity'}</h2>
+			<h2>
+				{$lang('mop_intensity') !== 'mop_intensity'
+					? $lang('mop_intensity')
+					: 'Mop intensity entity'}
+			</h2>
 			<div class="full-width">
 				<Select
 					options={$entityList('select')}

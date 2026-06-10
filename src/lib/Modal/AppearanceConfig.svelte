@@ -8,7 +8,11 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { isOpen, highlight = $bindable(false), themes = undefined }: {
+	let {
+		isOpen,
+		highlight = $bindable(false),
+		themes = undefined
+	}: {
 		isOpen: boolean;
 		highlight?: boolean;
 		themes?: any;
@@ -132,7 +136,7 @@
 
 		{#if themes}
 			<div class="gallery" bind:this={gallery}>
-				{#each themes as theme}
+				{#each themes as theme, i (i)}
 					{@const _theme = $dashboard?.theme === theme?.title}
 					<button
 						use:Ripple={{
@@ -169,7 +173,6 @@
 													theme: theme
 												});
 											}}
-										
 											role="button"
 											tabindex="0"
 										>

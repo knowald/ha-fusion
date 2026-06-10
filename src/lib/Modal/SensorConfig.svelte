@@ -20,7 +20,11 @@
 	import type { SensorItem } from '$lib/Types';
 	import { isTimestamp } from '$lib/Utils';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: SensorItem;
 		demo?: string;
@@ -104,18 +108,18 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				id="sensor_prefix"
-				class="input"
-				type="text"
-				bind:value={prefix}
-				placeholder="Prefix"
-				onchange={(event) => set('prefix', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
-		{/snippet}
+				<input
+					id="sensor_prefix"
+					class="input"
+					type="text"
+					bind:value={prefix}
+					placeholder="Prefix"
+					onchange={(event) => set('prefix', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('after')}</h2>
@@ -128,18 +132,18 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				id="sensor_suffix"
-				class="input"
-				type="text"
-				bind:value={suffix}
-				placeholder="Suffix"
-				onchange={(event) => set('suffix', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
-		{/snippet}
+				<input
+					id="sensor_suffix"
+					class="input"
+					type="text"
+					bind:value={suffix}
+					placeholder="Suffix"
+					onchange={(event) => set('suffix', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('date')}</h2>

@@ -5,7 +5,13 @@
 	import { writable } from 'svelte/store';
 	import type { CameraItem } from '$lib/Types';
 
-	let { sel, demo = undefined, responsive, muted, controls }: {
+	let {
+		sel,
+		demo = undefined,
+		responsive,
+		muted,
+		controls
+	}: {
 		sel: CameraItem;
 		demo?: string | undefined;
 		responsive: boolean;
@@ -19,7 +25,9 @@
 	let stream_url = $state<string | undefined>();
 	let attachVideo = $state<boolean>(false);
 
-	let entity = $derived((demo && $states?.[demo]) || (sel?.entity_id ? $states?.[sel?.entity_id] : undefined));
+	let entity = $derived(
+		(demo && $states?.[demo]) || (sel?.entity_id ? $states?.[sel?.entity_id] : undefined)
+	);
 	let frontend_stream_type = $derived(entity?.attributes?.frontend_stream_type);
 	let size = $derived(sel?.size === 'contain' ? 'contain' : 'cover');
 

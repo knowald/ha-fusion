@@ -12,7 +12,10 @@ export function handleVisibility($editMode: boolean, sections: Section[], states
 	sections.forEach((section: Section) => {
 		if (handleAllConditions($editMode, states, section)) {
 			// horizontal-stack or vertical-stack
-			if ((section.type === 'horizontal-stack' || section.type === 'vertical-stack') && section.sections) {
+			if (
+				(section.type === 'horizontal-stack' || section.type === 'vertical-stack') &&
+				section.sections
+			) {
 				const stack = section.sections
 					.filter((nested: Section) => handleAllConditions($editMode, states, nested))
 					.map((nested: Section) => {

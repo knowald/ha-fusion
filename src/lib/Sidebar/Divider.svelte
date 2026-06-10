@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { motion, editMode } from '$lib/Stores';
 
-	let { defaultValue = '50', size = undefined, mode = undefined }: {
+	let {
+		defaultValue = '50',
+		size = undefined,
+		mode = undefined
+	}: {
 		defaultValue?: string | undefined;
 		size?: number | undefined;
 		mode?: string | undefined;

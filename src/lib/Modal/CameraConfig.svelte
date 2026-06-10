@@ -17,7 +17,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Camera from '$lib/Main/Camera.svelte';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: any;
 		demo?: string;

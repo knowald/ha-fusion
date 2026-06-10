@@ -12,7 +12,6 @@
 	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
 
 	let importedComponents: (string | undefined)[] = [];
-	let mountedComponents = $state(false);
 
 	let Bar: Component<any> = $state(undefined as any);
 	let Camera: Component<any> = $state(undefined as any);
@@ -68,28 +67,16 @@
 		const types = [...new Set($dashboard.sidebar.map((item) => item.type))];
 		const promises = [];
 
-		// counter for supported and not yet imported imports
-		let validImports = 0;
-
 		for (let type of types) {
 			const module = imports[type as keyof typeof imports];
 
 			if (!importedComponents.includes(type) && module) {
 				promises.push(module());
 				importedComponents.push(type);
-				validImports++;
 			}
 		}
 
 		await Promise.all(promises);
-
-		/**
-		 * Wait for all imports to complete then set `loaded` flag
-		 * to prevent flip animation before components has loaded.
-		 */
-		if (importedComponents.length >= validImports) {
-			mountedComponents = true;
-		}
 	}
 
 	/**
@@ -156,7 +143,6 @@
 	function handleFinalize(newItems: any[]) {
 		if (altKeyPressed) {
 			// Find the item that moved to a new position and clone it
-			const oldIds = new Set($dashboard.sidebar.map((item: any) => item.id));
 			const newOrder = newItems.map((item: any) => item.id);
 			const oldOrder = $dashboard.sidebar.map((item: any) => item.id);
 
@@ -221,7 +207,9 @@
 				items: $dashboard?.sidebar,
 				animation: $motion,
 				disabled: !$editMode,
-				onStart: () => { $dragging = true; },
+				onStart: () => {
+					$dragging = true;
+				},
 				onFinalize: handleFinalize
 			}}
 		>
@@ -327,7 +315,8 @@
 					{:else if Navigate && item?.type === 'navigate' && !hide_mobile}
 						{#key $editMode}
 							<div
-								onclick={(e) => { e.preventDefault();
+								onclick={(e) => {
+									e.preventDefault();
 									if ($editMode) handleClick(item?.id);
 								}}
 								role="button"

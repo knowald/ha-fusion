@@ -52,19 +52,15 @@
 	// isolate each attribute to prevent mass reactivity
 	let timeout = $derived(sel?.timeout ?? 900);
 
-	// current_media_player is reassigned in handlePaused, so use $state + $effect
-	let current_media_player = $state<HassEntity | undefined>(undefined);
-	$effect(() => {
-		current_media_player = getCurrent(sel?.media_players, $states, pauseExpired, timeout);
-	});
+	// writable derived: reassigned in handlePaused
+	let current_media_player: HassEntity | undefined = $derived(
+		getCurrent(sel?.media_players, $states, pauseExpired, timeout)
+	);
 
 	let currentEntityId = $derived(current_media_player?.entity_id);
 
-	// currentState is reassigned in handleClick, so use $state + $effect
-	let currentState: string | undefined = $state(undefined);
-	$effect(() => {
-		currentState = current_media_player?.state;
-	});
+	// writable derived: reassigned in handleClick
+	let currentState: string | undefined = $derived(current_media_player?.state);
 
 	let currentAttr = $derived(current_media_player?.attributes);
 	let media_artist = $derived(currentAttr?.media_artist);
@@ -305,7 +301,6 @@
 
 <div
 	data-exclude-drag-modal
-
 	tabindex="0"
 	role="button"
 	onclick={handleClick}

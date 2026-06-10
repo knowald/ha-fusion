@@ -20,7 +20,11 @@
 	import { updateObj } from '$lib/Utils';
 	import type { WeatherItem } from '$lib/Types';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: WeatherItem;
 		demo?: string;
@@ -41,10 +45,12 @@
 
 	let options = $derived($entityList('weather'));
 
-	let sensorOptions = $derived(Object.keys($states)
-		.filter((key) => key.startsWith('sensor.'))
-		.sort()
-		.map((key) => ({ id: key, label: key })));
+	let sensorOptions = $derived(
+		Object.keys($states)
+			.filter((key) => key.startsWith('sensor.'))
+			.sort()
+			.map((key) => ({ id: key, label: key }))
+	);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -129,17 +135,17 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					class="input"
-					type="text"
-					placeholder="codicon:blank"
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-					autocomplete="off"
-					spellcheck="false"
-				/>
-			{/snippet}
+					<input
+						class="input"
+						type="text"
+						placeholder="codicon:blank"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+						autocomplete="off"
+						spellcheck="false"
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button

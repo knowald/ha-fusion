@@ -35,7 +35,7 @@
 </h2>
 
 <div>
-	{#each buttons as button}
+	{#each buttons as button (button.id)}
 		{#if button?.id}
 			<button class="action options" onclick={() => handleClick(button?.id)} use:Ripple={$ripple}>
 				{$lang(button?.id)}

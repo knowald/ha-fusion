@@ -17,11 +17,13 @@
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		FORECAST_DAILY: 1,
-		FORECAST_HOURLY: 2,
-		FORECAST_TWICE_DAILY: 4
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			FORECAST_DAILY: 1,
+			FORECAST_HOURLY: 2,
+			FORECAST_TWICE_DAILY: 4
+		})
+	);
 
 	/**
 	 * tame reactivity
@@ -37,10 +39,12 @@
 	});
 
 	// forecast_type fallback
-	let defaultForecastType = $derived(Object.keys(supports)
-		?.find((key) => supports?.[key])
-		?.replace('FORECAST_', '')
-		?.toLowerCase());
+	let defaultForecastType = $derived(
+		Object.keys(supports)
+			?.find((key) => supports?.[key])
+			?.replace('FORECAST_', '')
+			?.toLowerCase()
+	);
 
 	// get forecast when not dragging
 	// and when entity_id or forecast_type changes
@@ -109,22 +113,25 @@
 		temperature: number;
 	}
 
-	let forecast: Forecast[] = $derived($forecasts?.[sel?.id]?.forecast?.slice(0, calculated).map(function (item: any) {
-		let icon: WeatherIconMapping =
-			iconSet.conditions[item?.condition as keyof WeatherIconConditions];
-		let x: Forecast = {
-			condition: item?.condition,
-			icon: icon,
-			date: item?.datetime,
-			temperature: item?.temperature
-		};
+	let forecast: Forecast[] = $derived(
+		$forecasts?.[sel?.id]?.forecast?.slice(0, calculated).map(function (item: any) {
+			let icon: WeatherIconMapping =
+				iconSet.conditions[item?.condition as keyof WeatherIconConditions];
+			let x: Forecast = {
+				condition: item?.condition,
+				icon: icon,
+				date: item?.datetime,
+				temperature: item?.temperature
+			};
 
-		return x;
-	}));
+			return x;
+		})
+	);
 
 	// Different forecast providers choose different intervals, we need to figure out display based on this
 	let forecast_diff = $derived(
-		(new Date(forecast?.[1]?.date).valueOf() - new Date(forecast?.[0]?.date).valueOf()) / 3600000);
+		(new Date(forecast?.[1]?.date).valueOf() - new Date(forecast?.[0]?.date).valueOf()) / 3600000
+	);
 
 	// cleanup
 	onDestroy(() => {
@@ -137,7 +144,7 @@
 
 {#if forecast}
 	<div class="container">
-		{#each forecast as forecast}
+		{#each forecast as forecast, i (i)}
 			<div class="item">
 				<div class="day">
 					{#if forecast_diff < 24}

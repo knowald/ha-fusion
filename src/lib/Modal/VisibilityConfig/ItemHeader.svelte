@@ -5,7 +5,12 @@
 	import RemoveButton from '$lib/Modal/VisibilityConfig/RemoveButton.svelte';
 	import type { Condition } from '$lib/Types';
 
-	let { item = $bindable(), items = $bindable(), matches, innerWidth }: {
+	let {
+		item = $bindable(),
+		items = $bindable(),
+		matches,
+		innerWidth
+	}: {
 		item: Condition;
 		items: Condition[];
 		matches: { [key: string]: boolean };

@@ -16,7 +16,18 @@
 	 *   - frontend_stream_type will change from hls to web_rtc
 	 */
 
-	let { sel, entity, stream_url = $bindable(), muted = true, loaderVisible = $bindable(), controls = false, responsive = undefined, size, debug, attachVideo }: {
+	let {
+		sel,
+		entity,
+		stream_url = $bindable(),
+		muted = true,
+		loaderVisible = $bindable(),
+		controls = false,
+		responsive = undefined,
+		size,
+		debug,
+		attachVideo
+	}: {
 		sel: any;
 		entity: any;
 		stream_url?: any | undefined;

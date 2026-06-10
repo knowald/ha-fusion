@@ -21,9 +21,11 @@
 
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
-	let supports = $derived(getSupport(supported_features, {
-		OPEN: 1
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			OPEN: 1
+		})
+	);
 
 	function handleClick() {
 		const service = entityState === 'locked' ? 'unlock' : 'lock';

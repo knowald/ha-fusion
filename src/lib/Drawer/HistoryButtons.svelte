@@ -17,7 +17,6 @@
 
 	historyUpdater(snapshot);
 
-
 	/**
 	 * Reactive statement to handle
 	 * changes to `$history` array

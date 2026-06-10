@@ -26,7 +26,10 @@
 
 	<button
 		class="action remove"
-		onclick={(e) => { e.preventDefault(); handleClick(); }}
+		onclick={(e) => {
+			e.preventDefault();
+			handleClick();
+		}}
 		use:Ripple={{
 			...$ripple,
 			color: 'rgba(0, 0, 0, 0.35)'

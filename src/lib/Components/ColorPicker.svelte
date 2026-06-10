@@ -8,7 +8,13 @@
 	// const colorSupport = ['hs', 'xy', 'rgb', 'rgbw', 'rgbww'];
 	// const brightnessSupport = [...colorSupport, 'color_temp', 'brightness', 'white'];
 
-	let { entity, colorMode, supportedColorModes, tempSelected, colorSelected }: {
+	let {
+		entity,
+		colorMode,
+		supportedColorModes,
+		tempSelected,
+		colorSelected
+	}: {
 		entity: HassEntity;
 		colorMode: any;
 		supportedColorModes: any;

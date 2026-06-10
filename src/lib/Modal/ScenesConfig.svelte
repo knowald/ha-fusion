@@ -19,7 +19,11 @@
 	import { updateObj, getName } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 
-	let { isOpen, sel = $bindable(), demo = undefined }: {
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
 		isOpen: boolean;
 		sel: ButtonItem;
 		demo?: string;
@@ -79,18 +83,19 @@
 			}}
 		>
 			{#snippet children(padding)}
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined) || $lang('name')}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				onchange={(event) => set('name', event)}
-				style:padding
-			/>
-		{/snippet}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined) ||
+						$lang('name')}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>
@@ -106,18 +111,18 @@
 				}}
 			>
 				{#snippet children(padding)}
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder={computedIcon || $lang('icon')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					onchange={(event) => set('icon', event)}
-					style:padding
-				/>
-			{/snippet}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder={computedIcon || $lang('icon')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button

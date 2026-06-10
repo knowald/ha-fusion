@@ -7,7 +7,11 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { closeModal } from '$lib/Modals';
 
-	let { isOpen, sel, info }: {
+	let {
+		isOpen,
+		sel,
+		info
+	}: {
 		isOpen: boolean;
 		sel: any;
 		info: any;
@@ -21,11 +25,13 @@
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 
-	let supports = $derived(getSupport(supported_features, {
-		CREATE_EVENT: 1,
-		DELETE_EVENT: 2,
-		UPDATE_EVENT: 4
-	}));
+	let supports = $derived(
+		getSupport(supported_features, {
+			CREATE_EVENT: 1,
+			DELETE_EVENT: 2,
+			UPDATE_EVENT: 4
+		})
+	);
 
 	function format(type?: string) {
 		const options: Record<string, string> = {

@@ -4,7 +4,11 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 
-	let { entity_id = undefined, name = undefined, strokeWidth = 9 }: {
+	let {
+		entity_id = undefined,
+		name = undefined,
+		strokeWidth = 9
+	}: {
 		entity_id?: string;
 		name?: string;
 		strokeWidth?: number;

@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { states, lang } from '$lib/Stores';
 
-	let { entity_id = undefined, url = undefined }: {
+	let {
+		entity_id = undefined,
+		url = undefined
+	}: {
 		entity_id?: string | undefined;
 		url?: string | undefined;
 	} = $props();

@@ -14,7 +14,11 @@
 	import Logout from '$lib/Settings/Logout.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	let { data, isOpen, languages }: {
+	let {
+		data,
+		isOpen,
+		languages
+	}: {
 		data: any;
 		isOpen: boolean;
 		languages: { id: string; label: string }[];
@@ -117,7 +121,12 @@
 	<Modal>
 		{#snippet title()}<h1>{$lang('settings')}</h1>{/snippet}
 
-		<form id="settings" name="settings" bind:this={formElement} onsubmit={(e) => e.preventDefault()}>
+		<form
+			id="settings"
+			name="settings"
+			bind:this={formElement}
+			onsubmit={(e) => e.preventDefault()}
+		>
 			<Language {languages} />
 
 			<Token />
@@ -138,7 +147,10 @@
 				<div class="save-container">
 					<button
 						class="action save"
-						onclick={(e) => { e.preventDefault(); handleSubmit(); }}
+						onclick={(e) => {
+							e.preventDefault();
+							handleSubmit();
+						}}
 						use:Ripple={{
 							...$ripple,
 							color: 'rgba(0, 0, 0, 0.35)'
@@ -158,7 +170,14 @@
 					{/if}
 				</div>
 
-				<button class="action done" onclick={(e) => { e.preventDefault(); closeModal(); }} use:Ripple={$ripple}>
+				<button
+					class="action done"
+					onclick={(e) => {
+						e.preventDefault();
+						closeModal();
+					}}
+					use:Ripple={$ripple}
+				>
 					{$lang('done')}
 				</button>
 			</div>

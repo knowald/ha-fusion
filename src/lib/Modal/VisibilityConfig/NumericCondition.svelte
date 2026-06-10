@@ -48,7 +48,7 @@
 	value={item.entity}
 	onchange={(event) => handleEntity(item?.id, event)}
 	computeIcons={true}
-	defaultIcon={'mdi:state-machine'}
+	defaultIcon="mdi:state-machine"
 />
 
 <br />

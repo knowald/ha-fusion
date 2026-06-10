@@ -10,7 +10,18 @@
 	 * https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8
 	 */
 
-	let { sel, entity, stream_url = $bindable(), size, loaderVisible = $bindable(), responsive = undefined, muted = true, controls = false, debug, attachVideo }: {
+	let {
+		sel,
+		entity,
+		stream_url = $bindable(),
+		size,
+		loaderVisible = $bindable(),
+		responsive = undefined,
+		muted = true,
+		controls = false,
+		debug,
+		attachVideo
+	}: {
 		sel: any;
 		entity: any;
 		stream_url?: string | undefined;

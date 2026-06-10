@@ -4,7 +4,13 @@
 	import Ripple from '$lib/Actions/ripple';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	let { confirm, cancel, title, message, isOpen }: { confirm: any; cancel: any; title: string; message: string; isOpen: boolean } = $props();
+	let {
+		confirm,
+		cancel,
+		title: alertTitle,
+		message,
+		isOpen
+	}: { confirm: any; cancel: any; title: string; message: string; isOpen: boolean } = $props();
 
 	let cancelButton: HTMLButtonElement;
 
@@ -15,7 +21,7 @@
 
 {#if isOpen}
 	<Modal backdropImage={false}>
-		{#snippet title()}<h1>{title}</h1>{/snippet}
+		{#snippet title()}<h1>{alertTitle}</h1>{/snippet}
 
 		<p>{message}</p>
 

@@ -3,7 +3,11 @@
 	import { getDomain, isTimestamp, relativeTime } from '$lib/Utils';
 	import type { HassEntity } from 'home-assistant-js-websocket';
 
-	let { selected, contentWidth = undefined, entity_id }: {
+	let {
+		selected,
+		contentWidth = undefined,
+		entity_id
+	}: {
 		selected: any;
 		contentWidth?: number;
 		entity_id: string | undefined;

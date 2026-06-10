@@ -58,6 +58,7 @@
 			} else if (type === 'time') {
 				// 'HH:MM:SS'
 				const timeParts = entityState.split(':');
+				// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 				const date = new Date();
 				date.setHours(Number(timeParts[0]), Number(timeParts[1]), Number(timeParts[2] || 0));
 				return new Intl.DateTimeFormat($selectedLanguage, {
@@ -73,7 +74,7 @@
 		}
 	}
 
-	function convert(state: string) {
+	function convert() {
 		const date = new Date(entityState);
 		const year = date.getUTCFullYear();
 		const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
@@ -104,7 +105,7 @@
 		<input
 			class="input"
 			type={domain === 'datetime' || type === 'datetime' ? 'datetime-local' : type}
-			value={domain === 'datetime' ? convert(entityState) : entityState}
+			value={domain === 'datetime' ? convert() : entityState}
 			onchange={handleChange}
 		/>
 

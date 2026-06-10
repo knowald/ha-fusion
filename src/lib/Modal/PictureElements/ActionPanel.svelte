@@ -9,7 +9,12 @@
 	import { slide } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 
-	let { konva, selectedShape, selectedShapes, entityOptions }: {
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		entityOptions
+	}: {
 		konva: KonvaEditor;
 		selectedShape: ShapeConfig;
 		selectedShapes: ShapeConfig[];
@@ -177,8 +182,8 @@
 
 	let disabled = $derived(
 		!selectedShape?.attrs?.draggable ||
-		selectedShapes?.length !== 1 ||
-		['v-guide', 'h-guide', 'group'].includes(selectedShape?.attrs?.type)
+			selectedShapes?.length !== 1 ||
+			['v-guide', 'h-guide', 'group'].includes(selectedShape?.attrs?.type)
 	);
 </script>
 
@@ -204,7 +209,10 @@
 		<button
 			title={testState === undefined ? 'Test' : testState ? 'Success' : 'Open Browser Console'}
 			{disabled}
-			onclick={(e) => { e.stopPropagation(); handleClick(); }}
+			onclick={(e) => {
+				e.stopPropagation();
+				handleClick();
+			}}
 		>
 			{#if testState === undefined}
 				<Icon icon={icons['test']} width="20" height="20" />
@@ -266,13 +274,13 @@
 {/if}
 
 <datalist id="serviceOptions">
-	{#each serviceOptions as service}
+	{#each serviceOptions as service (service)}
 		<option value={service}></option>
 	{/each}
 </datalist>
 
 <datalist id="entityOptions">
-	{#each entityOptions as entityId}
+	{#each entityOptions as entityId (entityId)}
 		<option value={entityId}></option>
 	{/each}
 </datalist>
