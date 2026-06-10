@@ -93,6 +93,9 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.12.0
+        version: 9.12.0
       '@event-calendar/core':
         specifier: ^3.6.1
         version: 3.6.1
