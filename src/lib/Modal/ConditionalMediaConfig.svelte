@@ -164,12 +164,13 @@
 							value={item.entity_id || ''}
 							clearable={sel?.media_players?.length > 1}
 							onchange={(event) => {
-								if (event) {
-									sel.media_players[index] = { entity_id: event };
-								} else {
-									sel.media_players.splice(index, 1);
-								}
-								set('media_players', sel.media_players);
+								// build a new array reference so the change invalidates reactively
+								const next = event
+									? sel.media_players.map((player: { entity_id: string }, i: number) =>
+											i === index ? { entity_id: event } : player
+										)
+									: sel.media_players.filter((_: unknown, i: number) => i !== index);
+								set('media_players', next);
 							}}
 						/>
 

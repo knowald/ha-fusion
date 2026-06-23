@@ -17,7 +17,7 @@
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { base } from '$app/paths';
 	import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import Progress from '$lib/Components/Progress.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut, expoOut } from 'svelte/easing';
@@ -68,11 +68,16 @@
 	let app_id = $derived(currentAttr?.app_id);
 	let entity_picture = $derived(currentAttr?.entity_picture);
 
-	// paused media_player state, expire in seconds
+	// paused media_player state, expire in seconds.
+	// handlePaused writes pauseExpired, which current_media_player (a derived) depends on,
+	// so it must run untracked - otherwise the effect re-enters on its own write. The only
+	// intended triggers are the underlying player/state/timeout reads below.
 	$effect(() => {
-		if (currentEntityId || currentState || timeout || sel?.show_timeout) {
-			handlePaused(false);
-		}
+		void currentEntityId;
+		void currentState;
+		void timeout;
+		void sel?.show_timeout;
+		untrack(() => handlePaused(false));
 	});
 
 	let active = $derived(currentState === 'playing' || (currentState === 'paused' && !pauseExpired));
@@ -177,8 +182,13 @@
 
 			// not paused
 		} else {
-			pauseExpired = false;
-			remaining = undefined;
+			// Only reset expiry when there is an actual player to show. When current_media_player
+			// is undefined because the paused player already expired, resetting would re-select
+			// that player and oscillate pauseExpired forever.
+			if (current_media_player) {
+				pauseExpired = false;
+				remaining = undefined;
+			}
 		}
 
 		// force update onmount

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { motion, ripple } from '$lib/Stores';
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, untrack } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import type { HassEntity } from 'home-assistant-js-websocket';
@@ -30,16 +30,15 @@
 	}
 	let min = $derived(value === temperatures.length - 1);
 	let max = $derived(value === 0);
+	// `value` is the only intended trigger (a genuine user-driven change). The isMounted
+	// gate is read untracked so flipping it after the initial scroll does not re-fire the
+	// effect and emit a spurious onchange (which would call e.g. climate.set_temperature).
 	$effect(() => {
-		if (mountFix()) {
-			onchange?.(temperatures[value]);
-		}
+		const current = value;
+		untrack(() => {
+			if (isMounted) onchange?.(temperatures[current]);
+		});
 	});
-	// don't set temperature on mount
-	// rewrite component later...
-	function mountFix() {
-		if (isMounted === true) return true;
-	}
 	let isMounted = $state(false);
 	onMount(async () => {
 		touch = 'ontouchstart' in window;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/Stores';
 	import type { Condition } from '$lib/Types';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
@@ -40,9 +40,13 @@
 		wide: { min: 1280, max: Infinity }
 	};
 
+	// `input` is the only intended trigger. handleChange reads and reassigns `items`
+	// (a new array every call), so it must run untracked or the effect would re-enter
+	// on its own write and exceed the update depth.
 	$effect(() => {
-		if (typeof input === 'string') {
-			handleChange();
+		const current = input;
+		if (typeof current === 'string') {
+			untrack(() => handleChange());
 		}
 	});
 

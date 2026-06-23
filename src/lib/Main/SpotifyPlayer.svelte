@@ -13,7 +13,7 @@
 	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
 	let { sel, sectionName = undefined }: { sel: any; sectionName?: string } = $props();
 
@@ -85,21 +85,24 @@
 
 	onMount(fetchRecentArtwork);
 
-	// Rotate every 8 seconds
+	// Rotate every 8 seconds. The rotation state is read and written inside untrack so the
+	// effect does not re-enter on its own writes; the timer tick remains the reactive trigger.
 	$effect(() => {
 		if (recentArtwork.length > 1 && !is_playing && $timer) {
 			const seconds = $timer.getSeconds();
 			if (seconds % 8 === 0) {
-				const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
-				if (nextIndex !== rotatingIndex) {
-					rotatingIndex = nextIndex;
-					if (showImageA) {
-						rotatingImageB = recentArtwork[rotatingIndex];
-					} else {
-						rotatingImageA = recentArtwork[rotatingIndex];
+				untrack(() => {
+					const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
+					if (nextIndex !== rotatingIndex) {
+						rotatingIndex = nextIndex;
+						if (showImageA) {
+							rotatingImageB = recentArtwork[rotatingIndex];
+						} else {
+							rotatingImageA = recentArtwork[rotatingIndex];
+						}
+						showImageA = !showImageA;
 					}
-					showImageA = !showImageA;
-				}
+				});
 			}
 		}
 	});
