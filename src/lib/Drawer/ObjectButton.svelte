@@ -36,11 +36,11 @@
 
 		section.items = [{ type: 'configure', id: generateId($dashboard) }, ...section.items];
 
-		// Replace view object in dashboard.views so $derived produces a new reference
-		$dashboard.views = $dashboard.views.map((v: any) =>
-			v.id === view.id ? { ...v, sections: [...v.sections] } : v
-		);
-		$dashboard = $dashboard;
+		// The new item lands in a nested section, so reassigning the top-level
+		// view/sections refs is not enough - the keyed each blocks that render
+		// nested items keep their stale refs and never re-read `.items`. Deep
+		// clone to refresh all refs, same as drag end and undo/redo.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
 		$record();
 
 		onclicked?.();
