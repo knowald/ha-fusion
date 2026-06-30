@@ -29,16 +29,18 @@ export default defineConfig({
 			'svelte-confetti',
 			'sortablejs',
 			'svelte-modals',
-			'svelte-tiny-virtual-list',
 			'weekstart',
 			// dev deps
 			'@iconify/svelte',
-			'@event-calendar/core',
-			'@event-calendar/day-grid',
-			'@event-calendar/list',
 			'konva/lib/Shape'
 		],
 		exclude: [
+			// legacy Svelte 4 libraries; prebundling compiles them in runes mode
+			// (dynamicCompileOptions in svelte.config.js is ignored there) and fails
+			'svelte-tiny-virtual-list',
+			'@event-calendar/core',
+			'@event-calendar/day-grid',
+			'@event-calendar/list',
 			// exclude codemirror to avoid state duplication
 			// pnpm ls -P | grep codemirror | awk '{print "\047" $1 "\047,"}'
 			'@codemirror/autocomplete',
