@@ -138,9 +138,9 @@ docker run -d \
 Set these environment variables (in the add-on config, the compose file, or `.env` for local development):
 
 | Variable   | Required | Description                                               |
-| ---------- | -------- | -------------------------------------------------------- |
+| ---------- | -------- | --------------------------------------------------------- |
 | `HASS_URL` | yes      | Home Assistant base URL, e.g. `http://192.168.1.241:8123` |
-| `TZ`       | no       | Timezone, e.g. `Europe/Stockholm`                        |
+| `TZ`       | no       | Timezone, e.g. `Europe/Stockholm`                         |
 
 ### Query strings
 
