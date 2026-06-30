@@ -39,22 +39,26 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 	const idAttr = options.idAttr ?? 'data-id';
 	const itemKey = options.itemKey ?? 'id';
 
-	function buildSortableOptions(opts: DndOptions): SortableOptions {
+	// Reads the outer `options` variable (not a captured param) so callbacks
+	// always see the latest items/handlers after update() reassigns it. The
+	// dashboard deep-clones item arrays on every drag end, so a stale closure
+	// here would splice against outdated data and reorder incorrectly.
+	function buildSortableOptions(): SortableOptions {
 		return {
-			group: opts.group,
-			animation: opts.animation ?? 150,
-			disabled: opts.disabled ?? false,
-			ghostClass: opts.ghostClass ?? 'sortable-ghost',
-			chosenClass: opts.chosenClass ?? 'sortable-chosen',
-			dragClass: opts.dragClass ?? 'sortable-drag',
-			handle: opts.handle,
-			filter: opts.filter,
-			fallbackOnBody: opts.fallbackOnBody ?? true,
-			swapThreshold: opts.swapThreshold ?? 0.65,
-			direction: opts.direction,
+			group: options.group,
+			animation: options.animation ?? 150,
+			disabled: options.disabled ?? false,
+			ghostClass: options.ghostClass ?? 'sortable-ghost',
+			chosenClass: options.chosenClass ?? 'sortable-chosen',
+			dragClass: options.dragClass ?? 'sortable-drag',
+			handle: options.handle,
+			filter: options.filter,
+			fallbackOnBody: options.fallbackOnBody ?? true,
+			swapThreshold: options.swapThreshold ?? 0.65,
+			direction: options.direction,
 
 			onStart(evt: SortableEvent) {
-				opts.onStart?.(evt);
+				options.onStart?.(evt);
 			},
 
 			onEnd(evt: SortableEvent) {
@@ -62,39 +66,27 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 
 				if (oldIndex == null || newIndex == null) return;
 
-				// Revert DOM to pre-drag state so Svelte owns rendering.
-				// SortableJS has already moved the DOM element - put it back.
 				if (from === to) {
-					// Same container: revert the move
-					to.removeChild(draggedEl);
+					// Same container: revert SortableJS' DOM move so Svelte owns
+					// rendering, then notify with the reordered items.
+					if (draggedEl.parentNode === to) to.removeChild(draggedEl);
 					to.insertBefore(draggedEl, to.children[oldIndex] ?? null);
-				} else {
-					// Cross-container: put element back in source
-					to.removeChild(draggedEl);
-					from.insertBefore(draggedEl, from.children[oldIndex] ?? null);
-				}
 
-				// Compute new item orders from the intended move
-				if (from === to) {
-					// Same-container reorder
-					const items = [...opts.items];
+					const items = [...options.items];
 					const [moved] = items.splice(oldIndex, 1);
 					items.splice(newIndex, 0, moved);
-					opts.onFinalize(items, evt);
+					options.onFinalize(items, evt);
 				} else {
-					// Cross-container move: notify target via onFinalize with new item added
-					// The source will be notified via onRemove
+					// Cross-container: the target zone's onAdd has already reverted
+					// the DOM (moved draggedEl back to `from`), so it is no longer a
+					// child of `to`. Touching the DOM here throws. Only notify the
+					// source side; the target is handled via onAdd's dndreceive.
 					const movedId = getItemId(draggedEl, idAttr);
-					const sourceItems = opts.items;
-					const movedItem = sourceItems.find((item) => String(item[itemKey]) === movedId);
+					const movedItem = options.items.find((item) => String(item[itemKey]) === movedId);
 
 					if (movedItem) {
-						opts.onRemove?.(movedId, evt);
+						options.onRemove?.(movedId, evt);
 					}
-
-					// Target zone's onFinalize is called by the target's Sortable instance,
-					// not this one. We only handle source-side here.
-					// For the target side, see the onAdd handler below.
 				}
 			},
 
@@ -105,7 +97,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 				if (newIndex == null) return;
 
 				// Revert DOM - put element back to source so Svelte manages rendering
-				to.removeChild(draggedEl);
+				if (draggedEl.parentNode === to) to.removeChild(draggedEl);
 				from.appendChild(draggedEl);
 
 				// Read the item ID and find it in the source's data
@@ -124,7 +116,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 		};
 	}
 
-	const instance = Sortable.create(node, buildSortableOptions(options));
+	const instance = Sortable.create(node, buildSortableOptions());
 
 	return {
 		update(newOptions: DndOptions) {
