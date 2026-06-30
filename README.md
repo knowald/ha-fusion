@@ -1,26 +1,22 @@
 # ha-fusion
 
-A modern, easy-to-use and performant custom [Home Assistant](https://www.home-assistant.io/) dashboard
-
-<https://www.youtube.com/watch?v=D8mWruSuPOM>
+A modern, fast, custom dashboard for [Home Assistant](https://www.home-assistant.io/).
 
 [![preview](/static/preview.png)](https://www.youtube.com/watch?v=D8mWruSuPOM)
 
-## Fork Notice
+Built with SvelteKit and Svelte 5. Connects to Home Assistant over WebSocket for real-time state, with a drag-and-drop editor for building views without writing YAML by hand.
 
-This is a fork of the original [ha-fusion](https://github.com/matt8707/ha-fusion) project created by [matt8707](https://github.com/matt8707). All credit for the initial development and core architecture goes to the original author.
+## Fork notice
 
-If you find this project useful, please consider supporting the original creator: <https://www.paypal.com/paypalme/matt8707>
+This is a fork of the original [ha-fusion](https://github.com/matt8707/ha-fusion) by [matt8707](https://github.com/matt8707), who wrote the initial implementation and core architecture. If the project is useful to you, consider supporting the original author: <https://www.paypal.com/paypalme/matt8707>.
 
----
+The sections below cover what this fork adds on top of upstream.
 
-## Fork Features
+## Features
 
-This fork adds the following features to the original ha-fusion project:
+### Vertical stacks
 
-### Vertical Stacks
-
-Arrange sections in a vertical column layout within views, including nesting vertical stacks inside horizontal stacks for complex dashboard layouts.
+Arrange sections in a column, including vertical stacks nested inside horizontal stacks for two-dimensional layouts.
 
 ```yaml
 - type: vertical-stack
@@ -32,36 +28,20 @@ Arrange sections in a vertical column layout within views, including nesting ver
       items: [...]
 ```
 
-### Spotify Player Widgets
+### Spotify widgets
 
-Full-featured Spotify media player widgets with two layout options.
-
-**Compact Player:**
+Media player widgets in compact and large layouts, with a progress bar, playback controls, album art, quick-play shortcuts when idle, and a built-in browser for playlists, albums, and artists.
 
 ```yaml
-- type: spotify_player
-  id: 1234567890
-  entity_id: media_player.spotify_username
-  name: Spotify
-  icon: mdi:spotify
-  color: 'rgb(30, 215, 96)'
-  show_progress: true
-```
-
-**Large Player:**
-
-```yaml
-- type: spotify_player_large
+- type: spotify_player # or spotify_player_large
   id: 1234567890
   entity_id: media_player.spotify_username
   show_progress: true
 ```
 
-Features include real-time progress bar, playback controls, album artwork, and an integrated browser for playlists, albums, and artists.
+### Days since
 
-### Days Since Widget
-
-A counter widget that tracks days elapsed since a timestamp stored in a Home Assistant entity.
+Counts the days elapsed since a timestamp stored in a Home Assistant entity. Useful for maintenance reminders.
 
 ```yaml
 - type: days_since
@@ -69,12 +49,11 @@ A counter widget that tracks days elapsed since a timestamp stored in a Home Ass
   entity_id: input_datetime.last_filter_change
   name: Filter Changed
   icon: mdi:air-filter
-  color: 'rgb(75, 166, 237)'
 ```
 
-### Display-Only Buttons
+### Display-only buttons
 
-Configure buttons as non-interactive for displaying sensor values or status information. Sensor domains (`sensor`, `binary_sensor`, `weather`, `sun`, `zone`, `person`) are automatically detected as display-only. Use `displayOnly: false` to override.
+Render a button as a non-interactive status readout. The `sensor`, `binary_sensor`, `weather`, `sun`, `zone`, and `person` domains default to display-only; override with `displayOnly`.
 
 ```yaml
 - type: button
@@ -84,74 +63,61 @@ Configure buttons as non-interactive for displaying sensor values or status info
   displayOnly: true
 ```
 
-### Slide Brightness Control
+### Slide brightness
 
-Adjust light brightness by sliding horizontally on button widgets. Enabled by default for all lights that support brightness. Use `slide_brightness: false` to disable.
+Drag horizontally across a light button to set brightness. On by default for lights that support it; disable per button with `slide_brightness: false`.
 
-```yaml
-- type: button
-  id: 1234567890
-  entity_id: light.living_room
-  slide_brightness: false # disable slide control
-```
+### Optimistic updates
 
-### Optimistic UI Updates
-
-Buttons provide instant visual feedback when toggled, without waiting for Home Assistant round-trips. Enabled automatically for all interactive buttons.
+Interactive buttons reflect the new state immediately on tap, before the Home Assistant round-trip completes.
 
 ### Custom CSS
 
-Apply custom styles via Settings > Custom CSS. Styles are saved to `/data/custom_css.css`.
+Add styles under Settings > Custom CSS. Saved to `/data/custom_css.css`.
 
-### Serene Theme
+### Serene theme
 
-A built-in theme with a blue-gray aesthetic. Select it from the theme picker in settings.
+A built-in blue-gray theme, selectable from the theme picker.
 
----
+## Requirements
+
+- A running Home Assistant instance reachable over the network
+- One of: the Home Assistant add-on (OS / Supervised), Docker (Container / Core), or a local Node.js setup for development
 
 ## Installation
 
 ### Add-on
 
-For "Operating System" or "Supervised" installation methods, you can install ha-fusion as an add-on:
+For the "Operating System" or "Supervised" install methods:
 
-1. **Add Repository**: To begin, add the ha-fusion add-on repository to your Home Assistant instance. Click the button below or manually add the repository using this URL: <https://github.com/knowald/addon-ha-fusion>.
+1. Add the add-on repository. Use the button below, or add this URL manually: <https://github.com/knowald/addon-ha-fusion>.
 
    [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fknowald%2Faddon-ha-fusion)
 
-2. **Install Add-on**: After adding the repository, refresh the add-on store page. Locate ha-fusion in the list and proceed with the installation.
-
----
+2. Refresh the add-on store, find ha-fusion, and install it.
 
 ### Docker
 
-If you're using the "Container" or "Core" installation methods, ha-fusion can be installed via Docker:
+For the "Container" or "Core" install methods, run ha-fusion with Docker.
 
-1. **Docker Compose File**: Place your edited copy of the [docker-compose.yml](https://github.com/knowald/ha-fusion/blob/main/docker-compose.yml) file in a suitable directory.
-
-2. **Create Container**:
-   Run the following commands in your terminal to start the container:
-
-   ```bash
-   cd path/to/docker-compose.yml
-   docker-compose up -d ha-fusion
-   ```
-
-#### Update
-
-To update to the latest version of ha-fusion, run the following commands:
+Place an edited copy of [docker-compose.yml](https://github.com/knowald/ha-fusion/blob/main/docker-compose.yml) in a directory of your choice, then:
 
 ```bash
-docker-compose pull ha-fusion
-docker-compose up -d ha-fusion
+cd path/to/docker-compose.yml
+docker compose up -d ha-fusion
+```
+
+Update to the latest image:
+
+```bash
+docker compose pull ha-fusion
+docker compose up -d ha-fusion
 ```
 
 <details>
-<summary>
-   <b>Other</b>
-</summary>
+<summary><b>Without docker compose</b></summary>
 
-Without docker-compose, updating the container involves additional steps. For each update, it's necessary to first stop the current container, remove it, pull the new image, and then execute the docker run command again.
+Each update means stopping and removing the current container, pulling the new image, and running it again:
 
 ```bash
 docker run -d \
@@ -165,72 +131,56 @@ docker run -d \
   ghcr.io/knowald/ha-fusion
 ```
 
-#### Kubernetes
-
-If you prefer to use Kubernetes, see [Chart README.md](https://github.com/knowald/ha-fusion/tree/167c320918544416e2f9272e1edad64b7329269a/charts/ha-fusion)
-
 </details>
 
----
+## Configuration
 
-## Query strings
+Set these environment variables (in the add-on config, the compose file, or `.env` for local development):
 
-These will only function if you have exposed a port in the add-on configuration or by using Docker. Note that when using Ingress, query strings cannot be read.
+| Variable   | Required | Description                                               |
+| ---------- | -------- | -------------------------------------------------------- |
+| `HASS_URL` | yes      | Home Assistant base URL, e.g. `http://192.168.1.241:8123` |
+| `TZ`       | no       | Timezone, e.g. `Europe/Stockholm`                        |
 
-### View
+### Query strings
 
-To set a particular view when the page loads, add the "view" parameter. For example, if you have a "Bedroom" view, append the query string `?view=Bedroom` to the URL.
+These work when a port is exposed via the add-on config or Docker. They are unavailable behind Ingress, which cannot read query strings.
 
-### Menu
+- `?view=Bedroom` - load a specific view by name on page load.
+- `?menu=false` - hide the menu button. Useful for wall-mounted tablets where you want to prevent edits.
 
-To disable the menu button, append the query string `?menu=false` to the URL. This is useful when you want to avoid unwanted changes to your dashboard, such as on wall-mounted tablets.
+### Keyboard shortcuts
 
----
+| Key                 | Action |
+| ------------------- | ------ |
+| **f**               | filter |
+| **esc**             | exit   |
+| **cmd + s**         | save   |
+| **cmd + z**         | undo   |
+| **cmd + shift + z** | redo   |
 
-## Keyboard Shortcuts
+## Development
 
-| Key                 | Description |
-| ------------------- | ----------- |
-| **f**               | filter      |
-| **esc**             | exit        |
-| **cmd + s**         | save        |
-| **cmd + z**         | undo        |
-| **cmd + shift + z** | redo        |
-
----
-
-## Debug
-
-To debug any errors, check the "Log" tab if you're using the addon, or use `docker logs ha-fusion` for Docker setups. To inspect frontend issues, open the browser's console.
-
----
-
-## Develop
-
-To begin contributing to the project, you'll first need to install node. It's also recommended to install pnpm. If you're unfamiliar with Svelte, consider doing the tutorial at <https://learn.svelte.dev>
+Install [Node.js](https://nodejs.org) and [pnpm](https://pnpm.io). If you are new to Svelte, start with the tutorial at <https://learn.svelte.dev>.
 
 ```bash
-# prerequisites (macos)
-brew install node pnpm
-
 # install
 git clone https://github.com/knowald/ha-fusion.git
 cd ha-fusion
 pnpm install
 
 # environment
-cp .env.example .env
-code .env
+cp .env.example .env   # then set HASS_URL
 
-# server
-npm run dev -- --open
+# run the dev server
+pnpm dev -- --open
 
-# dependencies
-pnpm outdated
-pnpm update
-
-# lint
-npm run check
-npm run lint
-npm run format
+# checks
+pnpm check    # type checking
+pnpm lint     # prettier + eslint
+pnpm format   # apply prettier
 ```
+
+### Logs
+
+Add-on: the "Log" tab. Docker: `docker logs ha-fusion`. Frontend issues show in the browser console.
