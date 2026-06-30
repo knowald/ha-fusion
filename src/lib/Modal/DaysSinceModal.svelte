@@ -3,20 +3,18 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: name = sel?.name || 'Days Since';
-	$: entity_id = sel?.entity_id;
+	let name = $derived(sel?.name || 'Days Since');
+	let entity_id = $derived(sel?.entity_id);
 
-	// Get timestamp from entity state
-	$: entityState = entity_id ? $states?.[entity_id] : undefined;
-	$: last_reset = entityState?.state;
+	let entityState = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let last_reset = $derived(entityState?.state);
 
-	$: daysSince = calculateDaysSince(last_reset, $timer);
+	let daysSince = $derived(calculateDaysSince(last_reset, $timer));
 
 	function calculateDaysSince(lastReset: string | undefined, currentTime: Date): number {
 		if (!lastReset) return 0;
@@ -58,7 +56,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{name}</h1>
+		{#snippet title()}<h1>{name}</h1>{/snippet}
 
 		<div class="counter-display">
 			<div class="days-number">{daysSince}</div>
@@ -82,7 +80,7 @@
 
 		<h2>{$lang('reset') || 'Reset'}</h2>
 
-		<button class="reset-button" on:click={resetCounter} use:Ripple={$ripple}>
+		<button class="reset-button" onclick={resetCounter} use:Ripple={$ripple}>
 			<Icon icon="mdi:restart" height="1.3rem" />
 			<span>{$lang('reset_counter') || 'Reset Counter'}</span>
 		</button>

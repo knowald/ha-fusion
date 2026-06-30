@@ -2,12 +2,12 @@
 	import type { KonvaViewer } from '$lib/Modal/PictureElements/konvaViewer';
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { dashboard, editMode, itemHeight } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import type { Dashboard } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let konva: KonvaViewer;
 	let canvas: HTMLDivElement;
@@ -43,7 +43,9 @@
 	 * Update konva on dashboard change
 	 * without tearing it down (no compare)
 	 */
-	$: updateKonva($dashboard);
+	$effect(() => {
+		updateKonva($dashboard);
+	});
 
 	async function updateKonva($dashboard: Dashboard) {
 		if (!konva || !canvas || !$dashboard) return;
@@ -83,7 +85,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 
 <div
-	on:click={handleClick}
+	onclick={handleClick}
 	bind:this={canvas}
 	style:cursor={$editMode ? 'unset' : 'default'}
 	style:height="calc({$itemHeight}px * 4 + 0.4rem * 3)"

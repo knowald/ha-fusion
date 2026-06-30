@@ -7,13 +7,12 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj } from '$lib/Utils';
 	import type { IframeItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: IframeItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: IframeItem } = $props();
 
-	let url = sel?.url;
-	let size = sel?.size;
+	let url = $state(sel?.url);
+	let size = $state(sel?.size);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -25,7 +24,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('iframe')}</h1>
+		{#snippet title()}<h1>{$lang('iframe')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -37,44 +36,46 @@
 
 		<InputClear
 			condition={url}
-			on:clear={() => {
+			onclear={() => {
 				url = undefined;
 				set('url');
 			}}
-			let:padding
 		>
-			<input
-				type="text"
-				class="input"
-				bind:value={url}
-				placeholder="https://"
-				on:change={(event) => set('url', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					type="text"
+					class="input"
+					bind:value={url}
+					placeholder="https://"
+					onchange={(event) => set('url', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>
 
 		<InputClear
 			condition={size}
-			on:clear={() => {
+			onclear={() => {
 				size = undefined;
 				set('size');
 			}}
-			let:padding
 		>
-			<input
-				type="text"
-				class="input"
-				bind:value={size}
-				placeholder="150px"
-				on:change={(event) => set('size', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					type="text"
+					class="input"
+					bind:value={size}
+					placeholder="150px"
+					onchange={(event) => set('size', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>
@@ -82,7 +83,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -90,7 +91,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

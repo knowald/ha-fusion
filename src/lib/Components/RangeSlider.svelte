@@ -1,32 +1,38 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
-	import { createEventDispatcher } from 'svelte';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-
-	export let value: number;
-	export let min: number;
-	export let max: number;
-	export let step: number | undefined = undefined;
-
-	const dispatch = createEventDispatcher();
+	let {
+		value = $bindable(),
+		min,
+		max,
+		step = undefined,
+		onchange = undefined,
+		oninput = undefined
+	}: {
+		value: number;
+		min: number;
+		max: number;
+		step?: number | undefined;
+		onchange?: ((value: number) => void) | undefined;
+		oninput?: ((value: number) => void) | undefined;
+	} = $props();
 
 	// value in range 0 to 1
-	$: normalized = (value - min) / (max - min);
-
+	let normalized = $derived((value - min) / (max - min));
 	const fill = tweened(normalized, {
 		duration: $motion,
 		easing: cubicOut
 	});
-
-	$: fill.set(normalized);
-
+	$effect(() => {
+		fill.set(normalized);
+	});
 	/**
 	 * Dispatches value on input end
 	 */
 	function handleChange(event: { currentTarget: HTMLInputElement }) {
-		const value = event.currentTarget.value;
-		dispatch('change', value);
+		const val = event.currentTarget.value;
+		onchange?.(Number(val));
 	}
 </script>
 
@@ -39,10 +45,10 @@
 		{min}
 		{max}
 		bind:value
-		on:input={() => {
-			dispatch('input', value);
+		oninput={() => {
+			oninput?.(value);
 		}}
-		on:change={handleChange}
+		onchange={handleChange}
 	/>
 </div>
 
@@ -50,14 +56,12 @@
 	:root {
 		--slider-height: 3rem;
 	}
-
 	div {
 		position: relative;
 		height: var(--slider-height);
 		border-radius: 0.8rem;
 		overflow: hidden;
 	}
-
 	span {
 		border-top: var(--slider-height) solid white;
 		position: absolute;
@@ -65,7 +69,6 @@
 		left: 0;
 		pointer-events: none;
 	}
-
 	input[type='range'] {
 		appearance: none;
 		background-color: rgba(0, 0, 0, 0.5);
@@ -73,12 +76,10 @@
 		width: 100%;
 		height: 100%;
 	}
-
 	input[type='range']::-webkit-slider-thumb {
 		width: 0;
 		appearance: none;
 	}
-
 	input[type='range']::-moz-range-thumb {
 		width: 0;
 		appearance: none;

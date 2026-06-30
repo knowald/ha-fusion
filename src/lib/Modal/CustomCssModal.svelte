@@ -6,19 +6,21 @@
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
-	let transitionend: boolean;
-	let message: string | undefined;
-	let success = false;
+	let transitionend: boolean = $state(false);
+	let message: string | undefined = $state(undefined);
+	let success = $state(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let loading = true;
+	let loading = $state(true);
 
-	let init = '';
-	let value = '';
-	$: changed = init !== value;
+	let init = $state('');
+	let value = $state('');
+	let changed = $derived(init !== value);
 
-	$: if (!changed && !success) message = undefined;
+	$effect(() => {
+		if (!changed && !success) message = undefined;
+	});
 
 	onMount(async () => {
 		try {
@@ -106,11 +108,11 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen}
-	<Modal size="large" on:transitionend={() => (transitionend = true)}>
-		<h1 slot="title">{$lang('custom_css')}</h1>
+	<Modal size="large" ontransitionend={() => (transitionend = true)}>
+		{#snippet title()}<h1>{$lang('custom_css')}</h1>{/snippet}
 
 		<br />
 
@@ -123,8 +125,8 @@
 				{init}
 				{transitionend}
 				autocompleteList={[]}
-				on:change={(event) => {
-					value = event.detail;
+				onchange={(event) => {
+					value = event;
 				}}
 			/>
 		{/if}
@@ -147,7 +149,7 @@
 				class:changed
 				disabled={!changed || loading}
 				style:transition="background-color {$motion / 1.5}ms ease"
-				on:click={() => save(value)}
+				onclick={() => save(value)}
 			>
 				{$lang('save')}
 			</button>

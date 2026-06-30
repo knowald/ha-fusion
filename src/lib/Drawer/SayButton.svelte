@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	let recognizing: boolean;
 	let speech: any;
@@ -107,9 +107,9 @@
 
 <button
 	class="button"
-	on:pointerdown={startRecognition}
-	on:pointerup={stopRecognition}
-	on:pointerleave={stopRecognition}
+	onpointerdown={startRecognition}
+	onpointerup={stopRecognition}
+	onpointerleave={stopRecognition}
 	use:Ripple={$ripple}
 >
 	<figure>

@@ -2,9 +2,11 @@
 	import { lang, motion } from '$lib/Stores';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	let checked = $motion === 190;
+	let checked = $state($motion === 190);
 
-	$: $motion = checked ? 190 : 0;
+	$effect(() => {
+		$motion = checked ? 190 : 0;
+	});
 </script>
 
 <div class="container">

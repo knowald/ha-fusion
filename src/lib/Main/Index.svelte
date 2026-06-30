@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { editMode, motion, record, dragging, itemHeight, states, dashboard } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { dndzone, TRIGGERS, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
+	import { sortable } from '$lib/Actions/sortable';
 	import Content from '$lib/Main/Content.svelte';
 	import SectionHeader from '$lib/Main/SectionHeader.svelte';
 	import HorizontalStackHeader from '$lib/Main/HorizontalStackHeader.svelte';
@@ -11,265 +10,47 @@
 	import { handleVisibility, mediaQueries } from '$lib/Conditional';
 	import { generateId } from '$lib/Utils';
 
-	export let view: any;
-	export let altKeyPressed: boolean;
-
-	let currentDraggedElement: HTMLElement | undefined;
-	let dragEnteredAnother = false;
-
-	let isDraggingHorizontalStack = false;
-	let isDraggingVerticalStack = false;
-	let isDraggingScenes = false;
-	let skipTransformElement = false;
+	let { view, altKeyPressed }: { view: any; altKeyPressed: boolean } = $props();
 
 	const stackHeight = $itemHeight * 1.65;
 
-	let mounted = false;
+	let mounted = $state(false);
 	onMount(() => (mounted = true));
 
-	$: dndOptions = {
-		flipDurationMs: $motion,
-		dragDisabled: !$editMode,
-		dropTargetStyle: {},
-		zoneTabIndex: -1,
-		dropFromOthersDisabled: false,
-		centreDraggedOnCursor: true
-	};
-
-	/**
-	 * Drag and drop common code.
-	 *
-	 * Set `$dragging` to prevent exiting edit mode while mutations happen,
-	 * then on 'finalize' snapshot current dashboard to history.
-	 */
-	async function handleDrag(event: CustomEvent<DndEvent>, callback: () => void) {
+	function handleDragStart() {
 		$dragging = true;
-
-		// increase body height to prevent scroll position from jumping...
 		document.body.style.height = `${parseFloat(getComputedStyle(document.body).height) + 1}px`;
+	}
 
-		// // disable consider min-height
-		// (event.target as HTMLDivElement).style.minHeight = `${$itemHeight}px`;
+	async function handleDragEnd() {
+		// `view` is a plain prop object, so sortable's mutations don't notify the
+		// $dashboard store and keyed each blocks keep stale refs - the UI would
+		// render the pre-drag order while the data already changed. Deep clone to
+		// refresh all refs, same as undo/redo does when restoring history.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
+		$record();
+		$dragging = false;
+		await tick();
+		document.body.style.height = 'auto';
+	}
 
-		// handle dnd type
-		callback();
-
-		// set cross type flag
-		if (!dragEnteredAnother && event?.detail?.info?.trigger === 'dragEnteredAnother') {
-			dragEnteredAnother = true;
+	function maybeCloneItem(items: any[], oldIndex: number, newIndex: number): any[] {
+		if (altKeyPressed) {
+			const cloned = { ...items[oldIndex], id: generateId($dashboard) };
+			const result = [...items];
+			result.splice(newIndex, 0, cloned);
+			return result;
 		}
+		return items;
+	}
 
-		if (event.type === 'finalize') {
-			$record();
-
-			// reset variables
-			$dragging = false;
-			dragEnteredAnother = false;
-			currentDraggedElement = undefined;
-			skipTransformElement = false;
-
-			// reset body height
-			await tick();
-			document.body.style.height = 'auto';
+	function sectionGroupPut(_to: any, _from: any, dragEl: HTMLElement): boolean {
+		const dragType = dragEl.dataset.sectionType;
+		if (dragType === 'horizontal-stack' || dragType === 'vertical-stack' || dragType === 'scenes') {
+			return false;
 		}
+		return true;
 	}
-
-	/**
-	 * Duplicates dragged item when Alt key is pressed during drag start
-	 */
-	function handleCopyOnDrag(items: any[], event: CustomEvent<DndEvent>) {
-		const { trigger, id: itemId } = event.detail.info;
-
-		if (trigger === TRIGGERS.DRAG_STARTED && altKeyPressed) {
-			const idx = items.findIndex((item) => item.id === itemId);
-			const newId = generateId($dashboard);
-
-			event.detail.items = event.detail.items.filter(
-				(item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-			);
-			event.detail.items.splice(idx, 0, { ...items[idx], id: newId });
-		}
-
-		return event.detail.items;
-	}
-
-	/**
-	 * Handles the reordering of sections within a view when they are dragged
-	 *
-	 * Also checks if currently dragged section is a horizontal stack,
-	 * and sets dnd type to prevent recursively stacking stacks.
-	 */
-	function dragSection(event: CustomEvent<DndEvent>) {
-		const matchedSection = event.detail.items.find((section) =>
-			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
-		);
-
-		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
-		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
-		isDraggingScenes = matchedSection?.type === 'scenes';
-
-		if (event.type === 'finalize') {
-			isDraggingScenes = false;
-			isDraggingHorizontalStack = false;
-			isDraggingVerticalStack = false;
-		}
-
-		handleDrag(event, () => {
-			if (view) view.sections = event.detail.items;
-		});
-	}
-
-	/**
-	 * Handles the reordering of items within a section when they are dragged
-	 */
-	function dragItem(id: number, event: CustomEvent<DndEvent>) {
-		handleDrag(event, () => {
-			const section = view?.sections.find((sec: { id: number }) => sec.id === id);
-
-			if (section) {
-				section.items = handleCopyOnDrag(section.items, event);
-				view.sections = [...view.sections];
-			}
-		});
-	}
-
-	/**
-	 * Handles the reordering of sections within a stack (horizontal or vertical) when they are dragged
-	 */
-	function dragSection__stack(id: number, event: CustomEvent<DndEvent>) {
-		// Detect what type of section is being dragged for type matching
-		const matchedSection = event.detail.items.find((section: any) =>
-			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
-		);
-		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
-		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
-		isDraggingScenes = matchedSection?.type === 'scenes';
-
-		if (event.type === 'finalize') {
-			isDraggingHorizontalStack = false;
-			isDraggingVerticalStack = false;
-			isDraggingScenes = false;
-		}
-
-		handleDrag(event, () => {
-			const stack = view?.sections.find(
-				(section: { id: number; type: string }) =>
-					section.id === id && (section.type === 'horizontal-stack' || section.type === 'vertical-stack')
-			);
-
-			if (stack) {
-				// Ensure sections array exists
-				if (!stack.sections) stack.sections = [];
-				// Ensure each dropped section has an items array
-				const items = event.detail.items.map((item: any) => ({
-					...item,
-					items: item.items ?? []
-				}));
-				stack.sections = items as any;
-				view.sections = [...view.sections];
-			}
-		});
-	}
-
-	/**
-	 * Handles the reordering of items within a stack (horizontal or vertical) when they are dragged
-	 */
-	function dragItem__stack(id: number, event: CustomEvent<DndEvent>) {
-		handleDrag(event, () => {
-			const section = view?.sections
-				.find((section: { sections: { id: number }[] }) =>
-					section.sections?.some((sub: { id: number }) => sub.id === id)
-				)
-				?.sections.find((sub: { id: number }) => sub.id === id);
-
-			if (section) {
-				section.items = handleCopyOnDrag(section.items, event);
-				view.sections = [...view.sections];
-			}
-		});
-	}
-
-	/**
-	 * Handles the reordering of sections within a nested vertical stack (inside horizontal stack)
-	 */
-	function dragSection__nestedStack(parentId: number, nestedStackId: number, event: CustomEvent<DndEvent>) {
-		// Detect what type of section is being dragged for type matching
-		const matchedSection = event.detail.items.find((section: any) =>
-			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
-		);
-		isDraggingHorizontalStack = matchedSection?.type === 'horizontal-stack';
-		isDraggingVerticalStack = matchedSection?.type === 'vertical-stack';
-		isDraggingScenes = matchedSection?.type === 'scenes';
-
-		if (event.type === 'finalize') {
-			isDraggingHorizontalStack = false;
-			isDraggingVerticalStack = false;
-			isDraggingScenes = false;
-		}
-
-		handleDrag(event, () => {
-			const parentStack = view?.sections.find(
-				(section: { id: number; type: string }) =>
-					section.id === parentId && section.type === 'horizontal-stack'
-			);
-
-			if (parentStack) {
-				const nestedStack = parentStack.sections?.find(
-					(section: { id: number; type: string }) =>
-						section.id === nestedStackId && section.type === 'vertical-stack'
-				);
-
-				if (nestedStack) {
-					// Ensure sections array exists
-					if (!nestedStack.sections) nestedStack.sections = [];
-					// Ensure each dropped section has an items array
-					const items = event.detail.items.map((item: any) => ({
-						...item,
-						items: item.items ?? []
-					}));
-					nestedStack.sections = items as any;
-					view.sections = [...view.sections];
-				}
-			}
-		});
-	}
-
-	/**
-	 * Handles the reordering of items within a nested vertical stack (inside horizontal stack)
-	 */
-	function dragItem__nestedStack(parentId: number, nestedStackId: number, sectionId: number, event: CustomEvent<DndEvent>) {
-		handleDrag(event, () => {
-			const parentStack = view?.sections.find(
-				(section: { id: number; type: string }) =>
-					section.id === parentId && section.type === 'horizontal-stack'
-			);
-
-			if (parentStack) {
-				const nestedStack = parentStack.sections?.find(
-					(section: { id: number; type: string }) =>
-						section.id === nestedStackId && section.type === 'vertical-stack'
-				);
-
-				if (nestedStack) {
-					const section = nestedStack.sections?.find(
-						(sec: { id: number }) => sec.id === sectionId
-					);
-
-					if (section) {
-						section.items = handleCopyOnDrag(section.items, event);
-						view.sections = [...view.sections];
-					}
-				}
-			}
-		});
-	}
-
-	/**
-	 * The styles a constructed in a function to not have to repeat them inline.
-	 *
-	 * This is because of 'horizontal-stack'; it's not possible to make code
-	 * recursive or use reusable components without breaking flip-animations.
-	 */
 
 	function sectionStyles(sectionType: string, editMode: boolean, motion: number, empty: boolean) {
 		return `
@@ -291,106 +72,33 @@
     `;
 	}
 
-	/**
-	 * dnd transformDraggedElement
-	 */
-	function transformDraggedElement(element: HTMLElement | undefined) {
-		if (element) transformElement(element);
-	}
-
-	/**
-	 * Helper function to transform the dragged element
-	 */
-	function transformElement(element: HTMLElement) {
-		const container = element.firstElementChild as HTMLElement;
-		if (!container) return;
-
-		const pictureElement = container?.firstElementChild?.className === 'konvajs-content';
-
-		if (!altKeyPressed) skipTransformElement = true;
-
-		// alt-duplicate add yellow outline
-		if (!skipTransformElement) {
-			Object.assign(container.style, {
-				outline: '2px dashed rgb(255, 192, 8)',
-				outlineOffset: '-2px',
-				borderRadius: '0.65rem'
-			});
-
-			// if picture element set z-index on konva
-			// container to be able to see the outline...
-			if (pictureElement) {
-				const konva = container.firstElementChild as HTMLElement;
-				if (konva) konva.style.zIndex = '-1';
-			}
-		}
-	}
-
-	/**
-	 * Transforms the dragged element for scene
-	 * items and triggers acrossTypeTransform
-	 */
-	function transformScenesElement(element: HTMLElement | undefined) {
-		if (!element) return;
-		transformElement(element);
-
-		// scene transformation
-		if (!currentDraggedElement) currentDraggedElement = element;
-
-		Object.assign(element.style, {
-			overflow: 'hidden',
-			borderRadius: '0.65rem',
-			border: 'none'
-		});
-	}
-
-	$: if (dragEnteredAnother && currentDraggedElement) {
-		acrossTypeTransform(currentDraggedElement);
-	}
-
-	function acrossTypeTransform(currentDraggedElement: HTMLElement) {
-		currentDraggedElement.innerHTML = '';
-		const div = document.createElement('div');
-
-		Object.assign(div.style, {
-			outline: 'rgb(255, 192, 8) dashed 2px',
-			outlineOffset: '-2px',
-			backgroundColor: 'rgba(255, 190, 10, 0.25)',
-			width: 'inherit',
-			height: 'inherit',
-			'border-radius': 'inherit'
-		});
-
-		currentDraggedElement.appendChild(div);
-	}
-
-	/**
-	 * If $editMode is true, return the original view sections
-	 * Otherwise filter the sections based on current states and conditions.
-	 *
-	 * This statement reactively updates when any of the following change:
-	 * $editMode, mounted, $mediaQueries, view?.sections, $states
-	 */
-	$: viewSections = $editMode
-		? view?.sections
-		: typeof mounted === 'boolean' &&
-			typeof $mediaQueries === 'object' &&
-			handleVisibility($editMode, view?.sections, $states);
+	let viewSections = $derived(
+		$editMode
+			? view?.sections
+			: typeof mounted === 'boolean' &&
+					typeof $mediaQueries === 'object' &&
+					handleVisibility($editMode, view?.sections, $states)
+	);
 </script>
 
 <main
 	style:transition="opacity {$motion}ms ease, outline-color {$motion}ms ease"
 	style:opacity={$editMode && view?.sections.length === 0 ? '0' : '1'}
-	use:dndzone={{ ...dndOptions, type: 'section', items: view.sections }}
-	on:consider={dragSection}
-	on:finalize={dragSection}
+	use:sortable={{
+		group: { name: 'section', put: sectionGroupPut },
+		animation: $motion,
+		disabled: !$editMode,
+		ghostClass: 'sortable-ghost',
+		items: view.sections,
+		onStart: handleDragStart,
+		onFinalize: async (newItems) => {
+			view.sections = newItems;
+			await handleDragEnd();
+		}
+	}}
 >
-	{#each viewSections as section (`${section?.id}${section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
-		<section
-			id={String(section?.id)}
-			data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-			animate:flip={{ duration: $motion }}
-		>
+	{#each viewSections as section (section?.id)}
+		<section id={String(section?.id)} data-id={section?.id} data-section-type={section?.type}>
 			<!-- horizontal stack -->
 			{#if section?.type === 'horizontal-stack'}
 				<HorizontalStackHeader {view} {section} />
@@ -400,20 +108,35 @@
 					style:min-height="{stackHeight}px"
 					style:outline="2px dashed {$editMode ? '#ffc008' : 'transparent'}"
 					style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
-					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-					use:dndzone={{
-						...dndOptions,
-						type: isDraggingHorizontalStack ? 'horizontal-stack' : isDraggingScenes ? 'scenes' : 'section',
-						items: section.sections ?? []
+					use:sortable={{
+						group: { name: 'section', put: sectionGroupPut },
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						items: section.sections ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems) => {
+							const stack = view?.sections.find(
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+							);
+							if (stack) {
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
 					}}
-					on:consider={(event) => dragSection__stack(section.id, event)}
-					on:finalize={(event) => dragSection__stack(section.id, event)}
 				>
-					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
 						<section
 							id={String(stackSection.id)}
-							data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-							animate:flip={{ duration: $motion }}
+							data-id={stackSection.id}
+							data-section-type={stackSection?.type}
 							style:overflow="hidden"
 						>
 							<!-- nested vertical stack inside horizontal stack -->
@@ -425,43 +148,82 @@
 									style:min-height="{stackHeight}px"
 									style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
 									style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
-									data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-									use:dndzone={{
-										...dndOptions,
-										type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
-										items: stackSection.sections ?? []
+									use:sortable={{
+										group: { name: 'section', put: sectionGroupPut },
+										animation: $motion,
+										disabled: !$editMode,
+										ghostClass: 'sortable-ghost',
+										items: stackSection.sections ?? [],
+										onStart: handleDragStart,
+										onFinalize: async (newItems) => {
+											const parentStack = view?.sections.find(
+												(s: any) => s.id === section.id && s.type === 'horizontal-stack'
+											);
+											if (parentStack) {
+												const nestedStack = parentStack.sections?.find(
+													(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
+												);
+												if (nestedStack) {
+													nestedStack.sections = newItems.map((item: any) => ({
+														...item,
+														items: item.items ?? []
+													}));
+													view.sections = [...view.sections];
+												}
+											}
+											await handleDragEnd();
+										}
 									}}
-									on:consider={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
-									on:finalize={(event) => dragSection__nestedStack(section.id, stackSection.id, event)}
 								>
-									{#each stackSection?.sections ?? [] as nestedSection (`${nestedSection?.id}${nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+									{#each stackSection?.sections ?? [] as nestedSection (nestedSection?.id)}
 										{@const empty = $editMode && !nestedSection?.items?.length}
 										<section
 											id={String(nestedSection.id)}
-											data-is-dnd-shadow-item-hint={nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-											animate:flip={{ duration: $motion }}
+											data-id={nestedSection.id}
+											data-section-type={nestedSection?.type}
 											style:overflow="hidden"
 										>
 											<SectionHeader {view} section={nestedSection} />
 											<div
 												class="items"
-												data-is-dnd-shadow-item-hint={nestedSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 												style={sectionStyles(stackSection?.type, $editMode, $motion, empty)}
-												use:dndzone={{
-													...dndOptions,
-													type: 'item',
+												use:sortable={{
+													group: 'item',
+													animation: $motion,
+													disabled: !$editMode,
+													ghostClass: 'sortable-ghost',
 													items: nestedSection.items ?? [],
-													transformDraggedElement
+													onStart: handleDragStart,
+													onFinalize: async (newItems, evt) => {
+														const parentStack = view?.sections.find(
+															(s: any) => s.id === section.id && s.type === 'horizontal-stack'
+														);
+														if (parentStack) {
+															const ns = parentStack.sections?.find(
+																(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
+															);
+															if (ns) {
+																const sec = ns.sections?.find(
+																	(s: any) => s.id === nestedSection.id
+																);
+																if (sec) {
+																	sec.items = maybeCloneItem(
+																		newItems,
+																		evt.oldIndex ?? 0,
+																		evt.newIndex ?? 0
+																	);
+																	view.sections = [...view.sections];
+																}
+															}
+														}
+														await handleDragEnd();
+													}
 												}}
-												on:consider={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
-												on:finalize={(event) => dragItem__nestedStack(section.id, stackSection.id, nestedSection.id, event)}
 											>
 												{#each nestedSection?.items ?? [] as item (item.id)}
 													<div
-														id={item?.id}
-														data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+														data-id={item?.id}
 														class="item"
-														animate:flip={{ duration: $motion }}
 														tabindex="-1"
 														style={itemStyles(item?.type)}
 													>
@@ -478,24 +240,32 @@
 								<SectionHeader {view} section={stackSection} />
 								<div
 									class="items"
-									data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 									style={sectionStyles(section?.type, $editMode, $motion, empty)}
-									use:dndzone={{
-										...dndOptions,
-										type: 'item',
+									use:sortable={{
+										group: 'item',
+										animation: $motion,
+										disabled: !$editMode,
+										ghostClass: 'sortable-ghost',
 										items: stackSection.items ?? [],
-										transformDraggedElement
+										onStart: handleDragStart,
+										onFinalize: async (newItems, evt) => {
+											const sec = view?.sections
+												.find((s: any) =>
+													s.sections?.some((sub: any) => sub.id === stackSection.id)
+												)
+												?.sections.find((sub: any) => sub.id === stackSection.id);
+											if (sec) {
+												sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+												view.sections = [...view.sections];
+											}
+											await handleDragEnd();
+										}
 									}}
-									on:consider={(event) => dragItem__stack(stackSection.id, event)}
-									on:finalize={(event) => dragItem__stack(stackSection.id, event)}
 								>
-									<!-- item -->
 									{#each stackSection?.items ?? [] as item (item.id)}
 										<div
-											id={item?.id}
-											data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+											data-id={item?.id}
 											class="item"
-											animate:flip={{ duration: $motion }}
 											tabindex="-1"
 											style={itemStyles(item?.type)}
 										>
@@ -517,47 +287,63 @@
 					style:min-height="{stackHeight}px"
 					style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
 					style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
-					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-					use:dndzone={{
-						...dndOptions,
-						type: isDraggingHorizontalStack || isDraggingVerticalStack ? 'stack' : isDraggingScenes ? 'scenes' : 'section',
-						items: section.sections ?? []
+					use:sortable={{
+						group: { name: 'section', put: sectionGroupPut },
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						items: section.sections ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems) => {
+							const stack = view?.sections.find(
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+							);
+							if (stack) {
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
 					}}
-					on:consider={(event) => dragSection__stack(section.id, event)}
-					on:finalize={(event) => dragSection__stack(section.id, event)}
 				>
-					{#each section?.sections ?? [] as stackSection (`${stackSection?.id}${stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
 						{@const empty = $editMode && !stackSection?.items?.length}
 						<section
 							id={String(stackSection.id)}
-							data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-							animate:flip={{ duration: $motion }}
+							data-id={stackSection.id}
+							data-section-type={stackSection?.type}
 							style:overflow="hidden"
 						>
 							<SectionHeader {view} section={stackSection} />
 							<div
 								class="items"
-								data-is-dnd-shadow-item-hint={stackSection?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 								style={sectionStyles(section?.type, $editMode, $motion, empty)}
-								use:dndzone={{
-									...dndOptions,
-									type: 'item',
+								use:sortable={{
+									group: 'item',
+									animation: $motion,
+									disabled: !$editMode,
+									ghostClass: 'sortable-ghost',
 									items: stackSection.items ?? [],
-									transformDraggedElement
+									onStart: handleDragStart,
+									onFinalize: async (newItems, evt) => {
+										const sec = view?.sections
+											.find((s: any) => s.sections?.some((sub: any) => sub.id === stackSection.id))
+											?.sections.find((sub: any) => sub.id === stackSection.id);
+										if (sec) {
+											sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+											view.sections = [...view.sections];
+										}
+										await handleDragEnd();
+									}
 								}}
-								on:consider={(event) => dragItem__stack(stackSection.id, event)}
-								on:finalize={(event) => dragItem__stack(stackSection.id, event)}
 							>
-								<!-- item -->
 								{#each stackSection?.items ?? [] as item (item.id)}
-									<div
-										id={item?.id}
-										data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-										class="item"
-										animate:flip={{ duration: $motion }}
-										tabindex="-1"
-										style={itemStyles(item?.type)}
-									>
+									<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
 										<Content {item} sectionName={stackSection?.name} />
 									</div>
 								{/each}
@@ -573,21 +359,26 @@
 				<div
 					class="scenes"
 					style={sectionStyles(section?.type, $editMode, $motion, empty)}
-					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-					use:dndzone={{
-						...dndOptions,
-						type: 'item',
+					use:sortable={{
+						group: 'item',
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
 						items: section.items ?? [],
-						transformDraggedElement: transformScenesElement
+						onStart: handleDragStart,
+						onFinalize: async (newItems, evt) => {
+							const sec = view?.sections.find((s: any) => s.id === section.id);
+							if (sec) {
+								sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
 					}}
-					on:consider={(event) => dragItem(section.id, event)}
-					on:finalize={(event) => dragItem(section.id, event)}
 				>
 					{#each section?.items ?? [] as item, index (item.id)}
 						<div
-							id={item?.id}
-							data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-							animate:flip={{ duration: $motion }}
+							data-id={item?.id}
 							tabindex="-1"
 							class:divider={index !== section?.items?.length - 1}
 						>
@@ -604,26 +395,26 @@
 
 				<div
 					class="items"
-					data-is-dnd-shadow-item-hint={section?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
 					style={sectionStyles(section?.type, $editMode, $motion, empty)}
-					use:dndzone={{
-						...dndOptions,
-						type: 'item',
+					use:sortable={{
+						group: 'item',
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
 						items: section.items ?? [],
-						transformDraggedElement
+						onStart: handleDragStart,
+						onFinalize: async (newItems, evt) => {
+							const sec = view?.sections.find((s: any) => s.id === section.id);
+							if (sec) {
+								sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
 					}}
-					on:consider={(event) => dragItem(section.id, event)}
-					on:finalize={(event) => dragItem(section.id, event)}
 				>
 					{#each section?.items ?? [] as item (item.id)}
-						<div
-							id={item?.id}
-							data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-							class="item"
-							animate:flip={{ duration: $motion }}
-							tabindex="-1"
-							style={itemStyles(item?.type)}
-						>
+						<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
 							<Content {item} sectionName={section?.name} />
 						</div>
 					{/each}
@@ -715,5 +506,15 @@
 
 	.scenes > .divider {
 		border-right: 1px solid transparent;
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
+	}
+
+	:global(.sortable-chosen) {
+		outline: 2px dashed rgb(255, 192, 8);
+		outline-offset: -2px;
+		border-radius: 0.65rem;
 	}
 </style>

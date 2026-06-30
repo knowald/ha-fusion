@@ -2,9 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
 
-	export let duration: number;
-	export let size: number;
-	export let stroke: number;
+	let { duration, size, stroke }: { duration: number; size: number; stroke: number } = $props();
 
 	const progress = tweened(0);
 

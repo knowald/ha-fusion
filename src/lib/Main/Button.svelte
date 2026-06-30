@@ -22,60 +22,69 @@
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { marked } from 'marked';
 	import { onDestroy } from 'svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import parser from 'js-yaml';
 
-	export let demo: string | undefined = undefined;
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
-	// Add a new prop to explicitly mark entity as display-only (non-interactive)
-	export let displayOnly: boolean = false;
+	let {
+		demo = undefined,
+		sel,
+		sectionName = undefined,
+		displayOnly = false
+	}: {
+		demo?: string | undefined;
+		sel: any;
+		sectionName?: string | undefined;
+		displayOnly?: boolean;
+	} = $props();
 
-	$: entity_id = demo || sel?.entity_id;
-	$: template = $templates?.[sel?.id];
-	$: icon = (sel?.template?.icon && template?.icon?.output) || sel?.icon;
-	$: color = (sel?.template?.color && template?.color?.output) || sel?.color;
-	$: marquee = sel?.marquee;
-	$: more_info = sel?.more_info;
+	let entity_id = $derived(demo || sel?.entity_id);
+	let template = $derived($templates?.[sel?.id]);
+	let icon = $derived((sel?.template?.icon && template?.icon?.output) || sel?.icon);
+	let color = $derived((sel?.template?.color && template?.color?.output) || sel?.color);
+	let marquee = $derived(sel?.marquee);
+	let more_info = $derived(sel?.more_info);
 
-	let entity: HassEntity;
-	let contentWidth: number;
-	let container: HTMLDivElement;
-	let loading: boolean;
-	let resetLoading: ReturnType<typeof setTimeout> | null;
-	let stateOn: boolean;
+	let entity: HassEntity = $state(undefined as any);
+	let contentWidth: number = $state(0);
+	let container: HTMLDivElement = $state(undefined as any);
+	let loading: boolean = $state(false);
+	let resetLoading: ReturnType<typeof setTimeout> | null = $state(null);
+	let stateOn: boolean = $state(false);
 
 	// Optimistic state management
-	let optimisticStateOn: boolean | null = null;
-	let optimisticBrightness: number | null = null;
-	let optimisticResetTimeout: ReturnType<typeof setTimeout> | null = null;
+	let optimisticStateOn: boolean | null = $state(null);
+	let optimisticBrightness: number | null = $state(null);
+	let optimisticResetTimeout: ReturnType<typeof setTimeout> | null = $state(null);
 
 	// Brightness slider variables
-	let isSliding = false;
-	let slideStartX = 0;
-	let targetBrightness: number | null = null;
-	let slideBrightness = 0;
-	let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+	let isSliding = $state(false);
+	let slideStartX = $state(0);
+	let targetBrightness: number | null = $state(null);
+	let slideBrightness = $state(0);
+	let debounceTimeout: ReturnType<typeof setTimeout> | null = $state(null);
 
 	// Determine if entity is display-only (non-interactive) using both sel.displayOnly and the prop
-	$: isDisplayOnly =
-		sel?.displayOnly === true || displayOnly === true || determineIfDisplayOnly(entity_id, entity);
+	let isDisplayOnly = $derived(
+		sel?.displayOnly === true || displayOnly === true || determineIfDisplayOnly(entity_id, entity)
+	);
 
 	// Check if this is a light entity that supports brightness and has slide_brightness enabled
-	$: isLightWithBrightness =
+	let isLightWithBrightness = $derived(
 		getDomain(entity_id) === 'light' &&
-		entity?.attributes?.brightness !== undefined &&
-		sel?.slide_brightness !== false; // Default to true if not explicitly set to false
+			entity?.attributes?.brightness !== undefined &&
+			sel?.slide_brightness !== false
+	);
 
 	// Get current brightness (0-255 range from HA, convert to 0-100 percentage)
 	// Use optimistic brightness if available, otherwise use actual
-	$: currentBrightness =
+	let currentBrightness = $derived(
 		optimisticBrightness !== null
 			? optimisticBrightness
 			: entity?.attributes?.brightness
 				? Math.round((entity.attributes.brightness / 255) * 100)
-				: 0;
+				: 0
+	);
 
 	/**
 	 * Determines if an entity is display-only based on its domain or other properties
@@ -94,6 +103,7 @@
 
 		// Get domain from entity_id
 		const domain = getDomain(entityId);
+		if (!domain) return false;
 
 		// List of domains that are typically display-only
 		const displayOnlyDomains = [
@@ -122,7 +132,7 @@
 	}
 
 	/** display loader if no state change has occurred within `$motion`ms */
-	let delayLoading: ReturnType<typeof setTimeout> | null;
+	let delayLoading: ReturnType<typeof setTimeout> | null = $state(null);
 
 	/**
 	 * Observes changes in the `last_updated` property of an entity.
@@ -132,54 +142,60 @@
 	 * - Resets the `loading` state to `false`
 	 * - Clears any pending loading or reset timeouts
 	 */
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
 
-		loading = false;
+			loading = false;
 
-		if (delayLoading) {
-			clearTimeout(delayLoading);
-			delayLoading = null;
+			if (delayLoading) {
+				clearTimeout(delayLoading);
+				delayLoading = null;
+			}
+
+			if (resetLoading) {
+				clearTimeout(resetLoading);
+				resetLoading = null;
+			}
+
+			// Clear optimistic state when real state updates
+			clearOptimisticState();
 		}
+	});
 
-		if (resetLoading) {
-			clearTimeout(resetLoading);
-			resetLoading = null;
-		}
+	let attributes = $derived(entity?.attributes);
 
-		// Clear optimistic state when real state updates
-		clearOptimisticState();
-	}
-
-	$: attributes = entity?.attributes;
-
-	$: iconColor = color
-		? color
-		: attributes?.hs_color
-			? `hsl(${attributes?.hs_color}%, 50%)`
-			: 'rgb(75, 166, 237)';
+	let iconColor = $derived(
+		color
+			? color
+			: attributes?.hs_color
+				? `hsl(${attributes?.hs_color}%, 50%)`
+				: 'rgb(75, 166, 237)'
+	);
 
 	// icon is image if extension, e.g. test.png
-	$: image = icon?.includes('.');
+	let image = $derived(icon?.includes('.'));
 
-	$: if (optimisticStateOn !== null) {
-		// Use optimistic state if available
-		stateOn = optimisticStateOn;
-	} else if (sel?.template?.set_state && template?.set_state?.output) {
-		// template
-		stateOn = $onStates?.includes(template?.set_state?.output?.toLocaleLowerCase());
-	} else if (attributes?.hvac_action) {
-		// climate
-		stateOn = $onStates?.includes(
-			$climateHvacActionToMode?.[attributes?.hvac_action]?.toLocaleLowerCase()
-		);
-	} else if (attributes?.in_progress) {
-		// update
-		stateOn = typeof attributes.in_progress === 'number';
-	} else {
-		// default
-		stateOn = $onStates?.includes(entity?.state?.toLocaleLowerCase());
-	}
+	$effect(() => {
+		if (optimisticStateOn !== null) {
+			// Use optimistic state if available
+			stateOn = optimisticStateOn;
+		} else if (sel?.template?.set_state && template?.set_state?.output) {
+			// template
+			stateOn = $onStates?.includes(template?.set_state?.output?.toLocaleLowerCase());
+		} else if (attributes?.hvac_action) {
+			// climate
+			stateOn = $onStates?.includes(
+				$climateHvacActionToMode?.[attributes?.hvac_action]?.toLocaleLowerCase()
+			);
+		} else if (attributes?.in_progress) {
+			// update
+			stateOn = typeof attributes.in_progress === 'number';
+		} else {
+			// default
+			stateOn = $onStates?.includes(entity?.state?.toLocaleLowerCase());
+		}
+	});
 
 	/**
 	 * Sets optimistic state immediately for better UX
@@ -532,15 +548,17 @@
 
 	////// templates //////
 
-	$: if ($config?.state === 'RUNNING' && sel?.template) {
-		// for each changed entry in template
-		Object.entries(sel?.template as Record<string, string>).forEach(([key, value]) => {
-			const compareTemplate = value === template?.[key]?.input;
-			const compareEntityId = sel?.entity_id === template?.[key]?.entity_id;
-			if (compareTemplate && compareEntityId) return;
-			renderTemplate(key, value);
-		});
-	}
+	$effect(() => {
+		if ($config?.state === 'RUNNING' && sel?.template) {
+			// for each changed entry in template
+			Object.entries(sel?.template as Record<string, string>).forEach(([key, value]) => {
+				const compareTemplate = value === template?.[key]?.input;
+				const compareEntityId = sel?.entity_id === template?.[key]?.entity_id;
+				if (compareTemplate && compareEntityId) return;
+				renderTemplate(key, value);
+			});
+		}
+	});
 
 	let unsubscribe: () => void;
 
@@ -709,8 +727,8 @@
 			? 'cursor: default;'
 			: ''}
 	style:min-height="{$itemHeight}px"
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={{
 		...$ripple,
 		color: !$editMode
@@ -724,18 +742,21 @@
 
 	<div
 		class="left"
-		on:click|stopPropagation={isDisplayOnly ? () => {} : handleEvent}
-		on:keydown
+		onclick={(e) => {
+			e.stopPropagation();
+			if (!isDisplayOnly) handleEvent(e);
+		}}
 		role="button"
-		tabindex={isDisplayOnly ? '-1' : '0'}
+		tabindex={isDisplayOnly ? -1 : 0}
 	>
 		<div
 			class="icon"
 			data-state={stateOn}
 			data-display-only={isDisplayOnly}
 			style:--icon-color={iconColor}
-			style:background-color={!isDisplayOnly &&
-				(sel?.template?.color && template?.color?.output ? template?.color?.output : undefined)}
+			style:background-color={!isDisplayOnly && sel?.template?.color && template?.color?.output
+				? template?.color?.output
+				: undefined}
 			style:background-image={!icon && attributes?.entity_picture
 				? `url(${attributes?.entity_picture})`
 				: image && icon
@@ -768,18 +789,18 @@
 
 	<div
 		class="right"
-		on:click|stopPropagation={(event) => {
-			if (isSliding) return; // Don't trigger click if we were sliding
+		onclick={(event) => {
+			event.stopPropagation();
+			if (isSliding) return;
 			if (!$editMode) {
 				if (!isDisplayOnly) {
 					toggle();
 				}
-				// Display-only entities don't do anything on click
 			} else {
 				handleEvent(event);
 			}
 		}}
-		on:keydown={(event) => {
+		onkeydown={(event) => {
 			if (event.key === 'Enter' || event.key === ' ') {
 				event.preventDefault();
 				if (!$editMode && !isDisplayOnly) {
@@ -789,11 +810,11 @@
 				}
 			}
 		}}
-		on:pointerdown={handleSlideStart}
-		on:mousedown={handleSlideStart}
-		on:touchstart={handleSlideStart}
+		onpointerdown={handleSlideStart}
+		onmousedown={handleSlideStart}
+		ontouchstart={handleSlideStart}
 		role="button"
-		tabindex={isDisplayOnly ? '-1' : '0'}
+		tabindex={isDisplayOnly ? -1 : 0}
 		aria-pressed={stateOn}
 		class:sliding={isSliding}
 	>

@@ -5,10 +5,17 @@
 	import RemoveButton from '$lib/Modal/VisibilityConfig/RemoveButton.svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
-	export let items: Condition[];
-	export let matches: { [key: string]: boolean };
-	export let innerWidth: number;
+	let {
+		item = $bindable(),
+		items = $bindable(),
+		matches,
+		innerWidth
+	}: {
+		item: Condition;
+		items: Condition[];
+		matches: { [key: string]: boolean };
+		innerWidth: number;
+	} = $props();
 </script>
 
 <div class="header">

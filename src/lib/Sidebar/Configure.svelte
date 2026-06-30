@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { showDrawer, editMode, motion, lang, ripple, disableMenuButton } from '$lib/Stores';
 	import { onDestroy, tick } from 'svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import type { SidebarItem } from '$lib/Types';
 
-	export let sel: SidebarItem;
+	let { sel }: { sel: SidebarItem } = $props();
 
 	let timeout: ReturnType<typeof setTimeout> | null;
 
@@ -39,7 +39,7 @@
 		{$lang('nothing_configured')}
 	</span>
 
-	<button on:click={handleClick} use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}>
+	<button onclick={handleClick} use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}>
 		{$lang('edit')}
 	</button>
 </div>

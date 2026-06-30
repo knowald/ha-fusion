@@ -3,31 +3,32 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { dndzone } from 'svelte-dnd-action';
+	import { sortable } from '$lib/Actions/sortable';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { callService } from 'home-assistant-js-websocket';
+	import { SvelteMap } from 'svelte/reactivity';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let items: any;
-	let todoInput = '';
-	let selectedId: boolean | undefined = undefined;
-	let tempItemNames: Map<string, string> = new Map();
+	let items: any = $state(undefined);
+	let todoInput = $state('');
+	let selectedId: boolean | undefined = $state(undefined);
+	let tempItemNames: SvelteMap<string, string> = new SvelteMap();
 
-	$: entity = $states[sel?.entity_id];
+	let entity = $derived($states[sel?.entity_id]);
 
-	$: anyCompleted = getCompleted(items);
+	let anyCompleted = $derived(getCompleted(items));
 
-	$: dndOptions = {
-		flipDurationMs: $motion,
-		dropTargetStyle: {},
-		zoneTabIndex: -1
-	};
+	let sortableOptions = $derived({
+		animation: $motion,
+		disabled: false,
+		items: items ?? [],
+		group: { name: 'todo', pull: false as const, put: false as const },
+		onFinalize: handleSortFinalize
+	});
 
 	/**
 	 * Checks if any item in items is marked as 'completed'
@@ -140,22 +141,21 @@
 	}
 
 	/**
-	 * Handles drag and drop of a todo item
+	 * Handles finalized drag-and-drop reorder from SortableJS
 	 */
-	function handleDnd(event: any) {
-		items = event.detail.items.map((item: { id: string }) => ({
-			...item,
-			uid: item.id
-		}));
+	function handleSortFinalize(newItems: any[]) {
+		const oldItems = items;
+		items = newItems;
 
-		if (event?.type !== 'finalize') return;
-
-		const uid = event.detail.info.id;
-		const previousUid =
-			items.findIndex((item: { uid: string }) => item.uid === uid) - 1 >= 0
-				? items[items.findIndex((item: { uid: string }) => item.uid === uid) - 1].uid
-				: undefined;
-		handleReorder(uid, previousUid);
+		// Find the item that moved by comparing positions
+		for (let i = 0; i < newItems.length; i++) {
+			if (!oldItems[i] || newItems[i].uid !== oldItems[i].uid) {
+				const uid = newItems[i].uid;
+				const previousUid = i > 0 ? newItems[i - 1].uid : undefined;
+				handleReorder(uid, previousUid);
+				return;
+			}
+		}
 	}
 
 	/**
@@ -180,36 +180,42 @@
 	}
 </script>
 
-<svelte:document on:keydown={handleKey} />
+<svelte:document onkeydown={handleKey} />
 
 {#if isOpen}
 	<Modal>
 		<!-- ADD -->
 		<h2>{$lang('todo_list')}</h2>
 
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<div class="h-container">
 			<InputClear
 				condition={todoInput}
-				let:padding
-				on:clear={() => {
+				onclear={() => {
 					todoInput = '';
 				}}
 			>
-				<input
-					placeholder={$lang('add_item')}
-					name={$lang('add')}
-					class="input"
-					type="text"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={todoInput}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						placeholder={$lang('add_item')}
+						name={$lang('add')}
+						class="input"
+						type="text"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={todoInput}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
-			<form on:submit|preventDefault={add}>
+			<form
+				onsubmit={(e) => {
+					e.preventDefault();
+					add();
+				}}
+			>
 				<button
 					class="action done submit"
 					type="submit"
@@ -226,15 +232,11 @@
 
 		<!-- ITEMS -->
 		{#if items}
-			<section
-				use:dndzone={{ items, ...dndOptions }}
-				on:consider={handleDnd}
-				on:finalize={handleDnd}
-			>
+			<section use:sortable={sortableOptions}>
 				{#each items as item (item.uid)}
 					<div
 						class="todo-item"
-						animate:flip={{ duration: dndOptions?.flipDurationMs }}
+						data-id={item.id}
 						style:opacity={item.status === 'completed' ? '0.3' : '1'}
 						style:transition="opacity {$motion / 2}ms ease"
 						data-exclude-drag-modal
@@ -246,13 +248,13 @@
 									type="checkbox"
 									checked={item.status === 'completed' ? true : false}
 									class="input-checkbox"
-									on:input={(event) => handleStatus(event, item.uid)}
+									oninput={(event) => handleStatus(event, item.uid)}
 								/>
 							</label>
 
 							<span
 								class="item-name"
-								on:click={async () => {
+								onclick={async () => {
 									selectedId = item.uid;
 									const inputElement = document.getElementById(item.uid);
 
@@ -260,18 +262,17 @@
 										inputElement.focus();
 									}
 								}}
-								on:keydown
 								role="button"
 								tabindex="0"
 							>
 								{#if selectedId === item.uid}
-									<form on:submit={handleSubmit}>
+									<form onsubmit={handleSubmit}>
 										<input
 											id={item.uid}
 											value={item.summary}
 											class="inputname"
-											on:change={(event) => handleRename(event, item.uid)}
-											on:blur={() => {
+											onchange={(event) => handleRename(event, item.uid)}
+											onblur={() => {
 												selectedId = undefined;
 											}}
 										/>
@@ -296,7 +297,7 @@
 				class="action"
 				class:remove={anyCompleted}
 				class:done={!anyCompleted}
-				on:click={clear}
+				onclick={clear}
 				use:Ripple={$ripple}
 				style:opacity={!anyCompleted ? '0.3' : '1'}
 				disabled={!anyCompleted}

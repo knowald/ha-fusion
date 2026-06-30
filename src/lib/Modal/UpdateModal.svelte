@@ -9,37 +9,40 @@
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	import { marked } from 'marked';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { slide } from 'svelte/transition';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let checked = false;
-	let installed: boolean;
-	let releaseNotes: string | Promise<string>;
+	let checked = $state(false);
+	let installed = $state<boolean>(false);
+	let releaseNotes = $state<string | Promise<string> | undefined>(undefined);
 
-	$: entity = $states[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		INSTALL: 1,
-		SPECIFIC_VERSION: 2,
-		PROGRESS: 4,
-		BACKUP: 8,
-		RELEASE_NOTES: 16
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			INSTALL: 1,
+			SPECIFIC_VERSION: 2,
+			PROGRESS: 4,
+			BACKUP: 8,
+			RELEASE_NOTES: 16
+		})
+	);
 
 	/**
 	 * Updates `installed` with a number from `attributes?.in_progress`
 	 * `in_progress` cycles through numbers or `false` if not in progress
 	 */
-	$: if (attributes?.in_progress) installed = attributes?.in_progress;
+	$effect(() => {
+		if (attributes?.in_progress) installed = attributes?.in_progress;
+	});
 
-	$: inProgress = typeof attributes?.in_progress === 'number';
-	$: skipped = attributes?.skipped_version === attributes?.latest_version;
-	$: latest = attributes?.installed_version === attributes?.latest_version;
+	let inProgress = $derived(typeof attributes?.in_progress === 'number');
+	let skipped = $derived(attributes?.skipped_version === attributes?.latest_version);
+	let latest = $derived(attributes?.installed_version === attributes?.latest_version);
 
 	// animate progress, don't use `latest`
 	const progress = tweened(attributes?.installed_version === attributes?.latest_version ? 0 : 100, {
@@ -47,7 +50,9 @@
 		easing: cubicOut
 	});
 
-	$: progress.set(inProgress ? attributes?.in_progress : installed ? 100 : 0);
+	$effect(() => {
+		progress.set(inProgress ? attributes?.in_progress : installed ? 100 : 0);
+	});
 
 	onMount(async () => {
 		if (supports?.BACKUP) {
@@ -96,9 +101,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">
-			{getName(sel, entity)}
-		</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>
 			{$lang('state')}
@@ -136,6 +139,7 @@
 
 		{#if attributes?.release_url}
 			<p>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link -->
 				<a href={attributes?.release_url} target="_blank">{$lang('update_release_notes')}</a>
 			</p>
 		{/if}
@@ -187,7 +191,7 @@
 						class="action"
 						class:done={skipped}
 						class:remove={!skipped}
-						on:click={() => handleSkip(skipped ? 'clear_skipped' : 'skip')}
+						onclick={() => handleSkip(skipped ? 'clear_skipped' : 'skip')}
 						style:opacity={latest ? '0.5' : '1'}
 						disabled={latest}
 						use:Ripple={$ripple}
@@ -199,7 +203,7 @@
 				{#if supports?.INSTALL}
 					<button
 						class="done action"
-						on:click={handleInstall}
+						onclick={handleInstall}
 						disabled={latest}
 						style:opacity={inProgress || latest ? '0.5' : '1'}
 						use:Ripple={$ripple}

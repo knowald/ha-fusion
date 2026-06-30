@@ -3,12 +3,11 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Notifications from '$lib/Sidebar/Notifications.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -20,9 +19,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">
-			{$lang('notifications')}
-		</h1>
+		{#snippet title()}<h1>{$lang('notifications')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -35,7 +32,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.expand !== false}
-				on:click={() => set('expand')}
+				onclick={() => set('expand')}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -43,7 +40,7 @@
 
 			<button
 				class:selected={sel?.expand === false}
-				on:click={() => set('expand', false)}
+				onclick={() => set('expand', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -55,7 +52,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -63,7 +60,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { base } from '$app/paths';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
 	let languages: {
 		id: string;
@@ -47,9 +47,9 @@
 
 <button
 	class="button"
-	on:click={handleClick}
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onclick={handleClick}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={$ripple}
 >
 	<figure>

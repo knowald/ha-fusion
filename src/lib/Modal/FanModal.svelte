@@ -4,32 +4,35 @@
 	import { connection, lang, selectedLanguage, states, ripple } from '$lib/Stores';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Select from '$lib/Components/Select.svelte';
 	import Toggle from '$lib/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	$: entity = $states?.[selected?.entity_id] as HassEntity;
-	$: attributes = entity?.attributes;
-	$: toggle = entity?.state === 'on';
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[selected?.entity_id] as HassEntity);
+	let attributes = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state === 'on');
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		SET_SPEED: 1,
-		OSCILLATE: 2,
-		DIRECTION: 4,
-		PRESET_MODE: 8
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			SET_SPEED: 1,
+			OSCILLATE: 2,
+			DIRECTION: 4,
+			PRESET_MODE: 8
+		})
+	);
 
-	$: options = attributes?.preset_modes?.map((option: string) => ({
-		id: option,
-		label: option
-	}));
+	let options = $derived(
+		attributes?.preset_modes?.map((option: string) => ({
+			id: option,
+			label: option
+		}))
+	);
 
 	async function handleChange(
 		service: string,
@@ -61,16 +64,14 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">
-			{getName(selected, entity)}
-		</h1>
+		{#snippet title()}<h1>{getName(selected, entity)}</h1>{/snippet}
 
 		<!-- TOGGLE -->
 		<h2>{$lang('toggle')}</h2>
 
 		<Toggle
 			bind:checked={toggle}
-			on:change={() => {
+			onchange={() => {
 				callService($connection, 'fan', 'toggle', {
 					entity_id: entity?.entity_id
 				});
@@ -96,9 +97,9 @@
 				min={0}
 				max={100}
 				step={attributes?.percentage_step.toFixed(2)}
-				on:change={(event) => {
+				onchange={(event) => {
 					request = undefined;
-					handleChange('set_percentage', 'percentage', Math.round(event?.detail));
+					handleChange('set_percentage', 'percentage', Math.round(event));
 				}}
 			/>
 		{/if}
@@ -110,7 +111,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.oscillating === true}
-					on:click={() => {
+					onclick={() => {
 						handleChange('oscillate', 'oscillating', true);
 					}}
 					use:Ripple={$ripple}
@@ -120,7 +121,7 @@
 
 				<button
 					class:selected={attributes?.oscillating === false}
-					on:click={() => {
+					onclick={() => {
 						handleChange('oscillate', 'oscillating', false);
 					}}
 					use:Ripple={$ripple}
@@ -137,7 +138,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.direction === 'forward'}
-					on:click={() => {
+					onclick={() => {
 						handleChange('set_direction', 'direction', 'forward');
 					}}
 					use:Ripple={$ripple}
@@ -147,7 +148,7 @@
 
 				<button
 					class:selected={attributes?.direction === 'reverse'}
-					on:click={() => {
+					onclick={() => {
 						handleChange('set_direction', 'direction', 'reverse');
 					}}
 					use:Ripple={$ripple}
@@ -166,8 +167,9 @@
 				defaultIcon="mdi:fan"
 				placeholder={$lang('mode')}
 				value={attributes?.preset_mode}
-				on:change={(event) => {
-					handleChange('set_preset_mode', 'preset_mode', event?.detail);
+				onchange={(event) => {
+					if (event == null) return;
+					handleChange('set_preset_mode', 'preset_mode', event);
 				}}
 			/>
 		{/if}

@@ -5,13 +5,12 @@
 	import { getDomain, getName } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
-	$: type = getType(entity?.attributes?.has_date, entity?.attributes?.has_time);
-	$: domain = getDomain(entity.entity_id) as string;
+	let entity = $derived($states[sel?.entity_id]);
+	let entityState = $derived(entity?.state);
+	let type = $derived(getType(entity?.attributes?.has_date, entity?.attributes?.has_time));
+	let domain = $derived(getDomain(entity.entity_id) as string);
 
 	/**
 	 * Handles input_datetime
@@ -49,18 +48,19 @@
 					day: 'numeric',
 					hour: '2-digit',
 					minute: '2-digit'
-				}).format(new Date(state));
+				}).format(new Date(entityState));
 			} else if (type === 'date') {
 				return new Intl.DateTimeFormat($selectedLanguage, {
 					year: 'numeric',
 					month: 'long',
 					day: 'numeric'
-				}).format(new Date(state));
+				}).format(new Date(entityState));
 			} else if (type === 'time') {
 				// 'HH:MM:SS'
-				const timeParts = state.split(':');
+				const timeParts = entityState.split(':');
+				// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 				const date = new Date();
-				date.setHours(timeParts[0], timeParts[1], timeParts[2] || 0);
+				date.setHours(Number(timeParts[0]), Number(timeParts[1]), Number(timeParts[2] || 0));
 				return new Intl.DateTimeFormat($selectedLanguage, {
 					hour: 'numeric',
 					minute: '2-digit',
@@ -74,8 +74,8 @@
 		}
 	}
 
-	function convert(state: string) {
-		const date = new Date(state);
+	function convert() {
+		const date = new Date(entityState);
 		const year = date.getUTCFullYear();
 		const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
 		const day = date.getUTCDate().toString().padStart(2, '0');
@@ -88,7 +88,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>
 			{#if domain === 'datetime' || type === 'datetime'}
@@ -98,15 +98,15 @@
 			{/if}
 
 			<span class="align-right">
-				{format(state, type || 'datetime')}
+				{format(entityState, type || 'datetime')}
 			</span>
 		</h2>
 
 		<input
 			class="input"
 			type={domain === 'datetime' || type === 'datetime' ? 'datetime-local' : type}
-			value={domain === 'datetime' ? convert(state) : state}
-			on:change={handleChange}
+			value={domain === 'datetime' ? convert() : entityState}
+			onchange={handleChange}
 		/>
 
 		<ConfigButtons />

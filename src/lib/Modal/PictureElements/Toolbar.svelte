@@ -4,13 +4,13 @@
 	import Icon from '@iconify/svelte';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
+	let { konva }: { konva: KonvaEditor } = $props();
 </script>
 
 <button
 	title="Select (V), Double-click to Deselect All"
-	on:click={() => konva.setMode('default')}
-	on:dblclick={() => {
+	onclick={() => konva.setMode('default')}
+	ondblclick={() => {
 		konva.deselectAll();
 		if ($konvaStore?.selectedShapes) {
 			$konvaStore.selectedShapes = [];
@@ -23,8 +23,8 @@
 
 <button
 	title="Pan (H), Double-click to Fit Canvas"
-	on:click={() => konva.setMode('pan')}
-	on:dblclick={() => konva.fitCanvas()}
+	onclick={() => konva.setMode('pan')}
+	ondblclick={() => konva.fitCanvas()}
 	class:selected={$konvaStore?.mode === 'pan'}
 >
 	<Icon icon={icons?.['pan']} width="15" height="15" />
@@ -32,8 +32,8 @@
 
 <button
 	title="Zoom (Z), Double-click to Reset Zoom"
-	on:click={() => konva.setMode('zoom')}
-	on:dblclick={() => {
+	onclick={() => konva.setMode('zoom')}
+	ondblclick={() => {
 		konva.setZoom('reset', {
 			x: konva.stage.width() / 2,
 			y: konva.stage.height() / 2
@@ -46,43 +46,43 @@
 
 <span class="divider"></span>
 
-<button title="Add New State Label" on:click={() => konva.addStateLabel()}>
+<button title="Add New State Label" onclick={() => konva.addStateLabel()}>
 	<Icon icon={icons?.['state-label']} width="18" height="18" />
 </button>
 
-<button title="Add New State Icon" on:click={() => konva.addStateIcon()}>
+<button title="Add New State Icon" onclick={() => konva.addStateIcon()}>
 	<Icon icon={icons?.['state-icon']} width="20" height="20" />
 </button>
 
 <span class="divider"></span>
 
-<button title="Add New Text" on:click={() => konva.addText()}>
+<button title="Add New Text" onclick={() => konva.addText()}>
 	<Icon icon={icons?.['text']} width="20" height="20" />
 </button>
 
-<button title="Add New Icon" on:click={() => konva.addIcon()}>
+<button title="Add New Icon" onclick={() => konva.addIcon()}>
 	<Icon icon={icons?.['icon']} width="18" height="18" />
 </button>
 
-<button title="Add New Image" on:click={() => konva.addImage()}>
+<button title="Add New Image" onclick={() => konva.addImage()}>
 	<Icon icon={icons?.['image']} width="18" height="18" />
 </button>
 
-<button title="Add New Rectangle" on:click={() => konva.addRectangle()}>
+<button title="Add New Rectangle" onclick={() => konva.addRectangle()}>
 	<Icon icon={icons?.['rectangle']} width="18" height="18" />
 </button>
 
-<button title="Add New Circle" on:click={() => konva.addCircle()}>
+<button title="Add New Circle" onclick={() => konva.addCircle()}>
 	<Icon icon={icons?.['circle']} width="18" height="18" />
 </button>
 
 <span class="divider"></span>
 
-<button title="Add New Vertical Guide" on:click={() => konva.addVerticalGuide()}>
+<button title="Add New Vertical Guide" onclick={() => konva.addVerticalGuide()}>
 	<Icon icon={icons?.['v-guide']} width="16" height="16" />
 </button>
 
-<button title="Add New Horizontal Guide" on:click={() => konva.addHorizontalGuide()}>
+<button title="Add New Horizontal Guide" onclick={() => konva.addHorizontalGuide()}>
 	<Icon icon={icons?.['h-guide']} width="16" height="16" />
 </button>
 

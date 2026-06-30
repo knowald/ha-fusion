@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { motion, lang, ripple } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
-	import { createEventDispatcher } from 'svelte';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
+	let {
+		view,
+		onchange = undefined
+	}: { view: any; onchange?: ((event: { detail: number }) => void) | undefined } = $props();
 
-	export let view: any;
+	let clientWidth = $state(0);
 
-	const dispatch = createEventDispatcher();
-
-	let clientWidth = 0;
-
-	$: dispatch('change', clientWidth);
+	$effect(() => {
+		onchange?.({ detail: clientWidth });
+	});
 
 	/**
 	 * Opens modal to edit view
@@ -28,7 +29,7 @@
 <button
 	bind:clientWidth
 	class="edit"
-	on:click={handleClick}
+	onclick={handleClick}
 	transition:fade={{ duration: $motion / 2 }}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 >

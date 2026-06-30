@@ -17,15 +17,20 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: BarItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: BarItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -33,13 +38,13 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
+	let name = $state(sel?.name);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
-	$: math = sel?.math || '';
+	let math = $state(sel?.math || '');
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -51,7 +56,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">Bar</h1>
+		{#snippet title()}<h1>Bar</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -66,7 +71,7 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -74,24 +79,25 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				id="bar_name"
-				type="text"
-				bind:value={name}
-				on:change={(event) => set('name', event)}
-				placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
-				class:input={true}
-				class:placeholder={!name}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					id="bar_name"
+					type="text"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
+					class:input={true}
+					class:placeholder={!name}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('value')}</h2>
@@ -105,8 +111,8 @@
 				{@const formulas = ['x', '100 - x', 'Math.round(x)', 'x * 100']}
 
 				<div class="pre-container" transition:slide={{ duration: $motion / 1.5 }}>
-					{#each formulas as formula}
-						<button class="math" on:click={() => set('math', formula)} use:Ripple={$ripple}>
+					{#each formulas as formula (formula)}
+						<button class="math" onclick={() => set('math', formula)} use:Ripple={$ripple}>
 							<pre>{formula}</pre>
 						</button>
 					{/each}
@@ -116,24 +122,25 @@
 
 		<InputClear
 			condition={math}
-			on:clear={() => {
+			onclear={() => {
 				math = '';
 				set('math');
 			}}
-			let:padding
 		>
-			<input
-				id="bar_math"
-				class="input"
-				type="text"
-				on:input={(event) => set('math', event)}
-				bind:value={math}
-				placeholder="x"
-				autocomplete="off"
-				spellcheck="false"
-				style="font-family: monospace; font-size: 1rem;"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					id="bar_math"
+					class="input"
+					type="text"
+					oninput={(event) => set('math', event)}
+					bind:value={math}
+					placeholder="x"
+					autocomplete="off"
+					spellcheck="false"
+					style="font-family: monospace; font-size: 1rem;"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>
@@ -141,7 +148,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -149,7 +156,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

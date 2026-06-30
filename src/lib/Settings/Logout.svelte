@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { openModal, closeModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal, closeModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import { lang, ripple } from '$lib/Stores';
 
 	function handleClick() {
@@ -26,7 +26,10 @@
 
 	<button
 		class="action remove"
-		on:click|preventDefault={handleClick}
+		onclick={(e) => {
+			e.preventDefault();
+			handleClick();
+		}}
 		use:Ripple={{
 			...$ripple,
 			color: 'rgba(0, 0, 0, 0.35)'

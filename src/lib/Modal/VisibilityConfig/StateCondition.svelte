@@ -3,10 +3,9 @@
 	import Select from '$lib/Components/Select.svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
-	$: entityOptions = $entityList('');
+	let entityOptions = $derived($entityList(''));
 
 	const stateOptions = [
 		{ id: 'state', label: $lang('state_equal') },
@@ -16,7 +15,7 @@
 	/**
 	 * Updates `entity` value
 	 */
-	function handleEntity(id: number | undefined, entity_id: string) {
+	function handleEntity(id: number | undefined, entity_id: string | undefined) {
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				return { ...condition, entity: entity_id };
@@ -28,7 +27,8 @@
 	/**
 	 * Updates `state` or `state_not` keys
 	 */
-	function handleEquals(id: number | undefined, key: string) {
+	function handleEquals(id: number | undefined, key: string | undefined) {
+		if (!key) return;
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				const _condition = { ...condition };
@@ -71,9 +71,9 @@
 	options={entityOptions}
 	placeholder={$lang('entity')}
 	value={item.entity}
-	on:change={(event) => handleEntity(item?.id, event?.detail)}
+	onchange={(event) => handleEntity(item?.id, event)}
 	computeIcons={true}
-	defaultIcon={'mdi:state-machine'}
+	defaultIcon="mdi:state-machine"
 />
 
 <br />
@@ -84,7 +84,7 @@
 			options={stateOptions}
 			value={'state_not' in item ? 'state_not' : 'state'}
 			placeholder={$lang('state_not' in item ? 'state_not_equal' : 'state_equal')}
-			on:change={(event) => handleEquals(item?.id, event?.detail)}
+			onchange={(event) => handleEquals(item?.id, event)}
 		/>
 	</span>
 
@@ -94,7 +94,7 @@
 			type="text"
 			value={item?.state || item?.state_not || ''}
 			placeholder={$lang('state')}
-			on:input={(event) => handleState(item?.id, event?.target)}
+			oninput={(event) => handleState(item?.id, event?.target)}
 		/>
 	</span>
 </div>

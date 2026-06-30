@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { itemHeight, editMode, disableMenuButton, showDrawer, motion } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import { onDestroy, tick } from 'svelte';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let timeout: ReturnType<typeof setTimeout> | null;
 
@@ -33,9 +33,8 @@
 
 <div
 	style:min-height="{$itemHeight}px"
-	on:click={handleClick}
+	onclick={handleClick}
 	style:cursor={$editMode ? 'unset' : 'pointer'}
-	on:keydown
 	role="button"
 	tabindex="0"
 ></div>

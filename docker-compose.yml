@@ -9,7 +9,7 @@ services:
     networks:
       - ha-fusion-network
     ports:
-      - "${EXPOSED_PORT:-5050}:5050"
+      - '${EXPOSED_PORT:-5050}:5050'
     environment:
       TZ: ${TZ:-UTC}
       HASS_URL: ${HASS_URL}
@@ -17,7 +17,7 @@ services:
       NODE_ENV: production
     restart: always
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5050"]
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:5050']
       interval: 30s
       timeout: 10s
       retries: 3

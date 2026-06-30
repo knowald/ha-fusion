@@ -4,26 +4,25 @@
 	import { Map, NavigationControl, Popup, Marker, type MapOptions } from 'maplibre-gl';
 	import 'maplibre-gl/dist/maplibre-gl.css';
 	import type { HassEntity } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
 	import { getName } from '$lib/Utils';
 	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity: HassEntity;
+	let entity = $state<HassEntity>(undefined!);
 	let map: Map;
 	let popup: Popup;
-	let mode: 'demo' | 'light' | 'dark';
-	let container: HTMLDivElement;
-	let geolocate: HTMLDivElement;
-	let theme: HTMLDivElement;
-	let markerContainer: HTMLDivElement;
-	let markerIcon: HTMLButtonElement;
+	let mode: 'demo' | 'light' | 'dark' = $state(undefined as any);
+	let container: HTMLDivElement = $state(undefined as any);
+	let geolocate: HTMLDivElement = $state(undefined as any);
+	let theme: HTMLDivElement = $state(undefined as any);
+	let markerContainer: HTMLDivElement = $state(undefined as any);
+	let markerIcon = $state<HTMLButtonElement>();
 	let controlButtonsIconColor: string;
-	let loadError: boolean;
+	let loadError = $state<boolean>(false);
 
 	const zoom = 13.5;
 	const pitch = 0;
@@ -54,16 +53,17 @@
 		}
 	};
 
-	/** Updates entity if `last_updated` attribute changes */
-	$: if ($states?.[sel?.entity_id]?.last_updated !== entity?.last_updated)
-		entity = $states?.[sel?.entity_id];
+	$effect(() => {
+		if ($states?.[sel?.entity_id]?.last_updated !== entity?.last_updated)
+			entity = $states?.[sel?.entity_id];
+	});
 
-	$: entity_picture = entity?.attributes?.entity_picture;
+	let entity_picture = $derived(entity?.attributes?.entity_picture);
 
-	$: coordinates = {
+	let coordinates = $derived({
 		lon: entity?.attributes?.longitude,
 		lat: entity?.attributes?.latitude
-	};
+	});
 
 	onMount(async () => {
 		mode = !apiKey ? 'demo' : localStorage.getItem('darkMap') === 'true' ? 'dark' : 'light';
@@ -119,6 +119,7 @@
 					return geolocate;
 				},
 				onRemove: () => {
+					// eslint-disable-next-line svelte/no-dom-manipulating -- MapLibre control lifecycle
 					geolocate.remove();
 				}
 			},
@@ -133,6 +134,7 @@
 					return theme;
 				},
 				onRemove: () => {
+					// eslint-disable-next-line svelte/no-dom-manipulating -- MapLibre control lifecycle
 					theme.remove();
 				}
 			},
@@ -251,7 +253,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<!-- container -->
 		<div
@@ -284,7 +286,7 @@
 			<div bind:this={geolocate} class="maplibregl-ctrl maplibregl-ctrl-group" style:display="none">
 				<button
 					class="maplibregl-ctrl-geolocate"
-					on:click={() => {
+					onclick={() => {
 						map.easeTo({
 							center: coordinates,
 							zoom: 17.5,
@@ -302,7 +304,7 @@
 		<div bind:this={theme} class="maplibregl-ctrl maplibregl-ctrl-group" style:display="none">
 			<button
 				class="maplibregl-ctrl-geolocate"
-				on:click={() => {
+				onclick={() => {
 					if (mode === 'light') {
 						map.setStyle(styles.dark, { diff: false });
 						mode = 'dark';
@@ -336,7 +338,7 @@
 				id="marker"
 				bind:this={markerIcon}
 				style:background-image={entity_picture ? `url("${entity_picture}")` : 'none'}
-				on:click={() => {
+				onclick={() => {
 					if (popup?.isOpen()) {
 						popup.remove();
 					} else {

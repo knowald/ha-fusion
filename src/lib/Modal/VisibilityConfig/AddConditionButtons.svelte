@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { dashboard, lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { Condition } from '$lib/Types';
 	import { generateId } from '$lib/Utils';
 
-	export let items: Condition[];
+	let { items = $bindable() }: { items: Condition[] } = $props();
 
 	const buttons: Array<{ id: Condition['condition']; icon: string; label: string }> = [
 		{ id: 'state', icon: 'mdi:state-machine', label: $lang('state') },
@@ -35,9 +35,9 @@
 </h2>
 
 <div>
-	{#each buttons as button}
+	{#each buttons as button (button.id)}
 		{#if button?.id}
-			<button class="action options" on:click={() => handleClick(button?.id)} use:Ripple={$ripple}>
+			<button class="action options" onclick={() => handleClick(button?.id)} use:Ripple={$ripple}>
 				{$lang(button?.id)}
 			</button>
 		{/if}

@@ -4,23 +4,24 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		OPEN: 1,
-		CLOSE: 2,
-		SET_POSITION: 4,
-		STOP: 8
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			OPEN: 1,
+			CLOSE: 2,
+			SET_POSITION: 4,
+			STOP: 8
+		})
+	);
 
 	/**
 	 * Handle click
@@ -34,11 +35,11 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('state')}</h2>
 
-		{$lang(state)}
+		{$lang(entityState)}
 
 		<h2>{$lang('buttons')}</h2>
 
@@ -47,7 +48,7 @@
 				<button
 					title={$lang('open_valve')}
 					class:selected={entity?.state === 'open'}
-					on:click={() => handleClick('open_valve')}
+					onclick={() => handleClick('open_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -60,7 +61,7 @@
 				<button
 					title={$lang('close_valve')}
 					class:selected={entity?.state === 'closed'}
-					on:click={() => handleClick('close_valve')}
+					onclick={() => handleClick('close_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.7);">
@@ -72,7 +73,7 @@
 			{#if supports?.STOP}
 				<button
 					title={$lang('stop_valve')}
-					on:click={() => handleClick('stop_valve')}
+					onclick={() => handleClick('stop_valve')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">

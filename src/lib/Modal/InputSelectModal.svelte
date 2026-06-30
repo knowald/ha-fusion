@@ -6,17 +6,18 @@
 	import Select from '$lib/Components/Select.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
+	let entity = $derived($states[sel?.entity_id]);
 
-	$: options = entity?.attributes?.options?.map((option: string) => ({
-		id: option,
-		label: option
-	}));
+	let options = $derived(
+		entity?.attributes?.options?.map((option: string) => ({
+			id: option,
+			label: option
+		}))
+	);
 
-	function handleChange(option: string) {
+	function handleChange(option: string | undefined) {
 		if (!option || !entity) return;
 		const service = getDomain(entity?.entity_id) as string;
 
@@ -29,7 +30,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		{#if options}
 			<h2>{$lang('options')}</h2>
@@ -38,8 +39,8 @@
 				{options}
 				placeholder={$lang('options')}
 				value={entity?.state}
-				on:change={(event) => {
-					handleChange(event?.detail);
+				onchange={(event) => {
+					handleChange(event);
 				}}
 			/>
 		{/if}

@@ -4,16 +4,15 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: state = Number(entity?.state);
-	$: attributes = entity?.attributes;
-	$: canIncrement = state !== attributes?.maximum;
-	$: canDecrement = state !== attributes?.minimum;
+	let entity = $derived($states[sel?.entity_id]);
+	let entityState = $derived(Number(entity?.state));
+	let attributes = $derived(entity?.attributes);
+	let canIncrement = $derived(entityState !== attributes?.maximum);
+	let canDecrement = $derived(entityState !== attributes?.minimum);
 
 	/**
 	 * Handles counter service call
@@ -27,7 +26,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('counter')}</h2>
 
@@ -39,7 +38,7 @@
 				class:dim={!canDecrement}
 				style:cursor={!canDecrement ? 'unset' : 'pointer'}
 				style:transition="opacity {$motion}ms ease"
-				on:click={() => {
+				onclick={() => {
 					handleClick('decrement');
 				}}
 				use:Ripple={$ripple}
@@ -47,7 +46,7 @@
 				-
 			</button>
 
-			<span>{state}</span>
+			<span>{entityState}</span>
 
 			<button
 				title={$lang('increment')}
@@ -56,7 +55,7 @@
 				class:dim={!canIncrement}
 				style:cursor={!canIncrement ? 'unset' : 'pointer'}
 				style:transition="opacity {$motion}ms ease"
-				on:click={() => {
+				onclick={() => {
 					handleClick('increment');
 				}}
 				use:Ripple={$ripple}
@@ -68,7 +67,7 @@
 		<div class="add-config-button">
 			<button
 				class="done action"
-				on:click={() => {
+				onclick={() => {
 					handleClick('reset');
 				}}
 				use:Ripple={$ripple}

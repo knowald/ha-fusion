@@ -6,20 +6,22 @@
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
-	let transitionend: boolean;
-	let message: string | undefined;
-	let success = false;
+	let transitionend: boolean = $state(false);
+	let message: string | undefined = $state(undefined);
+	let success = $state(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
 
-	let reloadView = false;
+	let reloadView = $state(false);
 
-	$: init = parser.dump($dashboard);
-	$: value = init;
-	$: changed = init !== value;
+	let init = $derived(parser.dump($dashboard));
+	let value = $derived(init);
+	let changed = $derived(init !== value);
 
-	$: if (!changed && !success) message = undefined;
+	$effect(() => {
+		if (!changed && !success) message = undefined;
+	});
 
 	async function handleKeyDown(event: KeyboardEvent) {
 		if ((event.metaKey || event.ctrlKey) && event.key === 's') {
@@ -82,6 +84,7 @@
 	function validate(data: any): boolean {
 		try {
 			if (!data) return false;
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 			const ids: Set<number> = new Set();
 
 			// validate entity_id
@@ -169,11 +172,11 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen}
-	<Modal size="large" on:transitionend={() => (transitionend = true)}>
-		<h1 slot="title">{$lang('raw')}</h1>
+	<Modal size="large" ontransitionend={() => (transitionend = true)}>
+		{#snippet title()}<h1>{$lang('raw')}</h1>{/snippet}
 
 		<br />
 
@@ -184,8 +187,8 @@
 			bind:reloadView
 			{transitionend}
 			autocompleteList={$autocompleteList}
-			on:change={(event) => {
-				value = event.detail;
+			onchange={(event) => {
+				value = event;
 			}}
 		/>
 
@@ -207,7 +210,7 @@
 				class:changed
 				disabled={!changed}
 				style:transition="background-color {$motion / 1.5}ms ease"
-				on:click={() => save(value)}
+				onclick={() => save(value)}
 			>
 				{$lang('save')}
 			</button>

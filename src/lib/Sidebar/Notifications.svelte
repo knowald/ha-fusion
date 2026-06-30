@@ -13,14 +13,14 @@
 	import { relativeTime } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
 	import { slide } from 'svelte/transition';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { marked } from 'marked';
 
-	export let sel: any = undefined;
-	let expanded = false;
+	let { sel = undefined }: { sel?: any } = $props();
+	let expanded = $state(false);
 
-	$: length = Object.entries($persistentNotifications)?.length;
-	$: empty = length < 1;
+	let length = $derived(Object.entries($persistentNotifications)?.length);
+	let empty = $derived(length < 1);
 
 	function handleClick(key: string) {
 		if ($editMode) return;
@@ -54,11 +54,10 @@
 		transition:slide={{ duration: $motion }}
 		class="toggle"
 		style:cursor={$editMode || empty ? 'unset' : 'pointer'}
-		on:click={() => {
+		onclick={() => {
 			if ($editMode || empty) return;
 			expanded = !expanded;
 		}}
-		on:keydown
 		role="button"
 		tabindex="0"
 	>
@@ -100,7 +99,7 @@
 							<button
 								class="dismiss"
 								style:pointer-events={$editMode ? 'none' : 'unset'}
-								on:click={() => handleClick(key)}
+								onclick={() => handleClick(key)}
 								use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 							>
 								{$lang('notifications_dismiss')}

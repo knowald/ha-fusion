@@ -36,6 +36,14 @@ export interface Views {
 	isDndShadowItem?: boolean;
 }
 
+export type Item =
+	| ButtonItem
+	| CameraItem
+	| EmptyItem
+	| DaysSinceItem
+	| SpotifyPlayerItem
+	| SpotifyPlayerLargeItem;
+
 export interface Section {
 	id?: number;
 	name?: string;
@@ -102,6 +110,13 @@ export interface ButtonItem {
 			service?: string;
 		};
 	};
+	// Vacuum-specific options
+	hide_battery?: boolean;
+	show_status_on_button?: boolean;
+	vacuum_commands?: string[];
+	vacuum_plans?: string[];
+	vacuum_rooms?: { id: string; name: string }[];
+	vacuum_mop_intensity_entity?: string;
 }
 
 export interface DaysSinceItem {

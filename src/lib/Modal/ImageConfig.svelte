@@ -8,12 +8,17 @@
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { updateObj } from '$lib/Utils';
 	import type { ImageItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: ImageItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: ImageItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -21,9 +26,9 @@
 		set('url', demo);
 	}
 
-	let url = sel?.url;
+	let url = $state(sel?.url);
 
-	$: options = $entityList('image');
+	let options = $derived($entityList('image'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -35,7 +40,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('picture')}</h1>
+		{#snippet title()}<h1>{$lang('picture')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -51,7 +56,7 @@
 					value={sel?.entity_id}
 					placeholder={$lang('entity')}
 					defaultIcon="mdi:image"
-					on:change={(event) => set('entity_id', event)}
+					onchange={(event) => set('entity_id', event)}
 					{options}
 					computeIcons={true}
 				/>
@@ -62,22 +67,23 @@
 
 		<InputClear
 			condition={url}
-			on:clear={() => {
+			onclear={() => {
 				url = undefined;
 				set('url');
 			}}
-			let:padding
 		>
-			<input
-				type="text"
-				class="input"
-				bind:value={url}
-				placeholder="https://"
-				on:change={(event) => set('url', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					type="text"
+					class="input"
+					bind:value={url}
+					placeholder="https://"
+					onchange={(event) => set('url', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('mobile')}</h2>
@@ -85,7 +91,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -93,7 +99,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

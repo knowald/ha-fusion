@@ -2,47 +2,42 @@
 	import { connection, states, lang, ripple, timer } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity_id = sel?.entity_id;
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let entity_id = $derived(sel?.entity_id);
+	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	// Media info
-	$: media_title = attributes?.media_title;
-	$: media_artist = attributes?.media_artist;
-	$: media_album_name = attributes?.media_album_name;
-	$: entity_picture = attributes?.entity_picture;
+	let media_title = $derived(attributes?.media_title);
+	let media_artist = $derived(attributes?.media_artist);
+	let media_album_name = $derived(attributes?.media_album_name);
+	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	$: is_playing = state === 'playing';
-	$: is_paused = state === 'paused';
-	$: is_idle = state === 'idle' || !entity;
+	let is_playing = $derived(entityState === 'playing');
+	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Progress
-	$: media_duration = attributes?.media_duration;
-	$: media_position = attributes?.media_position;
-	$: media_position_updated_at = attributes?.media_position_updated_at;
+	let media_duration = $derived(attributes?.media_duration);
+	let media_position = $derived(attributes?.media_position);
+	let media_position_updated_at = $derived(attributes?.media_position_updated_at);
 
 	// Volume
-	$: volume_level = attributes?.volume_level ?? 0;
+	let volume_level = $derived(attributes?.volume_level ?? 0);
 
 	// Devices
-	$: source_list = attributes?.source_list || [];
-	$: current_source = attributes?.source;
+	let source_list = $derived(attributes?.source_list || []);
+	let current_source = $derived(attributes?.source);
 
 	// Calculate current position with live updates
-	$: current_position = calculatePosition(
-		media_position,
-		media_position_updated_at,
-		is_playing,
-		$timer
+	let current_position = $derived(
+		calculatePosition(media_position, media_position_updated_at, is_playing, $timer)
 	);
 
 	function calculatePosition(
@@ -151,7 +146,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{sel?.name || $lang('spotify_player') || 'Spotify'}</h1>
+		{#snippet title()}<h1>{sel?.name || $lang('spotify_player') || 'Spotify'}</h1>{/snippet}
 
 		<div class="player">
 			<!-- Main: art left, info+controls right (centered vertically) -->
@@ -180,7 +175,7 @@
 					<div class="controls">
 						<button
 							class="btn"
-							on:click={previousTrack}
+							onclick={previousTrack}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={$lang('previous_track') || 'Previous'}
@@ -190,7 +185,7 @@
 
 						<button
 							class="btn primary"
-							on:click={playPause}
+							onclick={playPause}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={is_playing ? $lang('pause') || 'Pause' : $lang('play') || 'Play'}
@@ -200,7 +195,7 @@
 
 						<button
 							class="btn"
-							on:click={nextTrack}
+							onclick={nextTrack}
 							disabled={is_idle}
 							use:Ripple={$ripple}
 							title={$lang('next_track') || 'Next'}
@@ -217,7 +212,7 @@
 								min="0"
 								max={media_duration}
 								value={current_position}
-								on:change={seek}
+								onchange={seek}
 								class="seek"
 							/>
 							<span class="time right-align">{formatTime(media_duration)}</span>
@@ -236,7 +231,7 @@
 						max="1"
 						step="0.01"
 						value={volume_level}
-						on:input={setVolume}
+						oninput={setVolume}
 						class="vol-slider"
 					/>
 					<span class="vol-pct">{Math.round(volume_level * 100)}%</span>
@@ -245,8 +240,11 @@
 				{#if source_list.length > 0}
 					<div class="device">
 						<Icon icon="mdi:speaker" height="0.95rem" style="opacity: 0.35;" />
-						<select on:change={(e) => selectDevice(e.target.value)} class="device-sel">
-							{#each source_list as device}
+						<select
+							onchange={(e) => selectDevice((e.target as HTMLSelectElement).value)}
+							class="device-sel"
+						>
+							{#each source_list as device, i (i)}
 								<option value={device} selected={device === current_source}>
 									{device}
 								</option>
@@ -255,7 +253,7 @@
 					</div>
 				{/if}
 
-				<button class="browse" on:click={openBrowser} use:Ripple={$ripple}>
+				<button class="browse" onclick={openBrowser} use:Ripple={$ripple}>
 					<Icon icon="mdi:library-music" height="0.95rem" />
 					<span>{$lang('browse_library') || 'Browse Library'}</span>
 				</button>

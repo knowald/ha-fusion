@@ -4,12 +4,11 @@
 	import Time from '$lib/Sidebar/Time.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import type { TimeItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: TimeItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: TimeItem } = $props();
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -21,7 +20,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('time')}</h1>
+		{#snippet title()}<h1>{$lang('time')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -34,17 +33,13 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.hour12}
-				on:click={() => set('hour12', false)}
+				onclick={() => set('hour12', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('time_format_24')}
 			</button>
 
-			<button
-				class:selected={sel?.hour12}
-				on:click={() => set('hour12', true)}
-				use:Ripple={$ripple}
-			>
+			<button class:selected={sel?.hour12} onclick={() => set('hour12', true)} use:Ripple={$ripple}>
 				{$lang('time_format_12')}
 			</button>
 		</div>
@@ -54,7 +49,7 @@
 		<div class="button-container">
 			<button
 				class:selected={!sel?.seconds}
-				on:click={() => set('seconds', false)}
+				onclick={() => set('seconds', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -62,7 +57,7 @@
 
 			<button
 				class:selected={sel?.seconds}
-				on:click={() => set('seconds', true)}
+				onclick={() => set('seconds', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -74,7 +69,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -82,7 +77,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

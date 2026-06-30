@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { lang } from '$lib/Stores';
 	import type { Condition } from '$lib/Types';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
 	// mobile: "(min-width: 0px) and (max-width: 767px)"
 	// tablet: "(min-width: 768px) and (max-width: 1023px)"
@@ -22,12 +21,12 @@
 	// tablet + desktop + wide: "(min-width: 768px)"
 	// mobile + tablet + desktop + wide: "(min-width: 0px)"
 
-	let mobile = false;
-	let tablet = false;
-	let desktop = false;
-	let wide = false;
+	let mobile = $state(false);
+	let tablet = $state(false);
+	let desktop = $state(false);
+	let wide = $state(false);
 
-	let input = item?.media_query;
+	let input = $state(item?.media_query);
 
 	const breakpoints: {
 		[key: string]: {
@@ -41,9 +40,15 @@
 		wide: { min: 1280, max: Infinity }
 	};
 
-	$: if (typeof input === 'string') {
-		handleChange();
-	}
+	// `input` is the only intended trigger. handleChange reads and reassigns `items`
+	// (a new array every call), so it must run untracked or the effect would re-enter
+	// on its own write and exceed the update depth.
+	$effect(() => {
+		const current = input;
+		if (typeof current === 'string') {
+			untrack(() => handleChange());
+		}
+	});
 
 	function handleChange() {
 		items = items.map((condition: Condition) =>
@@ -149,27 +154,27 @@
 
 <div class="container">
 	<label>
-		<input type="checkbox" bind:checked={mobile} on:change={handleClick} />
+		<input type="checkbox" bind:checked={mobile} onchange={handleClick} />
 		{$lang('breakpoints_mobile')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={tablet} on:change={handleClick} />
+		<input type="checkbox" bind:checked={tablet} onchange={handleClick} />
 		{$lang('breakpoints_tablet')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={desktop} on:change={handleClick} />
+		<input type="checkbox" bind:checked={desktop} onchange={handleClick} />
 		{$lang('breakpoints_desktop')}
 	</label>
 
 	<label>
-		<input type="checkbox" bind:checked={wide} on:change={handleClick} />
+		<input type="checkbox" bind:checked={wide} onchange={handleClick} />
 		{$lang('breakpoints_wide')}
 	</label>
 </div>
 
-<input data-modal type="text" bind:value={input} on:input={handleInput} />
+<input data-modal type="text" bind:value={input} oninput={handleInput} />
 
 <style>
 	.container {

@@ -1,43 +1,49 @@
 <script lang="ts">
-	import { connection, editMode, itemHeight, lang, ripple, services, states, timer } from '$lib/Stores';
+	import {
+		connection,
+		editMode,
+		itemHeight,
+		lang,
+		ripple,
+		services,
+		states,
+		timer
+	} from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let { sel, sectionName = undefined }: { sel: any; sectionName?: string } = $props();
 
-	$: entity_id = sel?.entity_id;
-	$: name = sel?.name;
-	$: icon = sel?.icon || 'mdi:spotify';
-	$: color = sel?.color || 'rgb(30, 215, 96)'; // Spotify green
-	$: show_progress = sel?.show_progress ?? true;
-	$: shortcuts = sel?.shortcuts ?? [];
+	let entity_id = $derived(sel?.entity_id);
+	let name = $derived(sel?.name);
+	let icon = $derived(sel?.icon || 'mdi:spotify');
+	let color = $derived(sel?.color || 'rgb(30, 215, 96)');
+	let show_progress = $derived(sel?.show_progress ?? true);
+	let shortcuts = $derived(sel?.shortcuts ?? []);
 
 	// Get entity state
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let entity = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	// Media info
-	$: media_title = attributes?.media_title;
-	$: media_artist = attributes?.media_artist;
-	$: media_album_name = attributes?.media_album_name;
-	$: entity_picture = attributes?.entity_picture;
+	let media_title = $derived(attributes?.media_title);
+	let media_artist = $derived(attributes?.media_artist);
+	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
-	$: is_playing = state === 'playing';
-	$: is_paused = state === 'paused';
-	$: is_idle = state === 'idle' || !entity;
+	let is_playing = $derived(entityState === 'playing');
+	let is_idle = $derived(entityState === 'idle' || !entity);
 
 	// Recent track artwork for rotating background
-	let recentArtwork: string[] = [];
-	let rotatingIndex = 0;
-	let rotatingImageA = '';
-	let rotatingImageB = '';
-	let showImageA = true;
+	let recentArtwork: string[] = $state([]);
+	let rotatingIndex = $state(0);
+	let rotatingImageA = $state('');
+	let rotatingImageB = $state('');
+	let showImageA = $state(true);
 
 	function findSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;
@@ -56,7 +62,7 @@
 		const spotifyPlusEntity = findSpotifyPlusEntity();
 		if (!spotifyPlusEntity) return;
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_player_recent_tracks',
@@ -79,37 +85,40 @@
 
 	onMount(fetchRecentArtwork);
 
-	// Rotate every 8 seconds
-	$: if (recentArtwork.length > 1 && !is_playing && $timer) {
-		const seconds = $timer.getSeconds();
-		if (seconds % 8 === 0) {
-			const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
-			if (nextIndex !== rotatingIndex) {
-				rotatingIndex = nextIndex;
-				if (showImageA) {
-					rotatingImageB = recentArtwork[rotatingIndex];
-				} else {
-					rotatingImageA = recentArtwork[rotatingIndex];
-				}
-				showImageA = !showImageA;
+	// Rotate every 8 seconds. The rotation state is read and written inside untrack so the
+	// effect does not re-enter on its own writes; the timer tick remains the reactive trigger.
+	$effect(() => {
+		if (recentArtwork.length > 1 && !is_playing && $timer) {
+			const seconds = $timer.getSeconds();
+			if (seconds % 8 === 0) {
+				untrack(() => {
+					const nextIndex = (rotatingIndex + 1) % recentArtwork.length;
+					if (nextIndex !== rotatingIndex) {
+						rotatingIndex = nextIndex;
+						if (showImageA) {
+							rotatingImageB = recentArtwork[rotatingIndex];
+						} else {
+							rotatingImageA = recentArtwork[rotatingIndex];
+						}
+						showImageA = !showImageA;
+					}
+				});
 			}
 		}
-	}
+	});
 
 	// Progress calculation
-	$: media_duration = attributes?.media_duration;
-	$: media_position = attributes?.media_position;
-	$: media_position_updated_at = attributes?.media_position_updated_at;
+	let media_duration = $derived(attributes?.media_duration);
+	let media_position = $derived(attributes?.media_position);
+	let media_position_updated_at = $derived(attributes?.media_position_updated_at);
 
 	// Calculate current position with live updates
-	$: current_position = calculatePosition(
-		media_position,
-		media_position_updated_at,
-		is_playing,
-		$timer
+	let current_position = $derived(
+		calculatePosition(media_position, media_position_updated_at, is_playing, $timer)
 	);
-	$: progress_percent =
-		media_duration && current_position ? (current_position / media_duration) * 100 : 0;
+	let progress_percent = $derived(
+		media_duration && current_position ? (current_position / media_duration) * 100 : 0
+	);
 
 	function calculatePosition(
 		position: number | undefined,
@@ -127,8 +136,10 @@
 	}
 
 	// Display text
-	$: display_title = media_title || name || $lang('spotify_player') || 'Spotify';
-	$: display_artist = media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : state);
+	let display_title = $derived(media_title || name || $lang('spotify_player') || 'Spotify');
+	let display_artist = $derived(
+		media_artist || (is_idle ? $lang('nothing_playing') || 'Idle' : entityState)
+	);
 
 	function handleClick() {
 		if ($editMode) {
@@ -149,8 +160,8 @@
 	tabindex="-1"
 	style:cursor={!$editMode ? 'pointer' : ''}
 	style:min-height="{$itemHeight}px"
-	on:click={handleClick}
-	on:keydown={(event) => {
+	onclick={handleClick}
+	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			handleClick();
@@ -185,7 +196,7 @@
 		<!-- ICON -->
 		<div class="left">
 			<div class="icon" style:--icon-color={color} style:background-color={color}>
-				<Icon icon={icon} height="none" width="100%" />
+				<Icon {icon} height="none" width="100%" />
 				{#if is_playing}
 					<div class="playing-indicator">
 						<Icon icon="mdi:music-note" height="1rem" />
@@ -216,7 +227,12 @@
 
 			<!-- SHORTCUTS (not playing) -->
 			{#if !is_playing && shortcuts.length > 0}
-				<SpotifyShortcuts {shortcuts} {entity_id} default_device={sel?.default_device} layout="compact" />
+				<SpotifyShortcuts
+					{shortcuts}
+					{entity_id}
+					default_device={sel?.default_device}
+					layout="compact"
+				/>
 			{/if}
 		</div>
 	</div>

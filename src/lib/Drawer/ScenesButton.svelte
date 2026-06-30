@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	import { createEventDispatcher } from 'svelte';
+	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } =
+		$props();
 
-	export let view: any;
-
-	$: noViews = !$dashboard?.views?.length;
-
-	const dispatch = createEventDispatcher();
+	let noViews = $derived(!$dashboard?.views?.length);
 
 	/**
 	 * Creates a new section object
@@ -34,16 +31,16 @@
 
 		$record();
 
-		dispatch('clicked');
+		onclicked?.();
 	}
 </script>
 
 <button
 	class="button dropdown"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
-		opacity: noViews ? '0' : $ripple.opacity
+		opacity: noViews ? 0 : $ripple.opacity
 	}}
 	style:cursor={noViews ? 'unset' : 'pointer'}
 	style:opacity={noViews ? '0.5' : '1'}

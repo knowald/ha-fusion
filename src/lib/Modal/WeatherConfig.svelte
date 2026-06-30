@@ -16,13 +16,19 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import type { WeatherItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: WeatherItem;
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: WeatherItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -30,19 +36,21 @@
 		set('entity_id', demo);
 	}
 
-	let icon: string | undefined = sel?.icon;
+	let icon: string | undefined = $state(sel?.icon);
 
-	$: entity = sel?.entity_id && ($states?.[sel?.entity_id] as any);
-	$: attributes = entity && entity?.attributes;
+	let entity = $derived(sel?.entity_id && ($states?.[sel?.entity_id] as any));
+	let attributes = $derived(entity && entity?.attributes);
 
 	const iconOptions = [{ id: 'meteocons', label: 'meteocons' }];
 
-	$: options = $entityList('weather');
+	let options = $derived($entityList('weather'));
 
-	$: sensorOptions = Object.keys($states)
-		.filter((key) => key.startsWith('sensor.'))
-		.sort()
-		.map((key) => ({ id: key, label: key }));
+	let sensorOptions = $derived(
+		Object.keys($states)
+			.filter((key) => key.startsWith('sensor.'))
+			.sort()
+			.map((key) => ({ id: key, label: key }))
+	);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -54,7 +62,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('weather')}</h1>
+		{#snippet title()}<h1>{$lang('weather')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -71,7 +79,7 @@
 				placeholder={$lang('entity')}
 				value={sel?.entity_id}
 				defaultIcon="mdi:weather-cloudy"
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -84,7 +92,7 @@
 				options={sensorOptions}
 				placeholder="{$lang('state')} ({$lang('optional')})"
 				value={sel?.state}
-				on:change={(event) => set('state', event)}
+				onchange={(event) => set('state', event)}
 				clearable={true}
 			/>
 		{/if}
@@ -96,7 +104,7 @@
 				options={iconOptions}
 				placeholder={$lang('icon')}
 				value={sel?.icon_pack || 'meteocons'}
-				on:change={(event) => set('icon_pack', event)}
+				onchange={(event) => set('icon_pack', event)}
 			/>
 		{/if}
 
@@ -109,7 +117,7 @@
 				options={sensorOptions}
 				placeholder="{$lang('sensor')} ({$lang('optional')})"
 				value={sel?.sensor}
-				on:change={(event) => set('sensor', event)}
+				onchange={(event) => set('sensor', event)}
 				clearable={true}
 			/>
 		{/if}
@@ -121,29 +129,30 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
-				<input
-					class="input"
-					type="text"
-					placeholder="codicon:blank"
-					bind:value={icon}
-					on:change={(event) => set('icon', event)}
-					style:padding
-					autocomplete="off"
-					spellcheck="false"
-				/>
+				{#snippet children(padding)}
+					<input
+						class="input"
+						type="text"
+						placeholder="codicon:blank"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+						autocomplete="off"
+						spellcheck="false"
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -158,7 +167,7 @@
 			<div class="button-container">
 				<button
 					class:selected={!sel?.show_apparent}
-					on:click={() => set('show_apparent', false)}
+					onclick={() => set('show_apparent', false)}
 					use:Ripple={$ripple}
 				>
 					{$lang('no')}
@@ -166,7 +175,7 @@
 
 				<button
 					class:selected={sel?.show_apparent}
-					on:click={() => set('show_apparent', true)}
+					onclick={() => set('show_apparent', true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('yes')}
@@ -179,7 +188,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -187,7 +196,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

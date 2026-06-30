@@ -6,32 +6,30 @@
 	import { states, connection, lang, ripple } from '$lib/Stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { callService } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import Icon from '@iconify/svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
-	let attributes: any;
 	let interval: ReturnType<typeof setInterval>;
-	let tick = Date.now();
-	let isDragging = false;
-	let debouncePosition = false;
+	let tick = $state(Date.now());
+	let isDragging = $state(false);
+	let debouncePosition = $state(false);
 	let debounceTimeout: ReturnType<typeof setTimeout>;
-	let rangeValue = 0;
+	let rangeValue = $state(0);
 	let pendingRequest = false;
 	let nextPosition: number | undefined = undefined;
-	let currentSliderValue = 0;
+	let currentSliderValue = $state(0);
 
-	$: entity = $states[selected?.entity_id];
-	$: attributes = entity?.attributes;
-	$: playing = entity?.state === 'playing';
-	$: updated_at = new Date(attributes?.media_position_updated_at).getTime();
-	$: diff = (tick - updated_at) / 1000;
-	$: position = attributes?.media_position + (playing ? diff : 0);
+	let entity = $derived($states[selected?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let playing = $derived(entity?.state === 'playing');
+	let updated_at = $derived(new Date(attributes?.media_position_updated_at).getTime());
+	let diff = $derived((tick - updated_at) / 1000);
+	let position = $derived(attributes?.media_position + (playing ? diff : 0));
 
 	const DEBOUNCE_INTERVAL = 2500;
 
@@ -45,10 +43,11 @@
 		}
 	});
 
-	$: rangeValue =
-		!debouncePosition && !isDragging
-			? Math.min(position || 0, attributes?.media_duration || 0)
-			: rangeValue;
+	$effect(() => {
+		if (!debouncePosition && !isDragging) {
+			rangeValue = Math.min(position || 0, attributes?.media_duration || 0);
+		}
+	});
 
 	onMount(() => {
 		// selectedSource = attributes?.source_list?.includes(attributes?.app_name)
@@ -112,7 +111,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(selected, entity)}</h1>
+		{#snippet title()}<h1>{getName(selected, entity)}</h1>{/snippet}
 
 		<h2>
 			{#if attributes?.media_artist}
@@ -154,14 +153,8 @@
 				value={rangeValue}
 				min={0}
 				max={attributes?.media_duration}
-				on:input={(event) => {
-					handleChange(event.detail);
-				}}
-				on:dragging={(event) => {
-					isDragging = event.detail;
-					if (event.detail) {
-						clearTimeout(debounceTimeout);
-					}
+				oninput={(event) => {
+					handleChange(event);
 				}}
 			/>
 
@@ -172,7 +165,7 @@
 			<!-- previous -->
 			<button
 				use:Ripple={$ripple}
-				on:click={() => {
+				onclick={() => {
 					handleClick('media_previous_track');
 				}}
 			>
@@ -183,7 +176,7 @@
 			<button
 				use:Ripple={$ripple}
 				style:display={entity?.state === 'playing' ? 'block' : 'none'}
-				on:click={() => {
+				onclick={() => {
 					handleClick('media_pause');
 				}}
 			>
@@ -192,7 +185,7 @@
 
 			<!-- play -->
 			<button
-				on:click={() => handleClick('media_play')}
+				onclick={() => handleClick('media_play')}
 				use:Ripple={$ripple}
 				style:display={entity?.state !== 'playing' ? 'block' : 'none'}
 			>
@@ -200,7 +193,7 @@
 			</button>
 
 			<!-- next -->
-			<button on:click={() => handleClick('media_next_track')} use:Ripple={$ripple}>
+			<button onclick={() => handleClick('media_next_track')} use:Ripple={$ripple}>
 				<Icon icon="ic:round-fast-forward" height="none" />
 			</button>
 		</div>
@@ -211,7 +204,7 @@
 
 		<div class="vol-container">
 			<!-- volume_up -->
-			<button on:click={() => handleClick('volume_up')} use:Ripple={$ripple}>
+			<button onclick={() => handleClick('volume_up')} use:Ripple={$ripple}>
 				<div style="scale: 90%; margin-bottom: -0.2rem;">
 					<Icon icon="typcn:plus" height="none" />
 				</div>
@@ -223,7 +216,7 @@
 			<!-- volume_down -->
 			<button
 				use:Ripple={$ripple}
-				on:click={() => {
+				onclick={() => {
 					handleClick('volume_down');
 				}}
 			>

@@ -15,15 +15,20 @@
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import type { SensorItem } from '$lib/Types';
 	import { isTimestamp } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: SensorItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: SensorItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -31,14 +36,14 @@
 		set('entity_id', demo);
 	}
 
-	let prefix: string | undefined = sel?.prefix;
-	let suffix: string | undefined = sel?.suffix;
+	let prefix: string | undefined = $state(sel?.prefix);
+	let suffix: string | undefined = $state(sel?.suffix);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
-	$: date = sel?.date;
+	let date = $derived(sel?.date);
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -51,9 +56,11 @@
 	 * If entity_id changes check if state is a timestamp
 	 */
 
-	$: if (entity_id) {
-		validate();
-	}
+	$effect(() => {
+		if (entity_id) {
+			validate();
+		}
+	});
 
 	async function validate() {
 		await tick();
@@ -71,7 +78,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('sensor')}</h1>
+		{#snippet title()}<h1>{$lang('sensor')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -87,7 +94,7 @@
 				{options}
 				placeholder={$lang('sensor')}
 				value={entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -95,56 +102,58 @@
 
 		<InputClear
 			condition={prefix}
-			on:clear={() => {
+			onclear={() => {
 				prefix = undefined;
 				set('prefix');
 			}}
-			let:padding
 		>
-			<input
-				id="sensor_prefix"
-				class="input"
-				type="text"
-				bind:value={prefix}
-				placeholder="Prefix"
-				on:change={(event) => set('prefix', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
+			{#snippet children(padding)}
+				<input
+					id="sensor_prefix"
+					class="input"
+					type="text"
+					bind:value={prefix}
+					placeholder="Prefix"
+					onchange={(event) => set('prefix', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('after')}</h2>
 
 		<InputClear
 			condition={suffix}
-			on:clear={() => {
+			onclear={() => {
 				suffix = undefined;
 				set('suffix');
 			}}
-			let:padding
 		>
-			<input
-				id="sensor_suffix"
-				class="input"
-				type="text"
-				bind:value={suffix}
-				placeholder="Suffix"
-				on:change={(event) => set('suffix', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
+			{#snippet children(padding)}
+				<input
+					id="sensor_suffix"
+					class="input"
+					type="text"
+					bind:value={suffix}
+					placeholder="Suffix"
+					onchange={(event) => set('suffix', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('date')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.date} on:click={() => set('date', false)} use:Ripple={$ripple}>
+			<button class:selected={!sel?.date} onclick={() => set('date', false)} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
-			<button class:selected={sel?.date} on:click={() => set('date', true)} use:Ripple={$ripple}>
+			<button class:selected={sel?.date} onclick={() => set('date', true)} use:Ripple={$ripple}>
 				{$lang('yes')}
 			</button>
 		</div>
@@ -154,7 +163,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -162,7 +171,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

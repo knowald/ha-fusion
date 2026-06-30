@@ -8,33 +8,40 @@
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { getFontList } from '$lib/Modal/PictureElements/fonts';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		setAttribute
+	}: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+	} = $props();
 
-	let collapsed = true;
-	let fonts: string[] = [];
+	let collapsed = $state(true);
+	let fonts = $state<string[]>([]);
 
 	// compare available fonts to font list
 	onMount(async () => {
 		fonts = await getFontList();
 	});
 
-	$: oneSel = selectedShapes?.length === 1;
-	$: attr = selectedShape?.attrs;
-	$: validText = ['text', 'state-label'].includes(attr?.type);
-	$: disabled = !oneSel || !validText || !attr?.draggable;
+	let oneSel = $derived(selectedShapes?.length === 1);
+	let attr = $derived(selectedShape?.attrs);
+	let validText = $derived(['text', 'state-label'].includes(attr?.type));
+	let disabled = $derived(!oneSel || !validText || !attr?.draggable);
 
 	// attrs
-	$: fontFamily = (oneSel && attr?.fontFamily) || 'Inter Variable';
-	$: fontSize = oneSel ? `${attr?.fontSize ?? 0} px` : '14 px';
+	let fontFamily = $derived((oneSel && attr?.fontFamily) || 'Inter Variable');
+	let fontSize = $derived(oneSel ? `${attr?.fontSize ?? 0} px` : '14 px');
 
-	$: letterSpacing = oneSel ? `${attr?.letterSpacing ?? 0} px` : '0 px';
-	$: lineHeight = `${oneSel ? (attr?.lineHeight ?? 1) * 100 : 100}%`;
+	let letterSpacing = $derived(oneSel ? `${attr?.letterSpacing ?? 0} px` : '0 px');
+	let lineHeight = $derived(`${oneSel ? (attr?.lineHeight ?? 1) * 100 : 100}%`);
 
-	$: align = oneSel && validText ? attr?.align || 'left' : undefined;
-	$: ellipsis = oneSel && !!attr?.ellipsis;
+	let align = $derived(oneSel && validText ? attr?.align || 'left' : undefined);
+	let ellipsis = $derived(oneSel && !!attr?.ellipsis);
 
 	// escape input saveState
 	function handleInput(id: string, key: string, event: Event) {
@@ -61,6 +68,7 @@
 	const bold = '600';
 
 	function handleFontStyle(fontStyle: string | undefined, value: '600' | 'italic') {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 		const parts = new Set(fontStyle?.split(' ') || []);
 		parts.delete('normal');
 
@@ -88,7 +96,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class="konva-header"
-	on:click={() => {
+	onclick={() => {
 		collapsed = !collapsed;
 	}}
 >
@@ -105,7 +113,10 @@
 
 		<button
 			title={selectedShape?.attrs?.box ? 'Disable Text Box' : 'Enable Text Box'}
-			on:click|stopPropagation={() => konva.toggleTextBox(selectedShape?.attrs?.id)}
+			onclick={(e) => {
+				e.stopPropagation();
+				konva.toggleTextBox(selectedShape?.attrs?.id);
+			}}
 			disabled={selectedShapes?.length !== 1 ||
 				!selectedShape?.attrs?.draggable ||
 				!['text', 'state-label'].includes(selectedShape?.attrs?.type)}
@@ -127,13 +138,13 @@
 					id="fontFamily"
 					list="font-list"
 					value={fontFamily}
-					on:input={(event) => handleInput(attr?.id, 'fontFamily', event)}
-					on:change={(event) => setAttribute(attr?.id, 'fontFamily', event)}
+					oninput={(event) => handleInput(attr?.id, 'fontFamily', event)}
+					onchange={(event) => setAttribute(attr?.id, 'fontFamily', event)}
 					{disabled}
 				/>
 
 				<datalist id="font-list">
-					{#each fonts as font}
+					{#each fonts as font (font)}
 						<option value={font}></option>
 					{/each}
 				</datalist>
@@ -145,7 +156,7 @@
 					type="text"
 					id="fontSize"
 					value={fontSize}
-					on:change={(event) => setAttribute(attr?.id, 'fontSize', event)}
+					onchange={(event) => setAttribute(attr?.id, 'fontSize', event)}
 					{disabled}
 				/>
 			</div>
@@ -162,7 +173,7 @@
 					type="text"
 					id="letterSpacing"
 					value={letterSpacing}
-					on:change={(event) => setAttribute(attr?.id, 'letterSpacing', event)}
+					onchange={(event) => setAttribute(attr?.id, 'letterSpacing', event)}
 					{disabled}
 				/>
 			</div>
@@ -177,7 +188,7 @@
 					type="text"
 					id="lineHeight"
 					value={lineHeight}
-					on:change={handleLineHeight}
+					onchange={handleLineHeight}
 					{disabled}
 				/>
 			</div>
@@ -189,7 +200,7 @@
 				<button
 					title="Bold"
 					id="bold"
-					on:click={() => handleFontStyle(attr?.fontStyle, bold)}
+					onclick={() => handleFontStyle(attr?.fontStyle, bold)}
 					class:selected={attr?.fontStyle?.includes(bold)}
 					{disabled}
 				>
@@ -200,7 +211,7 @@
 				<button
 					title="Italic"
 					id="italic"
-					on:click={() => handleFontStyle(attr?.fontStyle, 'italic')}
+					onclick={() => handleFontStyle(attr?.fontStyle, 'italic')}
 					class:selected={attr?.fontStyle?.includes('italic')}
 					{disabled}
 				>
@@ -214,7 +225,7 @@
 				<button
 					title="Align Left"
 					id="alignLeft"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'left')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'left')}
 					class:selected={align === 'left'}
 					{disabled}
 				>
@@ -225,7 +236,7 @@
 				<button
 					title="Align Center"
 					id="alignCenter"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'center')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'center')}
 					class:selected={align === 'center'}
 					{disabled}
 				>
@@ -236,7 +247,7 @@
 				<button
 					title="Align Right"
 					id="alignRight"
-					on:click={() => konva.updateAttr(attr?.id, 'align', 'right')}
+					onclick={() => konva.updateAttr(attr?.id, 'align', 'right')}
 					class:selected={align === 'right'}
 					{disabled}
 				>
@@ -250,7 +261,7 @@
 				<button
 					title="Ellipsis"
 					id="ellipsis"
-					on:click={handleEllipsis}
+					onclick={handleEllipsis}
 					class:selected={ellipsis}
 					{disabled}
 				>

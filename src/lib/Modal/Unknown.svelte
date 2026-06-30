@@ -7,15 +7,14 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getDomain } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
 	const domain = getDomain(selected?.entity_id);
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('unknown')}</h1>
+		{#snippet title()}<h1>{$lang('unknown')}</h1>{/snippet}
 
 		{#if domain}
 			<h2>

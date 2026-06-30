@@ -3,8 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
 	/**
 	 * Removes selected condition or nested condition
@@ -22,7 +21,7 @@
 	}
 </script>
 
-<button title={$lang('remove')} on:click={() => handleClick(item)}>
+<button title={$lang('remove')} onclick={() => handleClick(item)}>
 	<Icon icon="mingcute:close-fill" />
 </button>
 

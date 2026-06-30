@@ -5,18 +5,17 @@
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import type { ViewItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: ViewItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: ViewItem } = $props();
 
-	let name = sel?.name;
+	const nameConst = sel?.name;
 
-	let icon: string | undefined = sel?.icon;
+	let name = $state(sel?.name);
 
-	const nameConst = name;
+	let icon: string | undefined = $state(sel?.icon);
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -28,7 +27,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('edit_view')}</h1>
+		{#snippet title()}<h1>{$lang('edit_view')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -42,22 +41,23 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = '';
 				set('name', nameConst);
 			}}
-			let:padding
 		>
-			<input
-				class="input"
-				type="text"
-				bind:value={name}
-				placeholder={nameConst}
-				on:change={(event) => set('name', event)}
-				style:padding
-				autocomplete="off"
-				spellcheck="false"
-			/>
+			{#snippet children(padding)}
+				<input
+					class="input"
+					type="text"
+					bind:value={name}
+					placeholder={nameConst}
+					onchange={(event) => set('name', event)}
+					style:padding
+					autocomplete="off"
+					spellcheck="false"
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')} ({$lang('sidebar')?.toLocaleLowerCase()})</h2>
@@ -65,27 +65,28 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
-				<input
-					class="input"
-					type="text"
-					placeholder={'fluent:tab-add-24-filled'}
-					bind:value={icon}
-					on:change={(event) => set('icon', event)}
-					style:padding
-					autocomplete="off"
-					spellcheck="false"
-				/>
+				{#snippet children(padding)}
+					<input
+						class="input"
+						type="text"
+						placeholder="fluent:tab-add-24-filled"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+						autocomplete="off"
+						spellcheck="false"
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				title={$lang('icon')}

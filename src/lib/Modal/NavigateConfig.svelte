@@ -3,15 +3,14 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Navigate from '$lib/Sidebar/Navigate.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { NavigateItem } from '$lib/Types';
 	import { updateObj } from '$lib/Utils';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: NavigateItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: NavigateItem } = $props();
 
-	let modalTransitionEnd = false;
+	let modalTransitionEnd = $state(false);
 	function handleEvent() {
 		modalTransitionEnd = true;
 	}
@@ -25,8 +24,8 @@
 </script>
 
 {#if isOpen}
-	<Modal on:transitionend={handleEvent}>
-		<h1 slot="title">{$lang('navigate')}</h1>
+	<Modal ontransitionend={handleEvent}>
+		{#snippet title()}<h1>{$lang('navigate')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -39,7 +38,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -47,7 +46,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

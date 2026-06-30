@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { editMode, itemHeight, motion } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	/**
 	 * Handle click
@@ -15,12 +15,11 @@
 </script>
 
 <div
-	on:click={handleClick}
+	onclick={handleClick}
 	class="container"
 	style:height="{$itemHeight}px"
 	style:opacity={$editMode ? '1' : '0'}
 	style:transition="opacity {$motion}ms ease"
-	on:keydown
 	role="button"
 	tabindex="0"
 ></div>

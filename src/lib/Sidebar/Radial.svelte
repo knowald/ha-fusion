@@ -4,15 +4,23 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 
-	export let entity_id: string | undefined = undefined;
-	export let name: string | undefined = undefined;
-	export let strokeWidth: number = 9;
+	let {
+		entity_id = undefined,
+		name = undefined,
+		strokeWidth = 9
+	}: {
+		entity_id?: string;
+		name?: string;
+		strokeWidth?: number;
+	} = $props();
 
-	let entity: HassEntity;
-	$: if (entity_id) entity = $states?.[entity_id];
+	let entity: HassEntity = $state(undefined as any);
+	$effect(() => {
+		if (entity_id) entity = $states?.[entity_id];
+	});
 
-	let width = 0;
-	let mounted = false;
+	let width = $state(0);
+	let mounted = $state(false);
 
 	const color = {
 		stroke: 'var(--theme-navigate-background-color)',
@@ -25,19 +33,19 @@
 		}, $motion);
 	});
 
-	$: state = Math.min(Math.max(Number(entity?.state || 0), 0), 100);
+	let entityState = $derived(Math.min(Math.max(Number(entity?.state || 0), 0), 100));
 
-	$: stroke = strokeWidth === null || !strokeWidth ? 9 : strokeWidth;
+	let stroke = $derived(strokeWidth === null || !strokeWidth ? 9 : strokeWidth);
 
-	$: attributes = {
+	let attributes = $derived({
 		cx: width / 2,
 		cy: width / 2,
 		r: (width - stroke) / 2,
 		fill: 'none',
 		'stroke-width': stroke,
 		'vector-effect': 'non-scaling-stroke'
-	};
-	$: circumference = 2 * Math.PI * attributes.r;
+	});
+	let circumference = $derived(2 * Math.PI * attributes.r);
 </script>
 
 <div class="container">
@@ -51,7 +59,7 @@
 					{...attributes}
 					stroke={color.fillColor}
 					stroke-dasharray={circumference}
-					style:--dashoffset={circumference * (1 - state / 100)}
+					style:--dashoffset={circumference * (1 - entityState / 100)}
 					style:transition="stroke-dashoffset {mounted ? $motion : 0}ms ease"
 				/>
 			{/if}
@@ -66,7 +74,7 @@
 			style: 'percent',
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 1
-		}).format(state / 100)}
+		}).format(entityState / 100)}
 	</div>
 </div>
 

@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { dashboard, record, lang, editMode, ripple, motion } from '$lib/Stores';
 	import { tick } from 'svelte';
-	import { closeModal, openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { closeModal, openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import { fade } from 'svelte/transition';
 
-	export let sel: any = undefined;
-	export let disableChangeType: boolean | undefined = undefined;
+	let {
+		sel = undefined,
+		disableChangeType = undefined
+	}: { sel?: any; disableChangeType?: boolean } = $props();
 
 	/**
 	 * Checks if current id is in/from sidebar
@@ -95,7 +97,7 @@
 			<button
 				transition:fade={{ duration: $motion }}
 				class="remove action"
-				on:click={removeObj}
+				onclick={removeObj}
 				use:Ripple={{
 					...$ripple,
 					color: 'rgba(0, 0, 0, 0.35)'
@@ -108,7 +110,7 @@
 				<button
 					transition:fade={{ duration: $motion }}
 					class="options action"
-					on:click={() => {
+					onclick={() => {
 						handleChangeType();
 					}}
 					use:Ripple={$ripple}
@@ -119,7 +121,7 @@
 		{/if}
 	</div>
 
-	<button class="done action" on:click={closeModal} use:Ripple={$ripple}>
+	<button class="done action" onclick={closeModal} use:Ripple={$ripple}>
 		{$lang('done')}
 	</button>
 </div>

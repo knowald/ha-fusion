@@ -9,60 +9,40 @@
 		highlightView,
 		draggingView
 	} from '$lib/Stores';
-	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
 	import { slide, fade } from 'svelte/transition';
-	import { modals } from 'svelte-modals';
+	import { modals } from '$lib/Modals';
 	import { onMount, tick } from 'svelte';
 	import EditViewButton from '$lib/Main/EditViewButton.svelte';
 	import EyeIndicator from '$lib/Main/EyeIndicator.svelte';
 
-	export let view: any;
+	let { view }: { view: any } = $props();
 
 	let buttons: { [key: number]: HTMLButtonElement } = {};
-	let width: number;
-	let left: number;
+	let width = $state<number>(0);
+	let left = $state<number>(0);
 
 	/**
 	 * Compute width and left values on active view-button
 	 */
-	$: if ($currentViewId && !$modals.length) {
-		const activeButton = buttons[$currentViewId];
-		if (activeButton) {
-			width = activeButton.clientWidth - 1;
-			left = activeButton.offsetLeft;
+	$effect(() => {
+		if ($currentViewId && !$modals.length) {
+			const activeButton = buttons[$currentViewId];
+			if (activeButton) {
+				width = activeButton.clientWidth - 1;
+				left = activeButton.offsetLeft;
+			}
 		}
-	}
+	});
 
 	const borderStyle = '3px solid white';
 
-	/**
-	 * Handle drag event
-	 */
-	async function handleDragEvent(event: CustomEvent<DndEvent>) {
-		$dashboard.views = event.detail.items as any;
-
-		if (event.type === 'consider') {
-			$draggingView = true;
-		}
-
-		if (event?.type === 'finalize') {
-			$record();
-			await tick();
-			$highlightView = true;
-			$draggingView = false;
-		}
-	}
-
-	/**
-	 * Applies border to the dragged element based on the current page ID.
-	 */
-	function addBorder(element: HTMLElement | undefined, data: any) {
-		if (element && $currentViewId === data.id) {
-			element.style.borderBottom = borderStyle;
-		} else {
-			$highlightView = true;
-		}
+	async function handleDragFinalize(newItems: any[]) {
+		$dashboard.views = newItems;
+		$record();
+		await tick();
+		$highlightView = true;
+		$draggingView = false;
 	}
 
 	onMount(() => {
@@ -77,9 +57,11 @@
 	});
 
 	// navbar = 100% - (sidebar & padding & eye & button & padding + safety margin)
-	let editViewButtonWidth: number;
-	let eyeWidth: number;
-	$: navWidth = `calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`;
+	let editViewButtonWidth = $state<number>(0);
+	let eyeWidth = $state<number>(0);
+	let navWidth = $derived(
+		`calc(100vw - (${$dashboard?.sidebarWidth}px + 2rem + ${eyeWidth || 0}px + ${editViewButtonWidth}px + 2rem + 0.1rem))`
+	);
 </script>
 
 <nav>
@@ -89,7 +71,7 @@
 			{#if $editMode}
 				<EditViewButton
 					{view}
-					on:change={(event) => {
+					onchange={(event) => {
 						editViewButtonWidth = event?.detail;
 					}}
 				/>
@@ -104,37 +86,36 @@
 					<div class="top-bar">
 						<div
 							id="navigation"
-							use:dndzone={{
-								type: 'navigate',
-								transformDraggedElement: addBorder,
+							use:sortable={{
+								group: { name: 'navigate', pull: false, put: false },
+								animation: $motion,
+								disabled: !$editMode,
+								direction: 'horizontal',
 								items: $dashboard.views,
-								flipDurationMs: $motion,
-								dragDisabled: !$editMode,
-								dropTargetStyle: {},
-								morphDisabled: true,
-								zoneTabIndex: -1
+								onStart: () => {
+									$draggingView = true;
+								},
+								onFinalize: handleDragFinalize
 							}}
-							on:consider={handleDragEvent}
-							on:finalize={handleDragEvent}
 						>
 							{#each $dashboard.views as view (view.id)}
 								<button
+									data-id={view.id}
 									id={String(view.id)}
 									class="nav-button"
 									bind:this={buttons[view.id || 0]}
-									on:click={() => {
+									onclick={() => {
 										if ($currentViewId !== view.id) {
 											$currentViewId = view.id;
 											$viewUnderline = false;
 											$highlightView = false;
 										}
 									}}
-									on:transitionend={() => {
+									ontransitionend={() => {
 										if ($currentViewId === view.id) {
 											$viewUnderline = true;
 										}
 									}}
-									animate:flip={{ duration: $motion }}
 									style:border-bottom={($highlightView || $viewUnderline) &&
 									$currentViewId === view.id
 										? borderStyle

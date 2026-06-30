@@ -1,10 +1,21 @@
 <script lang="ts">
-	export let duration = 15;
-	export let repeat = 2;
-	export let paused = false;
-	export let pauseOnHover = false;
+	import type { Snippet } from 'svelte';
 
-	let hovered = false;
+	let {
+		duration = 15,
+		repeat = 2,
+		paused = false,
+		pauseOnHover = false,
+		children
+	}: {
+		duration?: number;
+		repeat?: number;
+		paused?: boolean;
+		pauseOnHover?: boolean;
+		children: Snippet;
+	} = $props();
+
+	let hovered = $state(false);
 
 	function handleHover(event: MouseEvent | FocusEvent) {
 		if (event?.type === 'mouseover' || event?.type === 'focus') {
@@ -17,15 +28,15 @@
 
 <div
 	role="none"
-	on:pointerover={handleHover}
-	on:pointerout={handleHover}
-	on:focus={handleHover}
-	on:blur={handleHover}
+	onpointerover={handleHover}
+	onpointerout={handleHover}
+	onfocus={handleHover}
+	onblur={handleHover}
 >
 	<div class="content" class:paused={paused || (pauseOnHover && hovered)}>
-		{#each Array(repeat) as i}
+		{#each Array(repeat) as i, index (index)}
 			<div class="text" style:animation-duration="{duration}s" title={i}>
-				<slot />
+				{@render children()}
 			</div>
 		{/each}
 	</div>

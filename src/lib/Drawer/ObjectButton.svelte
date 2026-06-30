@@ -1,19 +1,14 @@
 <script lang="ts">
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { generateId } from '$lib/Utils';
-	import { createEventDispatcher } from 'svelte';
+	let { onclicked = undefined, view }: { onclicked?: (() => void) | undefined; view: any } =
+		$props();
 
-	export let view: any;
-
-	const dispatch = createEventDispatcher();
-
-	$: noViewsOrSectionsOrStacks =
-		!view ||
-		!view.sections ||
-		view.sections.length === 0 ||
-		checkForStackOnly(view.sections);
+	let noViewsOrSectionsOrStacks = $derived(
+		!view || !view.sections || view.sections.length === 0 || checkForStackOnly(view.sections)
+	);
 
 	function checkForStackOnly(sections: any[]): boolean {
 		return sections.every((section) => {
@@ -39,15 +34,16 @@
 
 		if (!section?.items) return;
 
-		section.items.unshift({
-			type: 'configure',
-			id: generateId($dashboard)
-		});
+		section.items = [{ type: 'configure', id: generateId($dashboard) }, ...section.items];
 
-		$dashboard = $dashboard;
+		// The new item lands in a nested section, so reassigning the top-level
+		// view/sections refs is not enough - the keyed each blocks that render
+		// nested items keep their stale refs and never re-read `.items`. Deep
+		// clone to refresh all refs, same as drag end and undo/redo.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
 		$record();
 
-		dispatch('clicked');
+		onclicked?.();
 	}
 
 	/**
@@ -65,10 +61,10 @@
 
 <button
 	class="button dropdown"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
-		opacity: noViewsOrSectionsOrStacks ? '0' : $ripple.opacity
+		opacity: noViewsOrSectionsOrStacks ? 0 : $ripple.opacity
 	}}
 	style:cursor={noViewsOrSectionsOrStacks ? 'unset' : 'pointer'}
 	style:opacity={noViewsOrSectionsOrStacks ? '0.5' : '1'}

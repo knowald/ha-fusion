@@ -3,17 +3,24 @@
 	import { handleAllConditions } from '$lib/Conditional';
 	import type { Condition } from '$lib/Types';
 
-	export let sel: any;
-	export let items: Condition[];
-	export let matches: { [key: string]: boolean };
+	let {
+		sel,
+		items,
+		matches
+	}: {
+		sel: any;
+		items: Condition[];
+		matches: { [key: string]: boolean };
+	} = $props();
 
 	/**
 	 * Current section visibility
 	 */
-	$: visible =
+	let visible = $derived(
 		matches && handleAllConditions($editMode, $states, { ...sel, visibility: items })
 			? 'visible'
-			: 'hidden';
+			: 'hidden'
+	);
 </script>
 
 <div class="explanation">

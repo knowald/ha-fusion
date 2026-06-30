@@ -9,18 +9,19 @@
 	import Select from '$lib/Components/Select.svelte';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attr = entity?.attributes;
-	$: toggle = entity?.state === 'on';
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attr = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state === 'on');
 
-	$: options = attr?.available_modes?.map((option: string) => ({
-		id: option,
-		icon: icons?.[option] || 'mdi:water-percent',
-		label: $lang(`humidifier_mode_${option}`)
-	}));
+	let options = $derived(
+		attr?.available_modes?.map((option: string) => ({
+			id: option,
+			icon: icons?.[option] || 'mdi:water-percent',
+			label: $lang(`humidifier_mode_${option}`)
+		}))
+	);
 
 	const icons: Record<string, string> = {
 		auto: 'mdi:refresh-auto',
@@ -68,12 +69,12 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<!-- TOGGLE -->
 		<h2>{$lang('toggle')}</h2>
 
-		<Toggle bind:checked={toggle} on:change={() => handleEvent('toggle')} />
+		<Toggle bind:checked={toggle} onchange={() => handleEvent('toggle')} />
 
 		<!-- STATE -->
 		<h2>{$lang('state')}</h2>
@@ -101,8 +102,8 @@
 			bind:value={attr.humidity}
 			min={attr?.min_humidity}
 			max={attr?.max_humidity}
-			on:change={(event) => {
-				handleEvent('set_humidity', event?.detail);
+			onchange={(event) => {
+				handleEvent('set_humidity', event);
 			}}
 		/>
 
@@ -117,8 +118,8 @@
 				{options}
 				placeholder={$lang('mode')}
 				value={attr?.mode}
-				on:change={(event) => {
-					handleEvent('set_mode', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_mode', event);
 				}}
 			/>
 		{/if}

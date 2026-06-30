@@ -1,23 +1,20 @@
 <script lang="ts">
 	import { editMode, itemHeight, lang, ripple, timer, states } from '$lib/Stores';
 	import Icon, { loadIcon } from '@iconify/svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let { sel, sectionName = undefined }: { sel: any; sectionName?: string | undefined } = $props();
 
-	$: icon = sel?.icon || 'mdi:calendar-clock';
-	$: name = sel?.name || 'Days Since';
-	$: color = sel?.color || 'rgb(75, 166, 237)';
-	$: entity_id = sel?.entity_id;
+	let icon = $derived(sel?.icon || 'mdi:calendar-clock');
+	let name = $derived(sel?.name || 'Days Since');
+	let color = $derived(sel?.color || 'rgb(75, 166, 237)');
+	let entity_id = $derived(sel?.entity_id);
 
-	// Get timestamp from entity state
-	$: entityState = entity_id ? $states?.[entity_id] : undefined;
-	$: last_reset = entityState?.state;
+	let entityState = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let last_reset = $derived(entityState?.state);
 
-	// Calculate days since last reset
-	$: daysSince = calculateDaysSince(last_reset, $timer);
+	let daysSince = $derived(calculateDaysSince(last_reset, $timer));
 
 	function calculateDaysSince(lastReset: string | undefined, currentTime: Date): number {
 		if (!lastReset) return 0;
@@ -28,8 +25,7 @@
 		return diffDays;
 	}
 
-	// Icon is image if extension, e.g. test.png
-	$: image = icon?.includes('.');
+	let image = $derived(icon?.includes('.'));
 
 	function handleClick() {
 		if ($editMode) {
@@ -51,8 +47,8 @@
 	tabindex="-1"
 	style:cursor={!$editMode ? 'pointer' : ''}
 	style:min-height="{$itemHeight}px"
-	on:click={handleClick}
-	on:keydown={(event) => {
+	onclick={handleClick}
+	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			handleClick();

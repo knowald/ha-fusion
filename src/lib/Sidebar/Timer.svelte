@@ -2,35 +2,42 @@
 	import { connection, editMode, lang, motion, ripple, states, timers } from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
-	import { modals } from 'svelte-modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { modals } from '$lib/Modals';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { getName } from '$lib/Utils';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
 	let interval: ReturnType<typeof setInterval>;
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- only read inside the interval callback
 	let currentDate = new Date();
-	let displayTime: string;
-	let entity: HassEntity;
+	let displayTime: string = $state('');
+	let entity: HassEntity = $state(undefined as any);
 
-	let clicked = false;
+	let clicked = $state(false);
 
-	$: entity_id = sel?.entity_id;
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	let entity_id = $derived(sel?.entity_id);
 
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
-	$: finishes_at = attributes?.finishes_at;
-	$: remaining = attributes?.remaining;
-	$: end = new Date(finishes_at);
-	$: if (end) init();
-	$: service = state === 'active' ? 'pause' : 'start';
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
+
+	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+	let finishes_at = $derived(attributes?.finishes_at);
+	let remaining = $derived(attributes?.remaining);
+	let end = $derived(new Date(finishes_at));
+	$effect(() => {
+		if (end) init();
+	});
+	let service = $derived(entityState === 'active' ? 'pause' : 'start');
 
 	// make pausedState global to sync across components
-	$: if (state === 'paused' && remaining && !clicked) {
+	$effect(() => {
+		if (entityState !== 'paused' || !remaining || clicked) return;
 		timers.update((currentTimers) => {
 			if (entity_id) {
 				return {
@@ -43,7 +50,7 @@
 			}
 			return currentTimers;
 		});
-	}
+	});
 
 	function init() {
 		clearInterval(interval);
@@ -90,7 +97,7 @@
 			callService($connection, 'timer', service, { entity_id });
 
 			// prevents flickering
-			if (state === 'active') {
+			if (entityState === 'active') {
 				// store current time when pausing
 				timers.update((currentTimers) => {
 					if (entity_id) {
@@ -118,10 +125,10 @@
 		class="container"
 		style:pointer-events={$modals.length !== 0 ? 'none' : 'unset'}
 		style:cursor={$editMode || $modals.length !== 0 ? 'unset' : 'pointer'}
-		style:background-color={state === 'active' && entity_id
+		style:background-color={entityState === 'active' && entity_id
 			? 'rgba(0, 0, 0, 0.25)'
 			: 'rgba(0, 0, 0, 0)'}
-		style:padding={state === 'active' && entity_id
+		style:padding={entityState === 'active' && entity_id
 			? '0.35rem 0.65rem 0.35rem 0.45rem'
 			: '0 0.65rem 0 0.45rem'}
 		style:transition="color {$motion}ms ease, background-color {$motion}ms ease, padding {$motion}ms
@@ -137,11 +144,11 @@
 			</div>
 
 			<div class="counter" style:color={finishes_at ? 'orange' : 'rgba(255, 255, 255, 0.5)'}>
-				{#if state === 'active' && entity_id}
+				{#if entityState === 'active' && entity_id}
 					{displayTime || $timers[entity_id].pausedState}
-				{:else if state === 'paused' && entity_id}
+				{:else if entityState === 'paused' && entity_id}
 					{$timers[entity_id].pausedState}
-				{:else if state === 'idle' && attributes?.duration}
+				{:else if entityState === 'idle' && attributes?.duration}
 					{format(...parseRemaining(attributes.duration))}
 				{:else}
 					--:--
@@ -149,18 +156,18 @@
 			</div>
 		</div>
 
-		{#if state}
+		{#if entityState}
 			<button
 				class="start_pause"
 				style:cursor={$editMode ? 'unset' : 'pointer'}
 				style:pointer-events={$modals.length !== 0 ? 'auto' : 'unset'}
-				on:click={handleClick}
+				onclick={handleClick}
 				use:Ripple={{
 					...$ripple,
-					opacity: $editMode ? '0' : $ripple.opacity
+					opacity: $editMode ? 0 : $ripple.opacity
 				}}
 			>
-				{#if state === 'active'}
+				{#if entityState === 'active'}
 					<Icon icon="ic:round-pause" height="none" />
 				{:else}
 					<Icon icon="ic:round-play-arrow" height="none" />

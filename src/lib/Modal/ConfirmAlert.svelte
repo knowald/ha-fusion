@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
 	import { onMount } from 'svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Modal from '$lib/Modal/Index.svelte';
 
-	export let confirm: any;
-	export let cancel: any;
-	export let title: string;
-	export let message: string;
-	export let isOpen: boolean;
+	let {
+		confirm,
+		cancel,
+		title: alertTitle,
+		message,
+		isOpen
+	}: { confirm: any; cancel: any; title: string; message: string; isOpen: boolean } = $props();
 
-	let cancelButton: HTMLButtonElement;
+	let cancelButton = $state<HTMLButtonElement>();
 
 	onMount(() => {
 		if (cancelButton) cancelButton.focus();
@@ -19,20 +21,20 @@
 
 {#if isOpen}
 	<Modal backdropImage={false}>
-		<h1 slot="title">{title}</h1>
+		{#snippet title()}<h1>{alertTitle}</h1>{/snippet}
 
 		<p>{message}</p>
 
 		<div class="bottom-buttons">
 			<button
-				on:click={confirm}
+				onclick={confirm}
 				style:background-color="#ae2e2e"
 				use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 			>
 				{$lang('ok')}
 			</button>
 
-			<button bind:this={cancelButton} on:click={cancel} use:Ripple={$ripple}>
+			<button bind:this={cancelButton} onclick={cancel} use:Ripple={$ripple}>
 				{$lang('cancel')}
 			</button>
 		</div>

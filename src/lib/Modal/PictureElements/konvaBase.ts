@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { get, type Unsubscriber } from 'svelte/store';
 import { konvaImageCache, states } from '$lib/Stores';
 import type { HassEntities } from 'home-assistant-js-websocket';
-import { getIcon, iconExists, loadIcon, type IconifyIcon } from '@iconify/svelte';
+import { getIcon, loadIcon, type IconifyIcon } from '@iconify/svelte';
 import type { ContainerConfig } from 'konva/lib/Container';
 import { icons } from '$lib/Modal/PictureElements/icons';
 import { computeIcon } from './computeIcon';
@@ -310,7 +310,7 @@ export class KonvaBase {
 		let data: IconifyIcon;
 
 		try {
-			if (iconExists(icon)) {
+			if (getIcon(icon) != null) {
 				const existingIcon = getIcon(icon);
 				if (existingIcon) {
 					data = existingIcon;

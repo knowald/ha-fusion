@@ -4,23 +4,24 @@
 	import Timer from '$lib/Sidebar/Timer.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { getName } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let duration: string;
-	let entity: HassEntity;
+	let duration = $state<string>('');
+	let entity = $state<HassEntity>(undefined!);
 
-	$: entity_id = sel?.entity_id;
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	let entity_id = $derived(sel?.entity_id);
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
 
-	$: state = entity?.state;
-	$: attributes = entity?.attributes;
+	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
 
 	onMount(() => {
 		duration = formatDuration(attributes?.duration || '');
@@ -40,7 +41,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(undefined, entity)}</h1>
+		{#snippet title()}<h1>{getName(undefined, entity)}</h1>{/snippet}
 
 		<h2>{$lang('timer')}</h2>
 
@@ -49,20 +50,20 @@
 		<h2>{$lang('options')}</h2>
 
 		<div class="button-container">
-			{#if state === 'active'}
-				<button on:click={() => handleClick('pause')} use:Ripple={$ripple}>
+			{#if entityState === 'active'}
+				<button onclick={() => handleClick('pause')} use:Ripple={$ripple}>
 					{$lang('pause')}
 				</button>
 
-				<button on:click={() => handleClick('finish')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('finish')} use:Ripple={$ripple}>
 					{$lang('finish')}
 				</button>
 			{:else}
-				<button on:click={() => handleClick('start')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('start')} use:Ripple={$ripple}>
 					{$lang('start')}
 				</button>
 
-				<button on:click={() => handleClick('cancel')} use:Ripple={$ripple}>
+				<button onclick={() => handleClick('cancel')} use:Ripple={$ripple}>
 					{$lang('cancel')}
 				</button>
 			{/if}
@@ -75,8 +76,8 @@
 
 			<button
 				class="input overflow"
-				on:click={() => {
-					const prevState = state;
+				onclick={() => {
+					const prevState = entityState;
 					callService($connection, 'timer', 'start', { entity_id, duration });
 					if (prevState !== 'active') callService($connection, 'timer', 'pause', { entity_id });
 				}}

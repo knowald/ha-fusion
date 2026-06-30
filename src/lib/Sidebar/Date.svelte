@@ -1,21 +1,32 @@
 <script lang="ts">
 	import { timer, selectedLanguage } from '$lib/Stores';
 
-	export let short_day: boolean | undefined = undefined;
-	export let short_month: boolean | undefined = undefined;
-	export let hide: string | undefined = undefined;
-	export let layout: string | undefined = undefined;
+	let {
+		short_day = undefined,
+		short_month = undefined,
+		hide = undefined,
+		layout = undefined
+	}: {
+		short_day?: boolean;
+		short_month?: boolean;
+		hide?: string;
+		layout?: string;
+	} = $props();
 
-	$: weekDay = $timer.toLocaleDateString($selectedLanguage, {
-		weekday: short_day ? 'short' : 'long'
-	});
+	let weekDay = $derived(
+		$timer.toLocaleDateString($selectedLanguage, {
+			weekday: short_day ? 'short' : 'long'
+		})
+	);
 
-	$: shortDate = $timer.toLocaleDateString($selectedLanguage, {
-		day: 'numeric',
-		month: short_month ? 'short' : 'long'
-	});
+	let shortDate = $derived(
+		$timer.toLocaleDateString($selectedLanguage, {
+			day: 'numeric',
+			month: short_month ? 'short' : 'long'
+		})
+	);
 
-	$: orientation = layout || 'vertical';
+	let orientation = $derived(layout || 'vertical');
 </script>
 
 <div>

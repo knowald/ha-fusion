@@ -12,8 +12,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-	let message: string | undefined;
-	let prev: string | undefined;
+	let message: string | undefined = $state(undefined);
+	let prev: string | undefined = $state(undefined);
 	let timeout: ReturnType<typeof setTimeout>;
 
 	/**
@@ -38,7 +38,7 @@
 	/**
 	 * Toast connection message
 	 */
-	$: {
+	$effect(() => {
 		/**
 		 * Socket doesn't properly set $connected, but at least triggers reactivity
 		 * Use below to actually test if $connection is $connected.
@@ -85,7 +85,7 @@
 			}
 			prev = undefined;
 		}
-	}
+	});
 
 	onMount(() => {
 		// if event is 'refresh' it's temporarily stored in sessionStorage
@@ -98,7 +98,9 @@
 	onDestroy(() => clearTimeout(timeout));
 
 	// external event toast
-	$: if ($event) displayEvent();
+	$effect(() => {
+		if ($event) displayEvent();
+	});
 	function displayEvent() {
 		clearTimeout(timeout);
 		message = $lang('event_fired')?.replace('{type}', `"${$event}"`);

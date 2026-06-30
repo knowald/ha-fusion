@@ -8,31 +8,32 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	// buttons or select, based on how many items
 	const MAX_ITEMS = 4;
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		TARGET_TEMPERATURE: 1,
-		TARGET_TEMPERATURE_RANGE: 2,
-		TARGET_HUMIDITY: 4,
-		FAN_MODE: 8,
-		PRESET_MODE: 16,
-		SWING_MODE: 32,
-		AUX_HEAT: 64
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			TARGET_TEMPERATURE: 1,
+			TARGET_TEMPERATURE_RANGE: 2,
+			TARGET_HUMIDITY: 4,
+			FAN_MODE: 8,
+			PRESET_MODE: 16,
+			SWING_MODE: 32,
+			AUX_HEAT: 64
+		})
+	);
 
 	/**
 	 * Handles click
 	 */
-	function handleClick(service: string, to_state: string) {
+	function handleClick(service: string, to_state: string | number) {
 		callService($connection, 'climate', 'set_' + service, {
 			entity_id,
 			[service]: to_state
@@ -64,11 +65,13 @@
 		heat_cool: 'mdi:sun-snowflake-variant'
 	};
 
-	$: optionsHvacModes = attributes?.hvac_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: hvacModesIcons?.[option] || 'mdi:fan'
-	}));
+	let optionsHvacModes = $derived(
+		attributes?.hvac_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: hvacModesIcons?.[option] || 'mdi:fan'
+		}))
+	);
 
 	const fanModeIcons: Record<string, string> = {
 		on: 'mdi:fan',
@@ -82,11 +85,13 @@
 		diffuse: 'mdi:weather-windy'
 	};
 
-	$: optionsFanModes = attributes?.fan_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: fanModeIcons?.[option] || 'mdi:fan'
-	}));
+	let optionsFanModes = $derived(
+		attributes?.fan_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: fanModeIcons?.[option] || 'mdi:fan'
+		}))
+	);
 
 	const swingModeIcons: Record<string, string> = {
 		on: 'mdi:arrow-oscillating',
@@ -96,26 +101,28 @@
 		both: 'mdi:arrow-all'
 	};
 
-	$: optionsSwingModes = attributes?.swing_modes?.map((option: string) => ({
-		id: option,
-		label: $lang(option),
-		icon: swingModeIcons?.[option] || 'mdi:fan'
-	}));
+	let optionsSwingModes = $derived(
+		attributes?.swing_modes?.map((option: string) => ({
+			id: option,
+			label: $lang(option),
+			icon: swingModeIcons?.[option] || 'mdi:fan'
+		}))
+	);
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		{#if attributes?.hvac_modes}
 			<h2>{$lang('hvac_modes')}</h2>
 
 			{#if attributes?.hvac_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.hvac_modes as hvacMode}
+					{#each attributes?.hvac_modes as hvacMode (hvacMode)}
 						<button
 							title={$lang(hvacMode)}
-							on:click={() => handleClick('hvac_mode', hvacMode)}
+							onclick={() => handleClick('hvac_mode', hvacMode)}
 							class:selected={hvacMode === entity?.state}
 						>
 							<div class="icon">
@@ -129,9 +136,9 @@
 					options={optionsHvacModes}
 					placeholder={$lang('hvac_modes')}
 					value={entity?.state}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('hvac_mode', event?.detail);
+					onchange={(event) => {
+						if (event == null) return;
+						handleClick('hvac_mode', event);
 					}}
 				/>
 			{/if}
@@ -140,8 +147,8 @@
 		{#if supports?.TARGET_TEMPERATURE}
 			<WheelPicker
 				stateObj={entity}
-				on:change={(event) => {
-					handleClick('temperature', event?.detail);
+				onchange={(event) => {
+					handleClick('temperature', event);
 				}}
 			/>
 		{/if}
@@ -158,7 +165,7 @@
 						min={attributes?.min_temp}
 						max={attributes?.max_temp}
 						bind:value={attributes.target_temp_low}
-						on:change={handleChange}
+						onchange={handleChange}
 					/>
 					<div class="slider-value">{attributes?.target_temp_low}°</div>
 				</div>
@@ -173,7 +180,7 @@
 						min={attributes?.min_temp}
 						max={attributes?.max_temp}
 						bind:value={attributes.target_temp_high}
-						on:change={handleChange}
+						onchange={handleChange}
 					/>
 					<div class="slider-value">{attributes?.target_temp_high}°</div>
 				</div>
@@ -184,9 +191,9 @@
 			<h2>{$lang('fan_modes')}</h2>
 			{#if attributes?.fan_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.fan_modes as fanMode}
+					{#each attributes?.fan_modes as fanMode (fanMode)}
 						<button
-							on:click={() => handleClick('fan_mode', fanMode)}
+							onclick={() => handleClick('fan_mode', fanMode)}
 							class:selected={attributes?.fan_mode === fanMode}
 						>
 							{$lang(fanMode)}
@@ -198,9 +205,9 @@
 					options={optionsFanModes}
 					placeholder={$lang('fan_modes')}
 					value={attributes?.fan_mode}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('fan_mode', event?.detail);
+					onchange={(event) => {
+						if (event == null) return;
+						handleClick('fan_mode', event);
 					}}
 				/>
 			{/if}
@@ -210,9 +217,9 @@
 			<h2>{$lang('swing_modes')}</h2>
 			{#if attributes?.swing_modes?.length <= MAX_ITEMS}
 				<div class="button-container">
-					{#each attributes?.swing_modes as swingMode}
+					{#each attributes?.swing_modes as swingMode (swingMode)}
 						<button
-							on:click={() => handleClick('swing_mode', swingMode)}
+							onclick={() => handleClick('swing_mode', swingMode)}
 							class:selected={attributes?.swing_mode === swingMode}
 						>
 							{$lang(swingMode)}
@@ -224,9 +231,9 @@
 					options={optionsSwingModes}
 					placeholder={$lang('swing_modes')}
 					value={attributes?.swing_mode}
-					on:change={(event) => {
-						if (event?.detail === null) return;
-						handleClick('swing_mode', event?.detail);
+					onchange={(event) => {
+						if (event == null) return;
+						handleClick('swing_mode', event);
 					}}
 				/>
 			{/if}

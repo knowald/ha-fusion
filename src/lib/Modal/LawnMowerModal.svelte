@@ -4,11 +4,10 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
 	// const demo = {
 	// 	entity_id: 'lawn_mower.demo_lawn_mower',
@@ -26,16 +25,18 @@
 	// 	last_updated: '2024-01-18T19:46:40.471Z'
 	// };
 
-	$: entity = $states?.[sel?.entity_id];
-	$: state = entity?.state as 'paused' | 'mowing' | 'docked' | 'error';
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let entityState = $derived(entity?.state as 'paused' | 'mowing' | 'docked' | 'error');
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		START_MOWING: 1,
-		PAUSE: 2,
-		DOCK: 4
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			START_MOWING: 1,
+			PAUSE: 2,
+			DOCK: 4
+		})
+	);
 
 	/**
 	 * Handle click
@@ -49,11 +50,11 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('state')}</h2>
 
-		{$lang(state)}
+		{$lang(entityState)}
 
 		<h2>{$lang('lawn_mower_commands')?.replace(':', '')}</h2>
 
@@ -62,7 +63,7 @@
 				<button
 					title={$lang('start_mowing')}
 					class:selected={entity?.state === 'mowing'}
-					on:click={() => handleClick('start_mowing')}
+					onclick={() => handleClick('start_mowing')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -75,7 +76,7 @@
 				<button
 					title={$lang('pause')}
 					class:selected={entity?.state === 'paused'}
-					on:click={() => handleClick('pause')}
+					onclick={() => handleClick('pause')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon">
@@ -87,7 +88,7 @@
 			{#if supports?.DOCK}
 				<button
 					title={$lang('return_home')}
-					on:click={() => handleClick('dock')}
+					onclick={() => handleClick('dock')}
 					use:Ripple={$ripple}
 				>
 					<div class="icon" style="transform: scale(0.85);">

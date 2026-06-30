@@ -3,9 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import { fade } from 'svelte/transition';
 
-	let dragging: boolean;
-
-	$: if (!dragging) $record();
+	let dragging: boolean = $state(false);
 
 	function handlePointer(event: PointerEvent) {
 		const layoutElement: HTMLElement | null = document.getElementById('layout');
@@ -17,6 +15,10 @@
 		} else if (event?.type === 'pointerup') {
 			dragging = false;
 			layoutElement.style.transition = `all ${$motion}ms ease`;
+			// snapshot the resized width for undo history; was an `$effect` on
+			// `dragging`, but snapshot() reads $dashboard so the effect re-ran on
+			// every dashboard change (e.g. undo) and truncated the redo future
+			$record();
 		}
 	}
 
@@ -32,9 +34,9 @@
 	}
 </script>
 
-<svelte:document on:pointermove={handlePointerMove} on:pointerup={handlePointer} />
+<svelte:document onpointermove={handlePointerMove} onpointerup={handlePointer} />
 
-<div class="handle" on:pointerdown={handlePointer}>
+<div class="handle" onpointerdown={handlePointer}>
 	<div class="area"></div>
 </div>
 

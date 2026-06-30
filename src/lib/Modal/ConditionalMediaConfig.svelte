@@ -15,14 +15,20 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { relativeTime, updateObj } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
 	import { slide } from 'svelte/transition';
 	import InputClear from '$lib/Components/InputClear.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -32,7 +38,7 @@
 
 	const debug = false;
 
-	let timeout = sel?.timeout;
+	let timeout = $state(sel?.timeout);
 
 	const minExpire = 0;
 	const maxExpire = 86399;
@@ -49,9 +55,11 @@
 		$dashboard = $dashboard;
 	}
 
-	$: options = genOptions($states, '');
-	$: mediaPlayerOptions = genOptions($states, 'media_player.');
-	$: addMediaPlayer = sel?.media_players?.every((item: { entity_id: string }) => item.entity_id);
+	let options = $derived(genOptions($states, ''));
+	let mediaPlayerOptions = $derived(genOptions($states, 'media_player.'));
+	let addMediaPlayer = $derived(
+		sel?.media_players?.every((item: { entity_id: string }) => item.entity_id)
+	);
 
 	function genOptions(states: any, domain: string) {
 		return Object.keys(states)
@@ -71,6 +79,7 @@
 	}
 
 	function formatPausedDuration(seconds: number) {
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient, not rendered
 		const now = new Date();
 		if (seconds > maxExpire) {
 			now.setSeconds(now.getSeconds() + maxExpire);
@@ -117,7 +126,10 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('conditional')} {$lang('media')?.toLocaleLowerCase()}</h1>
+		{#snippet title()}<h1>
+				{$lang('conditional')}
+				{$lang('media')?.toLocaleLowerCase()}
+			</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -134,7 +146,7 @@
 				value={sel?.entity_id}
 				{options}
 				placeholder={$lang('entity')}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -142,7 +154,7 @@
 
 		{#if sel?.media_players?.length}
 			<div>
-				{#each sel.media_players as item, index}
+				{#each sel.media_players as item, index (index)}
 					<div transition:slide={{ duration: $motion }}>
 						<Select
 							computeIcons={true}
@@ -151,13 +163,14 @@
 							options={filterMediaPlayerOptions(item.entity_id)}
 							value={item.entity_id || ''}
 							clearable={sel?.media_players?.length > 1}
-							on:change={(event) => {
-								if (event?.detail) {
-									sel.media_players[index] = { entity_id: event?.detail };
-								} else {
-									sel.media_players.splice(index, 1);
-								}
-								set('media_players', sel.media_players);
+							onchange={(event) => {
+								// build a new array reference so the change invalidates reactively
+								const next = event
+									? sel.media_players.map((player: { entity_id: string }, i: number) =>
+											i === index ? { entity_id: event } : player
+										)
+									: sel.media_players.filter((_: unknown, i: number) => i !== index);
+								set('media_players', next);
 							}}
 						/>
 
@@ -167,7 +180,7 @@
 
 				<button
 					class="options action"
-					on:click={() => {
+					onclick={() => {
 						// add empty obj
 						set('media_players', [...sel.media_players, {}]);
 					}}
@@ -187,24 +200,25 @@
 
 		<InputClear
 			condition={timeout !== undefined}
-			on:clear={() => {
+			onclear={() => {
 				set('timeout');
 				timeout = undefined;
 			}}
-			let:padding
 		>
-			<input
-				min={minExpire}
-				max={maxExpire}
-				type="number"
-				class="input"
-				bind:value={timeout}
-				placeholder={timeout?.toString() || defaultExpire?.toString()}
-				on:change={handleChange}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					min={minExpire}
+					max={maxExpire}
+					type="number"
+					class="input"
+					bind:value={timeout}
+					placeholder={timeout?.toString() || defaultExpire?.toString()}
+					onchange={handleChange}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('show_area')?.replace('{area}', $lang('time')?.toLocaleLowerCase())}</h2>
@@ -212,7 +226,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.show_timeout}
-				on:click={() => set('show_timeout', true)}
+				onclick={() => set('show_timeout', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -220,7 +234,7 @@
 
 			<button
 				class:selected={!sel?.show_timeout}
-				on:click={() => set('show_timeout', false)}
+				onclick={() => set('show_timeout', false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('no')}
@@ -230,13 +244,13 @@
 		<h2>Marquee</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.marquee} on:click={() => set('marquee')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.marquee} onclick={() => set('marquee')} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
 			<button
 				class:selected={sel?.marquee}
-				on:click={() => set('marquee', true)}
+				onclick={() => set('marquee', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}

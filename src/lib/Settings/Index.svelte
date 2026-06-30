@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { configuration, editMode, lang, motion, ripple, selectedLanguage } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { modals, closeModal } from 'svelte-modals';
+	import { modals, closeModal } from '$lib/Modals';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Language from '$lib/Settings/Language.svelte';
 	import Addons from '$lib/Settings/Addons.svelte';
@@ -12,19 +12,21 @@
 	import CustomJs from '$lib/Settings/CustomJs.svelte';
 	import CustomCss from '$lib/Settings/CustomCss.svelte';
 	import Logout from '$lib/Settings/Logout.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let data: any;
-	export let isOpen: boolean;
+	let {
+		data,
+		isOpen,
+		languages
+	}: {
+		data: any;
+		isOpen: boolean;
+		languages: { id: string; label: string }[];
+	} = $props();
 
-	export let languages: {
-		id: string;
-		label: string;
-	}[];
-
-	let formElement: HTMLFormElement;
+	let formElement: HTMLFormElement = $state(undefined as any);
 	let timeout: ReturnType<typeof setTimeout> | null;
-	let responseCode: number | undefined;
+	let responseCode: number | undefined = $state(undefined);
 
 	/**
 	 * Saves form data to /data/configuration.yaml
@@ -113,13 +115,18 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('settings')}</h1>
+		{#snippet title()}<h1>{$lang('settings')}</h1>{/snippet}
 
-		<form id="settings" name="settings" bind:this={formElement} on:submit|preventDefault>
+		<form
+			id="settings"
+			name="settings"
+			bind:this={formElement}
+			onsubmit={(e) => e.preventDefault()}
+		>
 			<Language {languages} />
 
 			<Token />
@@ -140,7 +147,10 @@
 				<div class="save-container">
 					<button
 						class="action save"
-						on:click|preventDefault={handleSubmit}
+						onclick={(e) => {
+							e.preventDefault();
+							handleSubmit();
+						}}
 						use:Ripple={{
 							...$ripple,
 							color: 'rgba(0, 0, 0, 0.35)'
@@ -160,7 +170,14 @@
 					{/if}
 				</div>
 
-				<button class="action done" on:click|preventDefault={closeModal} use:Ripple={$ripple}>
+				<button
+					class="action done"
+					onclick={(e) => {
+						e.preventDefault();
+						closeModal();
+					}}
+					use:Ripple={$ripple}
+				>
 					{$lang('done')}
 				</button>
 			</div>

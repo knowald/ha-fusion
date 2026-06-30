@@ -4,8 +4,7 @@
 	import { getName } from '$lib/Utils';
 	import Camera from '$lib/Main/Camera.svelte';
 
-	export let sel: any;
-	export let isOpen: boolean;
+	let { sel, isOpen }: { sel: any; isOpen: boolean } = $props();
 
 	// $: supported_features = attributes?.supported_features;
 	// $: supports = getSupport(supported_features, {
@@ -16,9 +15,7 @@
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">
-			{getName(sel, $states?.[sel?.entity_id])}
-		</h1>
+		{#snippet title()}<h1>{getName(sel, $states?.[sel?.entity_id])}</h1>{/snippet}
 
 		<div>
 			<Camera {sel} responsive={true} muted={false} controls={true} />

@@ -3,17 +3,27 @@
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 
-	export let entity: HassEntity;
-	export let brightness: number;
-	export let current: number;
-
-	export let debounce: boolean;
-	export let timeout: ReturnType<typeof setTimeout>;
-	export let rangeValue: number;
+	let {
+		entity,
+		brightness,
+		current = $bindable(),
+		debounce = $bindable(),
+		timeout = $bindable(),
+		rangeValue = $bindable()
+	}: {
+		entity: HassEntity;
+		brightness: number;
+		current: number;
+		debounce: boolean;
+		timeout: ReturnType<typeof setTimeout>;
+		rangeValue: number;
+	} = $props();
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	$: if (!debounce) rangeValue = brightness || 0;
+	$effect(() => {
+		if (!debounce) rangeValue = brightness || 0;
+	});
 
 	/**
 	 * Adjusts the brightness via a service call.
@@ -54,13 +64,13 @@
 		value={rangeValue}
 		min={0}
 		max={255}
-		on:input={(event) => {
-			current = Math.round(event.detail / 2.55);
-			handleChange(Math.round(event.detail));
+		oninput={(event) => {
+			current = Math.round(event / 2.55);
+			handleChange(Math.round(event));
 		}}
-		on:change={(event) => {
+		onchange={(event) => {
 			request = undefined;
-			handleChange(Math.round(event.detail));
+			handleChange(Math.round(event));
 		}}
 	/>
 {/if}

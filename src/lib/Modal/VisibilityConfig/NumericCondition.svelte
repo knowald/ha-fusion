@@ -3,15 +3,14 @@
 	import Select from '$lib/Components/Select.svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
-	export let items: Condition[];
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
 
-	$: entityOptions = $entityList('');
+	let entityOptions = $derived($entityList(''));
 
 	/**
 	 * Updates `entity` value
 	 */
-	function handleEntity(id: number | undefined, entity_id: string) {
+	function handleEntity(id: number | undefined, entity_id: string | undefined) {
 		items = items.map((condition: Condition) => {
 			if (id === condition.id) {
 				return { ...condition, entity: entity_id };
@@ -47,9 +46,9 @@
 	options={entityOptions}
 	placeholder={$lang('entity')}
 	value={item.entity}
-	on:change={(event) => handleEntity(item?.id, event?.detail)}
+	onchange={(event) => handleEntity(item?.id, event)}
 	computeIcons={true}
-	defaultIcon={'mdi:state-machine'}
+	defaultIcon="mdi:state-machine"
 />
 
 <br />
@@ -60,7 +59,7 @@
 			data-modal
 			type="number"
 			value={item?.above !== undefined ? item.above : ''}
-			on:input={(event) => handleRange(item?.id, event?.target, 'above')}
+			oninput={(event) => handleRange(item?.id, event?.target, 'above')}
 			placeholder={$lang('above')}
 			autocomplete="off"
 		/>
@@ -71,7 +70,7 @@
 			data-modal
 			type="number"
 			value={item?.below !== undefined ? item.below : ''}
-			on:input={(event) => handleRange(item?.id, event?.target, 'below')}
+			oninput={(event) => handleRange(item?.id, event?.target, 'below')}
 			placeholder={$lang('below')}
 			autocomplete="off"
 		/>

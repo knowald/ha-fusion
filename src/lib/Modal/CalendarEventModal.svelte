@@ -4,26 +4,34 @@
 	import { getSupport, getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
-	import { closeModal } from 'svelte-modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { closeModal } from '$lib/Modals';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let info: any;
+	let {
+		isOpen,
+		sel,
+		info
+	}: {
+		isOpen: boolean;
+		sel: any;
+		info: any;
+	} = $props();
 
 	const debug = false;
 
-	let busy = false;
+	let busy = $state(false);
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		CREATE_EVENT: 1,
-		DELETE_EVENT: 2,
-		UPDATE_EVENT: 4
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			CREATE_EVENT: 1,
+			DELETE_EVENT: 2,
+			UPDATE_EVENT: 4
+		})
+	);
 
 	function format(type?: string) {
 		const options: Record<string, string> = {
@@ -66,7 +74,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{info?.title || getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{info?.title || getName(sel, entity)}</h1>{/snippet}
 
 		<div class="container">
 			<!-- date -->
@@ -133,13 +141,13 @@
 				class:done={!supports?.DELETE_EVENT || busy}
 				use:Ripple={{
 					...$ripple,
-					opacity: !supports?.DELETE_EVENT || busy ? '0' : $ripple.opacity
+					opacity: !supports?.DELETE_EVENT || busy ? 0 : $ripple.opacity
 				}}
 				style:opacity={!supports?.DELETE_EVENT || busy ? '0.3' : '1'}
 				disabled={!supports?.DELETE_EVENT || busy}
 				style:cursor={supports?.DELETE_EVENT && !busy ? 'pointer' : 'unset'}
 				style:transition="opacity {$motion}ms ease, background-color {$motion}ms ease"
-				on:click={deleteEvent}
+				onclick={deleteEvent}
 			>
 				{$lang('event_delete')}
 			</button>

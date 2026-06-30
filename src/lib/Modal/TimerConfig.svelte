@@ -7,12 +7,17 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj } from '$lib/Utils';
 	import type { TimerItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: TimerItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: TimerItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -20,7 +25,7 @@
 		set('entity_id', demo);
 	}
 
-	$: options = $entityList('timer');
+	let options = $derived($entityList('timer'));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -32,7 +37,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('timer')}</h1>
+		{#snippet title()}<h1>{$lang('timer')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -47,7 +52,7 @@
 				<Select
 					value={sel?.entity_id}
 					placeholder={$lang('entity')}
-					on:change={(event) => set('entity_id', event)}
+					onchange={(event) => set('entity_id', event)}
 					{options}
 					computeIcons={true}
 				/>
@@ -59,7 +64,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -67,7 +72,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

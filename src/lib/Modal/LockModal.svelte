@@ -5,29 +5,30 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName, getSupport } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onDestroy } from 'svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let opening = false;
+	let opening = $state(false);
 	let timeout: ReturnType<typeof setTimeout>;
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: state = entity?.state;
-	$: toggle = entity?.state === 'unlocking' || entity?.state === 'unlocked';
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let entityState = $derived(entity?.state);
+	let toggle = $derived(entity?.state === 'unlocking' || entity?.state === 'unlocked');
 
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
-	$: supports = getSupport(supported_features, {
-		OPEN: 1
-	});
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
+	let supports = $derived(
+		getSupport(supported_features, {
+			OPEN: 1
+		})
+	);
 
 	function handleClick() {
-		const service = state === 'locked' ? 'unlock' : 'lock';
+		const service = entityState === 'locked' ? 'unlock' : 'lock';
 		callService($connection, 'lock', service, { entity_id });
 	}
 
@@ -48,7 +49,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('state')}</h2>
 
@@ -56,7 +57,7 @@
 			<StateLogic entity_id={sel?.entity_id} selected={sel} />
 
 			<div class="toggle">
-				<Toggle bind:checked={toggle} on:change={handleClick} />
+				<Toggle bind:checked={toggle} onchange={handleClick} />
 			</div>
 		</div>
 
@@ -68,7 +69,7 @@
 					class:opening
 					style:transition="background-color {$motion}ms ease"
 					use:Ripple={$ripple}
-					on:click={handleOpen}
+					onclick={handleOpen}
 				>
 					{$lang(opening ? 'open_door_success' : 'open_door')}
 				</button>

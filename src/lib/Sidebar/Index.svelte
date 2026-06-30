@@ -2,38 +2,35 @@
 	// store
 	import { dashboard, motion, showDrawer, editMode, record, dragging } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
-	import { flip } from 'svelte/animate';
-	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from 'svelte-dnd-action';
-	import { openModal } from 'svelte-modals';
+	import { sortable } from '$lib/Actions/sortable';
+	import { openModal } from '$lib/Modals';
 	import { generateId, getSelected } from '$lib/Utils';
 	import type { SidebarItem } from '$lib/Types';
 	import '$lib/Sidebar/Sidebar.css';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 
-	export let altKeyPressed: boolean;
+	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
 
-	let skipTransformElement = false;
 	let importedComponents: (string | undefined)[] = [];
-	let mountedComponents = false;
 
-	let Bar: ComponentType;
-	let Camera: ComponentType;
-	let Configure: ComponentType;
-	let Date: ComponentType;
-	let Divider: ComponentType;
-	let Graph: ComponentType;
-	let History: ComponentType;
-	let Iframe: ComponentType;
-	let Image: ComponentType;
-	let Navigate: ComponentType;
-	let Notifications: ComponentType;
-	let Radial: ComponentType;
-	let Sensor: ComponentType;
-	let Template: ComponentType;
-	let Time: ComponentType;
-	let Timer: ComponentType;
-	let Weather: ComponentType;
-	let WeatherForecast: ComponentType;
+	let Bar: Component<any> = $state(undefined as any);
+	let Camera: Component<any> = $state(undefined as any);
+	let Configure: Component<any> = $state(undefined as any);
+	let Date: Component<any> = $state(undefined as any);
+	let Divider: Component<any> = $state(undefined as any);
+	let Graph: Component<any> = $state(undefined as any);
+	let History: Component<any> = $state(undefined as any);
+	let Iframe: Component<any> = $state(undefined as any);
+	let Image: Component<any> = $state(undefined as any);
+	let Navigate: Component<any> = $state(undefined as any);
+	let Notifications: Component<any> = $state(undefined as any);
+	let Radial: Component<any> = $state(undefined as any);
+	let Sensor: Component<any> = $state(undefined as any);
+	let Template: Component<any> = $state(undefined as any);
+	let Time: Component<any> = $state(undefined as any);
+	let Timer: Component<any> = $state(undefined as any);
+	let Weather: Component<any> = $state(undefined as any);
+	let WeatherForecast: Component<any> = $state(undefined as any);
 
 	const imports = {
 		bar: () => import('$lib/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),
@@ -58,7 +55,9 @@
 			import('$lib/Sidebar/WeatherForecast.svelte').then((c) => (WeatherForecast = c.default))
 	};
 
-	$: if ($dashboard?.sidebar) importComponents();
+	$effect(() => {
+		if ($dashboard?.sidebar) importComponents();
+	});
 
 	/**
 	 * Dynamically imports sidebar components based on
@@ -68,28 +67,16 @@
 		const types = [...new Set($dashboard.sidebar.map((item) => item.type))];
 		const promises = [];
 
-		// counter for supported and not yet imported imports
-		let validImports = 0;
-
 		for (let type of types) {
 			const module = imports[type as keyof typeof imports];
 
 			if (!importedComponents.includes(type) && module) {
 				promises.push(module());
 				importedComponents.push(type);
-				validImports++;
 			}
 		}
 
 		await Promise.all(promises);
-
-		/**
-		 * Wait for all imports to complete then set `loaded` flag
-		 * to prevent flip animation before components has loaded.
-		 */
-		if (importedComponents.length >= validImports) {
-			mountedComponents = true;
-		}
 	}
 
 	/**
@@ -153,55 +140,37 @@
 		}
 	}
 
-	function handleSort(event: CustomEvent<DndEvent>) {
-		$dragging = true;
+	function handleFinalize(newItems: any[]) {
+		if (altKeyPressed) {
+			// Find the item that moved to a new position and clone it
+			const newOrder = newItems.map((item: any) => item.id);
+			const oldOrder = $dashboard.sidebar.map((item: any) => item.id);
 
-		$dashboard.sidebar = handleCopyOnDrag($dashboard.sidebar, event);
-
-		if (event?.type === 'finalize') {
-			$record();
-			$dragging = false;
-			skipTransformElement = false;
-		}
-	}
-
-	function handleCopyOnDrag(items: any[], event: CustomEvent<DndEvent>) {
-		const { trigger, id: itemId } = event.detail.info;
-
-		if (trigger === TRIGGERS.DRAG_STARTED && altKeyPressed) {
-			const idx = items.findIndex((item) => item.id === itemId);
-			const newId = generateId($dashboard);
-
-			event.detail.items = event.detail.items.filter(
-				(item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-			);
-			event.detail.items.splice(idx, 0, { ...items[idx], id: newId });
-		}
-
-		return event.detail.items;
-	}
-
-	/**
-	 * dnd transformDraggedElement
-	 */
-	function transformDraggedElement(element: HTMLElement | undefined) {
-		if (element) {
-			const container = element.firstElementChild as HTMLDivElement;
-
-			if (!altKeyPressed) skipTransformElement = true;
-
-			if (!skipTransformElement && container) {
-				Object.assign(container.style, {
-					outline: 'rgb(255, 192, 8) dashed 2px',
-					outlineOffset: '-2px',
-					borderRadius: '0.65rem'
-				});
+			// Detect which item moved and where
+			for (let i = 0; i < newOrder.length; i++) {
+				if (newOrder[i] !== oldOrder[i]) {
+					const movedId = newOrder[i];
+					const original = $dashboard.sidebar.find((item: any) => item.id === movedId);
+					if (original) {
+						const cloned = { ...original, id: generateId($dashboard) };
+						// Insert clone at new position, keep original in place
+						const result = [...$dashboard.sidebar];
+						result.splice(i, 0, cloned);
+						$dashboard.sidebar = result;
+					}
+					break;
+				}
 			}
+		} else {
+			$dashboard.sidebar = newItems;
 		}
+
+		$record();
+		$dragging = false;
 	}
 
 	// media query js
-	let matches = false;
+	let matches = $state(false);
 
 	onMount(() => {
 		const handleMediaQueryChange = (event: { matches: boolean }) => {
@@ -227,31 +196,29 @@
 >
 	{#if $editMode}
 		{#await import('$lib/Components/ResizeHandle.svelte') then ResizeHandle}
-			<svelte:component this={ResizeHandle.default} />
+			<ResizeHandle.default />
 		{/await}
 	{/if}
 
 	{#if !$dashboard?.hide_sidebar}
 		<section
-			use:dndzone={{
-				type: 'sidebar',
+			use:sortable={{
+				group: { name: 'sidebar', pull: false, put: false },
 				items: $dashboard?.sidebar,
-				flipDurationMs: $motion,
-				dragDisabled: !$editMode,
-				dropTargetStyle: {},
-				zoneTabIndex: -1,
-				morphDisabled: true,
-				transformDraggedElement
+				animation: $motion,
+				disabled: !$editMode,
+				onStart: () => {
+					$dragging = true;
+				},
+				onFinalize: handleFinalize
 			}}
-			on:consider={handleSort}
-			on:finalize={handleSort}
 		>
 			{#each $dashboard.sidebar as item (item.id)}
 				{@const hide_mobile = matches && item?.hide_mobile && !$editMode}
 
 				<div
 					id={String(item.id)}
-					animate:flip={{ duration: mountedComponents ? $motion : 0 }}
+					data-id={item.id}
 					class="sidebar_edit_mode"
 					style:display={item?.type === 'divider' ||
 					item?.type === 'date' ||
@@ -264,33 +231,26 @@
 				>
 					<!-- BAR -->
 					{#if Bar && item?.type === 'bar' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Bar}
-								entity_id={item?.entity_id}
-								name={item?.name}
-								math={item?.math}
-								id={item?.id}
-							/>
+						<button onclick={() => handleClick(item?.id)}>
+							<Bar entity_id={item?.entity_id} name={item?.name} math={item?.math} id={item?.id} />
 						</button>
 
 						<!-- CAMERA -->
 					{:else if Camera && item?.type === 'camera' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Camera} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Camera sel={item} />
 						</button>
 
 						<!-- CONFIGURE -->
 					{:else if Configure && item?.type === 'configure'}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
-							<svelte:component this={Configure} sel={item} />
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Configure sel={item} />
 						</div>
 
 						<!-- DATE -->
 					{:else if Date && item?.type === 'date' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Date}
+						<button onclick={() => handleClick(item?.id)}>
+							<Date
 								short_day={item?.short_day}
 								short_month={item?.short_month}
 								hide={item?.hide}
@@ -300,15 +260,14 @@
 
 						<!-- DIVIDER -->
 					{:else if Divider && item?.type === 'divider' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
-							<svelte:component this={Divider} mode={item?.mode} size={item?.size} />
+						<button onclick={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
+							<Divider mode={item?.mode} size={item?.size} />
 						</button>
 
 						<!-- GRAPH -->
 					{:else if Graph && item?.type === 'graph' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Graph}
+						<button onclick={() => handleClick(item?.id)}>
+							<Graph
 								entity_id={item?.entity_id}
 								name={item?.name}
 								period={item?.period}
@@ -318,63 +277,53 @@
 
 						<!-- HISTORY -->
 					{:else if History && item?.type === 'history' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component
-								this={History}
-								entity_id={item?.entity_id || ''}
-								period={item?.period}
-							/>
+						<button onclick={() => handleClick(item?.id)}>
+							<History entity_id={item?.entity_id || ''} period={item?.period} />
 						</button>
 
 						<!-- IFRAME -->
 					{:else if Iframe && item?.type === 'iframe' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Iframe} url={item?.url} size={item?.size} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Iframe url={item?.url} size={item?.size} />
 						</button>
 
 						<!-- NOTIFICATIONS -->
 					{:else if Notifications && item?.type === 'notifications' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Notifications} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Notifications sel={item} />
 						</button>
 
 						<!-- IMAGE -->
 					{:else if Image && item?.type === 'image' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Image} entity_id={item?.entity_id} url={item?.url} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Image entity_id={item?.entity_id} url={item?.url} />
 						</button>
 
 						<!-- NAVIGATE -->
 					{:else if Navigate && item?.type === 'navigate' && !hide_mobile}
 						{#key $editMode}
 							<div
-								on:click|preventDefault={() => {
+								onclick={(e) => {
+									e.preventDefault();
 									if ($editMode) handleClick(item?.id);
 								}}
-								on:keydown
 								role="button"
 								tabindex="0"
 							>
-								<svelte:component this={Navigate} />
+								<Navigate />
 							</div>
 						{/key}
 
 						<!-- RADIAL -->
 					{:else if Radial && item?.type === 'radial' && !hide_mobile}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
-							<svelte:component
-								this={Radial}
-								entity_id={item?.entity_id}
-								name={item?.name}
-								strokeWidth={item?.stroke}
-							/>
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Radial entity_id={item?.entity_id} name={item?.name} strokeWidth={item?.stroke} />
 						</div>
 
 						<!-- SENSOR -->
 					{:else if Sensor && item?.type === 'sensor' && !hide_mobile}
-						<div on:click={() => handleClick(item?.id)} on:keydown role="button" tabindex="0">
-							<svelte:component
-								this={Sensor}
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Sensor
 								entity_id={item?.entity_id}
 								prefix={item?.prefix}
 								suffix={item?.suffix}
@@ -384,36 +333,32 @@
 
 						<!-- TEMPLATE -->
 					{:else if Template && item?.type === 'template' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Template} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Template sel={item} />
 						</button>
 
 						<!-- TIME -->
 					{:else if Time && item?.type === 'time' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component
-								this={Time}
-								seconds={item?.seconds}
-								hour12={item?.hour12 || false}
-							/>
+						<button onclick={() => handleClick(item?.id)}>
+							<Time seconds={item?.seconds} hour12={item?.hour12 || false} />
 						</button>
 
 						<!-- TIMER -->
 					{:else if Timer && item?.type === 'timer' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Timer} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Timer sel={item} />
 						</button>
 
 						<!-- WEATHER -->
 					{:else if Weather && item?.type === 'weather' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={Weather} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<Weather sel={item} />
 						</button>
 
 						<!-- WEATHER FORECAST -->
 					{:else if WeatherForecast && item?.type === 'weather_forecast' && !hide_mobile}
-						<button on:click={() => handleClick(item?.id)}>
-							<svelte:component this={WeatherForecast} sel={item} />
+						<button onclick={() => handleClick(item?.id)}>
+							<WeatherForecast sel={item} />
 						</button>
 					{/if}
 				</div>
@@ -421,7 +366,7 @@
 		</section>
 
 		{#await import('$lib/Sidebar/Toast.svelte') then Toast}
-			<svelte:component this={Toast.default} />
+			<Toast.default />
 		{/await}
 	{/if}
 </aside>
@@ -463,5 +408,9 @@
 	.sidebar_edit_mode {
 		transition: height 200ms ease;
 		display: flex;
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
 	}
 </style>

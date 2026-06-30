@@ -5,18 +5,18 @@
 	import { getName } from '$lib/Utils';
 	import Icon, { loadIcon } from '@iconify/svelte';
 	import { onDestroy } from 'svelte';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
-	let active = false;
+	let active = $state(false);
 	let timeout: ReturnType<typeof setTimeout>;
 
 	const iconSize = '2rem';
 
-	$: icon = sel?.icon;
+	let icon = $derived(sel?.icon);
 
 	function handleClick() {
 		// config
@@ -52,7 +52,7 @@
 		class:active={active && !$editMode}
 		style:transition="background-color {active ? $motion / 2 : $motion}ms ease"
 		class="btn"
-		on:click={handleClick}
+		onclick={handleClick}
 		style:cursor={$editMode ? 'unset' : 'pointer'}
 		use:Ripple={{
 			...$ripple,

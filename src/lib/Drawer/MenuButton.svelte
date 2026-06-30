@@ -2,9 +2,9 @@
 	import { showDrawer, motion, lang, ripple } from '$lib/Stores';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let handleClick: () => void;
+	let { handleClick }: { handleClick: () => void } = $props();
 
 	let menu: HTMLButtonElement;
 
@@ -25,12 +25,12 @@
 </script>
 
 <button
-	on:click={handleClick}
+	onclick={handleClick}
 	bind:this={menu}
 	transition:fade={{ duration: $motion }}
 	title={$lang('menu')}
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={$ripple}
 >
 	<svg

@@ -1,46 +1,52 @@
 <script lang="ts">
-	import { dashboard, record, lang, ripple, history, historyIndex, connection, states } from '$lib/Stores';
+	import { dashboard, record, lang, ripple, connection, states } from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		sectionName = undefined
+	}: {
+		isOpen: boolean;
+		sel: any;
+		sectionName?: string;
+	} = $props();
 
-	let name: string | undefined = sel?.name;
-	let icon: string | undefined = sel?.icon;
-	let color: string | undefined = sel?.color;
-	let entity_id: string | undefined = sel?.entity_id;
+	let name: string | undefined = $state(sel?.name);
+	let icon: string | undefined = $state(sel?.icon);
+	let color: string | undefined = $state(sel?.color);
+	let entity_id: string | undefined = $state(sel?.entity_id);
 
-	let suggestedEntityId = '';
-	let creatingEntity = false;
-	let entityError = '';
+	let suggestedEntityId = $state('');
+	let entityError = $state('');
 
-	// Get current timestamp from entity or use current date
-	$: entityState = entity_id ? $states?.[entity_id] : undefined;
-	$: last_reset = entityState?.state;
+	let entityState = $derived(entity_id ? $states?.[entity_id] : undefined);
+	let last_reset = $derived(entityState?.state);
 
-	// Format date for input[type="date"] (YYYY-MM-DD)
-	$: dateInputValue = last_reset
-		? new Date(last_reset).toISOString().split('T')[0]
-		: new Date().toISOString().split('T')[0];
+	let dateInputValue = $derived(
+		last_reset
+			? new Date(last_reset).toISOString().split('T')[0]
+			: new Date().toISOString().split('T')[0]
+	);
 
-	// Auto-generate entity_id from name
-	$: if (name && !entity_id) {
-		suggestedEntityId = `input_datetime.days_since_${name
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, '_')
-			.replace(/^_+|_+$/g, '')}`;
-	} else {
-		suggestedEntityId = '';
-	}
+	$effect(() => {
+		if (name && !entity_id) {
+			suggestedEntityId = `input_datetime.days_since_${name
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, '_')
+				.replace(/^_+|_+$/g, '')}`;
+		} else {
+			suggestedEntityId = '';
+		}
+	});
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -78,35 +84,6 @@
 		}
 	}
 
-	async function createEntity() {
-		if (!suggestedEntityId || !$connection) return;
-
-		creatingEntity = true;
-		entityError = '';
-
-		try {
-			// Check if entity already exists
-			if ($states?.[suggestedEntityId]) {
-				// Entity exists, just link it
-				entity_id = suggestedEntityId;
-				set('entity_id', { target: { value: entity_id } });
-				return;
-			}
-
-			// Create the input_datetime entity
-			await callService($connection, 'input_datetime', 'reload', {});
-
-			// Note: Creating input_datetime via service call isn't directly supported
-			// User needs to create it manually via HA UI or configuration.yaml
-			entityError = 'Please create the input_datetime entity manually in Home Assistant configuration.';
-		} catch (error: any) {
-			console.error('Failed to create entity:', error);
-			entityError = error.message || 'Failed to create entity';
-		} finally {
-			creatingEntity = false;
-		}
-	}
-
 	function linkEntity() {
 		if (suggestedEntityId) {
 			entity_id = suggestedEntityId;
@@ -119,7 +96,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('days_since') || 'Days Since'}</h1>
+		{#snippet title()}<h1>{$lang('days_since') || 'Days Since'}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -131,23 +108,24 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={$lang('name') || 'Name'}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				on:change={(event) => set('name', event)}
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={$lang('name') || 'Name'}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')}</h2>
@@ -155,30 +133,31 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder="mdi:calendar-clock"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					on:change={(event) => set('icon', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder="mdi:calendar-clock"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -192,34 +171,35 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={color}
-				on:clear={() => {
+				onclear={() => {
 					color = undefined;
 					set('color');
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('color')}
-					class="input"
-					type="text"
-					placeholder="rgb(75, 166, 237)"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={color}
-					on:change={(event) => set('color', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('color')}
+						class="input"
+						type="text"
+						placeholder="rgb(75, 166, 237)"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={color}
+						onchange={(event) => set('color', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<input
 				type="color"
 				bind:value={color}
-				on:click={() => {
+				onclick={() => {
 					if (color === undefined) {
 						color = '#4ba6ed';
 					}
 				}}
-				on:change={(event) => set('color', event)}
+				onchange={(event) => set('color', event)}
 				title={$lang('color')}
 			/>
 		</div>
@@ -229,15 +209,14 @@
 		{#if !entity_id}
 			<div class="entity-setup">
 				<p class="entity-help">
-					This counter needs an <code>input_datetime</code> entity in Home Assistant to store the
-					timestamp.
+					This counter needs an <code>input_datetime</code> entity in Home Assistant to store the timestamp.
 				</p>
 
 				{#if suggestedEntityId}
 					<div class="suggested-entity">
 						<code>{suggestedEntityId}</code>
 						{#if $states?.[suggestedEntityId]}
-							<button use:Ripple={$ripple} class="link-button" on:click={linkEntity}>
+							<button use:Ripple={$ripple} class="link-button" onclick={linkEntity}>
 								<Icon icon="mdi:link" height="1.2rem" />
 								<span>{$lang('use_existing') || 'Use Existing'}</span>
 							</button>
@@ -246,8 +225,7 @@
 								Entity doesn't exist. Create it in Home Assistant:
 								<br />
 								<strong
-									>Settings → Devices & Services → Helpers → Create Helper → Date and/or
-									Time</strong
+									>Settings → Devices & Services → Helpers → Create Helper → Date and/or Time</strong
 								>
 								<br />
 								Then use entity ID: <code>{suggestedEntityId}</code>
@@ -258,23 +236,24 @@
 
 				<InputClear
 					condition={entity_id}
-					on:clear={() => {
+					onclear={() => {
 						entity_id = undefined;
 						set('entity_id');
 					}}
-					let:padding
 				>
-					<input
-						name="Entity ID"
-						class="input"
-						type="text"
-						placeholder="input_datetime.days_since_..."
-						autocomplete="off"
-						spellcheck="false"
-						bind:value={entity_id}
-						on:change={(event) => set('entity_id', event)}
-						style:padding
-					/>
+					{#snippet children(padding)}
+						<input
+							name="Entity ID"
+							class="input"
+							type="text"
+							placeholder="input_datetime.days_since_..."
+							autocomplete="off"
+							spellcheck="false"
+							bind:value={entity_id}
+							onchange={(event) => set('entity_id', event)}
+							style:padding
+						/>
+					{/snippet}
 				</InputClear>
 
 				{#if entityError}
@@ -290,7 +269,7 @@
 				<button
 					use:Ripple={$ripple}
 					class="change-button"
-					on:click={() => {
+					onclick={() => {
 						entity_id = undefined;
 						set('entity_id');
 					}}
@@ -307,13 +286,13 @@
 					type="date"
 					class="date-input"
 					value={dateInputValue}
-					on:change={handleDateChange}
+					onchange={handleDateChange}
 					disabled={!entity_id}
 				/>
 				<button
 					use:Ripple={$ripple}
 					class="today-button"
-					on:click={setToday}
+					onclick={setToday}
 					title={$lang('set_to_today') || 'Set to Today'}
 					disabled={!entity_id}
 				>

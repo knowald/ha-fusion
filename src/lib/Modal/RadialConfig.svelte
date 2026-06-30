@@ -16,13 +16,18 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj, getName } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: RadialItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: RadialItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -30,19 +35,19 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
-	let stroke = sel?.stroke;
+	let name = $state(sel?.name);
+	let stroke = $state(sel?.stroke);
 
-	let numberElement: HTMLInputElement;
+	let numberElement: HTMLInputElement = $state(undefined as any);
 
-	$: entity_id = sel?.entity_id;
+	let entity_id = $derived(sel?.entity_id);
 
 	const range = {
 		min: 1,
 		max: 15
 	};
 
-	$: options = $entityList('sensor');
+	let options = $derived($entityList('sensor'));
 
 	function minMax(key: string | number | undefined) {
 		return Math.min(Math.max(parseInt(key as string), range.min), range.max);
@@ -64,7 +69,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">Radial</h1>
+		{#snippet title()}<h1>Radial</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -78,7 +83,7 @@
 			<Select
 				value={entity_id}
 				placeholder={$lang('entity')}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 				{options}
 				computeIcons={true}
 			/>
@@ -88,23 +93,24 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				type="text"
-				class="input"
-				class:placeholder={!name}
-				bind:value={name}
-				placeholder={getName(sel, (sel?.entity_id && $states[sel.entity_id]) || undefined)}
-				on:change={(event) => set('name', event)}
-				autocomplete="off"
-				spellcheck="false"
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					type="text"
+					class="input"
+					class:placeholder={!name}
+					bind:value={name}
+					placeholder={getName(sel, (sel?.entity_id && $states[sel.entity_id]) || undefined)}
+					onchange={(event) => set('name', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('size')}</h2>
@@ -117,7 +123,7 @@
 			placeholder="9"
 			min={range.min}
 			max={range.max}
-			on:input={handleNumberRange}
+			oninput={handleNumberRange}
 			autocomplete="off"
 		/>
 
@@ -126,7 +132,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -134,7 +140,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

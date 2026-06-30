@@ -4,39 +4,48 @@
 	import { onMount } from 'svelte';
 	import { getName } from '$lib/Utils';
 
-	export let entity_id: string | undefined;
-	export let math: string | undefined = undefined;
-	export let name: string | undefined = undefined;
-	export let id: number | undefined = undefined;
+	let {
+		entity_id,
+		math = undefined,
+		name = undefined,
+		id = undefined
+	}: {
+		entity_id: string | undefined;
+		math?: string;
+		name?: string;
+		id?: number;
+	} = $props();
 
-	let entity: HassEntity;
+	let entity: HassEntity = $state(undefined as any);
 	let cache: { [id: number]: { [key: string]: number } } = {};
-	let expression = 0;
-	let mounted: boolean;
+	let expression = $state(0);
+	let mounted: boolean = $state(false);
 
 	const options = {
 		style: 'percent' as 'decimal' | 'currency' | 'percent' | 'unit',
 		maximumFractionDigits: 2
 	};
 
-	$: if (entity_id) entity = $states?.[entity_id];
-	$: state = entity?.state;
-	$: if (math && id) {
-		cache[id] = {};
-	}
-
-	$: if (entity) {
-		/**
-		 * Compute `expression`, first check if cached
-		 * value otherwise evaluate the math expression
-		 */
-		let key = `${state}_${math}`;
-		if (id && cache?.[id]?.[key]) {
-			expression = cache[id][key];
-		} else {
-			expression = evaluate(state, math) || 0;
+	$effect(() => {
+		if (entity_id) entity = $states?.[entity_id];
+	});
+	let entityState = $derived(entity?.state);
+	$effect(() => {
+		if (math && id) {
+			cache[id] = {};
 		}
-	}
+	});
+
+	$effect(() => {
+		if (entity) {
+			let key = `${entityState}_${math}`;
+			if (id && cache?.[id]?.[key]) {
+				expression = cache[id][key];
+			} else {
+				expression = evaluate(entityState, math) || 0;
+			}
+		}
+	});
 
 	onMount(() => {
 		// wait a second before adding transition
@@ -50,7 +59,7 @@
 	 * applyMathExpression(5, "x*2");  // returns 10
 	 */
 	function evaluate(state: string, math: string | undefined) {
-		if (!math || !id || math.trim() === 'x') return Number(state);
+		if (!math || !id || math.trim() === 'x') return Number(entityState);
 
 		// trim white space and use dots
 		const format = math.trim().replace(',', '.');
@@ -58,10 +67,10 @@
 		try {
 			// evaluate math expression
 			const func = new Function('x', `return ${format}`);
-			const result = func(Number(state));
+			const result = func(Number(entityState));
 			if (typeof result === 'number') {
 				cache[id] = cache[id] || {};
-				cache[id][`${state}_${math}`] = result;
+				cache[id][`${entityState}_${math}`] = result;
 
 				// clear error
 				if (id) delete $barErrors[id];

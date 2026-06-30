@@ -3,49 +3,58 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import { isTimestamp, relativeTime } from '$lib/Utils';
 
-	export let entity_id: string | undefined = undefined;
-	export let prefix: string | undefined = undefined;
-	export let suffix: string | undefined = undefined;
-	export let date: boolean | undefined = undefined;
+	let {
+		entity_id = undefined,
+		prefix = undefined,
+		suffix = undefined,
+		date = undefined
+	}: {
+		entity_id?: string;
+		prefix?: string;
+		suffix?: string;
+		date?: boolean;
+	} = $props();
 
-	let entity: HassEntity;
+	let entity: HassEntity = $state(undefined as any);
 
-	$: if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[entity_id];
-	}
+	$effect(() => {
+		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[entity_id];
+		}
+	});
 
-	$: state = entity?.state;
+	let entityState = $derived(entity?.state);
 </script>
 
 <div
 	class="container"
-	class:visible={!entity || state || $editMode}
-	style:padding-top={!entity || state || $editMode ? '' : '0'}
-	style:padding-bottom={!entity || state || $editMode ? '' : '0'}
+	class:visible={!entity || entityState || $editMode}
+	style:padding-top={!entity || entityState || $editMode ? '' : '0'}
+	style:padding-bottom={!entity || entityState || $editMode ? '' : '0'}
 	style:transition="grid-template-rows {$motion}ms ease, padding {$motion}ms ease"
 >
 	<div class="expandable">
-		{#if ['unavailable', 'unknown'].includes(state)}
-			{prefix || ''}{$lang(state)}{suffix || ''}
+		{#if ['unavailable', 'unknown'].includes(entityState)}
+			{prefix || ''}{$lang(entityState)}{suffix || ''}
 
 			<!-- relative time -->
-		{:else if state && date}
-			{#if isTimestamp(state)}
-				{prefix || ''}{relativeTime(state, $selectedLanguage)}{suffix || ''}
+		{:else if entityState && date}
+			{#if isTimestamp(entityState)}
+				{prefix || ''}{relativeTime(entityState, $selectedLanguage)}{suffix || ''}
 			{:else}
 				{prefix || ''}{$lang('invalid_timestamp')}{suffix || ''}
 			{/if}
 
 			<!-- state -->
-		{:else if state}
-			{prefix || ''}{@html state}{suffix || ''}
+		{:else if entityState}
+			{prefix || ''}{@html entityState}{suffix || ''}
 
 			<!-- hide -->
-		{:else if entity && !state}
+		{:else if entity && !entityState}
 			<span>{entity_id}</span>
 
 			<!-- !entity_id -->
-		{:else if !entity_id && !state}
+		{:else if !entity_id && !entityState}
 			<span>{$lang('sensor')}</span>
 		{:else}
 			{$lang('unknown')}

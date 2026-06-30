@@ -6,15 +6,19 @@
 	import SectionTitle from '$lib/Main/SectionTitle.svelte';
 	import { slide } from 'svelte/transition';
 
-	export let view: any;
-	export let section: any;
+	let { view, section }: { view: any; section: any } = $props();
 </script>
 
 {#if section?.name !== '' || $editMode}
 	<header transition:slide={{ duration: $motion }}>
 		<h1 style:cursor={$editMode ? 'text' : 'initial'}>
 			{#if $editMode}
-				<SectionTitle bind:value={section.name} />
+				<SectionTitle
+					value={section.name}
+					onsubmit={(v) => {
+						section.name = v;
+					}}
+				/>
 			{:else if section?.name === ''}
 				{@html '&nbsp;'}
 			{:else}

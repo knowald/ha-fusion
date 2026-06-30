@@ -4,15 +4,14 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import type { SidebarItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import { onDestroy } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: SidebarItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();
 
-	let size = sel?.size;
+	let size = $state(sel?.size);
 
 	const defaultValue = '50';
 
@@ -40,7 +39,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('divider')}</h1>
+		{#snippet title()}<h1>{$lang('divider')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -49,13 +48,13 @@
 		</div>
 
 		<div class="button-container">
-			<button class:selected={!sel?.mode} on:click={() => set('mode')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.mode} onclick={() => set('mode')} use:Ripple={$ripple}>
 				{$lang('divider')}
 			</button>
 
 			<button
 				class:selected={sel?.mode === 'empty'}
-				on:click={() => set('mode', 'empty')}
+				onclick={() => set('mode', 'empty')}
 				use:Ripple={$ripple}
 			>
 				{$lang('empty')}
@@ -67,24 +66,25 @@
 
 			<InputClear
 				condition={size}
-				on:clear={() => {
+				onclear={() => {
 					set('size');
 					size = undefined;
 				}}
-				let:padding
 			>
-				<input
-					min="20"
-					max="999"
-					type="number"
-					class="input"
-					bind:value={size}
-					placeholder={defaultValue}
-					on:change={handleChange}
-					autocomplete="off"
-					spellcheck="false"
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						min="20"
+						max="999"
+						type="number"
+						class="input"
+						bind:value={size}
+						placeholder={defaultValue}
+						onchange={handleChange}
+						autocomplete="off"
+						spellcheck="false"
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		{/if}
 
@@ -93,7 +93,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -101,7 +101,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

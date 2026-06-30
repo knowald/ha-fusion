@@ -4,31 +4,39 @@
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
 	import { updateObj } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let sectionName: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		sectionName = undefined
+	}: {
+		isOpen: boolean;
+		sel: any;
+		sectionName?: string;
+	} = $props();
 
-	let name: string | undefined = sel?.name;
-	let icon: string | undefined = sel?.icon;
-	let color: string | undefined = sel?.color;
-	let entity_id: string | undefined = sel?.entity_id;
-	let show_progress: boolean = sel?.show_progress ?? true;
-	let default_device: string | undefined = sel?.default_device;
+	let name: string | undefined = $state(sel?.name);
+	let icon: string | undefined = $state(sel?.icon);
+	let color: string | undefined = $state(sel?.color);
+	let entity_id: string | undefined = $state(sel?.entity_id);
+	let show_progress: boolean = $state(sel?.show_progress ?? true);
+	let default_device: string | undefined = $state(sel?.default_device);
 
-	// Get list of Spotify media players
-	$: spotifyEntities = Object.keys($states || {}).filter((key) =>
-		key.startsWith('media_player.spotify')
+	let spotifyEntities = $derived(
+		Object.keys($states || {}).filter((key) => key.startsWith('media_player.spotify'))
 	);
 
 	// Device list from SpotifyPlus
-	interface SpDevice { Id: string; Name: string; }
-	let devices: SpDevice[] = [];
+	interface SpDevice {
+		Id: string;
+		Name: string;
+	}
+	let devices: SpDevice[] = $state([]);
 
 	function getSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;
@@ -43,7 +51,7 @@
 		const spEntity = getSpotifyPlusEntity();
 		if (!spEntity || !$connection || !$services?.spotifyplus) return;
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_spotify_connect_devices',
@@ -69,7 +77,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('spotify_player_large') || 'Spotify Player Large'}</h1>
+		{#snippet title()}<h1>{$lang('spotify_player_large') || 'Spotify Player Large'}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -80,13 +88,9 @@
 		<h2>{$lang('entity') || 'Entity'}</h2>
 
 		{#if spotifyEntities.length > 0}
-			<select
-				class="input"
-				bind:value={entity_id}
-				on:change={(event) => set('entity_id', event)}
-			>
+			<select class="input" bind:value={entity_id} onchange={(event) => set('entity_id', event)}>
 				<option value={undefined}>{$lang('select_entity') || 'Select entity'}</option>
-				{#each spotifyEntities as entity}
+				{#each spotifyEntities as entity (entity)}
 					<option value={entity}>{entity}</option>
 				{/each}
 			</select>
@@ -100,23 +104,24 @@
 			</div>
 			<InputClear
 				condition={entity_id}
-				on:clear={() => {
+				onclear={() => {
 					entity_id = undefined;
 					set('entity_id');
 				}}
-				let:padding
 			>
-				<input
-					name="Entity ID"
-					class="input"
-					type="text"
-					placeholder="media_player.spotify_username"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={entity_id}
-					on:change={(event) => set('entity_id', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name="Entity ID"
+						class="input"
+						type="text"
+						placeholder="media_player.spotify_username"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={entity_id}
+						onchange={(event) => set('entity_id', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		{/if}
 
@@ -124,23 +129,24 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={$lang('name') || 'Name'}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				on:change={(event) => set('name', event)}
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={$lang('name') || 'Name'}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('icon')}</h2>
@@ -148,30 +154,31 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder="mdi:spotify"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					on:change={(event) => set('icon', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder="mdi:spotify"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
@@ -185,34 +192,35 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={color}
-				on:clear={() => {
+				onclear={() => {
 					color = undefined;
 					set('color');
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('color')}
-					class="input"
-					type="text"
-					placeholder="rgb(30, 215, 96)"
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={color}
-					on:change={(event) => set('color', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('color')}
+						class="input"
+						type="text"
+						placeholder="rgb(30, 215, 96)"
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={color}
+						onchange={(event) => set('color', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<input
 				type="color"
 				bind:value={color}
-				on:click={() => {
+				onclick={() => {
 					if (color === undefined) {
 						color = '#1ed760';
 					}
 				}}
-				on:change={(event) => set('color', event)}
+				onchange={(event) => set('color', event)}
 				title={$lang('color')}
 			/>
 		</div>
@@ -224,7 +232,7 @@
 				<input
 					type="checkbox"
 					bind:checked={show_progress}
-					on:change={(event) => set('show_progress', event)}
+					onchange={(event) => set('show_progress', event)}
 				/>
 				<span>{$lang('show_progress_bar') || 'Show progress bar'}</span>
 			</label>
@@ -236,13 +244,13 @@
 			<select
 				class="input"
 				value={default_device || ''}
-				on:change={(event) => {
-					default_device = event.target?.value || undefined;
+				onchange={(event) => {
+					default_device = (event.target as HTMLSelectElement)?.value || undefined;
 					set('default_device', default_device ? { target: { value: default_device } } : undefined);
 				}}
 			>
 				<option value="">{$lang('auto') || 'Auto'}</option>
-				{#each devices as device}
+				{#each devices as device, i (i)}
 					<option value={device.Name}>{device.Name}</option>
 				{/each}
 			</select>
@@ -256,7 +264,7 @@
 				'A large 4x height Spotify player widget displaying album artwork and playback status. Perfect for visual dashboards.'}
 		</p>
 
-		<ConfigButtons {sel} {sectionName} />
+		<ConfigButtons {sel} />
 	</Modal>
 {/if}
 

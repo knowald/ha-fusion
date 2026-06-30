@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { lang, youtubeAddon } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let data: any;
+	let { data }: { data: any } = $props();
 
 	function handleFocus(event: FocusEvent) {
 		const target = event.target as HTMLInputElement;
@@ -30,15 +30,16 @@
 			placeholder={$lang('token')}
 			autocomplete="new-password"
 			value={data?.configuration?.addons?.['maptiler']?.apikey || ''}
-			on:focus={handleFocus}
-			on:blur={handleFocus}
+			onfocus={handleFocus}
+			onblur={handleFocus}
 		/>
 	</div>
 
 	<div class="item">
 		<h3>YouTube</h3>
 		<div class="button-toggle-container">
-			<button on:click={() => {
+			<button
+				onclick={() => {
 					openModal(() => import('$lib/Modal/YoutubeModal.svelte'), {});
 				}}
 				>{$lang('configure')}

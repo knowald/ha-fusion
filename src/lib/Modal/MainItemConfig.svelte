@@ -2,7 +2,7 @@
 	// eventually merge with SidebarItemConfig.svelte...
 
 	import { dashboard, record, lang, motion, ripple, states, demo } from '$lib/Stores';
-	import { openModal, closeModal } from 'svelte-modals';
+	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -18,17 +18,16 @@
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
 	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let searchString = '';
-	let searchElement: HTMLInputElement;
+	let searchString = $state('');
+	let searchElement = $state<HTMLInputElement>();
 
 	// get random preview entities
 	if (!$demo.camera) $demo.camera = getCameraEntity($states);
@@ -64,23 +63,13 @@
 		icons = iconsModule.icons;
 	});
 
-	$: filter = itemTypes
-		.filter(
-			({ id, type }) =>
-				id.toLowerCase().includes(searchString.toLowerCase()) ||
-				type.toLowerCase().includes(searchString.toLowerCase())
-		)
-		.sort((a, b) => a.type.localeCompare(b.type));
-
 	let itemTypes: {
 		id: string;
 		type: string;
 		component?: any;
 		props?: any;
 		style?: any;
-	}[];
-
-	$: itemTypes = [
+	}[] = $derived([
 		{
 			id: 'button',
 			type: $lang('button'),
@@ -151,7 +140,17 @@
 				sel
 			}
 		}
-	];
+	]);
+
+	let filter = $derived(
+		itemTypes
+			.filter(
+				({ id, type }) =>
+					id.toLowerCase().includes(searchString.toLowerCase()) ||
+					type.toLowerCase().includes(searchString.toLowerCase())
+			)
+			.sort((a, b) => a.type.localeCompare(b.type))
+	);
 
 	async function handleClick(id: string) {
 		closeModal();
@@ -232,38 +231,39 @@
 	}
 </script>
 
-<svelte:window on:keydown|capture={handleKeydown} />
+<svelte:window onkeydowncapture={handleKeydown} />
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{$lang('options')}</h1>
+		{#snippet title()}<h1>{$lang('options')}</h1>{/snippet}
 
 		<div class="search">
 			<InputClear
 				condition={searchString}
-				on:clear={() => {
+				onclear={() => {
 					searchString = '';
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('search')}
-					class="input"
-					type="text"
-					placeholder={$lang('search')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:this={searchElement}
-					bind:value={searchString}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('search')}
+						class="input"
+						type="text"
+						placeholder={$lang('search')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:this={searchElement}
+						bind:value={searchString}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		</div>
 
 		<div class="container">
-			{#each filter as { id, type, component, props, style } (id)}
+			{#each filter as { id, type, component: Component, props, style } (id)}
 				<button
-					on:click={() => handleClick(id)}
+					onclick={() => handleClick(id)}
 					animate:flip={{ duration: $motion }}
 					style:text-align={style?.['text-align'] || 'start'}
 					use:Ripple={$ripple}
@@ -273,7 +273,7 @@
 					</div>
 
 					<div class="preview" class:camera={id === 'camera'} class:button={id === 'button'}>
-						<svelte:component this={component} {...props} />
+						<Component {...props} />
 					</div>
 				</button>
 			{/each}

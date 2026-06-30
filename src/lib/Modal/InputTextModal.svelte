@@ -4,15 +4,14 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getDomain, getName } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let showPassword = false;
+	let showPassword = $state(false);
 
-	$: entity = $states[sel?.entity_id];
-	$: state = entity?.state;
+	let entity = $derived($states[sel?.entity_id]);
+	let entityState = $derived(entity?.state);
 
 	/**
 	 * Handles input_datetime
@@ -32,7 +31,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>
 			{#if entity?.attributes?.mode === 'text'}
@@ -46,9 +45,9 @@
 			class="input"
 			min={entity?.attributes?.min}
 			max={entity?.attributes?.max}
-			value={state === 'unknown' ? '' : state}
+			value={entityState === 'unknown' ? '' : entityState}
 			type={entity?.attributes?.mode === 'password' ? (showPassword ? 'text' : 'password') : 'text'}
-			on:change={handleChange}
+			onchange={handleChange}
 		/>
 
 		<br />

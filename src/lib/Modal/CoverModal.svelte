@@ -1,33 +1,34 @@
 <script lang="ts">
 	import { states, connection, lang, ripple, selectedLanguage } from '$lib/Stores';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import Icon from '@iconify/svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 
-	export let isOpen: boolean;
-	export let selected: any;
+	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	$: entity = $states[selected?.entity_id] as HassEntity;
-	$: attributes = entity?.attributes;
+	let entity = $derived($states[selected?.entity_id] as HassEntity);
+	let attributes = $derived(entity?.attributes);
 
-	$: supported_features = attributes?.supported_features;
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		OPEN: 1,
-		CLOSE: 2,
-		SET_POSITION: 4,
-		STOP: 8,
-		OPEN_TILT: 16,
-		CLOSE_TILT: 32,
-		STOP_TILT: 64,
-		SET_TILT_POSITION: 128
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			OPEN: 1,
+			CLOSE: 2,
+			SET_POSITION: 4,
+			STOP: 8,
+			OPEN_TILT: 16,
+			CLOSE_TILT: 32,
+			STOP_TILT: 64,
+			SET_TILT_POSITION: 128
+		})
+	);
 
 	async function handleChange(service: string, attribute: string, position: number) {
 		if (request) return;
@@ -55,7 +56,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(selected, entity)}</h1>
+		{#snippet title()}<h1>{getName(selected, entity)}</h1>{/snippet}
 
 		<!-- POSITION -->
 		{#if supports?.SET_POSITION}
@@ -82,9 +83,9 @@
 					bind:value={attributes.current_position}
 					min={0}
 					max={100}
-					on:change={(event) => {
+					onchange={(event) => {
 						request = undefined;
-						handleChange('set_cover_position', 'position', Math.round(event?.detail));
+						handleChange('set_cover_position', 'position', Math.round(event));
 					}}
 				/>
 			{/if}
@@ -100,7 +101,7 @@
 			{#if supports?.CLOSE}
 				<button
 					use:Ripple={$ripple}
-					on:click={() => handleClick('close_cover')}
+					onclick={() => handleClick('close_cover')}
 					title={$lang('close_cover')}
 				>
 					<Icon icon="raphael:arrowdown" height="none" />
@@ -109,7 +110,7 @@
 
 			{#if supports?.STOP}
 				<button
-					on:click={() => handleClick('stop_cover')}
+					onclick={() => handleClick('stop_cover')}
 					use:Ripple={$ripple}
 					title={$lang('stop_cover')}
 				>
@@ -119,7 +120,7 @@
 
 			{#if supports?.OPEN}
 				<button
-					on:click={() => handleClick('open_cover')}
+					onclick={() => handleClick('open_cover')}
 					use:Ripple={$ripple}
 					title={$lang('open_cover')}
 				>
@@ -153,9 +154,9 @@
 					bind:value={attributes.current_tilt_position}
 					min={0}
 					max={100}
-					on:change={(event) => {
+					onchange={(event) => {
 						request = undefined;
-						handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event?.detail));
+						handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event));
 					}}
 				/>
 			{/if}
@@ -169,7 +170,7 @@
 		<div class="buttons-container">
 			{#if supports?.CLOSE_TILT}
 				<button
-					on:click={() => handleClick('close_cover_tilt')}
+					onclick={() => handleClick('close_cover_tilt')}
 					use:Ripple={$ripple}
 					title={$lang('close_tilt_cover')}
 				>
@@ -179,7 +180,7 @@
 
 			{#if supports?.STOP_TILT}
 				<button
-					on:click={() => handleClick('stop_cover_tilt')}
+					onclick={() => handleClick('stop_cover_tilt')}
 					use:Ripple={$ripple}
 					title={$lang('stop_cover')}
 				>
@@ -189,7 +190,7 @@
 
 			{#if supports?.OPEN_TILT}
 				<button
-					on:click={() => handleClick('open_cover_tilt')}
+					onclick={() => handleClick('open_cover_tilt')}
 					use:Ripple={$ripple}
 					title={$lang('open_tilt_cover')}
 				>

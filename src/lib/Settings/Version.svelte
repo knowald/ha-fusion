@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	const debug = false;
 
@@ -129,7 +129,8 @@
 
 	<button
 		class="action done"
-		on:click|preventDefault={() => {
+		onclick={(e) => {
+			e.preventDefault();
 			busy = true;
 			fetchLatest();
 		}}

@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { scale } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 
-	export let view: any;
-	export let section: any;
+	let { view, section }: { view: any; section: any } = $props();
 
 	/**
 	 * Removes the section from the `sections` array of the view.
@@ -43,8 +42,8 @@
 <button
 	title={$lang('remove')}
 	transition:scale={{ start: 0.9, duration: $motion }}
-	on:click={handleClick}
-	on:pointerdown|stopPropagation
+	onclick={handleClick}
+	onpointerdown={(e) => e.stopPropagation()}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 >
 	<div class="icon">

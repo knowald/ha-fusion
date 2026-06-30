@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { dashboard, lang, ripple } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import type { SpotifyShortcut } from '$lib/Types';
 	import { updateObj } from '$lib/Utils';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
-	$: shortcuts = (sel?.shortcuts ?? []) as SpotifyShortcut[];
+	let shortcuts = $derived((sel?.shortcuts ?? []) as SpotifyShortcut[]);
 
-	let newName = '';
-	let newUri = '';
-	let newImageUrl = '';
+	let newName = $state('');
+	let newUri = $state('');
+	let newImageUrl = $state('');
 
 	function set(key: string, value: any) {
 		sel = updateObj(sel, key, value);
@@ -46,12 +46,13 @@
 <h2>{$lang('quick_play') || 'Quick Play Shortcuts'}</h2>
 
 <p class="description">
-	{$lang('quick_play_description') || 'Shown when nothing is playing. Add Spotify URIs for playlists, albums, or tracks.'}
+	{$lang('quick_play_description') ||
+		'Shown when nothing is playing. Add Spotify URIs for playlists, albums, or tracks.'}
 </p>
 
 {#if shortcuts.length > 0}
 	<div class="shortcut-list">
-		{#each shortcuts as shortcut, index}
+		{#each shortcuts as shortcut, index (index)}
 			<div class="shortcut-item">
 				{#if shortcut.image_url}
 					<img src={shortcut.image_url} alt={shortcut.name} class="shortcut-thumb" />
@@ -67,7 +68,7 @@
 				<button
 					class="remove-btn"
 					title={$lang('remove') || 'Remove'}
-					on:click={() => removeShortcut(index)}
+					onclick={() => removeShortcut(index)}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:close" height="1rem" />
@@ -78,57 +79,54 @@
 {/if}
 
 <div class="add-form">
-	<InputClear
-		condition={newName}
-		on:clear={() => (newName = '')}
-		let:padding
-	>
-		<input
-			class="input"
-			type="text"
-			placeholder={$lang('name') || 'Name'}
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newName}
-			style:padding
-		/>
+	<InputClear condition={newName} onclear={() => (newName = '')}>
+		{#snippet children(padding)}
+			<input
+				class="input"
+				type="text"
+				placeholder={$lang('name') || 'Name'}
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newName}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
-	<InputClear
-		condition={newUri}
-		on:clear={() => (newUri = '')}
-		let:padding
-	>
-		<input
-			class="input"
-			type="text"
-			placeholder="spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newUri}
-			style:padding
-		/>
+	<InputClear condition={newUri} onclear={() => (newUri = '')}>
+		{#snippet children(padding)}
+			<input
+				class="input"
+				type="text"
+				placeholder="spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newUri}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
-	<InputClear
-		condition={newImageUrl}
-		on:clear={() => (newImageUrl = '')}
-		let:padding
-	>
-		<input
-			class="input"
-			type="text"
-			placeholder={($lang('image_url') || 'Image URL') + ' (' + ($lang('optional') || 'optional') + ')'}
-			autocomplete="off"
-			spellcheck="false"
-			bind:value={newImageUrl}
-			style:padding
-		/>
+	<InputClear condition={newImageUrl} onclear={() => (newImageUrl = '')}>
+		{#snippet children(padding)}
+			<input
+				class="input"
+				type="text"
+				placeholder={($lang('image_url') || 'Image URL') +
+					' (' +
+					($lang('optional') || 'optional') +
+					')'}
+				autocomplete="off"
+				spellcheck="false"
+				bind:value={newImageUrl}
+				style:padding
+			/>
+		{/snippet}
 	</InputClear>
 
 	<button
 		class="add-btn"
-		on:click={addShortcut}
+		onclick={addShortcut}
 		disabled={!newName.trim() || !newUri.trim()}
 		use:Ripple={$ripple}
 	>

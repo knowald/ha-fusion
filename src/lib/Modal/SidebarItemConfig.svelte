@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dashboard, record, lang, motion, ripple, states, connection, demo } from '$lib/Stores';
-	import { openModal, closeModal } from 'svelte-modals';
+	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -35,14 +35,13 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Notifications from '$lib/Sidebar/Notifications.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: SidebarItem;
+	let { isOpen, sel }: { isOpen: boolean; sel: SidebarItem } = $props();
 
-	let searchString = '';
-	let searchElement: HTMLInputElement;
-	let modalTransitionEnd = false;
+	let searchString = $state('');
+	let searchElement = $state<HTMLInputElement>();
+	let modalTransitionEnd = $state(false);
 
 	// get random preview entities
 	if (!$demo.graph) getGraphEntity($states, connection, (id) => ($demo.graph = id));
@@ -75,23 +74,13 @@
 		}
 	});
 
-	$: filter = itemTypes
-		.filter(
-			({ id, type }) =>
-				id.toLowerCase().includes(searchString.toLowerCase()) ||
-				type.toLowerCase().includes(searchString.toLowerCase())
-		)
-		.sort((a, b) => a.type.localeCompare(b.type));
-
 	let itemTypes: {
 		id: string;
 		type: string;
 		component?: any;
 		props?: any;
 		style?: any;
-	}[];
-
-	$: itemTypes = [
+	}[] = $derived([
 		{
 			id: 'sensor',
 			type: $lang('sensor'),
@@ -238,7 +227,17 @@
 				}
 			}
 		}
-	];
+	]);
+
+	let filter = $derived(
+		itemTypes
+			.filter(
+				({ id, type }) =>
+					id.toLowerCase().includes(searchString.toLowerCase()) ||
+					type.toLowerCase().includes(searchString.toLowerCase())
+			)
+			.sort((a, b) => a.type.localeCompare(b.type))
+	);
 
 	async function handleClick(id: string) {
 		closeModal();
@@ -371,43 +370,44 @@
 	}
 </script>
 
-<svelte:window on:keydown|capture={handleKeydown} />
+<svelte:window onkeydowncapture={handleKeydown} />
 
 {#if isOpen}
 	<Modal
 		size="large"
-		on:transitionend={() => {
+		ontransitionend={() => {
 			modalTransitionEnd = true;
 		}}
 	>
-		<h1 slot="title">{$lang('options')}</h1>
+		{#snippet title()}<h1>{$lang('options')}</h1>{/snippet}
 
 		<div class="search">
 			<InputClear
 				condition={searchString}
-				on:clear={() => {
+				onclear={() => {
 					searchString = '';
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('search')}
-					class="input"
-					type="text"
-					placeholder={$lang('search')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:this={searchElement}
-					bind:value={searchString}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('search')}
+						class="input"
+						type="text"
+						placeholder={$lang('search')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:this={searchElement}
+						bind:value={searchString}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 		</div>
 
 		<div class="container">
-			{#each filter as { id, type, component, props, style } (id)}
+			{#each filter as { id, type, component: Component, props, style } (id)}
 				<button
-					on:click={() => handleClick(id)}
+					onclick={() => handleClick(id)}
 					animate:flip={{ duration: $motion }}
 					style:text-align={style?.['text-align'] || 'start'}
 					use:Ripple={$ripple}
@@ -417,7 +417,7 @@
 					</div>
 
 					<div class="preview" class:camera={id === 'camera'}>
-						<svelte:component this={component} {...props} />
+						<Component {...props} />
 					</div>
 				</button>
 			{/each}
@@ -445,6 +445,7 @@
 		border-radius: 0.8em;
 		background-color: rgba(0, 0, 0, 0.2);
 		height: 10rem;
+		overflow: hidden;
 		outline-offset: -2px;
 	}
 

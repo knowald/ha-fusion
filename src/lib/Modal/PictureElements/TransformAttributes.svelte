@@ -5,123 +5,132 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
-	export let showHelp: boolean;
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		setAttribute,
+		showHelp = $bindable()
+	}: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+		showHelp: boolean;
+	} = $props();
 
-	let attributes: any[] = [];
+	let attributes = $state<any[]>([]);
 
-	$: keepRatio = {
+	let keepRatio = $derived({
 		id: 'keepRatio',
 		type: 'button',
 		label: 'Ratio (R)',
 		icon: icons['chain'],
 		onclick: () => {
 			konva?.toggleKeepRatio();
-			keepRatio.selected = konva?.transformer?.keepRatio() || false;
 		},
 		selected: konva?.transformer?.keepRatio() || false
-	};
+	});
 
-	$: if (selectedShapes?.length === 1 && selectedShape?.attrs?.box) {
-		// TEXT-BOX
-		attributes = [
-			{
-				id: 'x',
-				label: 'X',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.x) || 0,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'y',
-				label: 'Y',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.y) || 0,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.width),
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...keepRatio },
-			{
-				id: 'height',
-				label: 'Height',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.height),
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'rotation',
-				label: 'Rotation',
-				unit: '°',
-				value: selectedShape?.attrs?.rotation
-					? Number.parseFloat(selectedShape?.attrs?.rotation).toFixed(1)
-					: 0,
-				disabled: !selectedShape?.attrs?.draggable
-			}
-		];
-	} else if (selectedShapes?.length === 1 && !selectedShape?.attrs?.type?.includes('-guide')) {
-		// STANDARD
-		attributes = [
-			{
-				id: 'x',
-				label: 'X',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.x) || 0,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'y',
-				label: 'Y',
-				unit: ' px',
-				value: Math.round(selectedShape?.attrs?.y) || 0,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'scaleX',
-				label: 'Width',
-				unit: '%',
-				value: Math.round(selectedShape?.attrs?.scaleX * 100) || 100,
-				handler: handleScaleChange,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...keepRatio },
-			{
-				id: 'scaleY',
-				label: 'Height',
-				unit: '%',
-				value: Math.round(selectedShape?.attrs?.scaleY * 100) || 100,
-				handler: handleScaleChange,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'rotation',
-				label: 'Rotation',
-				unit: '°',
-				value: selectedShape?.attrs?.rotation
-					? Number.parseFloat(selectedShape?.attrs?.rotation).toFixed(1)
-					: 0,
-				disabled: !selectedShape?.attrs?.draggable
-			}
-		];
-	} else {
-		// NONE
-		attributes = [
-			{ id: 'x', label: 'X', unit: ' px', value: 0, disabled: true },
-			{ id: 'y', label: 'Y', unit: ' px', value: 0, disabled: true },
-			{ id: 'width', label: 'Width', unit: ' px', value: 0, disabled: true },
-			{ ...keepRatio },
-			{ id: 'height', label: 'Height', unit: ' px', value: 0, disabled: true },
-			{ id: 'rotation', label: 'Rotation', unit: '°', value: 0, disabled: true }
-		];
-	}
+	$effect(() => {
+		if (selectedShapes?.length === 1 && selectedShape?.attrs?.box) {
+			// TEXT-BOX
+			attributes = [
+				{
+					id: 'x',
+					label: 'X',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.x) || 0,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'y',
+					label: 'Y',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.y) || 0,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.width),
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...keepRatio },
+				{
+					id: 'height',
+					label: 'Height',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.height),
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'rotation',
+					label: 'Rotation',
+					unit: '°',
+					value: selectedShape?.attrs?.rotation
+						? Number.parseFloat(selectedShape?.attrs?.rotation).toFixed(1)
+						: 0,
+					disabled: !selectedShape?.attrs?.draggable
+				}
+			];
+		} else if (selectedShapes?.length === 1 && !selectedShape?.attrs?.type?.includes('-guide')) {
+			// STANDARD
+			attributes = [
+				{
+					id: 'x',
+					label: 'X',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.x) || 0,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'y',
+					label: 'Y',
+					unit: ' px',
+					value: Math.round(selectedShape?.attrs?.y) || 0,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'scaleX',
+					label: 'Width',
+					unit: '%',
+					value: Math.round(selectedShape?.attrs?.scaleX * 100) || 100,
+					handler: handleScaleChange,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...keepRatio },
+				{
+					id: 'scaleY',
+					label: 'Height',
+					unit: '%',
+					value: Math.round(selectedShape?.attrs?.scaleY * 100) || 100,
+					handler: handleScaleChange,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'rotation',
+					label: 'Rotation',
+					unit: '°',
+					value: selectedShape?.attrs?.rotation
+						? Number.parseFloat(selectedShape?.attrs?.rotation).toFixed(1)
+						: 0,
+					disabled: !selectedShape?.attrs?.draggable
+				}
+			];
+		} else {
+			// NONE
+			attributes = [
+				{ id: 'x', label: 'X', unit: ' px', value: 0, disabled: true },
+				{ id: 'y', label: 'Y', unit: ' px', value: 0, disabled: true },
+				{ id: 'width', label: 'Width', unit: ' px', value: 0, disabled: true },
+				{ ...keepRatio },
+				{ id: 'height', label: 'Height', unit: ' px', value: 0, disabled: true },
+				{ id: 'rotation', label: 'Rotation', unit: '°', value: 0, disabled: true }
+			];
+		}
+	});
 
 	function handleInput(attribute: any, event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -145,12 +154,12 @@
 </script>
 
 <div class="konva-attribute-section">
-	{#each attributes as attr}
+	{#each attributes as attr (attr.id)}
 		<div class="konva-attribute">
 			{#if attr.type === 'button'}
 				<button
-					on:click={attr?.onclick}
-					on:dblclick={attr?.ondblclick}
+					onclick={attr?.onclick}
+					ondblclick={attr?.ondblclick}
 					class:selected={attr?.selected}
 					style:opacity={selectedShapes?.length > 0 && selectedShape?.attrs?.draggable
 						? '1'
@@ -169,7 +178,7 @@
 					type="text"
 					id={attr?.id}
 					value={`${attr?.value ?? ''}${attr?.unit || ''}`}
-					on:change={(event) => handleInput(attr, event)}
+					onchange={(event) => handleInput(attr, event)}
 					disabled={attr?.disabled}
 				/>
 			{/if}
@@ -179,7 +188,7 @@
 	<div class="history">
 		<!-- UNDO -->
 		<button
-			on:click={() => konva.undo()}
+			onclick={() => konva.undo()}
 			title="Undo"
 			disabled={!($konvaStore?.undoStack?.length > 1)}
 		>
@@ -188,7 +197,7 @@
 
 		<!-- REDO -->
 		<button
-			on:click={() => konva.redo()}
+			onclick={() => konva.redo()}
 			title="Redo"
 			disabled={!($konvaStore?.redoStack?.length > 0)}
 		>
@@ -196,7 +205,7 @@
 		</button>
 
 		<!-- HELP -->
-		<button on:click={() => (showHelp = true)} title="Help">
+		<button onclick={() => (showHelp = true)} title="Help">
 			<Icon icon={icons?.['help']} />
 		</button>
 	</div>

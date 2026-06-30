@@ -3,21 +3,23 @@
 	import type { HassEntity } from 'home-assistant-js-websocket';
 	import Icon from '@iconify/svelte';
 
-	export let sel: any;
+	let { sel }: { sel: any } = $props();
 
-	let entity: HassEntity;
-	$: if (sel?.entity_id && $states?.[sel?.entity_id]?.last_updated !== entity?.last_updated) {
-		entity = $states?.[sel?.entity_id];
-	}
+	let entity: HassEntity = $state(undefined as any);
+	$effect(() => {
+		if (sel?.entity_id && $states?.[sel?.entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[sel?.entity_id];
+		}
+	});
 
-	$: attributes = entity?.attributes;
+	let attributes = $derived(entity?.attributes);
 
 	// icon pack
-	$: below_horizon = $states?.['sun.sun']?.state === 'below_horizon';
-	$: src = `weather/meteocons/${entity?.state}-${below_horizon ? 'night' : 'day'}.svg`;
+	let below_horizon = $derived($states?.['sun.sun']?.state === 'below_horizon');
+	let src = $derived(`weather/meteocons/${entity?.state}-${below_horizon ? 'night' : 'day'}.svg`);
 
 	// sensor
-	$: sensor = sel?.sensor && $states?.[sel?.sensor];
+	let sensor = $derived(sel?.sensor && $states?.[sel?.sensor]);
 </script>
 
 {#if entity && entity?.state !== 'unavailable'}

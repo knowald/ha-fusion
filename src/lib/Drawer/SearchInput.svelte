@@ -10,7 +10,7 @@
 		motion
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
-	import { modals } from 'svelte-modals';
+	import { modals } from '$lib/Modals';
 	import InputClear from '$lib/Components/InputClear.svelte';
 
 	let input: HTMLInputElement;
@@ -18,30 +18,36 @@
 	/**
 	 * Handle input focus/blur
 	 */
-	$: if (input) {
-		if ($focusSearch) {
-			input.focus();
-		} else {
-			input.blur();
+	$effect(() => {
+		if (input) {
+			if ($focusSearch) {
+				input.focus();
+			} else {
+				input.blur();
+			}
 		}
-	}
+	});
 
 	/**
 	 * Clear `$drawerSearch` when opening a modal
 	 */
-	$: if ($modals.length !== 0) {
-		setTimeout(() => {
-			$drawerSearch = undefined;
-		}, $motion);
-	}
+	$effect(() => {
+		if ($modals.length !== 0) {
+			setTimeout(() => {
+				$drawerSearch = undefined;
+			}, $motion);
+		}
+	});
 
 	/**
 	 * Set `$filterDashboard` store with filter function
 	 */
-	$: $filterDashboard = filter(
-		$dashboard?.views?.find((view) => view.id === $currentViewId),
-		$drawerSearch?.toLowerCase()
-	);
+	$effect(() => {
+		$filterDashboard = filter(
+			$dashboard?.views?.find((view) => view.id === $currentViewId),
+			$drawerSearch?.toLowerCase()
+		);
+	});
 
 	/**
 	 * Filters the items of current view based on `$drawerSearch`
@@ -58,7 +64,10 @@
 		};
 
 		const sectionFilter = (section: any): any => {
-			if ((section.type === 'horizontal-stack' || section.type === 'vertical-stack') && section.sections) {
+			if (
+				(section.type === 'horizontal-stack' || section.type === 'vertical-stack') &&
+				section.sections
+			) {
 				const filteredSubSections = section.sections.map(sectionFilter).filter(Boolean);
 				return filteredSubSections.length
 					? { ...section, sections: filteredSubSections }
@@ -93,7 +102,7 @@
 
 <InputClear
 	condition={$drawerSearch}
-	on:clear={() => {
+	onclear={() => {
 		$drawerSearch = undefined;
 	}}
 >
@@ -102,8 +111,8 @@
 		class="input"
 		bind:this={input}
 		bind:value={$drawerSearch}
-		on:click={() => ($focusSearch = true)}
-		on:blur={() => ($focusSearch = false)}
+		onclick={() => ($focusSearch = true)}
+		onblur={() => ($focusSearch = false)}
 		name="filter"
 		placeholder={$lang('search')}
 		autocomplete="off"

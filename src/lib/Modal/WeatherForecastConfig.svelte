@@ -15,11 +15,17 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getSupport, updateObj } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -27,19 +33,21 @@
 		set('entity_id', demo);
 	}
 
-	$: entity = $states[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		FORECAST_DAILY: 1,
-		FORECAST_HOURLY: 2,
-		FORECAST_TWICE_DAILY: 4
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			FORECAST_DAILY: 1,
+			FORECAST_HOURLY: 2,
+			FORECAST_TWICE_DAILY: 4
+		})
+	);
 
-	let days_to_show = sel?.days_to_show ?? 7;
+	let days_to_show = $state(sel?.days_to_show ?? 7);
 
-	let numberElement: HTMLInputElement;
+	let numberElement: HTMLInputElement = $state(undefined as any);
 
 	const iconOptions = [
 		{ id: 'meteocons', label: 'meteocons' },
@@ -47,12 +55,12 @@
 		{ id: 'materialsymbolslight', label: 'materialsymbolslight' }
 	];
 
-	$: options = $entityList('weather');
+	let options = $derived($entityList('weather'));
 
-	$: range = {
+	let range = $derived({
 		min: 1,
 		max: Math.min(entity?.attributes?.forecast?.length ?? 7, 7)
-	};
+	});
 
 	function minMax(key: string | number | undefined) {
 		return Math.min(Math.max(parseInt(key as string), range.min), range.max);
@@ -74,7 +82,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('weather_forecast')}</h1>
+		{#snippet title()}<h1>{$lang('weather_forecast')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -91,7 +99,7 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={sel?.entity_id}
-				on:change={(event) => {
+				onchange={(event) => {
 					// remove 'forecast_type' when changing entity_id
 					set('forecast_type');
 					set('entity_id', event);
@@ -106,7 +114,7 @@
 				options={iconOptions}
 				placeholder={$lang('icon')}
 				value={sel?.icon_pack || 'meteocons'}
-				on:change={(event) => set('icon_pack', event)}
+				onchange={(event) => set('icon_pack', event)}
 			/>
 		{/if}
 
@@ -120,7 +128,7 @@
 				bind:this={numberElement}
 				min={range.min}
 				max={range.max}
-				on:change={handleNumberRange}
+				onchange={handleNumberRange}
 				autocomplete="off"
 			/>
 		{/if}
@@ -132,7 +140,7 @@
 				{#if supports?.FORECAST_DAILY}
 					<button
 						class:selected={sel?.forecast_type === 'daily' || !sel?.forecast_type}
-						on:click={() => set('forecast_type', 'daily')}
+						onclick={() => set('forecast_type', 'daily')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_daily')}
@@ -142,7 +150,7 @@
 				{#if supports?.FORECAST_HOURLY}
 					<button
 						class:selected={sel?.forecast_type === 'hourly'}
-						on:click={() => set('forecast_type', 'hourly')}
+						onclick={() => set('forecast_type', 'hourly')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_hourly')}
@@ -152,7 +160,7 @@
 				{#if supports?.FORECAST_TWICE_DAILY}
 					<button
 						class:selected={sel?.forecast_type === 'twice_daily'}
-						on:click={() => set('forecast_type', 'twice_daily')}
+						onclick={() => set('forecast_type', 'twice_daily')}
 						use:Ripple={$ripple}
 					>
 						{$lang('forecast_twice_daily')}
@@ -166,7 +174,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -174,7 +182,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

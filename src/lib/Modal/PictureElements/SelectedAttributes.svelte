@@ -4,20 +4,28 @@
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
-	export let setAttribute: (id: string, key: string, event: Event) => void;
-	export let entityOptions;
+	let {
+		konva,
+		selectedShape,
+		selectedShapes,
+		setAttribute,
+		entityOptions
+	}: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+		setAttribute: (id: string, key: string, event: Event) => void;
+		entityOptions: any;
+	} = $props();
 
-	let attributes: Record<string, any>[] = [];
+	let attributes = $state<Record<string, any>[]>([]);
 
 	function handleInput(id: string, key: string, event: Event) {
 		const target = event.target as HTMLInputElement | null;
 		if (target) konva.updateAttr(id, key, target.value, true);
 	}
 
-	$: opacity = {
+	let opacity = $derived({
 		id: 'opacity',
 		label: 'Opacity',
 		type: 'text',
@@ -25,9 +33,9 @@
 		value:
 			selectedShape?.attrs?.opacity != null ? Math.round(selectedShape?.attrs?.opacity * 100) : 100,
 		disabled: !selectedShape?.attrs?.draggable
-	};
+	});
 
-	$: commonTextAttributes = [
+	let commonTextAttributes = $derived([
 		{
 			id: 'box',
 			label: 'Box',
@@ -46,201 +54,203 @@
 			disabled: !selectedShape?.attrs?.draggable
 		},
 		{ ...opacity }
-	];
+	]);
 
-	$: if (selectedShape?.attrs?.type === 'icon') {
-		// ICON
-		attributes = [
-			{
-				id: 'icon',
-				label: 'Icon',
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.icon
-			},
-			{
-				id: 'color',
-				label: 'Color',
-				type: 'color',
-				width: '2.5rem',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.color
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.width,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.height,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'state-icon') {
-		// STATE-ICON
-		attributes = [
-			{
-				id: 'entity_id',
-				label: 'Entity',
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.entity_id,
-				list: 'entityOptions'
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.width,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape.attrs.height,
-				disabled: !selectedShape.attrs.draggable
-			},
-			{
-				id: 'color',
-				label: 'Color',
-				type: 'color',
-				width: '2.5rem',
-				disabled: !selectedShape.attrs.draggable,
-				value: selectedShape.attrs.color || selectedShape.attrs.state_color || '#ffffff'
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'text') {
-		// TEXT
-		attributes = [
-			{
-				id: 'text',
-				label: 'Text',
-				value: selectedShape?.attrs?.text,
-				type: 'textarea',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			...commonTextAttributes
-		];
-	} else if (selectedShape?.attrs?.type === 'state-label') {
-		// STATE LABEL
-		attributes = [
-			{
-				id: 'entity_id',
-				label: 'Entity',
-				value: selectedShape?.attrs?.entity_id,
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable,
-				list: 'entityOptions'
-			},
-			...commonTextAttributes
-		];
-	} else if (selectedShape?.attrs?.type === 'image') {
-		// IMAGE
-		attributes = [
-			{
-				id: 'src',
-				label: 'Source',
-				value: selectedShape?.attrs?.src,
-				type: 'text',
-				className: 'grow-item',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.width,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.height,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'rectangle') {
-		// RECTANGLE
-		attributes = [
-			{
-				id: 'width',
-				label: 'Width',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.width,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'height',
-				label: 'Height',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.height,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'fill',
-				label: 'Fill',
-				type: 'color',
-				value: selectedShape?.attrs?.fill,
-				width: '2.5rem',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'cornerRadius',
-				label: 'Radius',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.cornerRadius,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else if (selectedShape?.attrs?.type === 'circle') {
-		// CIRCLE
-		attributes = [
-			{
-				id: 'radius',
-				label: 'Radius',
-				type: 'text',
-				unit: ' px',
-				value: selectedShape?.attrs?.radius,
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{
-				id: 'fill',
-				label: 'Fill',
-				type: 'color',
-				value: selectedShape?.attrs?.fill,
-				width: '2.5rem',
-				disabled: !selectedShape?.attrs?.draggable
-			},
-			{ ...opacity }
-		];
-	} else {
-		// ELSE
-		attributes = [];
-	}
+	$effect(() => {
+		if (selectedShape?.attrs?.type === 'icon') {
+			// ICON
+			attributes = [
+				{
+					id: 'icon',
+					label: 'Icon',
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.icon
+				},
+				{
+					id: 'color',
+					label: 'Color',
+					type: 'color',
+					width: '2.5rem',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.color
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.width,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.height,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'state-icon') {
+			// STATE-ICON
+			attributes = [
+				{
+					id: 'entity_id',
+					label: 'Entity',
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.entity_id,
+					list: 'entityOptions'
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.width,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape.attrs.height,
+					disabled: !selectedShape.attrs.draggable
+				},
+				{
+					id: 'color',
+					label: 'Color',
+					type: 'color',
+					width: '2.5rem',
+					disabled: !selectedShape.attrs.draggable,
+					value: selectedShape.attrs.color || selectedShape.attrs.state_color || '#ffffff'
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'text') {
+			// TEXT
+			attributes = [
+				{
+					id: 'text',
+					label: 'Text',
+					value: selectedShape?.attrs?.text,
+					type: 'textarea',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				...commonTextAttributes
+			];
+		} else if (selectedShape?.attrs?.type === 'state-label') {
+			// STATE LABEL
+			attributes = [
+				{
+					id: 'entity_id',
+					label: 'Entity',
+					value: selectedShape?.attrs?.entity_id,
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable,
+					list: 'entityOptions'
+				},
+				...commonTextAttributes
+			];
+		} else if (selectedShape?.attrs?.type === 'image') {
+			// IMAGE
+			attributes = [
+				{
+					id: 'src',
+					label: 'Source',
+					value: selectedShape?.attrs?.src,
+					type: 'text',
+					className: 'grow-item',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.width,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.height,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'rectangle') {
+			// RECTANGLE
+			attributes = [
+				{
+					id: 'width',
+					label: 'Width',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.width,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'height',
+					label: 'Height',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.height,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'fill',
+					label: 'Fill',
+					type: 'color',
+					value: selectedShape?.attrs?.fill,
+					width: '2.5rem',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'cornerRadius',
+					label: 'Radius',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.cornerRadius,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else if (selectedShape?.attrs?.type === 'circle') {
+			// CIRCLE
+			attributes = [
+				{
+					id: 'radius',
+					label: 'Radius',
+					type: 'text',
+					unit: ' px',
+					value: selectedShape?.attrs?.radius,
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{
+					id: 'fill',
+					label: 'Fill',
+					type: 'color',
+					value: selectedShape?.attrs?.fill,
+					width: '2.5rem',
+					disabled: !selectedShape?.attrs?.draggable
+				},
+				{ ...opacity }
+			];
+		} else {
+			// ELSE
+			attributes = [];
+		}
+	});
 
 	function countGroupShapes(item: any): number {
 		if (!item || typeof item !== 'object') return 0;
@@ -278,7 +288,7 @@
 			<span class="icon">
 				<Icon icon={icons?.[selectedShape?.attrs?.type]} width="20" height="20" />
 			</span>
-			{#each attributes as attr}
+			{#each attributes as attr (attr.id)}
 				<div class="konva-attribute" class:grow={attr?.className === 'grow-item'}>
 					<label for={attr?.id}>
 						{attr?.label}:
@@ -288,7 +298,7 @@
 						<button
 							id={attr?.id}
 							class:selected={attr?.selected}
-							on:click={attr?.onclick}
+							onclick={attr?.onclick}
 							disabled={attr?.disabled}
 						>
 							<Icon icon={attr?.icon} width="20" height="20" />
@@ -299,20 +309,20 @@
 							id={attr?.id}
 							type={attr?.type}
 							value={attr?.value}
-							on:change={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
-							on:input={(event) => handleInput(selectedShape?.attrs?.id, attr?.id, event)}
+							onchange={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
+							oninput={(event) => handleInput(selectedShape?.attrs?.id, attr?.id, event)}
 							style:width={attr?.width}
 							disabled={attr?.disabled}
 						/>
 					{:else}
-						<!-- on:change -->
+						<!--onchange -->
 						<input
 							id={attr?.id}
 							class={attr?.className}
 							type={attr?.type}
 							list={attr?.list}
 							value={`${attr?.value ?? '0'}${attr?.unit || ''}`}
-							on:change={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
+							onchange={(event) => setAttribute(selectedShape?.attrs?.id, attr?.id, event)}
 							style:width={attr?.width}
 							disabled={attr?.disabled}
 						/>
@@ -320,7 +330,7 @@
 				</div>
 			{/each}
 			<datalist id="entityOptions">
-				{#each entityOptions as entityId}
+				{#each entityOptions as entityId (entityId)}
 					<option value={entityId}></option>
 				{/each}
 			</datalist>

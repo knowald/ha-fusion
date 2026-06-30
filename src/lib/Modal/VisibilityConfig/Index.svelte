@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { dashboard, dragging, lang, motion, record, ripple } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
-	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
 	import AddConditionButtons from '$lib/Modal/VisibilityConfig/AddConditionButtons.svelte';
 	import StateCondition from '$lib/Modal/VisibilityConfig/StateCondition.svelte';
 	import NumericCondition from '$lib/Modal/VisibilityConfig/NumericCondition.svelte';
@@ -13,22 +12,20 @@
 	import { expoOut } from 'svelte/easing';
 	import Explanation from '$lib/Modal/VisibilityConfig/Explanation.svelte';
 	import ItemHeader from '$lib/Modal/VisibilityConfig/ItemHeader.svelte';
-	import { closeModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { closeModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import { generateId } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let innerWidth = 0;
-	let draggingGroup = false;
-	let draggedElHeight: number | undefined;
-	let matches: { [key: string]: boolean } = {};
+	let innerWidth = $state(0);
+	let draggingGroup = $state(false);
+	let matches: { [key: string]: boolean } = $state({});
 
 	/**
 	 * Add id's to to each item
 	 */
-	let items =
+	let items = $state(
 		sel?.visibility?.map((item: Condition) => ({
 			id: generateId($dashboard),
 			...item,
@@ -40,90 +37,55 @@
 						}))
 					}
 				: {})
-		})) || [];
+		})) || []
+	);
 
 	/**
 	 * dnd
 	 */
 
-	const dndOptions = {
-		flipDurationMs: $motion,
-		dropTargetStyle: {},
-		transformDraggedElement
-	};
-
-	function dragItem(event: CustomEvent<DndEvent>) {
-		const draggedItem = event.detail.items.find((section) =>
-			[event?.detail?.info?.id, 'id:dnd-shadow-placeholder-0000'].includes(section.id)
-		);
-
-		if (draggedItem && (draggedItem.condition === 'and' || draggedItem.condition === 'or')) {
-			draggingGroup = true;
-		}
-
-		handleDrag(event, () => {
-			items = event.detail.items;
-		});
-	}
-
-	function dragNestedItem(id: string, event: CustomEvent<DndEvent>) {
-		handleDrag(event, () => {
-			const condition = items.find((item: any) => item.id === id);
-
-			if (condition && condition.conditions) {
-				condition.conditions = event.detail.items;
-				items = [...items];
-			}
-		});
-	}
-
-	function handleDrag(event: CustomEvent<DndEvent>, callback: () => void) {
+	function handleDragStart() {
 		$dragging = true;
-
-		callback();
-
-		// reset
-		if (event.type === 'finalize') {
-			$dragging = false;
-			draggingGroup = false;
-			draggedElHeight = undefined;
-		}
 	}
 
-	/**
-	 * Fix visual bugs on dnd
-	 *
-	 * - hide entity select list if open on dragging
-	 * - force fixed element height when dragging
-	 */
-	function transformDraggedElement(draggedEl: HTMLElement | undefined) {
-		if (!draggedEl) return;
+	function handleItemFinalize(newItems: any[]) {
+		items = newItems;
+		$dragging = false;
+		draggingGroup = false;
+	}
 
-		const listOpen = draggedEl.querySelector('.wrapper') as HTMLElement;
-		if (listOpen) listOpen.style.display = 'none';
-
-		if (!draggedElHeight) draggedElHeight = draggedEl.offsetHeight;
-		if (draggedElHeight) draggedEl.style.height = `${draggedElHeight}px`;
+	function handleNestedFinalize(parentId: string, newItems: any[]) {
+		const condition = items.find((item: any) => item.id === parentId);
+		if (condition && condition.conditions) {
+			condition.conditions = newItems;
+			items = [...items];
+		}
+		$dragging = false;
+		draggingGroup = false;
 	}
 
 	/**
 	 * Get all 'screen' conditions
 	 * { id, media_query }
 	 */
-	$: screenConditions = items.flatMap((item: Condition) =>
-		item.condition === 'screen'
-			? [{ id: item.id, media_query: item.media_query }]
-			: item.condition === 'and' || item.condition === 'or'
-				? (item.conditions
-						?.filter((cond) => cond.condition === 'screen')
-						.map(({ id, media_query }) => ({ id, media_query })) ?? [])
-				: []
+	let screenConditions = $derived(
+		items.flatMap((item: Condition) =>
+			item.condition === 'screen'
+				? [{ id: item.id, media_query: item.media_query }]
+				: item.condition === 'and' || item.condition === 'or'
+					? (item.conditions
+							?.filter((cond) => cond.condition === 'screen')
+							.map(({ id, media_query }) => ({ id, media_query })) ?? [])
+					: []
+		)
 	);
 
 	/**
 	 * Updates `matches`
 	 */
-	$: if (screenConditions) updateMatches();
+	$effect(() => {
+		if (screenConditions) updateMatches();
+	});
 
 	function updateMatches() {
 		matches = Object.fromEntries(
@@ -177,13 +139,11 @@
 	});
 </script>
 
-<svelte:window on:resize={updateMatches} bind:innerWidth />
+<svelte:window onresize={updateMatches} bind:innerWidth />
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">
-			{$lang('visibility')}
-		</h1>
+		{#snippet title()}<h1>{$lang('visibility')}</h1>{/snippet}
 
 		<Explanation {sel} {items} {matches} />
 
@@ -193,21 +153,25 @@
 			<section
 				data-exclude-drag-modal
 				style:padding="1.5rem 0"
-				use:dndzone={{
-					...dndOptions,
-					type: 'condition',
-					items
+				use:sortable={{
+					group: {
+						name: 'condition',
+						put: (_to, _from, dragEl) => {
+							const isGroup =
+								dragEl.dataset.conditionType === 'and' || dragEl.dataset.conditionType === 'or';
+							return !isGroup || !draggingGroup;
+						}
+					},
+					animation: $motion,
+					ghostClass: 'sortable-ghost',
+					items,
+					onStart: handleDragStart,
+					onFinalize: handleItemFinalize
 				}}
-				on:consider={dragItem}
-				on:finalize={dragItem}
 			>
-				{#each items as item (`${item?.id}${item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
-					<div
-						data-is-dnd-shadow-item-hint={item?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
-						class:item
-						animate:flip={{ duration: $motion }}
-					>
-						<ItemHeader bind:item bind:items {matches} {innerWidth} />
+				{#each items as item, i (item?.id)}
+					<div data-id={item?.id} data-condition-type={item?.condition} class:item>
+						<ItemHeader item={items[i]} bind:items {matches} {innerWidth} />
 
 						{#if !item?.collapsed}
 							<div class="content" transition:slide={{ duration: $motion, easing: expoOut }}>
@@ -230,21 +194,22 @@
 											style:background-color={empty ? 'rgba(255, 190, 10, 0.25)' : 'transparent'}
 											style:outline={empty ? '2px dashed #ffc107' : 'none'}
 											style:transition="background-color {$motion}ms ease"
-											use:dndzone={{
-												...dndOptions,
-												type: draggingGroup ? 'group' : 'condition',
-												items: item?.conditions
+											use:sortable={{
+												group: 'condition',
+												animation: $motion,
+												ghostClass: 'sortable-ghost',
+												items: item?.conditions,
+												onStart: handleDragStart,
+												onFinalize: (newItems) => handleNestedFinalize(item.id, newItems)
 											}}
-											on:consider={(event) => dragNestedItem(item.id, event)}
-											on:finalize={(event) => dragNestedItem(item.id, event)}
 										>
-											{#each item.conditions as subItem (`${subItem?.id}${subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] ? '_' + subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME] : ''}`)}
+											{#each item.conditions as subItem, j (subItem?.id)}
 												<div
-													data-is-dnd-shadow-item-hint={subItem?.[SHADOW_ITEM_MARKER_PROPERTY_NAME]}
+													data-id={subItem?.id}
+													data-condition-type={subItem?.condition}
 													class="item"
-													animate:flip={{ duration: $motion }}
 												>
-													<ItemHeader bind:item={subItem} bind:items {matches} {innerWidth} />
+													<ItemHeader item={item.conditions[j]} bind:items {matches} {innerWidth} />
 
 													{#if !subItem.collapsed}
 														<div
@@ -277,7 +242,7 @@
 		<div class="add-config-buttons">
 			<button
 				class="action remove"
-				on:click={handleRemove}
+				onclick={handleRemove}
 				use:Ripple={{ ...$ripple, color: !items?.length ? 'transparent' : $ripple.color }}
 				style:cursor={!items?.length ? 'initial' : 'pointer'}
 				style:opacity={!items?.length ? '0.3' : 'initial'}
@@ -286,7 +251,7 @@
 				{$lang('remove')}
 			</button>
 
-			<button class="action done" on:click={closeModal} use:Ripple={$ripple}>
+			<button class="action done" onclick={closeModal} use:Ripple={$ripple}>
 				{$lang('done')}
 			</button>
 		</div>

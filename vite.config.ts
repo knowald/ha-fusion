@@ -10,14 +10,9 @@ export default defineConfig({
 		// increase chunk size because of maplibre-gl
 		chunkSizeWarningLimit: 1000
 	},
-	ssr: {
-		// "cannot use import statement outside a module" because of svelte-ripple
-		noExternal: ['svelte-ripple']
-	},
 	optimizeDeps: {
 		include: [
 			// include all because of dynamic imports, prevents: ✨ optimized dependencies changed. reloading
-			// pnpm ls -P | grep -Ev 'codemirror|@fontsource' | awk '/dependencies:/{flag=1; next} flag{print "\047" $1 "\047,"}'
 			'@jaames/iro',
 			'd3-array',
 			'd3-scale',
@@ -32,20 +27,20 @@ export default defineConfig({
 			'maplibre-gl',
 			'marked',
 			'svelte-confetti',
-			'svelte-dnd-action',
+			'sortablejs',
 			'svelte-modals',
-			'svelte-ripple',
-			'svelte-tiny-virtual-list',
 			'weekstart',
 			// dev deps
 			'@iconify/svelte',
-			'svelte-fast-dimension/action',
-			'@event-calendar/core',
-			'@event-calendar/day-grid',
-			'@event-calendar/list',
 			'konva/lib/Shape'
 		],
 		exclude: [
+			// legacy Svelte 4 libraries; prebundling compiles them in runes mode
+			// (dynamicCompileOptions in svelte.config.js is ignored there) and fails
+			'svelte-tiny-virtual-list',
+			'@event-calendar/core',
+			'@event-calendar/day-grid',
+			'@event-calendar/list',
 			// exclude codemirror to avoid state duplication
 			// pnpm ls -P | grep codemirror | awk '{print "\047" $1 "\047,"}'
 			'@codemirror/autocomplete',

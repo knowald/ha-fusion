@@ -17,12 +17,13 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import type { GraphItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: GraphItem;
-
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: { isOpen: boolean; sel: GraphItem; demo?: string } = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -30,12 +31,12 @@
 		set('entity_id', demo);
 	}
 
-	let name = sel?.name;
+	let name = $state(sel?.name);
 
-	let options: { id: string; label: string }[];
-	let stroke = sel?.stroke;
+	let options = $state<{ id: string; label: string }[]>();
+	let stroke = $state(sel?.stroke);
 
-	let numberElement: HTMLInputElement;
+	let numberElement = $state<HTMLInputElement>();
 
 	const range = {
 		min: 0,
@@ -99,7 +100,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('graph')}</h1>
+		{#snippet title()}<h1>{$lang('graph')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -120,7 +121,7 @@
 				{options}
 				placeholder={$lang('sensor')}
 				value={sel.entity_id}
-				on:change={(event) => set('entity_id', event)}
+				onchange={(event) => set('entity_id', event)}
 			/>
 		{/if}
 
@@ -128,24 +129,25 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={getName(sel, (sel.entity_id && $states[sel.entity_id]) || undefined) ||
-					$lang('name')}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				on:change={(event) => set('name', event)}
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={getName(sel, (sel.entity_id && $states[sel.entity_id]) || undefined) ||
+						$lang('name')}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>{$lang('period')} (data_points)</h2>
@@ -155,7 +157,7 @@
 				options={periodOptions}
 				placeholder={$lang('period')}
 				value={sel?.period}
-				on:change={(event) => set('period', event)}
+				onchange={(event) => set('period', event)}
 			/>
 		{/if}
 
@@ -185,7 +187,7 @@
 			class="input"
 			type="number"
 			placeholder="2"
-			on:input={handleNumberRange}
+			oninput={handleNumberRange}
 			bind:value={stroke}
 			bind:this={numberElement}
 			min={range.min}
@@ -197,7 +199,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -205,7 +207,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

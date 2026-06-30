@@ -5,13 +5,12 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 
-	export let isOpen: boolean;
-	export let sel: EmptyItem;
+	let { isOpen, sel }: { isOpen: boolean; sel: EmptyItem } = $props();
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('empty')}</h1>
+		{#snippet title()}<h1>{$lang('empty')}</h1>{/snippet}
 		<h2>{$lang('preview')}</h2>
 
 		<div>

@@ -7,13 +7,12 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj } from '$lib/Utils';
 	import type { TemplateItem } from '$lib/Types';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let sel: TemplateItem;
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: TemplateItem } = $props();
 
-	let value = sel?.template;
-	let modalTransitionEnd = false;
+	let value = $state(sel?.template);
+	let modalTransitionEnd = $state(false);
 
 	function handleEvent() {
 		modalTransitionEnd = true;
@@ -28,8 +27,8 @@
 </script>
 
 {#if isOpen}
-	<Modal on:transitionend={handleEvent}>
-		<h1 slot="title">{$lang('template')}</h1>
+	<Modal ontransitionend={handleEvent}>
+		{#snippet title()}<h1>{$lang('template')}</h1>{/snippet}
 
 		<h2>
 			{$lang('preview')}
@@ -67,8 +66,8 @@
 			type="jinja2"
 			transitionend={modalTransitionEnd}
 			autocompleteList={$autocompleteList}
-			on:change={(event) => {
-				value = event.detail;
+			onchange={(event) => {
+				value = event;
 				set('template', value);
 			}}
 		/>
@@ -78,7 +77,7 @@
 		<div class="button-container">
 			<button
 				class:selected={sel?.hide_mobile !== true}
-				on:click={() => set('hide_mobile')}
+				onclick={() => set('hide_mobile')}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
@@ -86,7 +85,7 @@
 
 			<button
 				class:selected={sel?.hide_mobile === true}
-				on:click={() => set('hide_mobile', true)}
+				onclick={() => set('hide_mobile', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}

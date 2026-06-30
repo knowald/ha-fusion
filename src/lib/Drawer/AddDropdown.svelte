@@ -4,23 +4,23 @@
 	import { fade, slide } from 'svelte/transition';
 	import type { ViewItem } from '$lib/Types';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 
-	export let view: ViewItem | undefined;
+	let { view }: { view?: ViewItem } = $props();
 
-	let isOpen = false;
-	let showTriangle = false;
+	let isOpen = $state(false);
+	let showTriangle = $state(false);
 	let container: HTMLDivElement;
 
-	let SidebarButton: ComponentType;
-	let ObjectButton: ComponentType;
-	let SectionButton: ComponentType;
-	let HorizontalStackButton: ComponentType;
-	let VerticalStackButton: ComponentType;
-	let ScenesButton: ComponentType;
-	let ViewButton: ComponentType;
+	let SidebarButton: Component<any> = $state(undefined as any);
+	let ObjectButton: Component<any> = $state(undefined as any);
+	let SectionButton: Component<any> = $state(undefined as any);
+	let HorizontalStackButton: Component<any> = $state(undefined as any);
+	let VerticalStackButton: Component<any> = $state(undefined as any);
+	let ScenesButton: Component<any> = $state(undefined as any);
+	let ViewButton: Component<any> = $state(undefined as any);
 
 	onMount(async () => {
 		SidebarButton = (await import('$lib/Drawer/SidebarButton.svelte')).default;
@@ -56,10 +56,10 @@
 	}
 </script>
 
-<svelte:window on:pointerdown|capture={handlePointerDown} on:keydown|capture={handleKeydown} />
+<svelte:window onpointerdowncapture={handlePointerDown} onkeydowncapture={handleKeydown} />
 
 <div class="container" bind:this={container}>
-	<button class="button" on:click={handleClick} use:Ripple={$ripple}>
+	<button class="button" onclick={handleClick} use:Ripple={$ripple}>
 		<figure>
 			<Icon icon="gridicons:add-outline" height="none" />
 		</figure>
@@ -70,30 +70,30 @@
 	{#if isOpen}
 		<div
 			class="dropdown"
-			on:introstart={() => {
+			onintrostart={() => {
 				showTriangle = true;
 			}}
-			on:outrostart={() => {
+			onoutrostart={() => {
 				showTriangle = false;
 			}}
 			in:slide={{ duration: $motion, easing: cubicOut }}
 			out:fade={{ duration: $motion / 3, easing: cubicOut }}
 		>
 			{#if !$dashboard.hide_sidebar}
-				<svelte:component this={SidebarButton} on:clicked={handleClick} />
+				<SidebarButton onclicked={handleClick} />
 			{/if}
 
-			<svelte:component this={ObjectButton} {view} on:clicked={handleClick} />
+			<ObjectButton {view} onclicked={handleClick} />
 
-			<svelte:component this={SectionButton} {view} on:clicked={handleClick} />
+			<SectionButton {view} onclicked={handleClick} />
 
-			<svelte:component this={HorizontalStackButton} {view} on:clicked={handleClick} />
+			<HorizontalStackButton {view} onclicked={handleClick} />
 
-			<svelte:component this={VerticalStackButton} {view} on:clicked={handleClick} />
+			<VerticalStackButton {view} onclicked={handleClick} />
 
-			<svelte:component this={ScenesButton} {view} on:clicked={handleClick} />
+			<ScenesButton {view} onclicked={handleClick} />
 
-			<svelte:component this={ViewButton} on:clicked={handleClick} />
+			<ViewButton onclicked={handleClick} />
 		</div>
 	{/if}
 

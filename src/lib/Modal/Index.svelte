@@ -1,47 +1,62 @@
 <script lang="ts">
 	import { motion, autocompleteOpen, ripple, dragging } from '$lib/Stores';
 	import { onMount, onDestroy } from 'svelte';
-	import { modals, closeModal } from 'svelte-modals';
+	import { modals, closeModal } from '$lib/Modals';
 	import { fly, scale } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
 	import { trapFocus } from '$lib/Modal/trapFocus';
 	import '$lib/Modal/Modal.css';
 
-	export let backdropImage = true;
-	export let size: string | undefined = undefined;
+	let {
+		backdropImage = true,
+		size = undefined,
+		ontransitionend = undefined,
+		children,
+		title
+	}: {
+		backdropImage?: boolean;
+		size?: string | undefined;
+		ontransitionend?: (() => void) | undefined;
+		children?: any;
+		title?: any;
+	} = $props();
 
-	let backdrop: HTMLDivElement | null;
-	let contents: HTMLDivElement | null;
-	let opacityValue = 1;
-	let draggingModal = false;
-	let top = 0;
-	let startTop = 0;
+	let backdrop: HTMLDivElement | null = $state(null);
+	let contents: HTMLDivElement | null = $state(null);
+	let opacityValue = $state(1);
+	let draggingModal = $state(false);
+	let top = $state(0);
+	let startTop = $state(0);
 	let threshold = window.innerHeight * 0.15;
 
-	$: if (draggingModal && contents) {
-		contents.style.backdropFilter = 'blur(2rem)';
-		(contents.style as any).webkitBackdropFilter = 'blur(2rem)';
-	} else {
-		setTimeout(() => {
-			if (contents && backdropImage) {
-				contents.style.backdropFilter = 'none';
-				(contents.style as any).webkitBackdropFilter = 'none';
-			}
-		}, $motion);
-	}
+	$effect(() => {
+		if (draggingModal && contents) {
+			contents.style.backdropFilter = 'blur(2rem)';
+			(contents.style as any).webkitBackdropFilter = 'blur(2rem)';
+		} else {
+			setTimeout(() => {
+				if (contents && backdropImage) {
+					contents.style.backdropFilter = 'none';
+					(contents.style as any).webkitBackdropFilter = 'none';
+				}
+			}, $motion);
+		}
+	});
 
 	// delay count to prevent backdrop flickering on stacked modals
-	let delayedModalCount: number;
-	$: if ($modals.length === 1) {
-		setTimeout(() => {
-			delayedModalCount = 1;
-		}, $motion);
-	} else {
-		delayedModalCount = 2;
-	}
+	let delayedModalCount: number = $state(2);
+	$effect(() => {
+		if ($modals.length === 1) {
+			setTimeout(() => {
+				delayedModalCount = 1;
+			}, $motion);
+		} else {
+			delayedModalCount = 2;
+		}
+	});
 
 	function debounce(func: any, wait: number | undefined) {
 		let timeout: ReturnType<typeof setTimeout>;
@@ -67,7 +82,9 @@
 
 	const debouncedOpacityChange = debounce(handleOpacityChange, 50);
 
-	$: if (delayedModalCount === 1 && backdrop) debouncedOpacityChange();
+	$effect(() => {
+		if (delayedModalCount === 1 && backdrop) debouncedOpacityChange();
+	});
 
 	onMount(() => {
 		if (document?.body) document.body.style.overflow = 'hidden';
@@ -157,9 +174,9 @@
 </script>
 
 <svelte:window
-	on:pointerup={handlePointerUp}
-	on:pointermove={handlePointerMove}
-	on:keydown={handleKeydown}
+	onpointerup={handlePointerUp}
+	onpointermove={handlePointerMove}
+	onkeydown={handleKeydown}
 />
 
 <div
@@ -171,10 +188,11 @@
 		opacity: 0.9
 	}}
 	out:scale|global={{ duration: $motion / 2, start: 0.85 }}
+	onintroend={() => ontransitionend?.()}
 >
 	<div
 		id="modal"
-		on:pointerdown={handlePointerDown}
+		onpointerdown={handlePointerDown}
 		style:transform="translateY({top}px)"
 		style:transition={!draggingModal ? `transform ${$motion}ms ease-out` : 'none'}
 		use:trapFocus
@@ -186,12 +204,10 @@
 			class:warning={!backdropImage}
 		>
 			<div class="header">
-				<h1>
-					<slot name="title" />
-				</h1>
+				{#if title}{@render title()}{/if}
 
 				<button
-					on:click={() => {
+					onclick={() => {
 						closeModal();
 					}}
 					aria-label="close"
@@ -203,7 +219,7 @@
 				</button>
 			</div>
 
-			<slot />
+			{#if children}{@render children()}{/if}
 		</div>
 	</div>
 </div>

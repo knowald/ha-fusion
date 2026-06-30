@@ -12,8 +12,16 @@ import {
 	ERR_INVALID_HTTPS_TO_HTTP
 } from 'home-assistant-js-websocket';
 import type { Auth, AuthData } from 'home-assistant-js-websocket';
-import { states, connection, config, services, connected, event, persistentNotifications } from '$lib/Stores';
-import { openModal, closeModal } from 'svelte-modals';
+import {
+	states,
+	connection,
+	config,
+	services,
+	connected,
+	event,
+	persistentNotifications
+} from '$lib/Stores';
+import { openModal, closeModal } from '$lib/Modals';
 import type { Configuration, PersistentNotification } from '$lib/Types';
 
 const options = {

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import Icon from '@iconify/svelte';
 
-	export let eyeWidth: number;
+	let { eyeWidth = $bindable() }: { eyeWidth: number } = $props();
 
 	/**
 	 * Opens modal and highlights `hide_views`
@@ -18,7 +18,7 @@
 
 <button
 	class="edit eye"
-	on:click={handleIconClick}
+	onclick={handleIconClick}
 	transition:fade={{ duration: $motion }}
 	bind:offsetWidth={eyeWidth}
 >

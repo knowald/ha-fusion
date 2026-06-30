@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { dashboard, editMode, motion, lang, ripple, history, historyIndex } from '$lib/Stores';
 	import { base } from '$app/paths';
-	import { modals } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let modified: boolean;
+	let { modified }: { modified: boolean } = $props();
 
 	/**
 	 * Save keyboard shortcut when pressing cmd/ctrl + s
@@ -56,11 +56,11 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	class="button"
-	on:click={handleClick}
+	onclick={handleClick}
 	use:Ripple={{
 		...$ripple,
 		color: modified ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0)'

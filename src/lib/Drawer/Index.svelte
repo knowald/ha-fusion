@@ -7,14 +7,20 @@
 	import type { Configuration, Dashboard, Translations, ViewItem } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
 
-	export let data: {
-		configuration: Configuration;
-		dashboard: Dashboard;
-		theme: any;
-		translations: Translations;
-	};
-	export let view: ViewItem | undefined;
-	export let toggleDrawer: () => void;
+	let {
+		data,
+		view,
+		toggleDrawer
+	}: {
+		data: {
+			configuration: Configuration;
+			dashboard: Dashboard;
+			theme: any;
+			translations: Translations;
+		};
+		view: ViewItem | undefined;
+		toggleDrawer: () => void;
+	} = $props();
 
 	/** Only display SayButton in Chrome */
 	// let chrome: boolean;
@@ -40,45 +46,45 @@
 	 * Determines whether the dashboard data has been modified,
 	 * property is passed to both `EditModeButton` and `SaveButton`
 	 */
-	$: modified = $history?.[$historyIndex] !== $history?.[0];
+	let modified = $derived($history?.[$historyIndex] !== $history?.[0]);
 </script>
 
 <header id="drawer" transition:slide|global={{ duration: $motion }}>
 	<div class:grid={!$editMode} class:grid-editmode={$editMode}>
 		<div class="edit">
 			{#await import('$lib/Drawer/EditModeButton.svelte') then EditModeButton}
-				<svelte:component this={EditModeButton.default} {modified} {toggleDrawer} />
+				<EditModeButton.default {modified} {toggleDrawer} />
 			{/await}
 		</div>
 
 		{#if $editMode}
 			<div class="add">
 				{#await import('$lib/Drawer/AddDropdown.svelte') then AddDropdown}
-					<svelte:component this={AddDropdown.default} {view} />
+					<AddDropdown.default {view} />
 				{/await}
 			</div>
 
 			<div class="appearance">
 				{#await import('$lib/Drawer/AppearanceButton.svelte') then AppearanceButton}
-					<svelte:component this={AppearanceButton.default} />
+					<AppearanceButton.default />
 				{/await}
 			</div>
 
 			<div class="history">
 				{#await import('$lib/Drawer/HistoryButtons.svelte') then HistoryButtons}
-					<svelte:component this={HistoryButtons.default} />
+					<HistoryButtons.default />
 				{/await}
 			</div>
 
 			<div class="save push">
 				{#await import('$lib/Drawer/SaveButton.svelte') then SaveButton}
-					<svelte:component this={SaveButton.default} {modified} />
+					<SaveButton.default {modified} />
 				{/await}
 			</div>
 		{:else}
 			<div class="code">
 				{#await import('$lib/Drawer/CodeButton.svelte') then CodeButton}
-					<svelte:component this={CodeButton.default} />
+					<CodeButton.default />
 				{/await}
 			</div>
 
@@ -86,19 +92,19 @@
 
 			<div class="search">
 				{#await import('$lib/Drawer/SearchInput.svelte') then SearchInput}
-					<svelte:component this={SearchInput.default} />
+					<SearchInput.default />
 				{/await}
 			</div>
 
 			<div class="settings push">
 				{#await import('$lib/Drawer/SettingsButton.svelte') then SettingsButton}
-					<svelte:component this={SettingsButton.default} {data} />
+					<SettingsButton.default {data} />
 				{/await}
 			</div>
 
 			<!-- {#if chrome}
 				{#await import('$lib/Drawer/SayButton.svelte') then SayButton}
-					<svelte:component this={SayButton.default} />
+					<SayButton.default />
 				{/await}
 			{/if} -->
 		{/if}

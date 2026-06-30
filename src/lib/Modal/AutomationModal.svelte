@@ -7,19 +7,18 @@
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import { relativeTime } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let description: string | undefined;
+	let description = $state<string | undefined>(undefined);
 
-	$: entity = $states[sel?.entity_id];
-	$: toggle = entity?.state === 'on';
-	$: current = entity?.attributes?.current > 0;
+	let entity = $derived($states[sel?.entity_id]);
+	let toggle = $derived(entity?.state === 'on');
+	let current = $derived(entity?.attributes?.current > 0);
 
 	/**
 	 * Handle service call
@@ -60,7 +59,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<div class="container">
 			<!-- state -->
@@ -82,7 +81,7 @@
 				<StateLogic entity_id={sel?.entity_id} selected={sel} />
 
 				<div class="toggle">
-					<Toggle bind:checked={toggle} on:change={() => handle('toggle')} />
+					<Toggle bind:checked={toggle} onchange={() => handle('toggle')} />
 				</div>
 			</div>
 
@@ -113,7 +112,7 @@
 
 			<!-- buttons -->
 			<div class="add-config-button">
-				<button class="done action" use:Ripple={$ripple} on:click={handleTrigger}>
+				<button class="done action" use:Ripple={$ripple} onclick={handleTrigger}>
 					{$lang(current ? 'cancel' : 'trigger')}
 				</button>
 

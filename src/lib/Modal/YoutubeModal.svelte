@@ -3,20 +3,20 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { base } from '$app/paths';
 	import { onDestroy, onMount } from 'svelte';
-	import { closeModal } from 'svelte-modals';
+	import { closeModal } from '$lib/Modals';
 	import { lang, motion, ripple, youtubeAddon } from '$lib/Stores';
 	import { slide } from 'svelte/transition';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import type { YouTubeEvent } from '$lib/Types';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
 	let interval: ReturnType<typeof setInterval>;
 	let controller: AbortController;
-	let event: YouTubeEvent | undefined;
-	let data: any;
-	let copied = false;
-	let inputCode: HTMLInputElement;
+	let event: YouTubeEvent | undefined = $state(undefined);
+	let data: any = $state(undefined);
+	let copied = $state(false);
+	let inputCode = $state<HTMLInputElement>();
 
 	/**
 	 * If no credentials are saved, it starts the auth flow
@@ -159,14 +159,14 @@
 </script>
 
 <svelte:window
-	on:beforeunload={() => {
+	onbeforeunload={() => {
 		controller?.abort?.();
 	}}
 />
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">YouTube</h1>
+		{#snippet title()}<h1>YouTube</h1>{/snippet}
 
 		<div data-exclude-drag-modal>
 			<!-- title -->
@@ -193,7 +193,7 @@
 						<button
 							class="action remove"
 							style:margin-left="auto"
-							on:click={signOut}
+							onclick={signOut}
 							use:Ripple={{
 								...$ripple,
 								color: 'rgba(0, 0, 0, 0.35)'
@@ -224,6 +224,7 @@
 						{@html localeAuthMessage}
 					{:else}
 						To link your Google account, visit the
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link -->
 						<a href={verification_url} target="_blank">{verification_url}</a> and enter code:
 					{/if}
 
@@ -232,7 +233,7 @@
 							bind:this={inputCode}
 							class="code"
 							class:copied
-							on:click={() => copyCode(user_code)}
+							onclick={() => copyCode(user_code)}
 							style:transition="background-color {$motion}ms"
 							type="text"
 							value={user_code}

@@ -6,11 +6,10 @@
 	import Modal from '$lib/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: toggle = entity?.state === 'on';
+	let entity = $derived($states[sel?.entity_id]);
+	let toggle = $derived(entity?.state === 'on');
 
 	/**
 	 * Calls switch.toggle service
@@ -24,11 +23,11 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('toggle')}</h2>
 
-		<Toggle bind:checked={toggle} on:change={handleClick} />
+		<Toggle bind:checked={toggle} onchange={handleClick} />
 
 		<ConfigButtons />
 	</Modal>

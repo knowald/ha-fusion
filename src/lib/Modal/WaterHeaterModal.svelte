@@ -6,28 +6,31 @@
 	import { callService } from 'home-assistant-js-websocket';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Toggle from '$lib/Components/Toggle.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: attributes = entity?.attributes;
-	$: toggle = entity?.state !== 'off';
-	$: supported_features = attributes?.supported_features;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let toggle = $derived(entity?.state !== 'off');
+	let supported_features = $derived(attributes?.supported_features);
 
-	$: supports = getSupport(supported_features, {
-		TARGET_TEMPERATURE: 1,
-		OPERATION_MODE: 2,
-		AWAY_MODE: 4
-	});
+	let supports = $derived(
+		getSupport(supported_features, {
+			TARGET_TEMPERATURE: 1,
+			OPERATION_MODE: 2,
+			AWAY_MODE: 4
+		})
+	);
 
-	$: options = attributes?.operation_list?.map((option: string) => ({
-		id: option,
-		icon: icons?.[option] || 'mdi:water-percent',
-		label: $lang(`water_heater_${option}`)
-	}));
+	let options = $derived(
+		attributes?.operation_list?.map((option: string) => ({
+			id: option,
+			icon: icons?.[option] || 'mdi:water-percent',
+			label: $lang(`water_heater_${option}`)
+		}))
+	);
 
 	const icons: Record<string, string> = {
 		eco: 'mdi:leaf',
@@ -67,14 +70,14 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<!-- TOGGLE -->
 		<h2>{$lang('toggle')}</h2>
 
 		<Toggle
 			bind:checked={toggle}
-			on:change={() => {
+			onchange={() => {
 				const service = entity?.state !== 'off' ? 'turn_off' : 'turn_on';
 				handleEvent(service);
 			}}
@@ -105,8 +108,8 @@
 				bind:value={attributes.temperature}
 				min={parseInt(attributes?.min_temp)}
 				max={parseInt(attributes?.max_temp)}
-				on:change={(event) => {
-					handleEvent('set_temperature', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_temperature', event);
 				}}
 			/>
 		{/if}
@@ -121,8 +124,8 @@
 				{options}
 				placeholder={$lang('mode')}
 				value={attributes?.operation_mode}
-				on:change={(event) => {
-					handleEvent('set_operation_mode', event?.detail);
+				onchange={(event) => {
+					handleEvent('set_operation_mode', event);
 				}}
 			/>
 		{/if}
@@ -136,7 +139,7 @@
 			<div class="button-container">
 				<button
 					class:selected={attributes?.away_mode === 'off'}
-					on:click={() => {
+					onclick={() => {
 						handleEvent('set_away_mode', false);
 					}}
 					use:Ripple={$ripple}
@@ -146,7 +149,7 @@
 
 				<button
 					class:selected={attributes?.away_mode === 'on'}
-					on:click={() => {
+					onclick={() => {
 						handleEvent('set_away_mode', true);
 					}}
 					use:Ripple={$ripple}

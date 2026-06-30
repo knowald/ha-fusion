@@ -2,9 +2,15 @@
 	import { editMode, lang } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 
-	export let url: string | undefined = undefined;
-	export let size: string | undefined = undefined;
-	export let preview: boolean = false;
+	let {
+		url = undefined,
+		size = undefined,
+		preview = false
+	}: {
+		url?: string | undefined;
+		size?: string | undefined;
+		preview?: boolean;
+	} = $props();
 </script>
 
 <div style:padding={!preview ? 'var(--theme-sidebar-item-padding)' : 'unset'}>

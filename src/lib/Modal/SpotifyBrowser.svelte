@@ -1,20 +1,21 @@
 <script lang="ts">
-	import { connection, states, lang, ripple, services } from '$lib/Stores';
-	import { callService } from 'home-assistant-js-websocket';
+	import { connection, lang, ripple, services } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let entity_id: string;
-
-	$: entity = entity_id ? $states?.[entity_id] : undefined;
-	$: attributes = entity?.attributes;
+	let {
+		isOpen,
+		entity_id
+	}: {
+		isOpen: boolean;
+		sel: any;
+		entity_id: string;
+	} = $props();
 
 	type Tab = 'playlists' | 'albums' | 'tracks' | 'artists';
-	let activeTab: Tab = 'playlists';
+	let activeTab: Tab = $state('playlists');
 
 	interface SpotifyItem {
 		id: string;
@@ -27,14 +28,14 @@
 		total_tracks?: number;
 	}
 
-	let playlists: SpotifyItem[] = [];
-	let albums: SpotifyItem[] = [];
-	let tracks: SpotifyItem[] = [];
-	let artists: SpotifyItem[] = [];
+	let playlists: SpotifyItem[] = $state([]);
+	let albums: SpotifyItem[] = $state([]);
+	let tracks: SpotifyItem[] = $state([]);
+	let artists: SpotifyItem[] = $state([]);
 
-	let loading = false;
-	let error = '';
-	let searchQuery = '';
+	let loading = $state(false);
+	let error = $state('');
+	let searchQuery = $state('');
 
 	onMount(() => {
 		console.log('=== SpotifyBrowser mounted ===');
@@ -43,13 +44,14 @@
 		console.log('Spotify domain:', $services?.spotify);
 
 		// Check for media_player related services
-		const mediaPlayerServices = Object.keys($services || {}).filter(d =>
-			d.includes('media') || d.includes('spotify') || d.includes('music')
+		const mediaPlayerServices = Object.keys($services || {}).filter(
+			(d) => d.includes('media') || d.includes('spotify') || d.includes('music')
 		);
 		console.log('Media/Spotify related domains:', mediaPlayerServices);
 
 		if (!$services?.spotifyplus) {
-			error = 'SpotifyPlus integration not installed. Please install SpotifyPlus from HACS: https://github.com/thlucas1/homeassistantcomponent_spotifyplus';
+			error =
+				'SpotifyPlus integration not installed. Please install SpotifyPlus from HACS: https://github.com/thlucas1/homeassistantcomponent_spotifyplus';
 			return;
 		}
 
@@ -57,13 +59,13 @@
 		console.log('SpotifyPlus services:', spotifyServices);
 
 		// Find services with "favorite" or "follow" in the name
-		const favoriteServices = spotifyServices.filter(s =>
-			s.includes('favorite') || s.includes('follow') || s.includes('get')
+		const favoriteServices = spotifyServices.filter(
+			(s) => s.includes('favorite') || s.includes('follow') || s.includes('get')
 		);
 		console.log('Get/Favorite/Follow services:', favoriteServices);
 
 		// Find play-related services
-		const playServices = spotifyServices.filter(s => s.includes('play'));
+		const playServices = spotifyServices.filter((s) => s.includes('play'));
 		console.log('Play services:', playServices);
 
 		loadPlaylists();
@@ -76,7 +78,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_playlist_favorites',
@@ -138,7 +140,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_album_favorites',
@@ -202,7 +204,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_track_favorites',
@@ -266,7 +268,7 @@
 		error = '';
 
 		try {
-			const response = await $connection.sendMessagePromise({
+			const response: any = await $connection.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_artists_followed',
@@ -366,8 +368,7 @@
 		}
 	}
 
-	// Reactive filtering - depends on activeTab, searchQuery, and all item arrays
-	$: filteredItems = (() => {
+	let filteredItems = $derived.by(() => {
 		let items: SpotifyItem[] = [];
 
 		switch (activeTab) {
@@ -390,18 +391,18 @@
 		if (!searchQuery) return items;
 
 		const query = searchQuery.toLowerCase();
-		return items.filter(item => {
+		return items.filter((item) => {
 			const nameMatch = item.name.toLowerCase().includes(query);
-			const artistMatch = item.artists?.some(a => a.toLowerCase().includes(query));
+			const artistMatch = item.artists?.some((a) => a.toLowerCase().includes(query));
 			const albumMatch = item.album?.toLowerCase().includes(query);
 			return nameMatch || artistMatch || albumMatch;
 		});
-	})();
+	});
 </script>
 
 {#if isOpen}
 	<Modal size="large">
-		<h1 slot="title">{$lang('browse_library') || 'Browse Library'}</h1>
+		{#snippet title()}<h1>{$lang('browse_library') || 'Browse Library'}</h1>{/snippet}
 
 		<div class="browser-container">
 			<!-- Tabs -->
@@ -409,7 +410,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'playlists'}
-					on:click={() => switchTab('playlists')}
+					onclick={() => switchTab('playlists')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:playlist-music" height="1.2rem" />
@@ -418,7 +419,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'albums'}
-					on:click={() => switchTab('albums')}
+					onclick={() => switchTab('albums')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:album" height="1.2rem" />
@@ -427,7 +428,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'tracks'}
-					on:click={() => switchTab('tracks')}
+					onclick={() => switchTab('tracks')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:music-note" height="1.2rem" />
@@ -436,7 +437,7 @@
 				<button
 					class="tab"
 					class:active={activeTab === 'artists'}
-					on:click={() => switchTab('artists')}
+					onclick={() => switchTab('artists')}
 					use:Ripple={$ripple}
 				>
 					<Icon icon="mdi:account-music" height="1.2rem" />
@@ -481,7 +482,7 @@
 						</div>
 					{:else}
 						{#each filteredItems as item (item.id)}
-							<button class="item" on:click={() => playItem(item)} use:Ripple={$ripple}>
+							<button class="item" onclick={() => playItem(item)} use:Ripple={$ripple}>
 								{#if item.image_url}
 									<img src={item.image_url} alt={item.name} class="item-image" />
 								{:else}

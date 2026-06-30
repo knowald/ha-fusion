@@ -1,19 +1,25 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
-	import { openModal } from 'svelte-modals';
+	import { openModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 
-	export let isOpen: boolean;
-	export let highlight = false;
-	export let themes: any = undefined;
+	let {
+		isOpen,
+		highlight = $bindable(false),
+		themes = undefined
+	}: {
+		isOpen: boolean;
+		highlight?: boolean;
+		themes?: any;
+	} = $props();
 
-	$: visibilityNavigate = $dashboard?.hide_views;
-	$: visibilitySidebar = $dashboard?.hide_sidebar;
+	let visibilityNavigate = $derived($dashboard?.hide_views);
+	let visibilitySidebar = $derived($dashboard?.hide_sidebar);
 
 	onMount(async () => {
 		// something needs to be selected, set default
@@ -54,20 +60,22 @@
 		$record();
 	}
 
-	let mounted = false;
-	let gallery: HTMLDivElement;
-	let buttons: { [key: number]: HTMLButtonElement } = {};
+	let mounted = $state(false);
+	let gallery: HTMLDivElement = $state(undefined as any);
+	let buttons: { [key: number]: HTMLButtonElement } = $state({});
 
-	let top: string;
-	let left: string;
-	let width: string;
-	let height: string;
+	let top: string = $state('');
+	let left: string = $state('');
+	let width: string = $state('');
+	let height: string = $state('');
 
-	$: transition = `all ${$motion}ms cubic-bezier(0.18, 0.89, 0.32, 1.1)`;
+	let transition = $derived(`all ${$motion}ms cubic-bezier(0.18, 0.89, 0.32, 1.1)`);
 
-	$: if ($dashboard?.theme && mounted) {
-		setDimensions(buttons[$dashboard?.theme as any]);
-	}
+	$effect(() => {
+		if ($dashboard?.theme && mounted) {
+			setDimensions(buttons[$dashboard?.theme as any]);
+		}
+	});
 
 	function setDimensions(element: HTMLElement) {
 		if (gallery && element) {
@@ -83,7 +91,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('appearance')}</h1>
+		{#snippet title()}<h1>{$lang('appearance')}</h1>{/snippet}
 
 		<h2>{$lang('navigate')}</h2>
 
@@ -91,14 +99,14 @@
 			<div class="button-container">
 				<button
 					class:selected={visibilityNavigate === false}
-					on:click={() => handleViews(false)}
+					onclick={() => handleViews(false)}
 					use:Ripple={$ripple}
 				>
 					{$lang('visible')}
 				</button>
 				<button
 					class:selected={visibilityNavigate === true}
-					on:click={() => handleViews(true)}
+					onclick={() => handleViews(true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('hidden')}
@@ -110,14 +118,14 @@
 		<div class="button-container">
 			<button
 				class:selected={visibilitySidebar === false}
-				on:click={() => handleSidebar(false)}
+				onclick={() => handleSidebar(false)}
 				use:Ripple={$ripple}
 			>
 				{$lang('visible')}
 			</button>
 			<button
 				class:selected={visibilitySidebar === true}
-				on:click={() => handleSidebar(true)}
+				onclick={() => handleSidebar(true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('hidden')}
@@ -128,16 +136,16 @@
 
 		{#if themes}
 			<div class="gallery" bind:this={gallery}>
-				{#each themes as theme}
+				{#each themes as theme, i (i)}
 					{@const _theme = $dashboard?.theme === theme?.title}
 					<button
 						use:Ripple={{
 							...$ripple,
-							opacity: _theme ? '0' : $ripple.opacity
+							opacity: _theme ? 0 : $ripple.opacity
 						}}
 						class="container"
 						bind:this={buttons[theme?.title]}
-						on:click={() => {
+						onclick={() => {
 							setTheme(theme?.title);
 						}}
 						style:cursor={_theme ? 'unset' : 'pointer'}
@@ -160,12 +168,11 @@
 												color: 'rgba(0, 0, 0, 0.35)'
 											}}
 											class="edit"
-											on:click={() => {
+											onclick={() => {
 												openModal(() => import('$lib/Modal/ThemeEditor.svelte'), {
 													theme: theme
 												});
 											}}
-											on:keydown
 											role="button"
 											tabindex="0"
 										>

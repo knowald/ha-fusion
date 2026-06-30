@@ -47,7 +47,10 @@ function findInSections(sections: Section[], id: number | undefined): any {
 				if (item.id === id) return item;
 			}
 		}
-		if ((section.type === 'horizontal-stack' || section.type === 'vertical-stack') && section.sections) {
+		if (
+			(section.type === 'horizontal-stack' || section.type === 'vertical-stack') &&
+			section.sections
+		) {
 			const result = findInSections(section.sections, id);
 			if (result) return result;
 		}

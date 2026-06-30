@@ -8,33 +8,42 @@
 	// const colorSupport = ['hs', 'xy', 'rgb', 'rgbw', 'rgbww'];
 	// const brightnessSupport = [...colorSupport, 'color_temp', 'brightness', 'white'];
 
-	export let entity: HassEntity;
-	export let colorMode: any;
-	export let supportedColorModes: any;
+	let {
+		entity,
+		colorMode,
+		supportedColorModes,
+		tempSelected,
+		colorSelected
+	}: {
+		entity: HassEntity;
+		colorMode: any;
+		supportedColorModes: any;
+		tempSelected: boolean;
+		colorSelected: boolean;
+	} = $props();
 
-	export let tempSelected: boolean;
-	export let colorSelected: boolean;
-
-	let picker: iro.ColorPicker;
-	let element: HTMLDivElement;
-	let kelvinNumber: number | undefined = undefined;
+	let picker = $state<iro.ColorPicker>();
+	let element = $state<HTMLDivElement>();
+	let kelvinNumber = $state<number | undefined>(undefined);
 
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let interacting = false;
+	let interacting = $state(false);
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	$: attributes = entity?.attributes;
-	$: rgbColor = attributes?.rgb_color;
-	$: colorTempKelvin = attributes?.color_temp_kelvin;
+	let attributes = $derived(entity?.attributes);
+	let rgbColor = $derived(attributes?.rgb_color);
+	let colorTempKelvin = $derived(attributes?.color_temp_kelvin);
 
 	/**
 	 * If changing color and quickly selecting temperature tab, the last
 	 * service call will be a temperature value... Prevent this behavior
 	 */
-	$: if (tempSelected) {
-		interacting = false;
-	}
+	$effect(() => {
+		if (tempSelected) {
+			interacting = false;
+		}
+	});
 
 	const colorLayout = [
 		{
@@ -46,7 +55,7 @@
 		}
 	];
 
-	$: temperatureLayout = [
+	let temperatureLayout = $derived([
 		{
 			component: iro.ui.Slider,
 			options: {
@@ -56,32 +65,36 @@
 				maxTemperature: attributes?.max_color_temp_kelvin
 			}
 		}
-	];
+	]);
 
-	$: if (picker) {
-		// Layout
-		if (tempSelected) {
-			picker.setOptions({ layout: temperatureLayout });
-		} else if (colorSelected) {
-			picker.setOptions({ layout: colorLayout });
+	$effect(() => {
+		if (picker) {
+			// Layout
+			if (tempSelected) {
+				picker.setOptions({ layout: temperatureLayout });
+			} else if (colorSelected) {
+				picker.setOptions({ layout: colorLayout });
+			}
 		}
-	}
+	});
 
-	$: if (picker && !interacting) {
-		// Color or Temperature
-		if (colorMode === 'xy' && rgbColor) {
-			picker.color.rgb = {
-				r: rgbColor[0],
-				g: rgbColor[1],
-				b: rgbColor[2]
-			};
-		} else if (colorMode === 'color_temp' && colorTempKelvin) {
-			picker.color.kelvin = colorTempKelvin;
+	$effect(() => {
+		if (picker && !interacting) {
+			// Color or Temperature
+			if (colorMode === 'xy' && rgbColor) {
+				picker.color.rgb = {
+					r: rgbColor[0],
+					g: rgbColor[1],
+					b: rgbColor[2]
+				};
+			} else if (colorMode === 'color_temp' && colorTempKelvin) {
+				picker.color.kelvin = colorTempKelvin;
+			}
 		}
-	}
+	});
 
 	onMount(async () => {
-		picker = iro.ColorPicker(element, {
+		picker = iro.ColorPicker(element!, {
 			width: 275,
 			color: `rgb(${rgbColor || '255, 255, 255'})`,
 			handleRadius: 20,
@@ -158,7 +171,7 @@
 	}
 
 	function setHandleTransition(value: string) {
-		const handle: SVGElement | null = element.querySelector('svg.IroHandle');
+		const handle: SVGElement | null = element?.querySelector('svg.IroHandle') ?? null;
 		if (handle) handle.style.transition = value;
 	}
 

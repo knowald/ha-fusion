@@ -14,12 +14,18 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { updateObj } from '$lib/Utils';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import Camera from '$lib/Main/Camera.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: any;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -32,16 +38,16 @@
 		$dashboard = $dashboard;
 	}
 
-	$: entity = $states?.[sel?.entity_id];
+	let entity = $derived($states?.[sel?.entity_id]);
 
-	$: options = $entityList('camera');
+	let options = $derived($entityList('camera'));
 
 	onDestroy(() => $record());
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('camera')}</h1>
+		{#snippet title()}<h1>{$lang('camera')}</h1>{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
@@ -55,7 +61,7 @@
 				{options}
 				placeholder={$lang('camera')}
 				value={entity?.entity_id}
-				on:change={(event) => {
+				onchange={(event) => {
 					set('entity_id', event);
 				}}
 			/>
@@ -64,13 +70,13 @@
 		<h2>{$lang('live')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.stream} on:click={() => set('stream')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.stream} onclick={() => set('stream')} use:Ripple={$ripple}>
 				{$lang('no')}
 			</button>
 
 			<button
 				class:selected={sel?.stream === true}
-				on:click={() => set('stream', true)}
+				onclick={() => set('stream', true)}
 				use:Ripple={$ripple}
 			>
 				{$lang('yes')}
@@ -80,13 +86,13 @@
 		<h2>{$lang('size')}</h2>
 
 		<div class="button-container">
-			<button class:selected={!sel?.size} on:click={() => set('size')} use:Ripple={$ripple}>
+			<button class:selected={!sel?.size} onclick={() => set('size')} use:Ripple={$ripple}>
 				{$lang('fill')}
 			</button>
 
 			<button
 				class:selected={sel?.size === 'contain'}
-				on:click={() => set('size', 'contain')}
+				onclick={() => set('size', 'contain')}
 				use:Ripple={$ripple}
 			>
 				{$lang('aspect_ratio')}
@@ -100,7 +106,7 @@
 			<div class="button-container">
 				<button
 					class:selected={sel?.hide_mobile !== true}
-					on:click={() => set('hide_mobile')}
+					onclick={() => set('hide_mobile')}
 					use:Ripple={$ripple}
 				>
 					{$lang('visible')}
@@ -108,7 +114,7 @@
 
 				<button
 					class:selected={sel?.hide_mobile === true}
-					on:click={() => set('hide_mobile', true)}
+					onclick={() => set('hide_mobile', true)}
 					use:Ripple={$ripple}
 				>
 					{$lang('hidden')}

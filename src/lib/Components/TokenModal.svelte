@@ -2,11 +2,11 @@
 	import { configuration, lang, motion } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { base } from '$app/paths';
-	import { closeModal } from 'svelte-modals';
+	import { closeModal } from '$lib/Modals';
 
-	export let isOpen: boolean;
+	let { isOpen }: { isOpen: boolean } = $props();
 
-	let token = '';
+	let token = $state('');
 
 	async function handleClick() {
 		if (!token) return;
@@ -36,7 +36,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('login')}</h1>
+		{#snippet title()}<h1>{$lang('login')}</h1>{/snippet}
 
 		<div data-exclude-drag-modal>
 			<p>
@@ -44,7 +44,7 @@
 				Home Assistant Companion app simultaneously.
 			</p>
 			<p>
-				Open your user profile, <a
+				Open your user profile, <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external link --><a
 					href="{$configuration?.hassUrl}/profile/security"
 					target="_blank"
 				>
@@ -54,7 +54,12 @@
 			</p>
 		</div>
 
-		<form on:submit|preventDefault={handleClick}>
+		<form
+			onsubmit={(e) => {
+				e.preventDefault();
+				handleClick();
+			}}
+		>
 			<h2>{$lang('token')}</h2>
 
 			<input class="input" type="password" bind:value={token} />

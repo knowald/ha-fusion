@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { motion, lang, ripple, states, editMode } from '$lib/Stores';
-	import { modals, openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals, openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import { scale } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 	import { handleAllConditions } from '$lib/Conditional';
 	import type { Section } from '$lib/Types';
 
-	export let section: Section;
+	let { section }: { section: Section } = $props();
 
 	/**
 	 * Opens visibility configuration
@@ -23,27 +23,26 @@
 	 */
 	function handleResize() {
 		if ($modals?.length !== 0) return;
-		visible = visible;
 	}
 
 	/**
 	 * Checks if `visibility` exists on current section
 	 */
-	$: conditions = section?.visibility && section?.visibility?.length > 0;
+	let conditions = $derived(section?.visibility && section?.visibility?.length > 0);
 
 	/**
 	 * Evaluates all conditions in section `visibility`
 	 */
-	$: visible = handleAllConditions($editMode, $states, section);
+	let visible = $derived(handleAllConditions($editMode, $states, section));
 </script>
 
-<svelte:window on:resize={handleResize} />
+<svelte:window onresize={handleResize} />
 
 <button
 	title={!conditions ? $lang('visibility') : $lang(visible ? 'visible' : 'hidden')}
 	transition:scale={{ start: 0.9, duration: $motion }}
-	on:click={handleClick}
-	on:pointerdown|stopPropagation
+	onclick={handleClick}
+	onpointerdown={(e) => e.stopPropagation()}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 	style:color={conditions ? '#3b0f0f' : 'inherit'}
 	style:background-color={conditions ? '#ffc008' : 'var(--theme-button-background-color-off)'}

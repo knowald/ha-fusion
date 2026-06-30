@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import { Modals, closeModal } from 'svelte-modals';
+	import { Modals, closeModal } from '$lib/Modals';
 	import Loader from '$lib/Components/Loader.svelte';
 	import '@fontsource-variable/inter';
 	import { expoOut } from 'svelte/easing';
+	import type { Snippet } from 'svelte';
+
+	let { children }: { children: Snippet } = $props();
 </script>
 
 <svelte:head>
@@ -17,7 +20,7 @@
 	<div
 		slot="backdrop"
 		class="backdrop"
-		on:click={() => {
+		onclick={() => {
 			closeModal();
 		}}
 		in:fade={{
@@ -25,7 +28,7 @@
 			easing: expoOut
 		}}
 		out:fade={{ duration: $motion / 2 }}
-		on:keydown
+		onkeydown={() => {}}
 		role="button"
 		tabindex="0"
 	></div>
@@ -35,7 +38,7 @@
 	</div>
 </Modals>
 
-<slot />
+{@render children()}
 
 <style>
 	:global(body, html) {

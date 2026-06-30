@@ -8,19 +8,19 @@
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let draggingValue: number | undefined;
+	let draggingValue = $state<number | undefined>(undefined);
 	let timeout: ReturnType<typeof setTimeout>;
-	let errorMessage: string | undefined;
+	let errorMessage = $state<string | undefined>(undefined);
 
-	$: entity = $states[sel?.entity_id];
+	let entity = $derived($states[sel?.entity_id]);
 
-	$: value =
+	let value = $derived(
 		entity && (draggingValue === 0 || draggingValue !== undefined)
 			? draggingValue
-			: Number(entity?.state);
+			: Number(entity?.state)
+	);
 
 	/**
 	 * Updates the specified entity's value using
@@ -71,11 +71,11 @@
 	});
 </script>
 
-<svelte:window on:pointerup={handleEvent} />
+<svelte:window onpointerup={handleEvent} />
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>
 			{$lang('state')}
@@ -97,7 +97,7 @@
 				min={entity?.attributes?.min}
 				max={entity?.attributes?.max}
 				step={entity?.attributes?.step}
-				on:change={handleInputBox}
+				onchange={handleInputBox}
 			/>
 		{:else}
 			<RangeSlider
@@ -105,11 +105,11 @@
 				min={entity?.attributes?.min}
 				max={entity?.attributes?.max}
 				step={entity?.attributes?.step}
-				on:input={(event) => {
-					draggingValue = event?.detail;
+				oninput={(event) => {
+					draggingValue = event;
 				}}
-				on:change={(event) => {
-					handleChange(event?.detail);
+				onchange={(event) => {
+					handleChange(event);
 				}}
 			/>
 		{/if}

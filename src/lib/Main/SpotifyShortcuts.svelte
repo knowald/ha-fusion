@@ -3,10 +3,17 @@
 	import Icon from '@iconify/svelte';
 	import type { SpotifyShortcut } from '$lib/Types';
 
-	export let shortcuts: SpotifyShortcut[] = [];
-	export let entity_id: string | undefined;
-	export let default_device: string | undefined = undefined;
-	export let layout: 'compact' | 'large' = 'compact';
+	let {
+		shortcuts = [],
+		entity_id,
+		default_device = undefined,
+		layout = 'compact'
+	}: {
+		shortcuts?: SpotifyShortcut[];
+		entity_id: string | undefined;
+		default_device?: string | undefined;
+		layout?: 'compact' | 'large';
+	} = $props();
 
 	function getSpotifyPlusEntity(): string | undefined {
 		if (!entity_id) return undefined;
@@ -24,7 +31,7 @@
 
 		// Fetch device list and pick first available
 		try {
-			const response = await $connection!.sendMessagePromise({
+			const response: any = await $connection!.sendMessagePromise({
 				type: 'call_service',
 				domain: 'spotifyplus',
 				service: 'get_spotify_connect_devices',
@@ -34,14 +41,15 @@
 			const items = response?.response?.result?.Items || [];
 			if (items.length === 0) return undefined;
 
-			const usable = items.filter((d: any) =>
-				d.DeviceInfo?.IsAvailable !== false && d.IsInDeviceList
+			const usable = items.filter(
+				(d: any) => d.DeviceInfo?.IsAvailable !== false && d.IsInDeviceList
 			);
 
 			// If a default device is configured, find it by name
 			if (default_device) {
-				const match = usable.find((d: any) => d.Name === default_device)
-					|| items.find((d: any) => d.Name === default_device);
+				const match =
+					usable.find((d: any) => d.Name === default_device) ||
+					items.find((d: any) => d.Name === default_device);
 				if (match) return match.Id;
 			}
 
@@ -95,12 +103,8 @@
 
 {#if shortcuts.length > 0}
 	<div class="shortcuts" class:large={layout === 'large'}>
-		{#each shortcuts as shortcut}
-			<button
-				class="shortcut"
-				title={shortcut.name}
-				on:click={(e) => playShortcut(e, shortcut)}
-			>
+		{#each shortcuts as shortcut, i (i)}
+			<button class="shortcut" title={shortcut.name} onclick={(e) => playShortcut(e, shortcut)}>
 				{#if shortcut.image_url}
 					<img src={shortcut.image_url} alt={shortcut.name} class="shortcut-image" />
 				{:else}

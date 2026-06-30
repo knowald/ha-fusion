@@ -1,105 +1,95 @@
 <script lang="ts">
-	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
+	import { sortable } from '$lib/Actions/sortable';
+	import type { SortableEvent } from 'sortablejs';
 	import type { Shape, ShapeConfig } from 'konva/lib/Shape';
 	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 	import { konvaStore } from '$lib/Stores';
-	import Icon, { iconExists, loadIcon } from '@iconify/svelte';
+	import Icon, { getIcon, loadIcon } from '@iconify/svelte';
 	import { tick } from 'svelte';
 	import { dragging } from '$lib/Stores';
 	import { icons } from '$lib/Modal/PictureElements/icons';
 	import { derived } from 'svelte/store';
 
-	export let konva: KonvaEditor;
-	export let selectedShape: ShapeConfig;
-	export let selectedShapes: ShapeConfig[];
+	let {
+		konva,
+		selectedShape,
+		selectedShapes
+	}: {
+		konva: KonvaEditor;
+		selectedShape: ShapeConfig;
+		selectedShapes: ShapeConfig[];
+	} = $props();
 
-	let editingId: string | undefined = undefined;
-	let dragStartOrder: string[] | undefined;
-
-	let layers: any[];
-
-	$: layers = $uiLayers?.children
-		? [...$uiLayers.children].reverse().map((shape, index) => ({
-				...shape,
-				id: shape?.attrs?.id || `layer-${index}`
-			}))
-		: [];
+	let editingId: string | undefined = $state(undefined);
+	let dragStartOrder: string[] | undefined = $state(undefined);
 
 	// derived store that only updates when not dragging
 	const uiLayers: any = derived([konvaStore, dragging], ([$konvaStore, $dragging], set) => {
 		if (!$dragging) set($konvaStore);
 	});
 
-	async function handleDragLayers(event: CustomEvent<DndEvent>) {
+	// writable derived: reassigned by drag handlers
+	let layers: any[] = $derived(
+		$uiLayers?.children
+			? [...$uiLayers.children].reverse().map((shape: any, index: number) => ({
+					...shape,
+					id: shape?.attrs?.id || `layer-${index}`
+				}))
+			: []
+	);
+
+	function handleDragStart(evt: SortableEvent) {
 		$dragging = true;
-		const id = event.detail.info.id;
-		const items = event.detail.items;
+		dragStartOrder = [...$konvaStore.children].reverse().map((item) => item?.attrs?.id);
 
-		layers = items;
-
-		if (!dragStartOrder) {
-			dragStartOrder = [...$konvaStore.children].reverse().map((item) => item?.attrs?.id);
-		}
-
-		if (event.type === 'consider' && !selectedShapes.some((shape) => shape.attrs.id === id)) {
+		const id = evt.item?.getAttribute('data-id');
+		if (id && !selectedShapes.some((shape) => shape.attrs.id === id)) {
 			konva.selectShapesById([id]);
-		}
-
-		if (event.type === 'finalize') {
-			const selectedIds = selectedShapes.map((shape) => shape?.attrs?.id);
-			const realItems = items.filter((item) => !item?.id?.startsWith('id:dnd-shadow-placeholder'));
-			const isDraggedItemSelected = selectedIds.includes(id);
-
-			if (isDraggedItemSelected) {
-				// move all selected items
-				const selected = dragStartOrder
-					.filter((id) => selectedIds.includes(id))
-					.map((id) => realItems.find((item) => item.id === id))
-					.filter((item) => item !== undefined);
-
-				const notSelected = realItems.filter((item) => !selectedIds.includes(item.id));
-				// index of the dragged item
-				const draggedIndex = realItems.findIndex((item) => item.id === id);
-
-				let newArrangement;
-				if (draggedIndex < notSelected.length) {
-					newArrangement = [
-						...notSelected.slice(0, draggedIndex),
-						...selected,
-						...notSelected.slice(draggedIndex)
-					];
-				} else {
-					newArrangement = [...notSelected, ...selected];
-				}
-
-				layers = newArrangement;
-
-				await tick();
-				konva.selectShapesById(selectedIds);
-			} else {
-				// only move item
-				layers = realItems;
-
-				await tick();
-				konva.selectShapesById([id]);
-			}
-
-			konva.reorderElements(layers.map((layer) => layer?.id));
-
-			// reset
-			$dragging = false;
-			dragStartOrder = undefined;
 		}
 	}
 
-	function transformDraggedElement(element: HTMLElement | undefined) {
-		if (!element) return;
+	async function handleDragFinalize(items: any[], evt: SortableEvent) {
+		const id = evt.item?.getAttribute('data-id');
+		const selectedIds = selectedShapes.map((shape) => shape?.attrs?.id);
+		const isDraggedItemSelected = id ? selectedIds.includes(id) : false;
 
-		Object.assign(element.style, {
-			outline: 'none',
-			opacity: '0.8'
-		});
+		if (isDraggedItemSelected && dragStartOrder) {
+			// move all selected items
+			const selected = dragStartOrder
+				.filter((sid) => selectedIds.includes(sid))
+				.map((sid) => items.find((item) => item.id === sid))
+				.filter((item) => item !== undefined);
+
+			const notSelected = items.filter((item) => !selectedIds.includes(item.id));
+			const draggedIndex = items.findIndex((item) => item.id === id);
+
+			let newArrangement;
+			if (draggedIndex < notSelected.length) {
+				newArrangement = [
+					...notSelected.slice(0, draggedIndex),
+					...selected,
+					...notSelected.slice(draggedIndex)
+				];
+			} else {
+				newArrangement = [...notSelected, ...selected];
+			}
+
+			layers = newArrangement;
+
+			await tick();
+			konva.selectShapesById(selectedIds);
+		} else {
+			layers = items;
+
+			await tick();
+			if (id) konva.selectShapesById([id]);
+		}
+
+		konva.reorderElements(layers.map((layer) => layer?.id));
+
+		// reset
+		$dragging = false;
+		dragStartOrder = undefined;
 	}
 
 	function handlePointerdown(event: MouseEvent) {
@@ -138,13 +128,9 @@
 		image.style.display = error ? 'none' : 'block';
 		icon.style.display = error ? 'block' : 'none';
 	}
-
-	function handleDragStart(id: string) {
-		konva.selectShapesById([id]);
-	}
 </script>
 
-<svelte:document on:pointerdown={handlePointerdown} />
+<svelte:document onpointerdown={handlePointerdown} />
 
 <div class="konva-header">
 	<div class="title">
@@ -156,7 +142,7 @@
 	<div class="right">
 		<button
 			title={selectedShape?.attrs?.draggable !== false ? 'Lock' : 'Unlock'}
-			on:click={() => konva.toggleDraggable()}
+			onclick={() => konva.toggleDraggable()}
 			disabled={!selectedShape}
 		>
 			<Icon
@@ -166,7 +152,7 @@
 			/>
 		</button>
 
-		<button title="Delete" on:click={() => konva.deleteSelected()} disabled={!selectedShape}>
+		<button title="Delete" onclick={() => konva.deleteSelected()} disabled={!selectedShape}>
 			<Icon icon={icons?.['delete']} width="20" height="20" />
 		</button>
 	</div>
@@ -174,14 +160,13 @@
 
 <div
 	class="items"
-	use:dndzone={{
-		flipDurationMs: 0,
-		dropTargetStyle: {},
-		transformDraggedElement,
-		items: layers
+	use:sortable={{
+		animation: 0,
+		group: { name: 'elements', pull: false, put: false },
+		items: layers,
+		onStart: handleDragStart,
+		onFinalize: handleDragFinalize
 	}}
-	on:consider={handleDragLayers}
-	on:finalize={handleDragLayers}
 >
 	{#each layers as shape (shape.id)}
 		{@const konvaStoreEquivalent = $konvaStore?.children?.find(
@@ -191,10 +176,9 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			class="item"
-			animate:flip={{ duration: 0 }}
+			data-id={shape.id}
 			class:selected={selectedShapes?.some((node) => node?.attrs?.id === shape?.attrs?.id)}
-			on:dragstart={() => handleDragStart(shape?.attrs?.id)}
-			on:click={async (event) => {
+			onclick={async (event) => {
 				// blur any active attr input to trigger onchange before switching layer
 				if (
 					document?.activeElement instanceof HTMLInputElement ||
@@ -210,7 +194,10 @@
 			<button
 				class="visibility"
 				title={shape?.attrs?.visible === false ? 'Show' : 'Hide'}
-				on:click|stopPropagation={() => konva.toggleVisibility(shape?.attrs?.id)}
+				onclick={(e) => {
+					e.stopPropagation();
+					konva.toggleVisibility(shape?.attrs?.id);
+				}}
 			>
 				<Icon
 					icon={icons?.[shape?.attrs?.visible === false ? 'hidden' : 'visible']}
@@ -224,7 +211,7 @@
 				{#if shape?.attrs?.type === 'icon' || shape?.attrs?.type === 'state-icon'}
 					{#if shape?.attrs?.type === 'state-icon' && !shape?.attrs?.entity_id}
 						<Icon icon="mdi:lightbulb" width="20" height="20" />
-					{:else if iconExists(konvaStoreEquivalent?.attrs?.icon)}
+					{:else if getIcon(konvaStoreEquivalent?.attrs?.icon) != null}
 						<Icon icon={konvaStoreEquivalent?.attrs?.icon} width="20" height="20" />
 					{:else}
 						{#await loadIcon(konvaStoreEquivalent?.attrs?.icon)}
@@ -242,8 +229,8 @@
 							alt=""
 							width="20"
 							height="20"
-							on:load={handleImage}
-							on:error={handleImage}
+							onload={handleImage}
+							onerror={handleImage}
 						/>
 						<Icon icon={icons?.['broken']} width="20" height="20" style="display: none;" />
 					</div>
@@ -260,13 +247,13 @@
 					type="text"
 					class="editable"
 					value={shape?.attrs?.name}
-					on:keydown={(event) => handleKeydown(event, shape)}
-					on:blur={() => (editingId = undefined)}
-					on:click|stopPropagation
+					onkeydown={(event) => handleKeydown(event, shape)}
+					onblur={() => (editingId = undefined)}
+					onclick={(e) => e.stopPropagation()}
 					autofocus={true}
 				/>
 			{:else}
-				<span class="name editable" on:dblclick={() => (editingId = shape?.id)}>
+				<span class="name editable" ondblclick={() => (editingId = shape?.id)}>
 					{shape?.attrs?.name}
 				</span>
 			{/if}
@@ -276,7 +263,10 @@
 				<button
 					class="inline-lock"
 					title="Unlock"
-					on:click|stopPropagation={() => konva.toggleDraggable(shape?.attrs?.id)}
+					onclick={(e) => {
+						e.stopPropagation();
+						konva.toggleDraggable(shape?.attrs?.id);
+					}}
 				>
 					<Icon icon={icons['locked']} width="20" height="20" />
 				</button>
@@ -368,5 +358,9 @@
 	.visibility:hover,
 	.inline-lock:hover {
 		background-color: rgba(255, 255, 255, 0.1);
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
 	}
 </style>

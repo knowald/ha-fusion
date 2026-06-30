@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
 	import { base } from '$app/paths';
-	import { openModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
 	let themes: any;
@@ -37,9 +37,9 @@
 
 <button
 	class="button"
-	on:click={handleClick}
-	on:pointerenter={handlePointer}
-	on:pointerdown={handlePointer}
+	onclick={handleClick}
+	onpointerenter={handlePointer}
+	onpointerdown={handlePointer}
 	use:Ripple={$ripple}
 >
 	<figure style:margin-right="0.1rem">

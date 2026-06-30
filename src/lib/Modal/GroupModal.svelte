@@ -5,18 +5,17 @@
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states?.[sel?.entity_id];
-	$: group = entity?.attributes?.entity_id;
+	let entity = $derived($states?.[sel?.entity_id]);
+	let group = $derived(entity?.attributes?.entity_id);
 </script>
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
-		{#each group as child_entity_id}
+		{#each group as child_entity_id (child_entity_id)}
 			<h2>{getName(undefined, $states?.[child_entity_id])}</h2>
 
 			<StateLogic entity_id={child_entity_id} selected={undefined} />

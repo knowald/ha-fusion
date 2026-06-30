@@ -11,53 +11,36 @@
 		historyIndex
 	} from '$lib/Stores';
 	import { onDestroy, tick } from 'svelte';
-	import { modals } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
 	historyUpdater(snapshot);
-
-	let ignored: boolean;
 
 	/**
 	 * Reactive statement to handle
 	 * changes to `$history` array
 	 */
-	$: if ($editMode && $history.length === 0) {
-		// create initial entry
-		$history = [...$history, JSON.stringify($dashboard)];
-	}
+	$effect(() => {
+		if ($editMode && $history.length === 0) {
+			// create initial entry
+			$history = [...$history, JSON.stringify($dashboard)];
+		}
+	});
 
-	$: canUndo = $historyIndex > 0;
+	let canUndo = $derived($historyIndex > 0);
 
-	$: canRedo = $historyIndex < $history.length - 1;
+	let canRedo = $derived($historyIndex < $history.length - 1);
 
 	/**
 	 * Checks if a key exists directly on the
 	 * provided object or in its nested objects
 	 */
-	function keyCheck(obj: any, key: string): boolean {
-		if (obj && typeof obj === 'object' && key in obj) {
-			return true;
-		}
-		for (const prop of Object.values(obj)) {
-			if (typeof prop === 'object' && prop !== null) {
-				if (keyCheck(prop, key)) return true;
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * Adds a snapshot of current dashboard to the history array
 	 */
 	function snapshot() {
-		// ignore 'isDndShadowItem' that svelte-dnd-action creates...
-		if (!ignored && keyCheck($dashboard, 'isDndShadowItem')) {
-			ignored = true;
-			return;
-		}
-
 		// after undo, future changes will overwrite history
 		if ($historyIndex < $history.length - 1) {
 			$history = $history.slice(0, $historyIndex + 1);
@@ -131,23 +114,22 @@
 	 */
 	onDestroy(() => {
 		$historyIndex = 0;
-		ignored = false;
 		$history = [];
 	});
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	class="button"
-	on:click={() => handleClick('undo')}
+	onclick={() => handleClick('undo')}
 	style:cursor={canUndo ? 'pointer' : 'unset'}
 	style:opacity={canUndo ? '1' : '0.5'}
 	style:transition="opacity {$motion}ms ease"
 	title={$lang('undo')}
 	use:Ripple={{
 		...$ripple,
-		opacity: !canUndo ? '0' : $ripple.opacity
+		opacity: !canUndo ? 0 : $ripple.opacity
 	}}
 >
 	<figure>
@@ -157,14 +139,14 @@
 
 <button
 	class="button"
-	on:click={() => handleClick('redo')}
+	onclick={() => handleClick('redo')}
 	style:cursor={canRedo ? 'pointer' : 'unset'}
 	style:opacity={canRedo ? '1' : '0.5'}
 	style:transition="opacity {$motion}ms ease"
 	title={$lang('forward')}
 	use:Ripple={{
 		...$ripple,
-		opacity: !canRedo ? '0' : $ripple.opacity
+		opacity: !canRedo ? 0 : $ripple.opacity
 	}}
 >
 	<figure>

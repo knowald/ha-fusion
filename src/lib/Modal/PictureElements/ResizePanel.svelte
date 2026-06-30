@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let resizing: boolean;
-	export let container: HTMLDivElement;
-	export let panelsWidth: number;
+	let {
+		resizing = $bindable(),
+		container,
+		panelsWidth = $bindable()
+	}: { resizing: boolean; container: HTMLDivElement; panelsWidth: number } = $props();
 
 	let minWidth: number;
 
@@ -22,9 +24,9 @@
 	}
 </script>
 
-<svelte:window on:pointermove={handlePointermove} on:pointerup={() => (resizing = false)} />
+<svelte:window onpointermove={handlePointermove} onpointerup={() => (resizing = false)} />
 
-<div on:pointerdown={() => (resizing = true)}></div>
+<div onpointerdown={() => (resizing = true)}></div>
 
 <style>
 	div {

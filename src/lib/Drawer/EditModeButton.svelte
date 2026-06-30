@@ -13,16 +13,15 @@
 		clickOriginatedFromMenu
 	} from '$lib/Stores';
 	import { tick } from 'svelte';
-	import { modals, openModal, closeModal } from 'svelte-modals';
-	import Ripple from 'svelte-ripple';
+	import { modals, openModal, closeModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 
-	export let modified: boolean;
-	export let toggleDrawer: () => void;
+	let { modified, toggleDrawer }: { modified: boolean; toggleDrawer: () => void } = $props();
 
-	let width: number;
+	let width = $state<number>(0);
 
-	$: text = $lang($editMode ? 'done' : 'edit_ui');
+	let text = $derived($lang($editMode ? 'done' : 'edit_ui'));
 
 	/**
 	 * If changes have been made, prompt the user for
@@ -125,12 +124,12 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <button
 	id="editmode"
 	class="button"
-	on:click={handleClick}
+	onclick={handleClick}
 	style:color={$editMode ? '#3b0f10' : 'inherit'}
 	style:background-color={$editMode ? '#ffc107' : 'var(--theme-drawer-button-background-color)'}
 	style:width="{width + 1}px"

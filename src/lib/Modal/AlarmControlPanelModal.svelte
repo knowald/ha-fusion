@@ -4,22 +4,21 @@
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';
 
-	export let isOpen: boolean;
-	export let sel: any;
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	$: entity = $states[sel?.entity_id];
-	$: entity_id = entity?.entity_id;
-	$: state = entity?.state;
+	let entity = $derived($states[sel?.entity_id]);
+	let entity_id = $derived(entity?.entity_id);
+	let entityState = $derived(entity?.state);
 
-	let code = '';
-	let reject: boolean;
+	let code = $state('');
+	let reject = $state<boolean>(false);
 	let timeout: ReturnType<typeof setTimeout> | undefined;
-	let selectedService: string | undefined;
+	let selectedService = $state<string | undefined>(undefined);
 
 	function addCode(key: number) {
 		code += key;
@@ -94,23 +93,23 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{getName(sel, entity)}</h1>
+		{#snippet title()}<h1>{getName(sel, entity)}</h1>{/snippet}
 
 		<h2>{$lang('state')}</h2>
 
-		<span class:arming={state === 'arming'}>
+		<span class:arming={entityState === 'arming'}>
 			<StateLogic entity_id={sel?.entity_id} selected={sel} />
 		</span>
 
-		{#if state === 'disarmed'}
+		{#if entityState === 'disarmed'}
 			<h2>{$lang('alarm_modes_label')}</h2>
 
 			<Select
 				{options}
 				placeholder={$lang('alarm_modes_label')}
-				value={'alarm_disarm'}
-				on:change={(event) => {
-					selectedService = event.detail;
+				value="alarm_disarm"
+				onchange={(event) => {
+					selectedService = event;
 				}}
 			/>
 		{/if}
@@ -119,14 +118,14 @@
 			<input type="password" class:reject bind:value={code} />
 
 			<div class="buttons">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit}
-					<button on:click={() => addCode(digit)} use:Ripple={$ripple}>
+				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit (digit)}
+					<button onclick={() => addCode(digit)} use:Ripple={$ripple}>
 						{digit}
 					</button>
 				{/each}
 
 				<button
-					on:click={clearCode}
+					onclick={clearCode}
 					use:Ripple={$ripple}
 					style:background-color={code === '' ? '' : '#422522'}
 					style:transition="background-color {$motion}ms ease"
@@ -140,9 +139,9 @@
 					></Icon>
 				</button>
 
-				<button on:click={() => addCode(0)} use:Ripple={$ripple}>0</button>
+				<button onclick={() => addCode(0)} use:Ripple={$ripple}>0</button>
 
-				<button on:click={enterCode} use:Ripple={$ripple} style:background-color="#293828">
+				<button onclick={enterCode} use:Ripple={$ripple} style:background-color="#293828">
 					<Icon icon="gravity-ui:check" height="none" style="width: 1.8rem; color: #67ad5b;"></Icon>
 				</button>
 			</div>

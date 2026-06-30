@@ -4,7 +4,7 @@
 	import { expoOut } from 'svelte/easing';
 	import Icon from '@iconify/svelte';
 
-	export let showHelp: boolean;
+	let { showHelp = $bindable() }: { showHelp: boolean } = $props();
 
 	const data = [
 		{
@@ -102,15 +102,26 @@
 	}
 </script>
 
-<svelte:document on:keydown|stopPropagation={handleKeydown} />
+<svelte:document
+	onkeydown={(e) => {
+		e.stopPropagation();
+		handleKeydown(e);
+	}}
+/>
 
-<button transition:fade={{ duration: $motion, easing: expoOut }} on:click={handleClick}>
+<div
+	role="button"
+	tabindex="-1"
+	transition:fade={{ duration: $motion, easing: expoOut }}
+	onclick={handleClick}
+	onkeydown={handleKeydown}
+>
 	<div class="container">
-		{#each data as section}
+		{#each data as section, i (i)}
 			<div class="section">
 				<h2>{section.title}</h2>
 				<ul>
-					{#each Object.entries(section.items) as [key, value]}
+					{#each Object.entries(section.items) as [key, value] (key)}
 						<li><kbd>{key}</kbd> {value}</li>
 					{/each}
 				</ul>
@@ -120,10 +131,10 @@
 			<Icon icon="mingcute:close-fill" width="20" height="20" />
 		</button>
 	</div>
-</button>
+</div>
 
 <style>
-	button {
+	div[role='button'] {
 		all: unset;
 		position: absolute;
 		inset: 0;
@@ -132,6 +143,7 @@
 		color: inherit;
 		font-family: inherit;
 		overflow: hidden;
+		cursor: pointer;
 	}
 
 	.container {

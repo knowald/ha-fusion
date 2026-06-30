@@ -3,7 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import type { Condition } from '$lib/Types';
 
-	export let item: Condition;
+	let { item = $bindable() }: { item: Condition } = $props();
 
 	/**
 	 * Handles click
@@ -13,7 +13,7 @@
 	}
 </script>
 
-<button title={$lang(!item?.collapsed ? 'hide' : 'show')} on:click={handleClick}>
+<button title={$lang(!item?.collapsed ? 'hide' : 'show')} onclick={handleClick}>
 	<Icon icon={!item?.collapsed ? 'octicon:chevron-up-12' : 'octicon:chevron-down-12'} />
 </button>
 

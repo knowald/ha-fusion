@@ -1,27 +1,19 @@
 <script lang="ts">
 	import { editMode, lang, record } from '$lib/Stores';
-	import { createEventDispatcher } from 'svelte';
-
-	export let value: string;
-
-	let width: number;
+	let {
+		value: initialValue,
+		onsubmit = undefined
+	}: { value: string; onsubmit?: (value: string) => void } = $props();
+	let value = $derived(initialValue);
+	let width: number = $state(undefined as any);
 	let input: HTMLInputElement;
 
-	const dispatch = createEventDispatcher();
-
-	/**
-	 * Dispatches title change on submit or blur,
-	 * also restores required title if empty
-	 */
 	function handleSubmit() {
 		if (!$editMode) return;
-
-		dispatch('submit', value);
+		onsubmit?.(value);
 		$record();
-
 		if (input) input.blur();
 	}
-
 	/**
 	 * Stops the propagation of the 'f' keydown event,
 	 * because `$drawerSearch` hijacks that key event.
@@ -41,15 +33,19 @@
 		{@html value.replaceAll(' ', '&nbsp;')}
 	{/if}
 </div>
-
-<form on:submit|preventDefault={handleSubmit}>
+<form
+	onsubmit={(e) => {
+		e.preventDefault();
+		handleSubmit();
+	}}
+>
 	<input
 		class="input"
 		name={value}
 		bind:value
 		bind:this={input}
-		on:blur={handleSubmit}
-		on:keydown={handleKeydown}
+		onblur={handleSubmit}
+		onkeydown={handleKeydown}
 		style:width="{width + 1}px"
 		autocomplete="off"
 		spellcheck="false"
@@ -64,7 +60,6 @@
 		pointer-events: none;
 		visibility: hidden;
 	}
-
 	.input {
 		border: none;
 		background: none;

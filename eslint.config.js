@@ -14,8 +14,7 @@ export default tseslint.config(
 		languageOptions: {
 			globals: {
 				...globals.browser,
-				...globals.node,
-				DndEvent: 'readonly'
+				...globals.node
 			}
 		}
 	},

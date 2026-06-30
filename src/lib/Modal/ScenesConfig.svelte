@@ -13,15 +13,21 @@
 	import Select from '$lib/Components/Select.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
-	import Ripple from 'svelte-ripple';
+	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 
-	export let isOpen: boolean;
-	export let sel: ButtonItem;
-	export let demo: string | undefined = undefined;
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: ButtonItem;
+		demo?: string;
+	} = $props();
 
 	if (demo) {
 		// replace history entry with demo
@@ -29,12 +35,12 @@
 		set('entity_id', demo);
 	}
 
-	$: entity_id = sel?.entity_id;
-	let name = sel?.name;
-	let icon = sel?.icon;
-	let computedIcon: string;
+	let entity_id = $derived(sel?.entity_id);
+	let name = $state(sel?.name);
+	let icon = $state(sel?.icon);
+	let computedIcon: string = $state('');
 
-	$: options = $entityList('');
+	let options = $derived($entityList(''));
 
 	function set(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
@@ -46,7 +52,7 @@
 
 {#if isOpen}
 	<Modal>
-		<h1 slot="title">{$lang('button')}</h1>
+		{#snippet title()}<h1>{$lang('button')}</h1>{/snippet}
 
 		<h2>{$lang('entity')}</h2>
 
@@ -55,14 +61,14 @@
 				{options}
 				placeholder={$lang('entity')}
 				value={entity_id}
-				on:change={(event) => {
-					if (event?.detail === null) return;
+				onchange={(event) => {
+					if (event === null) return;
 					set('entity_id', event);
 				}}
 				computeIcons={true}
 				getIconString={true}
-				on:iconString={(event) => {
-					computedIcon = event?.detail;
+				oniconString={(value) => {
+					computedIcon = value ?? '';
 				}}
 			/>
 		</div>
@@ -71,23 +77,25 @@
 
 		<InputClear
 			condition={name}
-			on:clear={() => {
+			onclear={() => {
 				name = undefined;
 				set('name');
 			}}
-			let:padding
 		>
-			<input
-				name={$lang('name')}
-				class="input"
-				type="text"
-				placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined) || $lang('name')}
-				autocomplete="off"
-				spellcheck="false"
-				bind:value={name}
-				on:change={(event) => set('name', event)}
-				style:padding
-			/>
+			{#snippet children(padding)}
+				<input
+					name={$lang('name')}
+					class="input"
+					type="text"
+					placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined) ||
+						$lang('name')}
+					autocomplete="off"
+					spellcheck="false"
+					bind:value={name}
+					onchange={(event) => set('name', event)}
+					style:padding
+				/>
+			{/snippet}
 		</InputClear>
 
 		<h2>
@@ -97,30 +105,31 @@
 		<div class="icon-gallery-container">
 			<InputClear
 				condition={icon}
-				on:clear={() => {
+				onclear={() => {
 					icon = undefined;
 					set('icon');
 				}}
-				let:padding
 			>
-				<input
-					name={$lang('icon')}
-					class="input"
-					type="text"
-					placeholder={computedIcon || $lang('icon')}
-					autocomplete="off"
-					spellcheck="false"
-					bind:value={icon}
-					on:change={(event) => set('icon', event)}
-					style:padding
-				/>
+				{#snippet children(padding)}
+					<input
+						name={$lang('icon')}
+						class="input"
+						type="text"
+						placeholder={computedIcon || $lang('icon')}
+						autocomplete="off"
+						spellcheck="false"
+						bind:value={icon}
+						onchange={(event) => set('icon', event)}
+						style:padding
+					/>
+				{/snippet}
 			</InputClear>
 
 			<button
 				use:Ripple={$ripple}
 				title={$lang('icon')}
 				class="icon-gallery"
-				on:click={() => {
+				onclick={() => {
 					window.open('https://icon-sets.iconify.design/', '_blank');
 				}}
 				style:padding="0.84rem"
