@@ -12,6 +12,7 @@
 		title: heading,
 		demo = undefined,
 		demoKey = 'entity_id',
+		ontransitionend = undefined,
 		children
 	}: {
 		isOpen: boolean;
@@ -19,6 +20,7 @@
 		title: string;
 		demo?: string;
 		demoKey?: string;
+		ontransitionend?: () => void;
 		children: Snippet<[(key: string, event?: any) => void]>;
 	} = $props();
 
@@ -37,7 +39,7 @@
 </script>
 
 {#if isOpen}
-	<Modal>
+	<Modal {ontransitionend}>
 		{#snippet title()}<h1>{heading}</h1>{/snippet}
 
 		{@render children(set)}

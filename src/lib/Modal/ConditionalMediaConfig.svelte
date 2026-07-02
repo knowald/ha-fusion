@@ -5,15 +5,13 @@
 		lang,
 		history,
 		historyIndex,
-		record,
 		ripple,
 		motion,
 		selectedLanguage
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import { relativeTime, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
@@ -30,12 +28,6 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	const debug = false;
 
 	let timeout = $state(sel?.timeout);
@@ -47,10 +39,11 @@
 	// fix empty media_players array
 	if (!sel?.media_players) {
 		$history.splice($historyIndex, 1);
-		set('media_players', [{ entity_id: '' }]);
+		applySet('media_players', [{ entity_id: '' }]);
 	}
 
-	function set(key: string, event?: any) {
+	// script-scope equivalent of the set() the ConfigModal snippet provides
+	function applySet(key: string, event?: any) {
 		sel = updateObj(sel, key, event);
 		$dashboard = $dashboard;
 	}
@@ -106,31 +99,29 @@
 				value = maxExpire;
 			}
 
-			set('timeout', value);
+			applySet('timeout', value);
 			timeout = value ?? defaultExpire;
 		}
 	}
 
+	// runs before ConfigModal's own onDestroy record, so the snapshot excludes empty objects
 	onDestroy(() => {
-		// cleanup empty objects
 		if (sel?.media_players) {
 			sel.media_players = sel.media_players.filter(
 				(item: Record<string, never>) => Object.keys(item).length > 0
 			);
-			set('media_players', sel.media_players);
+			applySet('media_players', sel.media_players);
 		}
-
-		$record();
 	});
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>
-				{$lang('conditional')}
-				{$lang('media')?.toLocaleLowerCase()}
-			</h1>{/snippet}
-
+<ConfigModal
+	{isOpen}
+	bind:sel
+	{demo}
+	title={`${$lang('conditional')} ${$lang('media')?.toLocaleLowerCase()}`}
+>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -261,10 +252,8 @@
 			<h2>Debug</h2>
 			<pre><code>{JSON.stringify(sel, null, 2)}</code></pre>
 		{/if}
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.paused {

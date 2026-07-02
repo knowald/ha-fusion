@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { dashboard, lang, record, ripple } from '$lib/Stores';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import { lang, ripple } from '$lib/Stores';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Navigate from '$lib/Sidebar/Navigate.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import type { NavigateItem } from '$lib/Types';
-	import { updateObj } from '$lib/Utils';
-	import { onDestroy } from 'svelte';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: NavigateItem } = $props();
 
@@ -14,19 +11,10 @@
 	function handleEvent() {
 		modalTransitionEnd = true;
 	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal ontransitionend={handleEvent}>
-		{#snippet title()}<h1>{$lang('navigate')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('navigate')} ontransitionend={handleEvent}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -52,7 +40,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

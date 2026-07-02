@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { dashboard, record, lang, autocompleteList, ripple } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { lang, autocompleteList, ripple } from '$lib/Stores';
 	import Template from '$lib/Sidebar/Template.svelte';
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
-	import { updateObj } from '$lib/Utils';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import type { TemplateItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
@@ -17,19 +14,10 @@
 	function handleEvent() {
 		modalTransitionEnd = true;
 	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal ontransitionend={handleEvent}>
-		{#snippet title()}<h1>{$lang('template')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('template')} ontransitionend={handleEvent}>
+	{#snippet children(set)}
 		<h2>
 			{$lang('preview')}
 		</h2>
@@ -91,10 +79,8 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.shortcut {
