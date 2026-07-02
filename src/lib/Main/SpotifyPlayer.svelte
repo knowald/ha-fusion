@@ -15,7 +15,11 @@
 	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
 	import { onMount, untrack } from 'svelte';
 
-	let { sel, sectionName = undefined }: { sel: any; sectionName?: string } = $props();
+	let {
+		sel,
+		sectionName = undefined,
+		large = false
+	}: { sel: any; sectionName?: string; large?: boolean } = $props();
 
 	let entity_id = $derived(sel?.entity_id);
 	let name = $derived(sel?.name);
@@ -32,6 +36,7 @@
 	// Media info
 	let media_title = $derived(attributes?.media_title);
 	let media_artist = $derived(attributes?.media_artist);
+	let media_album_name = $derived(attributes?.media_album_name);
 	let entity_picture = $derived(attributes?.entity_picture);
 
 	// Playback state
@@ -132,7 +137,8 @@
 
 		const updatedDate = new Date(updated_at);
 		const elapsedSeconds = (currentTime.getTime() - updatedDate.getTime()) / 1000;
-		return position + elapsedSeconds;
+		const elapsed = position + elapsedSeconds;
+		return media_duration ? Math.min(elapsed, media_duration) : elapsed;
 	}
 
 	// Display text
@@ -157,9 +163,12 @@
 
 <div
 	class="container"
+	class:large
 	tabindex="-1"
 	style:cursor={!$editMode ? 'pointer' : ''}
-	style:min-height="{$itemHeight}px"
+	style:min-height={large ? undefined : `${$itemHeight}px`}
+	style:height={large ? `calc(${$itemHeight}px * 4 + 0.4rem * 3)` : undefined}
+	style:background-image={large && entity_picture && is_playing ? `url(${entity_picture})` : ''}
 	onclick={handleClick}
 	onkeydown={(event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -170,9 +179,11 @@
 	role="button"
 	use:Ripple={$ripple}
 >
-	<!-- Background image (playing) -->
+	<!-- Background image (playing); large uses the container background instead -->
 	{#if entity_picture && is_playing}
-		<div class="background-image" style:background-image="url({entity_picture})" />
+		{#if !large}
+			<div class="background-image" style:background-image="url({entity_picture})" />
+		{/if}
 		<div class="background-overlay" />
 	{:else if recentArtwork.length > 0 && !is_playing}
 		<!-- Rotating background (not playing) -->
@@ -191,6 +202,11 @@
 		<div class="background-overlay idle" />
 	{/if}
 
+	<!-- SHORTCUTS, large layout (not playing) -->
+	{#if large && !is_playing && shortcuts.length > 0}
+		<SpotifyShortcuts {shortcuts} {entity_id} default_device={sel?.default_device} layout="large" />
+	{/if}
+
 	<!-- Content -->
 	<div class="content">
 		<!-- ICON -->
@@ -199,7 +215,7 @@
 				<Icon {icon} height="none" width="100%" />
 				{#if is_playing}
 					<div class="playing-indicator">
-						<Icon icon="mdi:music-note" height="1rem" />
+						<Icon icon="mdi:music-note" height={large ? '1.2rem' : '1rem'} />
 					</div>
 				{/if}
 			</div>
@@ -214,6 +230,9 @@
 			<!-- ARTIST/STATE -->
 			<div class="state">
 				{display_artist}
+				{#if large && media_album_name}
+					• {media_album_name}
+				{/if}
 			</div>
 
 			<!-- PROGRESS BAR -->
@@ -225,8 +244,8 @@
 				</div>
 			{/if}
 
-			<!-- SHORTCUTS (not playing) -->
-			{#if !is_playing && shortcuts.length > 0}
+			<!-- SHORTCUTS, compact layout (not playing) -->
+			{#if !large && !is_playing && shortcuts.length > 0}
 				<SpotifyShortcuts
 					{shortcuts}
 					{entity_id}
@@ -253,6 +272,14 @@
 		transform: translateZ(0);
 	}
 
+	.container.large {
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		color: white;
+		text-shadow: rgba(0, 0, 0, 0.15) 1px 1px 1px;
+	}
+
 	.background-image {
 		position: absolute;
 		top: 0;
@@ -265,8 +292,17 @@
 		transform: scale(1.1);
 	}
 
+	.large .background-image {
+		filter: none;
+		transform: none;
+	}
+
 	.background-image.rotating {
 		transition: opacity 1.5s ease;
+	}
+
+	.large .background-image.rotating {
+		transition: opacity 2s ease;
 	}
 
 	.background-overlay {
@@ -278,8 +314,16 @@
 		background: rgba(0, 0, 0, 0.5);
 	}
 
+	.large .background-overlay {
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
+	}
+
 	.background-overlay.idle {
 		background: rgba(0, 0, 0, 0.65);
+	}
+
+	.large .background-overlay.idle {
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.4) 100%);
 	}
 
 	.content {
@@ -291,6 +335,21 @@
 		grid-template-areas: 'left right';
 		height: 100%;
 		--container-padding: 0.72rem;
+	}
+
+	/* large: content collapses to a bottom bar over the artwork */
+	.large .content {
+		height: 65px;
+		align-self: end;
+		border-radius: 0 0 0.65rem 0.65rem;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		--container-padding: 0.8rem;
 	}
 
 	.left {
@@ -333,6 +392,10 @@
 		animation: pulse 2s infinite;
 	}
 
+	.large .playing-indicator {
+		padding: 3px;
+	}
+
 	@keyframes pulse {
 		0%,
 		100% {
@@ -353,6 +416,10 @@
 		margin-top: -1px;
 	}
 
+	.large .name {
+		color: white;
+	}
+
 	.state {
 		font-weight: 400;
 		white-space: nowrap;
@@ -361,6 +428,10 @@
 		color: var(--theme-button-state-color-off);
 		font-size: 0.925rem;
 		margin-top: 1px;
+	}
+
+	.large .state {
+		color: rgba(255, 255, 255, 0.85);
 	}
 
 	.progress-container {
@@ -386,6 +457,10 @@
 	@media all and (max-width: 768px) {
 		.container {
 			width: calc(50vw - 1.45rem);
+		}
+
+		.container.large {
+			width: calc(100vw - (1.25rem + 1.25rem));
 		}
 	}
 </style>

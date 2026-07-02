@@ -20,6 +20,8 @@
 		sectionName?: string;
 	} = $props();
 
+	let large = $derived(sel?.type === 'spotify_player_large');
+
 	let name: string | undefined = $state(sel?.name);
 	let icon: string | undefined = $state(sel?.icon);
 	let color: string | undefined = $state(sel?.color);
@@ -77,12 +79,18 @@
 
 {#if isOpen}
 	<Modal>
-		{#snippet title()}<h1>{$lang('spotify_player') || 'Spotify Player'}</h1>{/snippet}
+		{#snippet title()}
+			<h1>
+				{large
+					? $lang('spotify_player_large') || 'Spotify Player Large'
+					: $lang('spotify_player') || 'Spotify Player'}
+			</h1>
+		{/snippet}
 
 		<h2>{$lang('preview')}</h2>
 
 		<div style:pointer-events="none">
-			<SpotifyPlayer {sel} {sectionName} />
+			<SpotifyPlayer {sel} {sectionName} {large} />
 		</div>
 
 		<h2>{$lang('entity') || 'Entity'}</h2>
@@ -260,8 +268,11 @@
 
 		<h2>{$lang('description') || 'Description'}</h2>
 		<p style="margin: 0; opacity: 0.7; font-size: 0.9rem;">
-			{$lang('spotify_player_description') ||
-				'A Spotify player with playback controls, device selection, and library browsing. Requires Home Assistant Spotify integration.'}
+			{large
+				? $lang('spotify_player_large_description') ||
+					'A large 4x height Spotify player widget displaying album artwork and playback status. Perfect for visual dashboards.'
+				: $lang('spotify_player_description') ||
+					'A Spotify player with playback controls, device selection, and library browsing. Requires Home Assistant Spotify integration.'}
 		</p>
 
 		<ConfigButtons {sel} />

@@ -22,7 +22,6 @@
 	import PictureElements from '$lib/Main/PictureElements.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
-	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
@@ -98,9 +97,10 @@
 		{
 			id: 'spotify_player_large',
 			type: $lang('spotify_player_large') || 'Spotify Player Large',
-			component: SpotifyPlayerLarge,
+			component: SpotifyPlayer,
 			props: {
-				sel
+				sel,
+				large: true
 			}
 		},
 		{
@@ -175,12 +175,8 @@
 				});
 				break;
 			case 'spotify_player':
-				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
-					sel
-				});
-				break;
 			case 'spotify_player_large':
-				openModal(() => import('$lib/Modal/SpotifyPlayerLargeConfig.svelte'), {
+				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
 					sel
 				});
 				break;

@@ -36,13 +36,7 @@ export interface Views {
 	isDndShadowItem?: boolean;
 }
 
-export type Item =
-	| ButtonItem
-	| CameraItem
-	| EmptyItem
-	| DaysSinceItem
-	| SpotifyPlayerItem
-	| SpotifyPlayerLargeItem;
+export type Item = ButtonItem | CameraItem | EmptyItem | DaysSinceItem | SpotifyPlayerItem;
 
 export interface Section {
 	id?: number;
@@ -134,6 +128,7 @@ export interface SpotifyShortcut {
 	image_url?: string;
 }
 
+// covers both spotify_player and spotify_player_large types
 export interface SpotifyPlayerItem {
 	type: string;
 	id: number;
@@ -145,17 +140,6 @@ export interface SpotifyPlayerItem {
 	show_progress?: boolean; // Show progress bar in compact view
 	show_volume?: boolean; // Show volume control
 	compact?: boolean; // Use compact display mode
-	shortcuts?: SpotifyShortcut[];
-}
-
-export interface SpotifyPlayerLargeItem {
-	type: string;
-	id: number;
-	entity_id?: string; // media_player.spotify_* entity
-	name?: string;
-	icon?: string;
-	color?: string;
-	show_progress?: boolean; // Show progress bar
 	shortcuts?: SpotifyShortcut[];
 }
 

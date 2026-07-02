@@ -7,7 +7,6 @@
 	import Empty from '$lib/Main/Empty.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
-	import SpotifyPlayerLarge from '$lib/Main/SpotifyPlayerLarge.svelte';
 
 	let { item, sectionName = undefined }: { item: any; sectionName?: string } = $props();
 </script>
@@ -21,7 +20,7 @@
 {:else if item?.type === 'spotify_player'}
 	<SpotifyPlayer sel={item} {sectionName} />
 {:else if item?.type === 'spotify_player_large'}
-	<SpotifyPlayerLarge sel={item} {sectionName} />
+	<SpotifyPlayer sel={item} {sectionName} large />
 {:else if item?.type === 'conditional_media'}
 	<ConditionalMedia sel={item} />
 {:else if item?.type === 'picture_elements'}
