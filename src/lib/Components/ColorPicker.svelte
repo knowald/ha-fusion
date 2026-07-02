@@ -146,7 +146,7 @@
 
 		if (type === 'kelvin' && supportedColorModes?.includes('color_temp')) {
 			data = {
-				kelvin: color?.kelvin
+				color_temp_kelvin: Math.round(color?.kelvin)
 			};
 		} else if (!type) {
 			data = {
