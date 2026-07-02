@@ -29,7 +29,10 @@
 	let timeout: ReturnType<typeof setTimeout> | undefined;
 	let interacting = $state(false);
 
-	let request: Promise<unknown> | undefined = undefined;
+	const SEND_INTERVAL = 250;
+	let sendTimer: ReturnType<typeof setTimeout> | undefined;
+	let pendingData: Record<string, unknown> | undefined;
+	let lastSentData: string | undefined;
 
 	let attributes = $derived(entity?.attributes);
 	let rgbColor = $derived(attributes?.rgb_color);
@@ -123,8 +126,7 @@
 			setHandleTransition(`all ${$motion}ms ease`);
 
 			// make sure to send a final request so last doesn't get ignored
-			request = undefined;
-			handleChange(event);
+			flush(event);
 
 			// debounce for one sec
 			timeout = setTimeout(() => {
@@ -133,41 +135,83 @@
 		});
 	});
 
-	async function handleChange(color: { rgb: { r: number; g: number; b: number }; kelvin: number }) {
-		kelvinNumber = Math.round(color?.kelvin);
-		if (request) return;
+	type PickerColor = { rgb: { r: number; g: number; b: number }; kelvin: number };
 
+	function handleChange(color: PickerColor) {
+		kelvinNumber = Math.round(color?.kelvin);
+
+		const data = buildServiceData(color);
+		if (data) throttledSend(data);
+	}
+
+	function buildServiceData(color: PickerColor): Record<string, unknown> | undefined {
 		const type =
 			typeof picker?.state?.layout?.[0] !== 'string'
 				? picker?.state?.layout?.[0]?.options?.sliderType
 				: undefined;
 
-		let data;
-
 		if (type === 'kelvin' && supportedColorModes?.includes('color_temp')) {
-			data = {
+			return {
 				color_temp_kelvin: Math.round(color?.kelvin)
 			};
 		} else if (!type) {
-			data = {
+			return {
 				rgb_color: [color.rgb.r, color.rgb.g, color.rgb.b]
 			};
 		}
 
-		if (!data) return;
+		return undefined;
+	}
 
-		request = callService($connection, 'light', 'turn_on', {
+	/**
+	 * Sends are throttled by time instead of waiting on the previous request,
+	 * so slow devices (e.g. cloud lights in a group) don't reduce the update
+	 * rate while dragging. The latest value is always sent as a trailing call.
+	 */
+	function throttledSend(data: Record<string, unknown>) {
+		if (sendTimer) {
+			pendingData = data;
+			return;
+		}
+
+		send(data);
+
+		sendTimer = setTimeout(() => {
+			sendTimer = undefined;
+			if (pendingData) {
+				const pending = pendingData;
+				pendingData = undefined;
+				throttledSend(pending);
+			} else {
+				// interaction settled, allow resending the same value later
+				lastSentData = undefined;
+			}
+		}, SEND_INTERVAL);
+	}
+
+	function send(data: Record<string, unknown>) {
+		const key = JSON.stringify(data);
+		if (key === lastSentData) return;
+		lastSentData = key;
+
+		callService($connection, 'light', 'turn_on', {
 			entity_id: entity?.entity_id,
 			...data
-		});
-
-		try {
-			await request;
-		} catch (error) {
+		}).catch((error) => {
 			console.error('Failed to update color or temperature:', error);
-		} finally {
-			request = undefined;
-		}
+		});
+	}
+
+	/**
+	 * Sends the final value immediately, skipping the throttle window
+	 */
+	function flush(color: PickerColor) {
+		clearTimeout(sendTimer);
+		sendTimer = undefined;
+		pendingData = undefined;
+
+		const data = buildServiceData(color);
+		if (data) send(data);
 	}
 
 	function setHandleTransition(value: string) {
@@ -178,6 +222,8 @@
 	onDestroy(() => {
 		clearTimeout(timeout);
 		timeout = undefined;
+		clearTimeout(sendTimer);
+		sendTimer = undefined;
 	});
 </script>
 
