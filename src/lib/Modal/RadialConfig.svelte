@@ -1,20 +1,9 @@
 <script lang="ts">
-	import {
-		states,
-		dashboard,
-		lang,
-		history,
-		historyIndex,
-		record,
-		ripple,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';
@@ -28,12 +17,6 @@
 		sel: RadialItem;
 		demo?: string;
 	} = $props();
-
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
 
 	let name = $state(sel?.name);
 	let stroke = $state(sel?.stroke);
@@ -55,22 +38,14 @@
 
 	function handleNumberRange(event: any) {
 		const value = minMax(event?.target?.value);
-		set('stroke', value);
+		sel = updateObj(sel, 'stroke', value);
+		$dashboard = $dashboard;
 		if (numberElement) numberElement.value = String(value);
 	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>Radial</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title="Radial">
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -146,7 +121,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

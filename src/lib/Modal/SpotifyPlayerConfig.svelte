@@ -1,14 +1,12 @@
 <script lang="ts">
-	import { connection, dashboard, record, lang, ripple, services, states } from '$lib/Stores';
-	import { onDestroy, onMount } from 'svelte';
+	import { connection, lang, ripple, services, states } from '$lib/Stores';
+	import { onMount } from 'svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
-	import { updateObj } from '$lib/Utils';
 
 	let {
 		isOpen,
@@ -68,25 +66,16 @@
 	}
 
 	onMount(loadDevices);
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}
-			<h1>
-				{large
-					? $lang('spotify_player_large') || 'Spotify Player Large'
-					: $lang('spotify_player') || 'Spotify Player'}
-			</h1>
-		{/snippet}
-
+<ConfigModal
+	{isOpen}
+	bind:sel
+	title={large
+		? $lang('spotify_player_large') || 'Spotify Player Large'
+		: $lang('spotify_player') || 'Spotify Player'}
+>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div style:pointer-events="none">
@@ -274,10 +263,8 @@
 				: $lang('spotify_player_description') ||
 					'A Spotify player with playback controls, device selection, and library browsing. Requires Home Assistant Spotify integration.'}
 		</p>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	input[type='color'] {

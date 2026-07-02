@@ -1,23 +1,11 @@
 <script lang="ts">
-	import {
-		states,
-		dashboard,
-		lang,
-		record,
-		ripple,
-		history,
-		historyIndex,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, lang, ripple, entityList } from '$lib/Stores';
 	import Weather from '$lib/Sidebar/Weather.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { updateObj } from '$lib/Utils';
 	import type { WeatherItem } from '$lib/Types';
 
 	let {
@@ -29,12 +17,6 @@
 		sel: WeatherItem;
 		demo?: string;
 	} = $props();
-
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
 
 	let icon: string | undefined = $state(sel?.icon);
 
@@ -51,19 +33,10 @@
 			.sort()
 			.map((key) => ({ id: key, label: key }))
 	);
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('weather')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title={$lang('weather')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -202,7 +175,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

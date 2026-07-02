@@ -1,27 +1,15 @@
 <script lang="ts">
-	import { dashboard, lang, record, ripple } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { lang, ripple } from '$lib/Stores';
 	import Date from '$lib/Sidebar/Date.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { updateObj } from '$lib/Utils';
 	import type { DateItem } from '$lib/Types';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: DateItem } = $props();
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('date')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('date')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -142,10 +130,8 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.preview {

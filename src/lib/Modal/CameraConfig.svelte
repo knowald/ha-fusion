@@ -1,19 +1,7 @@
 <script lang="ts">
-	import {
-		states,
-		dashboard,
-		lang,
-		history,
-		historyIndex,
-		record,
-		ripple,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
-	import { updateObj } from '$lib/Utils';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Camera from '$lib/Main/Camera.svelte';
 
@@ -27,28 +15,13 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
 	let entity = $derived($states?.[sel?.entity_id]);
 
 	let options = $derived($entityList('camera'));
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('camera')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('camera')} {demo}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<Camera {sel} responsive={true} muted={true} controls={false} />
@@ -121,10 +94,8 @@
 				</button>
 			</div>
 		{/if}
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	h2:first-letter {

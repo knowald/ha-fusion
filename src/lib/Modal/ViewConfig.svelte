@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { dashboard, record, lang, ripple } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import { lang, ripple } from '$lib/Stores';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { updateObj } from '$lib/Utils';
 	import type { ViewItem } from '$lib/Types';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: ViewItem } = $props();
@@ -16,19 +13,10 @@
 	let name = $state(sel?.name);
 
 	let icon: string | undefined = $state(sel?.icon);
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('edit_view')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('edit_view')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -95,10 +83,8 @@
 				<Icon icon="vaadin:grid-small" height="none" />
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.inline-preview {

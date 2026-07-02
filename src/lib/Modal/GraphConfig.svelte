@@ -1,20 +1,9 @@
 <script lang="ts">
-	import {
-		dashboard,
-		states,
-		connection,
-		lang,
-		history,
-		historyIndex,
-		record,
-		ripple
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { dashboard, states, connection, lang, ripple } from '$lib/Stores';
 	import Graph from '$lib/Sidebar/Graph.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import type { GraphItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
@@ -24,12 +13,6 @@
 		sel = $bindable(),
 		demo = undefined
 	}: { isOpen: boolean; sel: GraphItem; demo?: string } = $props();
-
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
 
 	let name = $state(sel?.name);
 
@@ -57,16 +40,10 @@
 
 	function handleNumberRange(event: any) {
 		const value = minMax(event?.target?.value);
-		set('stroke', value);
+		sel = updateObj(sel, 'stroke', value);
+		$dashboard = $dashboard;
 		if (numberElement) numberElement.value = String(value);
 	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 
 	connection.subscribe(async (conn) => {
 		if (!conn) return;
@@ -98,10 +75,8 @@
 	});
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('graph')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('graph')} {demo}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -213,10 +188,8 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.preview {

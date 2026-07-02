@@ -1,19 +1,8 @@
 <script lang="ts">
-	import {
-		states,
-		dashboard,
-		lang,
-		record,
-		ripple,
-		history,
-		historyIndex,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
 	import WeatherForecast from '$lib/Sidebar/WeatherForecast.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import { getSupport, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 
@@ -26,12 +15,6 @@
 		sel: any;
 		demo?: string;
 	} = $props();
-
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
 
 	let entity = $derived($states[sel?.entity_id]);
 	let attributes = $derived(entity?.attributes);
@@ -68,22 +51,14 @@
 
 	function handleNumberRange(event: any) {
 		const value = minMax(event?.target?.value);
-		set('days_to_show', value);
+		sel = updateObj(sel, 'days_to_show', value);
+		$dashboard = $dashboard;
 		if (numberElement) numberElement.value = String(value);
 	}
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('weather_forecast')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title={$lang('weather_forecast')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -188,7 +163,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

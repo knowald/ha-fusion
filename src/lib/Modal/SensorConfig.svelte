@@ -1,20 +1,10 @@
 <script lang="ts">
-	import {
-		dashboard,
-		entityList,
-		history,
-		historyIndex,
-		lang,
-		record,
-		ripple,
-		states
-	} from '$lib/Stores';
-	import { onDestroy, tick } from 'svelte';
+	import { dashboard, entityList, lang, ripple, states } from '$lib/Stores';
+	import { tick } from 'svelte';
 	import Sensor from '$lib/Sidebar/Sensor.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
 	import type { SensorItem } from '$lib/Types';
@@ -30,12 +20,6 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let prefix: string | undefined = $state(sel?.prefix);
 	let suffix: string | undefined = $state(sel?.suffix);
 
@@ -44,13 +28,6 @@
 	let date = $derived(sel?.date);
 
 	let options = $derived($entityList('sensor'));
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 
 	/**
 	 * If entity_id changes check if state is a timestamp
@@ -68,18 +45,17 @@
 			const state = $states?.[entity_id]?.state;
 
 			if (isTimestamp(state)) {
-				set('date', true);
+				sel = updateObj(sel, 'date', true);
 			} else {
-				set('date');
+				sel = updateObj(sel, 'date');
 			}
+			$dashboard = $dashboard;
 		}
 	}
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('sensor')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title={$lang('sensor')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -177,7 +153,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { dashboard, lang, history, historyIndex, record, ripple, entityList } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { lang, ripple, entityList } from '$lib/Stores';
 	import Timer from '$lib/Sidebar/Timer.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
-	import { updateObj } from '$lib/Utils';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import type { TimerItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
@@ -19,26 +16,11 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let options = $derived($entityList('timer'));
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('timer')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title={$lang('timer')}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -78,7 +60,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>

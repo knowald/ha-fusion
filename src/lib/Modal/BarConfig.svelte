@@ -1,25 +1,12 @@
 <script lang="ts">
-	import {
-		states,
-		dashboard,
-		barErrors,
-		motion,
-		lang,
-		history,
-		historyIndex,
-		ripple,
-		record,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, barErrors, motion, lang, ripple, entityList } from '$lib/Stores';
 	import { slide } from 'svelte/transition';
 	import Bar from '$lib/Sidebar/Bar.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import { updateObj, getName } from '$lib/Utils';
+	import { getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 
 	let {
@@ -32,12 +19,6 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let name = $state(sel?.name);
 
 	let entity_id = $derived(sel?.entity_id);
@@ -45,19 +26,10 @@
 	let math = $state(sel?.math || '');
 
 	let options = $derived($entityList('sensor'));
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>Bar</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title="Bar" {demo}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div class="preview">
@@ -162,10 +134,8 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.error-message {

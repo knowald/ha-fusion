@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { dashboard, record, lang, ripple, connection, states } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { dashboard, lang, ripple, connection, states } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj } from '$lib/Utils';
 
 	let {
@@ -48,11 +46,6 @@
 		}
 	});
 
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
 	async function handleDateChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const dateValue = target.value;
@@ -87,17 +80,14 @@
 	function linkEntity() {
 		if (suggestedEntityId) {
 			entity_id = suggestedEntityId;
-			set('entity_id', { target: { value: entity_id } });
+			sel = updateObj(sel, 'entity_id', { target: { value: entity_id } });
+			$dashboard = $dashboard;
 		}
 	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('days_since') || 'Days Since'}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('days_since') || 'Days Since'}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div style:pointer-events="none">
@@ -306,10 +296,8 @@
 			{$lang('days_since_description') ||
 				'Track days since a task was last completed. Click to open details and reset counter.'}
 		</p>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	input[type='color'] {

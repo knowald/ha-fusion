@@ -1,22 +1,11 @@
 <script lang="ts">
-	import {
-		dashboard,
-		states,
-		record,
-		lang,
-		ripple,
-		history,
-		historyIndex,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { states, lang, ripple, entityList } from '$lib/Stores';
 	import Select from '$lib/Components/Select.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import { updateObj, getName } from '$lib/Utils';
+	import { getName } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 
 	let {
@@ -29,31 +18,16 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let entity_id = $derived(sel?.entity_id);
 	let name = $state(sel?.name);
 	let icon = $state(sel?.icon);
 	let computedIcon: string = $state('');
 
 	let options = $derived($entityList(''));
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('button')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel {demo} title={$lang('button')}>
+	{#snippet children(set)}
 		<h2>{$lang('entity')}</h2>
 
 		<div class="full-width">
@@ -137,10 +111,8 @@
 				<Icon icon="majesticons:open-line" height="none" />
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	.full-width {

@@ -1,23 +1,11 @@
 <script lang="ts">
-	import {
-		dashboard,
-		states,
-		record,
-		lang,
-		ripple,
-		history,
-		historyIndex,
-		templates,
-		entityList
-	} from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { dashboard, states, lang, ripple, templates, entityList } from '$lib/Stores';
 	import Button from '$lib/Main/Button.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import { updateObj, getDomain, getName, getTogglableService } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 	import { openModal } from '$lib/Modals';
@@ -35,12 +23,6 @@
 		sectionName?: string | undefined;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let entity_id = $derived(sel?.entity_id);
 	let name = $state(sel?.name);
 	let color = $state(sel?.color);
@@ -53,13 +35,6 @@
 	let options = $derived($entityList(''));
 
 	let template = $derived($templates?.[sel?.id]);
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 
 	let servicePlaceholder = $state<string>();
 
@@ -134,33 +109,35 @@
 	function addPlan() {
 		if (!newPlanEntity) return;
 		vacuumPlans = [...vacuumPlans, newPlanEntity];
-		set('vacuum_plans', vacuumPlans);
+		sel = updateObj(sel, 'vacuum_plans', vacuumPlans);
+		$dashboard = $dashboard;
 		newPlanEntity = '';
 	}
 
 	function removePlan(index: number) {
 		vacuumPlans = vacuumPlans.filter((_, i) => i !== index);
-		set('vacuum_plans', vacuumPlans.length ? vacuumPlans : undefined);
+		sel = updateObj(sel, 'vacuum_plans', vacuumPlans.length ? vacuumPlans : undefined);
+		$dashboard = $dashboard;
 	}
 
 	function addRoom() {
 		if (!newRoomId || !newRoomName) return;
 		vacuumRooms = [...vacuumRooms, { id: newRoomId, name: newRoomName }];
-		set('vacuum_rooms', vacuumRooms);
+		sel = updateObj(sel, 'vacuum_rooms', vacuumRooms);
+		$dashboard = $dashboard;
 		newRoomId = '';
 		newRoomName = '';
 	}
 
 	function removeRoom(index: number) {
 		vacuumRooms = vacuumRooms.filter((_, i) => i !== index);
-		set('vacuum_rooms', vacuumRooms.length ? vacuumRooms : undefined);
+		sel = updateObj(sel, 'vacuum_rooms', vacuumRooms.length ? vacuumRooms : undefined);
+		$dashboard = $dashboard;
 	}
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('button')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('button')} {demo}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		<div style:pointer-events="none">
@@ -694,10 +671,8 @@
 				</button>
 			</div>
 		{/if}
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
 
 <style>
 	input[type='color'] {

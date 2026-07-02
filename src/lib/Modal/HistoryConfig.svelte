@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { dashboard, lang, record, history, historyIndex, ripple, entityList } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { lang, ripple, entityList } from '$lib/Stores';
 	import History from '$lib/Sidebar/History.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
-	import { updateObj } from '$lib/Utils';
+	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
 	import type { HistoryItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
@@ -19,12 +16,6 @@
 		demo?: string;
 	} = $props();
 
-	if (demo) {
-		// replace history entry with demo
-		$history.splice($historyIndex, 1);
-		set('entity_id', demo);
-	}
-
 	let options = $derived($entityList(''));
 
 	const periodOptions = [
@@ -34,19 +25,10 @@
 		{ id: 'week', label: $lang('period_week') },
 		{ id: 'month', label: $lang('period_month') }
 	];
-
-	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
-	}
-
-	onDestroy(() => $record());
 </script>
 
-{#if isOpen}
-	<Modal>
-		{#snippet title()}<h1>{$lang('history')}</h1>{/snippet}
-
+<ConfigModal {isOpen} bind:sel title={$lang('history')} {demo}>
+	{#snippet children(set)}
 		<h2>{$lang('preview')}</h2>
 
 		{#if sel?.entity_id}
@@ -97,7 +79,5 @@
 				{$lang('hidden')}
 			</button>
 		</div>
-
-		<ConfigButtons {sel} />
-	</Modal>
-{/if}
+	{/snippet}
+</ConfigModal>
