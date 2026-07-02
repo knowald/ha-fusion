@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.3.3](https://github.com/knowald/ha-fusion/releases/tag/2026.3.3) - 2026-07-02
+
+### Fixed
+
+- Send `color_temp_kelvin` instead of the removed `kelvin` parameter, restoring the color temperature slider (8081243)
+- Throttle light color and brightness service calls by time, so slow devices in a group no longer delay updates while dragging (6c5a2a7)
+
 ## [2026.3.2](https://github.com/knowald/ha-fusion/releases/tag/2026.3.2) - 2026-06-30
 
 ### Changed
