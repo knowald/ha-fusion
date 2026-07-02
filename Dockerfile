@@ -3,7 +3,7 @@ FROM node:22 AS builder
 WORKDIR /app
 
 # copy package files first for better layer caching
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 
 # install pnpm and dependencies
 RUN npm install -g pnpm && \
