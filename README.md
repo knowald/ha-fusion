@@ -12,75 +12,13 @@ ha-fusion was created by [matt8707](https://github.com/matt8707). This repositor
 
 - Drag-and-drop editor for views, sections and sidebar, saved to plain YAML
 - Buttons and modals for most Home Assistant domains: lights, covers, climate, media players, cameras, vacuums, locks, timers and more
+- Optimistic updates: buttons reflect the new state on tap, before the Home Assistant round-trip completes
+- Slide horizontally across a light button to set brightness
 - Sidebar widgets: weather, forecast, graphs, camera, iframe, date and time, templates, notifications
 - Horizontal and vertical stacks, including nested stacks for two-dimensional layouts
+- Spotify player widgets with playback controls, quick-play shortcuts and a media browser
 - Themes, custom CSS, and translations for over 60 languages
 - Runs as a Home Assistant add-on (with Ingress) or as a standalone Docker container
-
-### Vertical stacks
-
-Arrange sections in a column, including vertical stacks nested inside horizontal stacks for two-dimensional layouts.
-
-```yaml
-- type: vertical-stack
-  id: 1234567890
-  sections:
-    - name: Top Section
-      items: [...]
-    - name: Bottom Section
-      items: [...]
-```
-
-### Spotify widgets
-
-Media player widgets in compact and large layouts, with a progress bar, playback controls, album art, quick-play shortcuts when idle, and a built-in browser for playlists, albums, and artists.
-
-```yaml
-- type: spotify_player # or spotify_player_large
-  id: 1234567890
-  entity_id: media_player.spotify_username
-  show_progress: true
-```
-
-### Days since
-
-Counts the days elapsed since a timestamp stored in a Home Assistant entity. Useful for maintenance reminders.
-
-```yaml
-- type: days_since
-  id: 1234567890
-  entity_id: input_datetime.last_filter_change
-  name: Filter Changed
-  icon: mdi:air-filter
-```
-
-### Display-only buttons
-
-Render a button as a non-interactive status readout. The `sensor`, `binary_sensor`, `weather`, `sun`, `zone`, and `person` domains default to display-only; override with `displayOnly`.
-
-```yaml
-- type: button
-  id: 1234567890
-  entity_id: sensor.indoor_temperature
-  name: Temperature
-  displayOnly: true
-```
-
-### Slide brightness
-
-Drag horizontally across a light button to set brightness. On by default for lights that support it; disable per button with `slide_brightness: false`.
-
-### Optimistic updates
-
-Interactive buttons reflect the new state immediately on tap, before the Home Assistant round-trip completes.
-
-### Custom CSS
-
-Add styles under Settings > Custom CSS. Saved to `/data/custom_css.css`.
-
-### Serene theme
-
-A built-in blue-gray theme, selectable from the theme picker.
 
 ## Requirements
 
