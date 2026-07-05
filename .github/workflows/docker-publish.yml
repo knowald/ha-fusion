@@ -38,6 +38,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # release tags produce <version> + latest, manual runs from a branch produce <branch>
+          tags: |
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+          flavor: |
+            latest=auto
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
