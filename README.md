@@ -6,13 +6,16 @@ A modern, fast, custom dashboard for [Home Assistant](https://www.home-assistant
 
 Built with SvelteKit and Svelte 5. Connects to Home Assistant over WebSocket for real-time state, with a drag-and-drop editor for building views without writing YAML by hand.
 
-## Fork notice
-
-This is a fork of the original [ha-fusion](https://github.com/matt8707/ha-fusion) by [matt8707](https://github.com/matt8707), who wrote the initial implementation and core architecture. If the project is useful to you, consider supporting the original author: <https://www.paypal.com/paypalme/matt8707>.
-
-The sections below cover what this fork adds on top of upstream.
+ha-fusion was created by [matt8707](https://github.com/matt8707). This repository is the maintained continuation of the [original project](https://github.com/matt8707/ha-fusion); see [Credits](#credits).
 
 ## Features
+
+- Drag-and-drop editor for views, sections and sidebar, saved to plain YAML
+- Buttons and modals for most Home Assistant domains: lights, covers, climate, media players, cameras, vacuums, locks, timers and more
+- Sidebar widgets: weather, forecast, graphs, camera, iframe, date and time, templates, notifications
+- Horizontal and vertical stacks, including nested stacks for two-dimensional layouts
+- Themes, custom CSS, and translations for over 60 languages
+- Runs as a Home Assistant add-on (with Ingress) or as a standalone Docker container
 
 ### Vertical stacks
 
@@ -133,6 +136,13 @@ docker run -d \
 
 </details>
 
+## Migrating from the original project
+
+Dashboards are fully compatible: `dashboard.yaml`, `configuration.yaml` and custom CSS carry over unchanged. Keep your existing data directory or add-on configuration and switch the source:
+
+- **Add-on**: add the repository <https://github.com/knowald/addon-ha-fusion> (see [Add-on](#add-on)) and install ha-fusion from it. Home Assistant treats it as a separate add-on with its own data directory, so files do not move over automatically: copy `dashboard.yaml`, `configuration.yaml` and any custom CSS from the old add-on's data directory into the new one (`/mnt/data/supervisor/addons/data/<id>_ha_fusion/`, reachable with the Advanced SSH & Web Terminal add-on with protection mode disabled), then remove the old add-on.
+- **Docker**: change the image from `ghcr.io/matt8707/ha-fusion` to `ghcr.io/knowald/ha-fusion` and keep the same `/app/data` volume mount.
+
 ## Configuration
 
 Set these environment variables (in the add-on config, the compose file, or `.env` for local development):
@@ -184,3 +194,7 @@ pnpm format   # apply prettier
 ### Logs
 
 Add-on: the "Log" tab. Docker: `docker logs ha-fusion`. Frontend issues show in the browser console.
+
+## Credits
+
+ha-fusion was created by [matt8707](https://github.com/matt8707), who wrote the initial implementation and core architecture and maintains the original repository at [matt8707/ha-fusion](https://github.com/matt8707/ha-fusion). If the project is useful to you, consider supporting him: <https://www.paypal.com/paypalme/matt8707>.
