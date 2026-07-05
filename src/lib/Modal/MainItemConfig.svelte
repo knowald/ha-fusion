@@ -17,6 +17,7 @@
 	import Camera from '$lib/Main/Camera.svelte';
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
+	import Entities from '$lib/Main/Entities.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
@@ -104,6 +105,15 @@
 			}
 		},
 		{
+			id: 'entities',
+			type: $lang('entities'),
+			component: Entities,
+			props: {
+				demo: $demo.sensor,
+				sel
+			}
+		},
+		{
 			id: 'camera',
 			type: $lang('camera'),
 			component: Camera,
@@ -177,6 +187,11 @@
 			case 'spotify_player':
 			case 'spotify_player_large':
 				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
+					sel
+				});
+				break;
+			case 'entities':
+				openModal(() => import('$lib/Modal/EntitiesConfig.svelte'), {
 					sel
 				});
 				break;

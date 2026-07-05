@@ -6,6 +6,7 @@
 	import Configure from '$lib/Main/Configure.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
+	import Entities from '$lib/Main/Entities.svelte';
 	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
 
 	let { item, sectionName = undefined }: { item: any; sectionName?: string } = $props();
@@ -17,6 +18,8 @@
 	<Button sel={item} {sectionName} />
 {:else if item?.type === 'days_since'}
 	<DaysSince sel={item} {sectionName} />
+{:else if item?.type === 'entities'}
+	<Entities sel={item} {sectionName} />
 {:else if item?.type === 'spotify_player'}
 	<SpotifyPlayer sel={item} {sectionName} />
 {:else if item?.type === 'spotify_player_large'}

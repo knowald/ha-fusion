@@ -36,7 +36,13 @@ export interface Views {
 	isDndShadowItem?: boolean;
 }
 
-export type Item = ButtonItem | CameraItem | EmptyItem | DaysSinceItem | SpotifyPlayerItem;
+export type Item =
+	| ButtonItem
+	| CameraItem
+	| EmptyItem
+	| DaysSinceItem
+	| EntitiesItem
+	| SpotifyPlayerItem;
 
 export interface Section {
 	id?: number;
@@ -195,6 +201,14 @@ export interface CameraItem {
 	size?: string;
 	hide_mobile?: boolean;
 	hide_overlay?: boolean;
+}
+
+export interface EntitiesItem {
+	type?: string;
+	id?: number;
+	name?: string;
+	entities?: string[];
+	wildcard?: string;
 }
 
 export interface DateItem {
