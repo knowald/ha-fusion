@@ -22,7 +22,7 @@
 	let sensor = $derived(sel?.sensor && $states?.[sel?.sensor]);
 </script>
 
-{#if entity && entity?.state !== 'unavailable'}
+{#if entity && entity?.state !== 'unavailable' && entity?.state !== 'unknown'}
 	<div class="container">
 		<div class="icon">
 			<img {src} width="100%" height="100%" alt="" />
