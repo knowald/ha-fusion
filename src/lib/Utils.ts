@@ -122,6 +122,9 @@ export function getTogglableService(entity: HassEntity) {
 			service = state === 'locked' ? 'unlock' : 'lock';
 			break;
 
+		// group members span domains, so only homeassistant.toggle covers them;
+		// without this, Button falls back to a handler that recurses into toggle
+		case 'group':
 		case 'remote':
 			return 'homeassistant.toggle';
 
