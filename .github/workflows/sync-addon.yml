@@ -1,0 +1,47 @@
+name: Sync addon repo
+
+# On release publish, bump the version in knowald/addon-ha-fusion and copy the
+# release notes into its CHANGELOG.md. The push triggers the addon publish
+# workflow, which builds the release tag via BUILD_VERSION in its Dockerfile.
+#
+# Requires the ADDON_REPO_TOKEN secret: a fine-grained PAT with contents
+# read/write on knowald/addon-ha-fusion. The default GITHUB_TOKEN cannot push
+# to another repository, and pushes made with it would not trigger workflows.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync:
+    name: Bump addon version and changelog
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Check out the addon repo
+        uses: actions/checkout@v4
+        with:
+          repository: knowald/addon-ha-fusion
+          token: ${{ secrets.ADDON_REPO_TOKEN }}
+
+      - name: Update config.yaml and CHANGELOG.md
+        env:
+          BODY: ${{ github.event.release.body }}
+        run: |
+          sed -i "s/^version: .*/version: ${VERSION}/" config.yaml
+          {
+            echo "## ${VERSION}"
+            echo
+            printf '%s\n' "${BODY}" | tr -d '\r'
+            echo
+            echo "**Full Changelog**: <https://github.com/${{ github.repository }}/releases/tag/${VERSION}>"
+          } > CHANGELOG.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add config.yaml CHANGELOG.md
+          git commit -m "${VERSION}"
+          git push
