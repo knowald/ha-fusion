@@ -155,9 +155,23 @@
 				color_temp_kelvin: Math.round(color?.kelvin)
 			};
 		} else if (!type) {
-			return {
-				rgb_color: [color.rgb.r, color.rgb.g, color.rgb.b]
-			};
+			const rgb = [color.rgb.r, color.rgb.g, color.rgb.b];
+
+			// send the dedicated white channels along, otherwise home assistant
+			// recomputes them from the rgb value and overwrites slider changes
+			if (supportedColorModes?.includes('rgbw')) {
+				return { rgbw_color: [...rgb, attributes?.rgbw_color?.[3] ?? 0] };
+			} else if (supportedColorModes?.includes('rgbww')) {
+				return {
+					rgbww_color: [
+						...rgb,
+						attributes?.rgbww_color?.[3] ?? 0,
+						attributes?.rgbww_color?.[4] ?? 0
+					]
+				};
+			}
+
+			return { rgb_color: rgb };
 		}
 
 		return undefined;

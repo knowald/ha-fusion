@@ -2,6 +2,7 @@
 	import { states, selectedLanguage, lang, ripple, connection } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import LightSlider from '$lib/Components/LightSlider.svelte';
+	import WhiteSlider from '$lib/Components/WhiteSlider.svelte';
 	import ColorPicker from '$lib/Components/ColorPicker.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
@@ -84,6 +85,10 @@
 	let toggle = $derived(entity?.state === 'on');
 	let current = $derived(Math.round(rangeValue / 2.55));
 	let brightness = $derived(entity?.attributes?.brightness);
+
+	let whiteCurrent = $state(0);
+	let coldWhiteCurrent = $state(0);
+	let warmWhiteCurrent = $state(0);
 
 	onMount(() => {
 		groupEntity = entity;
@@ -251,6 +256,37 @@
 				tempSelected={selTab === 'color_temp'}
 				colorSelected={selTab !== 'color_temp'}
 			/>
+		{/if}
+
+		<!-- WHITE CHANNELS -->
+		{#if colorModes?.includes('rgbw')}
+			<h2>
+				{$lang('white')}
+				<span class="align-right">
+					{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(whiteCurrent / 100)}
+				</span>
+			</h2>
+			<WhiteSlider {entity} attribute="rgbw_color" index={3} bind:current={whiteCurrent} />
+		{:else if colorModes?.includes('rgbww')}
+			<h2>
+				{$lang('cold_white')}
+				<span class="align-right">
+					{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(
+						coldWhiteCurrent / 100
+					)}
+				</span>
+			</h2>
+			<WhiteSlider {entity} attribute="rgbww_color" index={3} bind:current={coldWhiteCurrent} />
+
+			<h2>
+				{$lang('warm_white')}
+				<span class="align-right">
+					{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(
+						warmWhiteCurrent / 100
+					)}
+				</span>
+			</h2>
+			<WhiteSlider {entity} attribute="rgbww_color" index={4} bind:current={warmWhiteCurrent} />
 		{/if}
 
 		<ConfigButtons />
