@@ -14,6 +14,15 @@
 	let entity = $derived($states[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
 	let entityState = $derived(entity?.state);
+	let attributes = $derived(entity?.attributes);
+
+	// null code_format means the panel takes no code at all; when disarmed the
+	// pending action is arming, which also skips the code if code_arm_required
+	// is false - disarming always needs the code when a format is set
+	let codeRequired = $derived(
+		Boolean(attributes?.code_format) &&
+			(entityState === 'disarmed' ? attributes?.code_arm_required !== false : true)
+	);
 
 	let code = $state('');
 	let reject = $state<boolean>(false);
@@ -28,14 +37,14 @@
 		code = '';
 	}
 
-	async function enterCode() {
-		if (!code) return;
+	async function callAlarmService() {
+		if (codeRequired && !code) return;
 
 		try {
 			const service = selectedService || 'alarm_disarm';
 			await callService($connection, 'alarm_control_panel', service, {
 				entity_id,
-				code
+				...(codeRequired && { code })
 			});
 
 			selectedService = undefined;
@@ -114,44 +123,68 @@
 			/>
 		{/if}
 
-		<div class="container">
-			<input type="password" class:reject bind:value={code} />
+		{#if codeRequired}
+			<div class="container">
+				<input type="password" class:reject bind:value={code} />
 
-			<div class="buttons">
-				{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit (digit)}
-					<button onclick={() => addCode(digit)} use:Ripple={$ripple}>
-						{digit}
+				<div class="buttons">
+					{#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as digit (digit)}
+						<button onclick={() => addCode(digit)} use:Ripple={$ripple}>
+							{digit}
+						</button>
+					{/each}
+
+					<button
+						onclick={clearCode}
+						use:Ripple={$ripple}
+						style:background-color={code === '' ? '' : '#422522'}
+						style:transition="background-color {$motion}ms ease"
+					>
+						<Icon
+							icon="gravity-ui:xmark"
+							height="none"
+							style={`width: 1.65rem; ${
+								code === '' ? '' : `color: #e15241; transition: background-color ${$motion}ms ease;`
+							}`}
+						></Icon>
 					</button>
-				{/each}
 
+					<button onclick={() => addCode(0)} use:Ripple={$ripple}>0</button>
+
+					<button onclick={callAlarmService} use:Ripple={$ripple} style:background-color="#293828">
+						<Icon icon="gravity-ui:check" height="none" style="width: 1.8rem; color: #67ad5b;"
+						></Icon>
+					</button>
+				</div>
+			</div>
+		{:else}
+			<div class="no-code-action">
 				<button
-					onclick={clearCode}
+					class="done action"
+					onclick={callAlarmService}
 					use:Ripple={$ripple}
-					style:background-color={code === '' ? '' : '#422522'}
-					style:transition="background-color {$motion}ms ease"
+					disabled={entityState === 'disarmed' && !selectedService}
+					style:opacity={entityState === 'disarmed' && !selectedService ? '0.4' : '1'}
 				>
-					<Icon
-						icon="gravity-ui:xmark"
-						height="none"
-						style={`width: 1.65rem; ${
-							code === '' ? '' : `color: #e15241; transition: background-color ${$motion}ms ease;`
-						}`}
-					></Icon>
-				</button>
-
-				<button onclick={() => addCode(0)} use:Ripple={$ripple}>0</button>
-
-				<button onclick={enterCode} use:Ripple={$ripple} style:background-color="#293828">
-					<Icon icon="gravity-ui:check" height="none" style="width: 1.8rem; color: #67ad5b;"></Icon>
+					{$lang(entityState === 'disarmed' ? 'arm' : 'disarm')}
 				</button>
 			</div>
-		</div>
+		{/if}
 	</Modal>
 {/if}
 
 <style>
 	.container {
 		display: grid;
+	}
+
+	.no-code-action {
+		display: flex;
+		margin-top: 2rem;
+	}
+
+	.no-code-action > button {
+		width: 100%;
 	}
 
 	input[type='password'] {
