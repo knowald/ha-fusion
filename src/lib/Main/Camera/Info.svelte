@@ -33,9 +33,9 @@
 		align-self: end;
 		width: inherit;
 		z-index: 1;
-		background-color: rgba(0, 0, 0, 0.25);
-		backdrop-filter: blur(1rem);
-		-webkit-backdrop-filter: blur(1rem);
+		background-color: rgba(0, 0, 0, 0.15);
+		backdrop-filter: blur(0.4rem);
+		-webkit-backdrop-filter: blur(0.4rem);
 	}
 
 	.name {

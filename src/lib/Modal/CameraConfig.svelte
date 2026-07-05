@@ -72,6 +72,26 @@
 			</button>
 		</div>
 
+		<h2>{$lang('overlay')}</h2>
+
+		<div class="button-container">
+			<button
+				class:selected={sel?.hide_overlay !== true}
+				onclick={() => set('hide_overlay')}
+				use:Ripple={$ripple}
+			>
+				{$lang('visible')}
+			</button>
+
+			<button
+				class:selected={sel?.hide_overlay === true}
+				onclick={() => set('hide_overlay', true)}
+				use:Ripple={$ripple}
+			>
+				{$lang('hidden')}
+			</button>
+		</div>
+
 		<!-- only show if it's a sidebar item -->
 		{#if $dashboard?.sidebar?.find((item) => item?.id === sel?.id)}
 			<h2>{$lang('mobile')}</h2>

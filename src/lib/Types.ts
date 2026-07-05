@@ -194,6 +194,7 @@ export interface CameraItem {
 	stream?: boolean;
 	size?: string;
 	hide_mobile?: boolean;
+	hide_overlay?: boolean;
 }
 
 export interface DateItem {

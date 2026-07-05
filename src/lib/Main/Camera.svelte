@@ -127,7 +127,7 @@
 	{/await}
 
 	<!-- info -->
-	{#if muted && !responsive}
+	{#if muted && !responsive && sel?.hide_overlay !== true}
 		{#await import('$lib/Main/Camera/Info.svelte') then Info}
 			<Info.default {sel} {entity} />
 		{/await}
