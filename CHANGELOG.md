@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026.7.0](https://github.com/knowald/ha-fusion/releases/tag/2026.7.0) - 2026-07-07
+
+### Added
+
+- Add entities list card showing multiple entity states, with wildcard entity selection (1c14220)
+- Add white channel sliders to the light modal for RGBW and RGBWW lights (e6d053a)
+- Add option to hide the camera name overlay (5c4aded)
+
+### Changed
+
+- Soften the camera name overlay with less dimming and blur (5c4aded)
+- Merge the Spotify player large variant into a single component (378fa1a)
+- Extract a shared scaffold for config panels (5fef1a6, 69b7388)
+- Rewrite the README as a maintained continuation of the original project, with a migration guide (4ee4e36, 3135697)
+- Add CI workflow, issue templates, and automated release sync to the addon repo (5a4b539, c08a647, ee746d5, 9703e69)
+
+### Fixed
+
+- Fix toggle recursion when pressing group entity buttons (532a90e)
+- Show a placeholder instead of a missing weather icon when the state is unknown or unavailable (3b859ac)
+- Hide the alarm keypad and skip the code when the panel does not require one (8d45efb)
+- Preserve white channels when picking colors on RGBW and RGBWW lights (e6d053a)
+- Repair YouTube account linking in the video addon by updating youtubei.js (cdd9c19)
+
 ## [2026.3.3](https://github.com/knowald/ha-fusion/releases/tag/2026.3.3) - 2026-07-02
 
 ### Fixed
