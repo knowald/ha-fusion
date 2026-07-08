@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { motion, ripple } from '$lib/Stores';
+	import { config, motion, ripple } from '$lib/Stores';
 	import { onMount, tick, untrack } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
@@ -23,9 +23,16 @@
 	let temperatures: number[] = [];
 	const minTemp = stateObj?.attributes?.min_temp;
 	const maxTemp = stateObj?.attributes?.max_temp;
-	if (minTemp && maxTemp) {
-		for (let i = maxTemp; i >= minTemp; i--) {
-			temperatures.push(i);
+	// same default as the ha frontend when target_temp_step is absent
+	const targetTempStep =
+		stateObj?.attributes?.target_temp_step ??
+		($config?.unit_system?.temperature === '°F' ? 1 : 0.5);
+	const stepDecimals = String(targetTempStep).split('.')[1]?.length ?? 0;
+	if (Number.isFinite(minTemp) && Number.isFinite(maxTemp) && targetTempStep > 0) {
+		// derive each value from the index to avoid float accumulation
+		const stepCount = Math.round((maxTemp - minTemp) / targetTempStep);
+		for (let index = 0; index <= stepCount; index++) {
+			temperatures.push(Number((maxTemp - index * targetTempStep).toFixed(stepDecimals)));
 		}
 	}
 	let min = $derived(value === temperatures.length - 1);
@@ -44,15 +51,14 @@
 		touch = 'ontouchstart' in window;
 		// if temperature elements
 		if (container.children.length > 0) {
-			// round temperature to ignore decimals
-			let temperature = Math.round(stateObj?.attributes?.temperature);
-			// but don't round below or over minmax temp
-			if (minTemp && maxTemp) {
-				temperature = Math.max(minTemp, Math.min(maxTemp, temperature));
-			}
-			value = temperatures.indexOf(temperature);
-			// fallback
-			if (value === -1) value = 0;
+			// clamp into minmax, then snap to the nearest step index
+			const clampedTemperature = Math.max(
+				minTemp,
+				Math.min(maxTemp, stateObj?.attributes?.temperature)
+			);
+			value = Math.round((maxTemp - clampedTemperature) / targetTempStep);
+			// fallback, also catches NaN from a missing temperature
+			if (!(value >= 0 && value < temperatures.length)) value = 0;
 			// set initial value
 			await tick();
 			container.scrollTo({
@@ -179,7 +185,7 @@
 				style:margin-bottom={index === temperatures.length - 1 ? '1rem' : 'none'}
 				style:scroll-snap-align={touch ? 'center' : 'unset'}
 			>
-				{temperature}°
+				{temperature.toFixed(stepDecimals)}°
 			</div>
 		{/each}
 	</div>
