@@ -1,7 +1,7 @@
 <script lang="ts">
 	// eventually merge with SidebarItemConfig.svelte...
 
-	import { dashboard, record, lang, motion, ripple, states, demo } from '$lib/Stores';
+	import { record, lang, motion, ripple, states, demo, updateDashboard } from '$lib/Stores';
 	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
@@ -26,6 +26,11 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
+	// `sel` is a plain prop, so it can't be reassigned after refreshDashboard()
+	// re-creates the graph; keep the live item in reactive local state instead
+	// svelte-ignore state_referenced_locally
+	let selected = $state(sel);
+
 	let searchString = $state('');
 	let searchElement = $state<HTMLInputElement>();
 
@@ -43,14 +48,15 @@
 		}
 
 		// if changing type reset object
-		if (sel) {
-			Object.keys(sel).forEach((key) => {
-				if (key !== 'id') {
-					delete (sel as any)[key];
-				}
+		if (selected) {
+			selected = updateDashboard(selected, (live) => {
+				Object.keys(live).forEach((key) => {
+					if (key !== 'id') {
+						delete live[key];
+					}
+				});
+				live.type = 'configure';
 			});
-			sel.type = 'configure';
-			$dashboard = $dashboard;
 		}
 
 		// picture elements config, need to be loaded before click but can be deferred to onmount
@@ -76,7 +82,7 @@
 			component: Button,
 			props: {
 				demo: $demo.sensor,
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -84,7 +90,7 @@
 			type: $lang('days_since') || 'Days Since',
 			component: DaysSince,
 			props: {
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -92,7 +98,7 @@
 			type: $lang('spotify_player') || 'Spotify Player',
 			component: SpotifyPlayer,
 			props: {
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -100,7 +106,7 @@
 			type: $lang('spotify_player_large') || 'Spotify Player Large',
 			component: SpotifyPlayer,
 			props: {
-				sel,
+				sel: selected,
 				large: true
 			}
 		},
@@ -110,7 +116,7 @@
 			component: Entities,
 			props: {
 				demo: $demo.sensor,
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -119,7 +125,7 @@
 			component: Camera,
 			props: {
 				demo: $demo.camera,
-				sel,
+				sel: selected,
 				responsive: true,
 				controls: false,
 				muted: true
@@ -130,7 +136,7 @@
 			type: $lang('picture_elements'),
 			component: PictureElements,
 			props: {
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -138,7 +144,7 @@
 			type: $lang('empty'),
 			component: Empty,
 			props: {
-				sel
+				sel: selected
 			}
 		},
 		{
@@ -147,7 +153,7 @@
 			component: ConditionalMedia,
 			props: {
 				demo: $demo.media_player,
-				sel
+				sel: selected
 			}
 		}
 	]);
@@ -165,63 +171,65 @@
 	async function handleClick(id: string) {
 		closeModal();
 
-		// set sidebar item type
-		if (sel && sel?.type) {
-			sel.type = id;
-			$dashboard = $dashboard;
+		// set item type, then hand the re-linked live object to the next modal -
+		// a stale ref would swallow all further edits
+		if (selected && selected?.type) {
+			selected = updateDashboard(selected, (live) => {
+				live.type = id;
+			});
 		}
 		$record();
 
-		switch (sel?.type) {
+		switch (selected?.type) {
 			case 'button':
 				openModal(() => import('$lib/Modal/ButtonConfig.svelte'), {
 					demo: $demo.sensor,
-					sel
+					sel: selected
 				});
 				break;
 			case 'days_since':
 				openModal(() => import('$lib/Modal/DaysSinceConfig.svelte'), {
-					sel
+					sel: selected
 				});
 				break;
 			case 'spotify_player':
 			case 'spotify_player_large':
 				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
-					sel
+					sel: selected
 				});
 				break;
 			case 'entities':
 				openModal(() => import('$lib/Modal/EntitiesConfig.svelte'), {
-					sel
+					sel: selected
 				});
 				break;
 			case 'camera':
 				openModal(() => import('$lib/Modal/CameraConfig.svelte'), {
 					demo: $demo.camera,
-					sel
+					sel: selected
 				});
 				break;
 			case 'conditional_media':
 				openModal(() => import('$lib/Modal/ConditionalMediaConfig.svelte'), {
 					demo: $demo.media_player,
-					sel
+					sel: selected
 				});
 				break;
 			case 'picture_elements': {
 				loadIcons(Object.values(icons));
 
 				openModal(() => import('$lib/Modal/PictureElements/PictureElementsConfig.svelte'), {
-					sel
+					sel: selected
 				});
 
 				break;
 			}
 
 			case 'empty':
-				openModal(() => import('$lib/Modal/EmptyConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/EmptyConfig.svelte'), { sel: selected });
 				break;
 			default:
-				openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel: selected });
 		}
 	}
 
@@ -290,7 +298,7 @@
 			{/each}
 		</div>
 
-		<ConfigButtons {sel} disableChangeType={true} />
+		<ConfigButtons sel={selected} disableChangeType={true} />
 	</Modal>
 {/if}
 
@@ -312,6 +320,7 @@
 		grid-gap: 1rem;
 		overflow: auto;
 		align-content: start;
+		min-height: 60vh;
 	}
 
 	button {
@@ -323,6 +332,7 @@
 		border-radius: 0.8em;
 		background-color: rgba(0, 0, 0, 0.2);
 		height: 10rem;
+		overflow: hidden;
 		outline-offset: -2px;
 	}
 

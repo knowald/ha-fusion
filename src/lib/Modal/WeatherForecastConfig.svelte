@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
+	import { states, lang, ripple, entityList, updateDashboard } from '$lib/Stores';
 	import WeatherForecast from '$lib/Sidebar/WeatherForecast.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
@@ -51,8 +51,7 @@
 
 	function handleNumberRange(event: any) {
 		const value = minMax(event?.target?.value);
-		sel = updateObj(sel, 'days_to_show', value);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, 'days_to_show', value));
 		if (numberElement) numberElement.value = String(value);
 	}
 </script>

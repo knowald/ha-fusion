@@ -1,4 +1,4 @@
-import { writable, readable, derived } from 'svelte/store';
+import { writable, readable, derived, get } from 'svelte/store';
 import type {
 	Configuration,
 	Dashboard,
@@ -15,7 +15,7 @@ import type {
 	HassEntities,
 	HassServices
 } from 'home-assistant-js-websocket';
-import { getName } from './Utils';
+import { getName, getSelected } from './Utils';
 
 // hass
 export const connection = writable<Connection>();
@@ -28,6 +28,30 @@ export const connected = writable<boolean>();
 export const configuration = writable<Configuration>();
 export const dashboard = writable<Dashboard>();
 export const customJs = writable<boolean | undefined>();
+
+/**
+ * In-place edits of `$dashboard` don't re-render: the derived `view` in
+ * +page.svelte and the keyed each blocks compare object refs, and mutations
+ * keep them identical. Deep clone so every ref is new, then return the
+ * clone's object matching `id` - callers holding the old `sel` would
+ * otherwise keep mutating a detached graph and lose further edits.
+ */
+export function refreshDashboard(id?: number) {
+	dashboard.update((d) => JSON.parse(JSON.stringify(d)));
+	return id === undefined ? undefined : getSelected(id, get(dashboard));
+}
+
+/**
+ * Applies `mutate` to the object matching `sel.id` in the raw store graph,
+ * then clones and returns the re-linked object. Mutating a held `sel`
+ * directly is not reliable: svelte-modals passes plain props, so `sel` in
+ * config panels becomes a $state proxy after its first reassignment, and
+ * proxy writes never reach the raw graph object that gets rendered and saved.
+ */
+export function updateDashboard(sel: any, mutate: (live: any) => void) {
+	mutate(getSelected(sel?.id, get(dashboard)) ?? sel);
+	return refreshDashboard(sel?.id) ?? sel;
+}
 
 // states
 export const onStates = readable([

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, history, historyIndex, record } from '$lib/Stores';
+	import { history, historyIndex, record, updateDashboard } from '$lib/Stores';
 	import { onDestroy, type Snippet } from 'svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
@@ -25,8 +25,7 @@
 	} = $props();
 
 	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, key, event));
 	}
 
 	if (demo) {

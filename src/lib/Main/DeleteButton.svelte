@@ -34,7 +34,10 @@
 			}
 		}
 
-		$dashboard = $dashboard;
+		// reassigning `$dashboard` to itself is not enough - the derived `view`
+		// in +page.svelte resolves to the same object ref, so nothing re-renders.
+		// Deep clone to refresh all refs, same as drag end and undo/redo.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
 		$record();
 	}
 </script>
@@ -43,7 +46,6 @@
 	title={$lang('remove')}
 	transition:scale={{ start: 0.9, duration: $motion }}
 	onclick={handleClick}
-	onpointerdown={(e) => e.stopPropagation()}
 	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
 >
 	<div class="icon">

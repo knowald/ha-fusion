@@ -4,7 +4,12 @@
 	import Icon from '@iconify/svelte';
 </script>
 
-<div transition:scale={{ start: 0.9, duration: $motion }} title={$lang('drag_and_drop')}>
+<!-- `drag-handle` is the SortableJS handle selector for section sortables -->
+<div
+	class="drag-handle"
+	transition:scale={{ start: 0.9, duration: $motion }}
+	title={$lang('drag_and_drop')}
+>
 	<div class="icon">
 		<Icon icon="mdi:drag" height="none" />
 	</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		dashboard,
+		updateDashboard,
 		record,
 		lang,
 		autocompleteList,
@@ -374,31 +374,30 @@ data: {}`;
 			onchange={(event) => {
 				if (!type) return;
 
-				// if no template key, create an object
-				if (!sel?.template) sel.template = {};
+				sel = updateDashboard(sel, (live) => {
+					// if no template key, create an object
+					if (!live?.template) live.template = {};
 
-				if (event) {
-					(sel.template as any)[type] = event;
+					if (event) {
+						(live.template as any)[type] = event;
 
-					// example, remove sel.icon in favour of sel.template.icon
-					if (type !== 'set_state') {
-						delete sel[type];
+						// example, remove sel.icon in favour of sel.template.icon
+						if (type !== 'set_state') {
+							delete live[type];
+						}
+
+						// no event
+					} else {
+						delete live?.template?.[type];
+						delete $templates?.[sel?.id]?.[type];
+						$templates = $templates;
 					}
 
-					// no event
-				} else {
-					delete sel?.template?.[type];
-					delete $templates?.[sel?.id]?.[type];
-					$templates = $templates;
-				}
-
-				// if empty remove template key
-				if (sel?.template && Object.keys(sel?.template).length === 0) {
-					delete sel.template;
-				}
-
-				// trigger reactivity
-				$dashboard = $dashboard;
+					// if empty remove template key
+					if (live?.template && Object.keys(live?.template).length === 0) {
+						delete live.template;
+					}
+				});
 			}}
 		/>
 
@@ -409,14 +408,16 @@ data: {}`;
 					class="action remove"
 					onclick={() => {
 						// remove template
-						delete sel?.template?.[type];
-						delete $templates?.[sel?.id]?.[type];
-						$templates = $templates;
+						sel = updateDashboard(sel, (live) => {
+							delete live?.template?.[type];
+							delete $templates?.[sel?.id]?.[type];
+							$templates = $templates;
 
-						// if sel.template is empty remove template key
-						if (sel?.template && Object.keys(sel?.template).length === 0) {
-							delete sel.template;
-						}
+							// if template is empty remove template key
+							if (live?.template && Object.keys(live?.template).length === 0) {
+								delete live.template;
+							}
+						});
 
 						closeModal();
 					}}

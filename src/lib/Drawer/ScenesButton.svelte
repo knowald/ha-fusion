@@ -26,8 +26,10 @@
 			...view.sections
 		];
 
-		// trigger reactivity by reassigning to self
-		$dashboard = $dashboard;
+		// reassigning `$dashboard` to itself is not enough - the derived `view`
+		// in +page.svelte resolves to the same object ref, so nothing re-renders.
+		// Deep clone to refresh all refs, same as drag end and undo/redo.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
 
 		$record();
 

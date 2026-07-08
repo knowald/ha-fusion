@@ -95,6 +95,7 @@
 		animation: $motion,
 		disabled: !$editMode,
 		ghostClass: 'sortable-ghost',
+		handle: '.drag-handle',
 		items: view.sections,
 		onStart: handleDragStart,
 		onFinalize: async (newItems) => {
@@ -119,6 +120,7 @@
 						animation: $motion,
 						disabled: !$editMode,
 						ghostClass: 'sortable-ghost',
+						handle: '.drag-handle',
 						items: section.sections ?? [],
 						onStart: handleDragStart,
 						onFinalize: async (newItems) => {
@@ -159,6 +161,7 @@
 										animation: $motion,
 										disabled: !$editMode,
 										ghostClass: 'sortable-ghost',
+										handle: '.drag-handle',
 										items: stackSection.sections ?? [],
 										onStart: handleDragStart,
 										onFinalize: async (newItems) => {
@@ -298,6 +301,7 @@
 						animation: $motion,
 						disabled: !$editMode,
 						ghostClass: 'sortable-ghost',
+						handle: '.drag-handle',
 						items: section.sections ?? [],
 						onStart: handleDragStart,
 						onFinalize: async (newItems) => {

@@ -30,6 +30,7 @@ export function getSelected(id: number | undefined, data: Dashboard) {
 
 	if (data.views) {
 		for (const view of data.views) {
+			if (view.id === id) return view;
 			if (view.sections) {
 				const result = findInSections(view.sections, id);
 				if (result) return result;
@@ -42,6 +43,7 @@ export function getSelected(id: number | undefined, data: Dashboard) {
 
 function findInSections(sections: Section[], id: number | undefined): any {
 	for (const section of sections) {
+		if (section.id === id) return section;
 		if (section.items) {
 			for (const item of section.items) {
 				if (item.id === id) return item;

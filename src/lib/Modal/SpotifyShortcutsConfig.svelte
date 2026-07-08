@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, lang, ripple } from '$lib/Stores';
+	import { lang, ripple, updateDashboard } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -15,8 +15,7 @@
 	let newImageUrl = $state('');
 
 	function set(key: string, value: any) {
-		sel = updateObj(sel, key, value);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, key, value));
 	}
 
 	function addShortcut() {

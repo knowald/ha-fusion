@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, dragging, lang, motion, record, ripple } from '$lib/Stores';
+	import { dashboard, dragging, lang, motion, record, refreshDashboard, ripple } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
 	import { sortable } from '$lib/Actions/sortable';
 	import AddConditionButtons from '$lib/Modal/VisibilityConfig/AddConditionButtons.svelte';
@@ -133,7 +133,7 @@
 			delete sel.visibility;
 		}
 
-		$dashboard = $dashboard;
+		refreshDashboard();
 
 		$record();
 	});

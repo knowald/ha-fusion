@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, lang, ripple, connection, states } from '$lib/Stores';
+	import { lang, ripple, connection, states, updateDashboard } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
 	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
@@ -80,8 +80,9 @@
 	function linkEntity() {
 		if (suggestedEntityId) {
 			entity_id = suggestedEntityId;
-			sel = updateObj(sel, 'entity_id', { target: { value: entity_id } });
-			$dashboard = $dashboard;
+			sel = updateDashboard(sel, (live) =>
+				updateObj(live, 'entity_id', { target: { value: entity_id } })
+			);
 		}
 	}
 </script>

@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { dashboard, record, lang, motion, ripple, states, connection, demo } from '$lib/Stores';
+	import {
+		record,
+		lang,
+		motion,
+		ripple,
+		states,
+		connection,
+		demo,
+		updateDashboard
+	} from '$lib/Stores';
 	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
@@ -39,6 +48,11 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: SidebarItem } = $props();
 
+	// `sel` is a plain prop, so it can't be reassigned after refreshDashboard()
+	// re-creates the graph; keep the live item in reactive local state instead
+	// svelte-ignore state_referenced_locally
+	let selected = $state(sel);
+
 	let searchString = $state('');
 	let searchElement = $state<HTMLInputElement>();
 	let modalTransitionEnd = $state(false);
@@ -63,14 +77,15 @@
 		}
 
 		// if changing type reset object
-		if (sel) {
-			(Object.keys(sel) as Array<keyof SidebarItem>).forEach((key) => {
-				if (key !== 'id') {
-					delete (sel as any)[key];
-				}
+		if (selected) {
+			selected = updateDashboard(selected, (live) => {
+				Object.keys(live).forEach((key) => {
+					if (key !== 'id') {
+						delete live[key];
+					}
+				});
+				live.type = 'configure';
 			});
-			sel.type = 'configure';
-			$dashboard = $dashboard;
 		}
 	});
 
@@ -123,7 +138,7 @@
 			type: $lang('time'),
 			component: Time,
 			props: {
-				hour12: sel?.hour12 || false
+				hour12: selected?.hour12 || false
 			},
 			style: {
 				'text-align': 'center'
@@ -135,7 +150,7 @@
 			component: Camera,
 			props: {
 				demo: $demo.camera,
-				sel,
+				sel: selected,
 				responsive: true,
 				controls: false,
 				muted: true
@@ -192,7 +207,7 @@
 			component: Weather,
 			props: {
 				sel: {
-					...sel,
+					...selected,
 					entity_id: $demo.weather
 				}
 			}
@@ -203,7 +218,7 @@
 			component: WeatherForecast,
 			props: {
 				sel: {
-					...sel,
+					...selected,
 					entity_id: $demo.weather_forecast
 				}
 			}
@@ -222,7 +237,7 @@
 			component: Timer,
 			props: {
 				sel: {
-					...sel,
+					...selected,
 					entity_id: $demo.timer
 				}
 			}
@@ -242,114 +257,116 @@
 	async function handleClick(id: string) {
 		closeModal();
 
-		// set sidebar item type
-		if (sel && sel?.type) {
-			sel.type = id;
-			$dashboard = $dashboard;
+		// set sidebar item type, then hand the re-linked live object to the next
+		// modal - a stale ref would swallow all further edits
+		if (selected && selected?.type) {
+			selected = updateDashboard(selected, (live) => {
+				live.type = id;
+			});
 		}
 		$record();
 
-		switch (sel?.type) {
+		switch (selected?.type) {
 			case 'time':
-				openModal(() => import('$lib/Modal/TimeConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/TimeConfig.svelte'), { sel: selected });
 				break;
 
 			case 'date':
-				openModal(() => import('$lib/Modal/DateConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/DateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'divider':
-				openModal(() => import('$lib/Modal/DividerConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/DividerConfig.svelte'), { sel: selected });
 				break;
 
 			case 'sensor':
 				openModal(() => import('$lib/Modal/SensorConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.sensor
 				});
 				break;
 
 			case 'weather':
 				openModal(() => import('$lib/Modal/WeatherConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.weather
 				});
 				break;
 
 			case 'weather_forecast':
 				openModal(() => import('$lib/Modal/WeatherForecastConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.weather_forecast
 				});
 				break;
 
 			case 'camera':
 				openModal(() => import('$lib/Modal/CameraConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.camera
 				});
 				break;
 
 			case 'image':
 				openModal(() => import('$lib/Modal/ImageConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: imageData
 				});
 				break;
 
 			case 'iframe':
-				openModal(() => import('$lib/Modal/IframeConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/IframeConfig.svelte'), { sel: selected });
 				break;
 
 			case 'history':
 				openModal(() => import('$lib/Modal/HistoryConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.history
 				});
 				break;
 
 			case 'bar':
 				openModal(() => import('$lib/Modal/BarConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.bar
 				});
 				break;
 
 			case 'navigate':
-				openModal(() => import('$lib/Modal/NavigateConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/NavigateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'notifications':
-				openModal(() => import('$lib/Modal/NotificationsConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/NotificationsConfig.svelte'), { sel: selected });
 				break;
 
 			case 'radial':
 				openModal(() => import('$lib/Modal/RadialConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.radial
 				});
 				break;
 
 			case 'graph':
 				openModal(() => import('$lib/Modal/GraphConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.graph
 				});
 				break;
 
 			case 'template':
-				openModal(() => import('$lib/Modal/TemplateConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/TemplateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'timer':
 				openModal(() => import('$lib/Modal/TimerConfig.svelte'), {
-					sel,
+					sel: selected,
 					demo: $demo.timer
 				});
 				break;
 
 			default:
-				openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel });
+				openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel: selected });
 		}
 	}
 
@@ -423,7 +440,7 @@
 			{/each}
 		</div>
 
-		<ConfigButtons {sel} disableChangeType={true} />
+		<ConfigButtons sel={selected} disableChangeType={true} />
 	</Modal>
 {/if}
 

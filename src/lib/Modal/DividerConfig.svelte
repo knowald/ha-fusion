@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang, ripple, dashboard, motion, record } from '$lib/Stores';
+	import { lang, ripple, motion, record, updateDashboard } from '$lib/Stores';
 	import Divider from '$lib/Sidebar/Divider.svelte';
 	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
@@ -16,8 +16,7 @@
 	const defaultValue = '50';
 
 	function set(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, key, event));
 	}
 
 	function handleChange(event: any) {

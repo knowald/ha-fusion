@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, entityList, lang, ripple, states } from '$lib/Stores';
+	import { entityList, lang, ripple, states, updateDashboard } from '$lib/Stores';
 	import { tick } from 'svelte';
 	import Sensor from '$lib/Sidebar/Sensor.svelte';
 	import Select from '$lib/Components/Select.svelte';
@@ -44,12 +44,13 @@
 		if (entity_id && $states) {
 			const state = $states?.[entity_id]?.state;
 
-			if (isTimestamp(state)) {
-				sel = updateObj(sel, 'date', true);
-			} else {
-				sel = updateObj(sel, 'date');
-			}
-			$dashboard = $dashboard;
+			sel = updateDashboard(sel, (live) => {
+				if (isTimestamp(state)) {
+					updateObj(live, 'date', true);
+				} else {
+					updateObj(live, 'date');
+				}
+			});
 		}
 	}
 </script>

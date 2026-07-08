@@ -1,13 +1,13 @@
 <script lang="ts">
 	import {
 		states,
-		dashboard,
 		lang,
 		history,
 		historyIndex,
 		ripple,
 		motion,
-		selectedLanguage
+		selectedLanguage,
+		updateDashboard
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import Select from '$lib/Components/Select.svelte';
@@ -44,8 +44,7 @@
 
 	// script-scope equivalent of the set() the ConfigModal snippet provides
 	function applySet(key: string, event?: any) {
-		sel = updateObj(sel, key, event);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, key, event));
 	}
 
 	let options = $derived(genOptions($states, ''));

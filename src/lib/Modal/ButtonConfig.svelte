@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dashboard, states, lang, ripple, templates, entityList } from '$lib/Stores';
+	import { states, lang, ripple, templates, entityList, updateDashboard } from '$lib/Stores';
 	import Button from '$lib/Main/Button.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
@@ -109,30 +109,30 @@
 	function addPlan() {
 		if (!newPlanEntity) return;
 		vacuumPlans = [...vacuumPlans, newPlanEntity];
-		sel = updateObj(sel, 'vacuum_plans', vacuumPlans);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, 'vacuum_plans', vacuumPlans));
 		newPlanEntity = '';
 	}
 
 	function removePlan(index: number) {
 		vacuumPlans = vacuumPlans.filter((_, i) => i !== index);
-		sel = updateObj(sel, 'vacuum_plans', vacuumPlans.length ? vacuumPlans : undefined);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) =>
+			updateObj(live, 'vacuum_plans', vacuumPlans.length ? vacuumPlans : undefined)
+		);
 	}
 
 	function addRoom() {
 		if (!newRoomId || !newRoomName) return;
 		vacuumRooms = [...vacuumRooms, { id: newRoomId, name: newRoomName }];
-		sel = updateObj(sel, 'vacuum_rooms', vacuumRooms);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, 'vacuum_rooms', vacuumRooms));
 		newRoomId = '';
 		newRoomName = '';
 	}
 
 	function removeRoom(index: number) {
 		vacuumRooms = vacuumRooms.filter((_, i) => i !== index);
-		sel = updateObj(sel, 'vacuum_rooms', vacuumRooms.length ? vacuumRooms : undefined);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) =>
+			updateObj(live, 'vacuum_rooms', vacuumRooms.length ? vacuumRooms : undefined)
+		);
 	}
 </script>
 

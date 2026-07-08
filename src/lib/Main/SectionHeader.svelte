@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { editMode, motion } from '$lib/Stores';
+	import { editMode, motion, refreshDashboard } from '$lib/Stores';
 	import DragIndicator from '$lib/Main/DragIndicator.svelte';
 	import DeleteButton from '$lib/Main/DeleteButton.svelte';
 	import VisibilitySectionButton from '$lib/Main/VisibilitySectionButton.svelte';
@@ -16,7 +16,9 @@
 				<SectionTitle
 					value={section.name}
 					onsubmit={(v) => {
+						if (section.name === v) return;
 						section.name = v;
+						refreshDashboard();
 					}}
 				/>
 			{:else if section?.name === ''}

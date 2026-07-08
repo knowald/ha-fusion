@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
+	import { states, lang, ripple, entityList, updateDashboard } from '$lib/Stores';
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
@@ -38,8 +38,7 @@
 
 	function handleNumberRange(event: any) {
 		const value = minMax(event?.target?.value);
-		sel = updateObj(sel, 'stroke', value);
-		$dashboard = $dashboard;
+		sel = updateDashboard(sel, (live) => updateObj(live, 'stroke', value));
 		if (numberElement) numberElement.value = String(value);
 	}
 </script>
