@@ -66,7 +66,17 @@
 		clearTimeout(timeout);
 	});
 
-	const options = [
+	// AlarmControlPanelEntityFeature bit values; alarm_disarm has no bit and is
+	// always offered
+	const armServiceFeatureBits: Record<string, number> = {
+		alarm_arm_home: 1,
+		alarm_arm_away: 2,
+		alarm_arm_night: 4,
+		alarm_arm_custom_bypass: 16,
+		alarm_arm_vacation: 32
+	};
+
+	const allOptions = [
 		{
 			id: 'alarm_arm_home',
 			icon: 'mdi:house',
@@ -98,6 +108,17 @@
 			label: $lang('alarm_modes_disarmed')
 		}
 	];
+
+	// missing supported_features (very old HA) falls back to showing all modes
+	let options = $derived(
+		allOptions.filter((option) => {
+			const featureBit = armServiceFeatureBits[option.id];
+			if (featureBit === undefined) return true;
+			const supportedFeatures = attributes?.supported_features;
+			if (supportedFeatures === undefined || supportedFeatures === null) return true;
+			return (supportedFeatures & featureBit) !== 0;
+		})
+	);
 </script>
 
 {#if isOpen}
