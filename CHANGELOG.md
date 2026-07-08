@@ -1,5 +1,15 @@
 # Changelog
 
+## [2026.7.1](https://github.com/knowald/ha-fusion/releases/tag/2026.7.1) - 2026-07-09
+
+### Fixed
+
+- Re-render the dashboard on in-place config edits and restrict section drag to the drag handle (e76cb7b)
+- Replace the unknown domain error modal with a generic entity modal (910390d)
+- Complete the PWA manifest and add an apple touch icon (06be9d1)
+- Respect target_temp_step in the thermostat temperature wheel (6ce8c67)
+- Only offer alarm arm modes the panel supports (abdd7c9)
+
 ## [2026.7.0](https://github.com/knowald/ha-fusion/releases/tag/2026.7.0) - 2026-07-07
 
 ### Added
