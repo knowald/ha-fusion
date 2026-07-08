@@ -1,54 +1,108 @@
 <script lang="ts">
-	/**
-	 * DEV modal
-	 */
-
 	import { states, lang } from '$lib/Stores';
 	import Modal from '$lib/Modal/Index.svelte';
-	import { getDomain } from '$lib/Utils';
+	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import { getDomain, getName } from '$lib/Utils';
 
 	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();
 
-	const domain = getDomain(selected?.entity_id);
+	let entity = $derived($states?.[selected?.entity_id]);
+	let domain = $derived(getDomain(selected?.entity_id));
+
+	let attributes = $derived(
+		Object.entries(entity?.attributes ?? {}).filter(([key]) => key !== 'friendly_name')
+	);
+
+	function formatAttributeValue(value: unknown) {
+		return typeof value === 'string' ? value : JSON.stringify(value);
+	}
 </script>
 
 {#if isOpen}
 	<Modal>
-		{#snippet title()}<h1>{$lang('unknown')}</h1>{/snippet}
+		{#snippet title()}
+			<h1>{getName(selected, entity) ?? selected?.entity_id ?? $lang('unknown')}</h1>
+		{/snippet}
 
-		{#if domain}
-			<h2>
-				Domain '{domain}' is not yet implemented...<br />
-				Please open issue on <a href="https://github.com/knowald" target="_blank">GitHub</a>
-			</h2>
+		<h2>{$lang('state')}</h2>
+
+		<div class="state">
+			{#if entity}
+				<StateLogic entity_id={selected?.entity_id} {selected} />
+			{:else}
+				{$lang('entity_not_found')}
+			{/if}
+		</div>
+
+		{#if attributes.length}
+			<h2>{$lang('attributes')}</h2>
+
+			<dl data-exclude-drag-modal>
+				{#each attributes as [key, value] (key)}
+					<dt>{key}</dt>
+					<dd>{formatAttributeValue(value)}</dd>
+				{/each}
+			</dl>
 		{/if}
 
-		<pre>item: {JSON.stringify(selected, undefined, 2)}</pre>
+		{#if selected?.entity_id}
+			<p class="entity-id" data-exclude-drag-modal>{selected.entity_id}</p>
+		{/if}
 
-		<hr />
+		{#if domain}
+			<p class="note">
+				The '{domain}' domain has no dedicated modal yet -
+				<a href="https://github.com/knowald/ha-fusion/issues" target="_blank">request one</a>
+			</p>
+		{/if}
 
-		<pre>entity: {JSON.stringify($states[selected?.entity_id], undefined, 2)}</pre>
+		<ConfigButtons />
 	</Modal>
 {/if}
 
 <style>
-	a,
-	h2 {
-		color: orange;
-		user-select: text;
+	.state {
+		font-size: 1.1rem;
 	}
 
-	pre {
-		user-select: text;
-		font-size: 0.85rem;
-	}
-
-	hr {
-		padding: 0;
+	dl {
+		display: grid;
+		grid-template-columns: fit-content(40%) 1fr;
+		gap: 0.35rem 1.2rem;
 		margin: 0;
-		border: 0;
-		height: 0;
-		border-top: 1px solid rgba(0, 0, 0, 0.1);
-		border-bottom: var(--theme-sidebar-divider);
+		font-size: 0.85rem;
+		user-select: text;
+		cursor: text;
+	}
+
+	dt {
+		opacity: 0.6;
+		overflow-wrap: break-word;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.entity-id {
+		margin: 1.2rem 0 0 0;
+		font-size: 0.75rem;
+		font-family: monospace;
+		opacity: 0.5;
+		user-select: text;
+		cursor: text;
+	}
+
+	.note {
+		margin: 1.2rem 0 0 0;
+		font-size: 0.8rem;
+		opacity: 0.6;
+	}
+
+	.note a {
+		color: inherit;
+		text-decoration: underline;
 	}
 </style>
