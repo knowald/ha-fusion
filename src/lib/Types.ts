@@ -37,12 +37,7 @@ export interface Views {
 }
 
 export type Item =
-	| ButtonItem
-	| CameraItem
-	| EmptyItem
-	| DaysSinceItem
-	| EntitiesItem
-	| SpotifyPlayerItem;
+	ButtonItem | CameraItem | EmptyItem | DaysSinceItem | EntitiesItem | SpotifyPlayerItem;
 
 export interface Section {
 	id?: number;

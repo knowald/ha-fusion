@@ -15,7 +15,7 @@
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 
 	let debounce = $state(false);
-	let timeout: ReturnType<typeof setTimeout>;
+	let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
 	let rangeValue = $state(0);
 
 	let groupSel: string | undefined = $state(undefined);
