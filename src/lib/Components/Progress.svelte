@@ -6,6 +6,8 @@
 
 	const progress = tweened(0);
 
+	// size and stroke are static per instance
+	// svelte-ignore state_referenced_locally
 	const attributes = {
 		cx: size / 2,
 		cy: size / 2,

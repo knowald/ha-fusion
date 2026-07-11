@@ -8,6 +8,7 @@
 		innerWidth
 	}: { item: any; matches: { [key: string]: boolean }; innerWidth: number } = $props();
 
+	// svelte-ignore state_referenced_locally
 	const condition = item?.condition;
 	const title = `${$lang('state')} (${$lang('current_state')})`;
 

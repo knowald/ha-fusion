@@ -28,7 +28,9 @@
 	/**
 	 * tame reactivity
 	 */
+	// svelte-ignore state_referenced_locally
 	const entity_id = writable<string | undefined>(sel?.entity_id);
+	// svelte-ignore state_referenced_locally
 	const forecast_type = writable<string | undefined>(sel?.forecast_type);
 
 	$effect(() => {

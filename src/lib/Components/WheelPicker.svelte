@@ -21,9 +21,13 @@
 	let value: number = $state(0);
 	// temperatures
 	let temperatures: number[] = [];
+	// min/max/step attributes are static for an entity; list is built once
+	// svelte-ignore state_referenced_locally
 	const minTemp = stateObj?.attributes?.min_temp;
+	// svelte-ignore state_referenced_locally
 	const maxTemp = stateObj?.attributes?.max_temp;
 	// same default as the ha frontend when target_temp_step is absent
+	// svelte-ignore state_referenced_locally
 	const targetTempStep =
 		stateObj?.attributes?.target_temp_step ??
 		($config?.unit_system?.temperature === '°F' ? 1 : 0.5);

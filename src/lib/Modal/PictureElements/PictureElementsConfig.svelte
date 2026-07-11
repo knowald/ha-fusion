@@ -130,7 +130,6 @@
 					<Toolbar konva={panelProps.konva} />
 				</div>
 
-				<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 				<div
 					class="canvas"
 					bind:this={canvas}

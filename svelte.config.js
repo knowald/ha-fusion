@@ -12,6 +12,12 @@ const config = {
 			config.include.push('../global.d.ts');
 		}
 	},
+	// touch-first dashboard; keyboard a11y warnings are noise until keyboard
+	// navigation becomes a goal
+	onwarn(warning, defaultHandler) {
+		if (warning.code.startsWith('a11y')) return;
+		defaultHandler(warning);
+	},
 	vitePlugin: {
 		// our components are fully migrated; fail compilation on legacy syntax,
 		// but leave node_modules deps (e.g. svelte-tiny-virtual-list) in legacy mode

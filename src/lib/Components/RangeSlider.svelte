@@ -20,6 +20,8 @@
 
 	// value in range 0 to 1
 	let normalized = $derived((value - min) / (max - min));
+	// initial tween value; the effect below keeps it in sync
+	// svelte-ignore state_referenced_locally
 	const fill = tweened(normalized, {
 		duration: $motion,
 		easing: cubicOut

@@ -31,14 +31,22 @@
 
 	let altKeyPressed = $state(false);
 
+	// one-time store seeding; `data` only changes on a full page load
+	// svelte-ignore state_referenced_locally
 	$configuration = data?.configuration;
+	// svelte-ignore state_referenced_locally
 	$dashboard = data?.dashboard;
+	// svelte-ignore state_referenced_locally
 	$translation = data?.translations;
+	// svelte-ignore state_referenced_locally
 	$selectedLanguage = data?.configuration?.locale || 'en';
+	// svelte-ignore state_referenced_locally
 	$customJs = data?.configuration?.custom_js;
+	// svelte-ignore state_referenced_locally
 	$youtubeAddon = data?.configuration?.addons?.youtube;
 	$currentViewId = $dashboard?.views?.[0]?.id;
 
+	// svelte-ignore state_referenced_locally
 	const _motion = data?.configuration?.motion;
 	$motion = _motion === undefined || _motion === true ? $motion : 0;
 

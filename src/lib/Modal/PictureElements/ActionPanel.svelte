@@ -25,14 +25,18 @@
 	let testState = $state<boolean | undefined>(undefined);
 	let timeout: ReturnType<typeof setTimeout>;
 
+	// seeded from the current selection; the effect below resets on change
+	// svelte-ignore state_referenced_locally
 	let selectedService = $state(
 		selectedShape?.attrs?.onclick?.domain && selectedShape?.attrs?.onclick?.service
 			? `${selectedShape.attrs.onclick.domain}.${selectedShape.attrs.onclick.service}`
 			: ''
 	);
 
+	// svelte-ignore state_referenced_locally
 	let selectedTarget = $state(selectedShape?.attrs?.onclick?.target?.entity_id || '');
 
+	// svelte-ignore state_referenced_locally
 	let serviceData = $state(
 		selectedShape?.attrs?.onclick?.data
 			? JSON.stringify(selectedShape.attrs.onclick.data, null, 2)
@@ -187,8 +191,6 @@
 	);
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	class="konva-header"
 	onclick={() => {

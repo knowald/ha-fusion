@@ -26,6 +26,7 @@
 	let desktop = $state(false);
 	let wide = $state(false);
 
+	// svelte-ignore state_referenced_locally
 	let input = $state(item?.media_query);
 
 	const breakpoints: {

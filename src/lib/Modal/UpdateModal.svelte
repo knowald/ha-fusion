@@ -45,6 +45,7 @@
 	let latest = $derived(attributes?.installed_version === attributes?.latest_version);
 
 	// animate progress, don't use `latest`
+	// svelte-ignore state_referenced_locally
 	const progress = tweened(attributes?.installed_version === attributes?.latest_version ? 0 : 100, {
 		duration: $motion * 2,
 		easing: cubicOut

@@ -25,6 +25,8 @@
 	/**
 	 * Add id's to to each item
 	 */
+	// local edit buffer, seeded once from the saved config
+	// svelte-ignore state_referenced_locally
 	let items = $state(
 		sel?.visibility?.map((item: Condition) => ({
 			id: generateId($dashboard),

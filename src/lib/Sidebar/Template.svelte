@@ -8,6 +8,7 @@
 		$props();
 
 	let unsubscribe: () => void;
+	// svelte-ignore state_referenced_locally
 	let id = sel?.id;
 	let error = $state(false);
 

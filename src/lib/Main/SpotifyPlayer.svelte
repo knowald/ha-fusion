@@ -182,24 +182,24 @@
 	<!-- Background image (playing); large uses the container background instead -->
 	{#if entity_picture && is_playing}
 		{#if !large}
-			<div class="background-image" style:background-image="url({entity_picture})" />
+			<div class="background-image" style:background-image="url({entity_picture})"></div>
 		{/if}
-		<div class="background-overlay" />
+		<div class="background-overlay"></div>
 	{:else if recentArtwork.length > 0 && !is_playing}
 		<!-- Rotating background (not playing) -->
 		<div
 			class="background-image rotating"
 			style:background-image="url({rotatingImageA})"
 			style:opacity={showImageA ? 1 : 0}
-		/>
+		></div>
 		{#if recentArtwork.length > 1}
 			<div
 				class="background-image rotating"
 				style:background-image="url({rotatingImageB})"
 				style:opacity={showImageA ? 0 : 1}
-			/>
+			></div>
 		{/if}
-		<div class="background-overlay idle" />
+		<div class="background-overlay idle"></div>
 	{/if}
 
 	<!-- SHORTCUTS, large layout (not playing) -->
@@ -239,7 +239,7 @@
 			{#if show_progress && !is_idle && media_duration && progress_percent > 0}
 				<div class="progress-container">
 					<div class="progress-bar">
-						<div class="progress-fill" style:width="{Math.min(progress_percent, 100)}%" />
+						<div class="progress-fill" style:width="{Math.min(progress_percent, 100)}%"></div>
 					</div>
 				</div>
 			{/if}

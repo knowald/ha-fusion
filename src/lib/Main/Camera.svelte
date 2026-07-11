@@ -42,7 +42,9 @@
 	/**
 	 * tame reactivity
 	 */
+	// svelte-ignore state_referenced_locally
 	const entity_id = writable<string | undefined>(sel?.entity_id);
+	// svelte-ignore state_referenced_locally
 	const stream = writable<boolean | undefined>(sel?.stream);
 
 	$effect(() => {

@@ -28,6 +28,7 @@
 		sel = updateDashboard(sel, (live) => updateObj(live, key, event));
 	}
 
+	// svelte-ignore state_referenced_locally
 	if (demo) {
 		// replace history entry with demo
 		$history.splice($historyIndex, 1);

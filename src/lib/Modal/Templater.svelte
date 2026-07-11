@@ -33,6 +33,7 @@
 		type: 'set_state' | 'name' | 'icon' | 'color' | 'service' | 'state';
 	} = $props();
 
+	// svelte-ignore state_referenced_locally
 	let template = $state(sel?.template?.[type]);
 	let modalTransitionEnd = $state(false);
 

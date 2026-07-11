@@ -42,9 +42,6 @@
 	onDestroy(() => clearTimeout(timeout));
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-
 {#if sel?.type === 'configure'}
 	<Configure {sel} />
 {:else}
