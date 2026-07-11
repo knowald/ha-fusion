@@ -6,13 +6,13 @@
 
 	const debug = false;
 
-	let installed: string;
-	let latest: string;
+	let installed = $state<string>();
+	let latest = $state<string>();
 	let last_updated: string;
 
 	let timeout: ReturnType<typeof setTimeout>;
-	let busy = false;
-	let error_code: number;
+	let busy = $state(false);
+	let error_code = $state<number>();
 
 	onMount(async () => {
 		try {

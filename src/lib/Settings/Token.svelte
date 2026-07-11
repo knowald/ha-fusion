@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { configuration, lang } from '$lib/Stores';
 
-	let token = $configuration?.token;
+	let token = $state($configuration?.token);
 
 	function handleFocus(event: FocusEvent) {
 		const target = event.target as HTMLInputElement;
