@@ -37,7 +37,9 @@ export default tseslint.config(
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
-			'svelte/no-at-html-tags': 'off'
+			'svelte/no-at-html-tags': 'off',
+			// false positive on `prop = $bindable()` destructuring, core rule doesn't understand runes
+			'no-useless-assignment': 'off'
 		}
 	}
 );
