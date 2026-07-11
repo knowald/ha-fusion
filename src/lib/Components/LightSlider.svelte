@@ -16,7 +16,7 @@
 		brightness: number;
 		current: number;
 		debounce: boolean;
-		timeout: ReturnType<typeof setTimeout>;
+		timeout: ReturnType<typeof setTimeout> | undefined;
 		rangeValue: number;
 	} = $props();
 

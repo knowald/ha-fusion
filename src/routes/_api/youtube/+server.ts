@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { Innertube, UniversalCache } from 'youtubei.js';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import type { YouTubeEvent } from '$lib/Types';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 let youtube: Innertube | undefined;
 let event: YouTubeEvent | undefined;

@@ -24,7 +24,7 @@
 	import { onDestroy } from 'svelte';
 	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
-	import parser from 'js-yaml';
+	import * as parser from 'js-yaml';
 
 	let {
 		demo = undefined,

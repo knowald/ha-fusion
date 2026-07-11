@@ -219,7 +219,9 @@
 				</button>
 			</div>
 
-			{#if children}{@render children()}{/if}
+			<div class="body">
+				{#if children}{@render children()}{/if}
+			</div>
 		</div>
 	</div>
 </div>
@@ -228,6 +230,7 @@
 	.header {
 		display: flex;
 		justify-content: space-between;
+		flex-shrink: 0;
 	}
 
 	.warning {
@@ -264,7 +267,7 @@
 		font-size: 0.9rem;
 		padding: 1.3rem 1.5rem 1.5rem 1.5rem;
 		background-color: var(--theme-modal-background-color-modal);
-		display: block;
+		display: flex;
 		flex-direction: column;
 		pointer-events: auto;
 		max-height: 85vh;
@@ -273,7 +276,31 @@
 		position: relative;
 		box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
 		outline: 1px solid rgba(255, 255, 255, 0.25);
+		overflow: hidden;
+	}
+
+	.body {
+		flex: 1;
+		/* allow the flex child to shrink below content height so it scrolls */
+		min-height: 0;
 		overflow-y: auto;
+		scrollbar-width: thin;
+		/* place the scrollbar at the modal edge instead of inside the padding */
+		margin-right: -1.5rem;
+		padding-right: 1.5rem;
+	}
+
+	.body::-webkit-scrollbar {
+		width: 5px;
+	}
+
+	.body::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.body::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 4px;
 	}
 
 	button {

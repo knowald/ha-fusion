@@ -269,8 +269,7 @@
 				value={serviceData}
 				onchange={handleChange}
 				{disabled}
-				spellcheck="false"
-			></textarea>
+				spellcheck="false"></textarea>
 		</div>
 	</div>
 {/if}

@@ -9,7 +9,7 @@
 	import { updateObj, getDomain, getName, getTogglableService } from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 	import { openModal } from '$lib/Modals';
-	import parser from 'js-yaml';
+	import * as parser from 'js-yaml';
 
 	let {
 		isOpen,

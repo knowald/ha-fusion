@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import { json, error } from '@sveltejs/kit';
 import { dev } from '$app/environment';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {

@@ -11,9 +11,7 @@
 	import { base } from '$app/paths';
 	import { onDestroy } from 'svelte';
 	import { getName } from '$lib/Utils';
-	import Calendar from '@event-calendar/core';
-	import DayGrid from '@event-calendar/day-grid';
-	import List from '@event-calendar/list';
+	import { Calendar, DayGrid, List } from '@event-calendar/core';
 	import { openModal } from '$lib/Modals';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();

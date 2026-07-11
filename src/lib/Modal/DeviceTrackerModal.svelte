@@ -73,7 +73,7 @@
 			style: styles[mode],
 			zoom,
 			attributionControl: false,
-			antialias: true,
+			canvasContextAttributes: { antialias: true },
 			pitch,
 			fadeDuration: 0
 		};

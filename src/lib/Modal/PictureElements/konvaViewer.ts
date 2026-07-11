@@ -53,7 +53,7 @@ export class KonvaViewer extends KonvaBase {
 							if (node.getAttr('id')) {
 								const image = node.image();
 								if (image instanceof HTMLImageElement) {
-									this.updateImageCache(node.getAttr('id'), image);
+									this.updateImageCache(node.getAttr('id') as string, image);
 								}
 							}
 							break;
@@ -167,7 +167,7 @@ export class KonvaViewer extends KonvaBase {
 						if (node instanceof Konva.Image && node.getAttr('id')) {
 							const image = node.image();
 							if (image instanceof HTMLImageElement) {
-								this.updateImageCache(node.getAttr('id'), image);
+								this.updateImageCache(node.getAttr('id') as string, image);
 							}
 						}
 					}

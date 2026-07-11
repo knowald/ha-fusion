@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { dashboard, motion, lang, autocompleteList } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
-	import parser from 'js-yaml';
+	import * as parser from 'js-yaml';
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/Modal/Index.svelte';
 
