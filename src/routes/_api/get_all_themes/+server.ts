@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'fs/promises';
 import { dev } from '$app/environment';
 import { json, error } from '@sveltejs/kit';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import path from 'path';
 import type { RequestHandler } from './$types';
 

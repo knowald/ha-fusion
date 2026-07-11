@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import { dev } from '$app/environment';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import type { Configuration, Dashboard, Translations } from '$lib/Types';
 import dotenv from 'dotenv';
 

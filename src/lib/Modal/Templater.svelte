@@ -20,7 +20,7 @@
 	import { closeAllModals, closeModal } from '$lib/Modals';
 	import { slide } from 'svelte/transition';
 	import Select from '$lib/Components/Select.svelte';
-	import parser from 'js-yaml';
+	import * as parser from 'js-yaml';
 	import { subscribeServices } from 'home-assistant-js-websocket';
 
 	let {

@@ -69,8 +69,8 @@ importers:
         specifier: ^3.0.7
         version: 3.0.7
       js-yaml:
-        specifier: ^4.3.0
-        version: 4.3.0
+        specifier: ^5.2.1
+        version: 5.2.1
       konva:
         specifier: ^9.3.22
         version: 9.3.22
@@ -129,9 +129,6 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       '@types/promise-fs':
         specifier: ^2.1.5
         version: 2.1.5
@@ -783,9 +780,6 @@ packages:
   '@types/http-proxy@1.17.17':
     resolution: {integrity: sha512-ED6LB+Z1AVylNTu7hdzuBqOgMnvG/ld6wGCG8wFnAzKX5uyW2K3WD52v0gnLCTK/VLpXtKckgWuyScYK6cSPaw==}
 
-  '@types/js-yaml@4.0.9':
-    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
-
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -1398,8 +1392,8 @@ packages:
     resolution: {integrity: sha512-6B3tLtFqtQS4ekarvLVMZ+X+VlvQekbe4taUkf/rhVO3d/h0M2rfARm/pXLcPEsjjMsFgrFgSrhQIxcSVrBz8w==}
     engines: {node: '>=18'}
 
-  js-yaml@4.3.0:
-    resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
+  js-yaml@5.2.1:
+    resolution: {integrity: sha512-zfLtNfQqxVqq3uaTqSkh4x4hZw3KHobGUA0fJUj4wawW8bsQLTVqpHdXSIzidh7o+4lEW36tANuAGdaFx6Zgnw==}
     hasBin: true
 
   json-buffer@3.0.1:
@@ -2474,8 +2468,6 @@ snapshots:
     dependencies:
       '@types/node': 26.1.1
 
-  '@types/js-yaml@4.0.9': {}
-
   '@types/json-schema@7.0.15': {}
 
   '@types/mapbox__point-geometry@0.1.4': {}
@@ -3151,7 +3143,7 @@ snapshots:
 
   isexe@3.1.5: {}
 
-  js-yaml@4.3.0:
+  js-yaml@5.2.1:
     dependencies:
       argparse: 2.0.1
 
