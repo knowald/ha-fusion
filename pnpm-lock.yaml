@@ -84,8 +84,8 @@ importers:
         specifier: ^1.15.7
         version: 1.15.7
       svelte-modals:
-        specifier: 2.0.0-beta.5
-        version: 2.0.0-beta.5(svelte@5.56.4(@typescript-eslint/types@8.63.0))
+        specifier: 2.0.1
+        version: 2.0.1(svelte@5.56.4(@typescript-eslint/types@8.63.0))
       svelte-tiny-virtual-list:
         specifier: ^3.0.1
         version: 3.0.1(svelte@5.56.4(@typescript-eslint/types@8.63.0))
@@ -1797,8 +1797,8 @@ packages:
       svelte:
         optional: true
 
-  svelte-modals@2.0.0-beta.5:
-    resolution: {integrity: sha512-+T6VIgk2wyGRx+ndNzGtzjnicdNslH99XIuZEk+0wVbvXLjPmoqm3W6PBauyt+vQ9sUbOaLvFR8gE7b0KivpcQ==}
+  svelte-modals@2.0.1:
+    resolution: {integrity: sha512-4nGWxveM0eILQnkjmlA7nComRSsCW5QssY9d1qNklZaNlnwnziW5xYqLN3ufjyA0/Cn9oMO4i9+8s8zmlw4IiQ==}
     peerDependencies:
       svelte: '>=5'
 
@@ -3552,7 +3552,7 @@ snapshots:
     optionalDependencies:
       svelte: 5.56.4(@typescript-eslint/types@8.63.0)
 
-  svelte-modals@2.0.0-beta.5(svelte@5.56.4(@typescript-eslint/types@8.63.0)):
+  svelte-modals@2.0.1(svelte@5.56.4(@typescript-eslint/types@8.63.0)):
     dependencies:
       svelte: 5.56.4(@typescript-eslint/types@8.63.0)
 
