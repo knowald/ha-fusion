@@ -60,7 +60,7 @@
 		"home-assistant-js-websocket": "^9.6.0",
 		"http-proxy-middleware": "^4.2.0",
 		"js-yaml": "^5.2.1",
-		"konva": "^9.3.22",
+		"konva": "^10.3.0",
 		"maplibre-gl": "^4.7.1",
 		"marked": "^18.0.6",
 		"sortablejs": "^1.15.7",

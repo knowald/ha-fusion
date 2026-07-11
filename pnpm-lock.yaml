@@ -72,8 +72,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       konva:
-        specifier: ^9.3.22
-        version: 9.3.22
+        specifier: ^10.3.0
+        version: 10.3.0
       maplibre-gl:
         specifier: ^4.7.1
         version: 4.7.1
@@ -1356,8 +1356,8 @@ packages:
   known-css-properties@0.37.0:
     resolution: {integrity: sha512-JCDrsP4Z1Sb9JwG0aJ8Eo2r7k4Ou5MwmThS/6lcIe1ICyb7UBJKGRIUUdqc2ASdE/42lgz6zFUnzAIhtXnBVrQ==}
 
-  konva@9.3.22:
-    resolution: {integrity: sha512-yQI5d1bmELlD/fowuyfOp9ff+oamg26WOCkyqUyc+nczD/lhRa3EvD2MZOoc4c1293TAubW9n34fSQLgSeEgSw==}
+  konva@10.3.0:
+    resolution: {integrity: sha512-gt19K2gzY4lHbnkvsku7eSmB+A9PTS2jG4F9coBMsdjM1UKfJNxJbDbXVpeCW1wjEGRwBD3nBamcHnqJhAeKlg==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -3109,7 +3109,7 @@ snapshots:
 
   known-css-properties@0.37.0: {}
 
-  konva@9.3.22: {}
+  konva@10.3.0: {}
 
   levn@0.4.1:
     dependencies:

@@ -427,7 +427,8 @@ export class KonvaEditor extends KonvaBase {
 			this.selecting = false;
 
 			if (target instanceof Konva.Shape || target instanceof Konva.Group) {
-				target.setAttr('startPos', { x: target.x(), y: target.y() });
+				// cast to Node: TS can't resolve the generic setAttr overload across a Shape | Group union
+				(target as Konva.Node).setAttr('startPos', { x: target.x(), y: target.y() });
 			}
 		}
 	}
@@ -560,7 +561,11 @@ export class KonvaEditor extends KonvaBase {
 		if (!(target instanceof Konva.Shape) && !(target instanceof Konva.Group)) return;
 
 		if (this.shiftPressed) {
-			const startPos = target.getAttr('startPos') || { x: target.x(), y: target.y() };
+			// cast to Node: TS can't resolve the generic getAttr overload across a Shape | Group union
+			const startPos = (target as Konva.Node).getAttr('startPos') || {
+				x: target.x(),
+				y: target.y()
+			};
 
 			if (!this.dragDirection) {
 				const dx = Math.abs(target.x() - startPos.x);
@@ -853,25 +858,28 @@ export class KonvaEditor extends KonvaBase {
 		 * Update node
 		 */
 		const localUpdateNode = async (node: Konva.Shape | Konva.Group, attrs: ShapeConfig) => {
+			// cast to Node: TS can't resolve the generic setAttr/getAttr overloads across a Shape | Group union
+			const asNode = node as Konva.Node;
+
 			const onclick = attrs?.onclick;
-			node.setAttr('onclick', onclick ? JSON.parse(JSON.stringify(onclick)) : undefined);
+			asNode.setAttr('onclick', onclick ? JSON.parse(JSON.stringify(onclick)) : undefined);
 
 			const type = node?.attrs?.type;
 
 			if (type === 'state-label') {
-				node.setAttrs({ ...attrs, text: node.getAttr('text') });
+				asNode.setAttrs({ ...attrs, text: asNode.getAttr('text') });
 			} else if (type === 'state-icon') {
-				node.setAttrs({
+				asNode.setAttrs({
 					...attrs,
 					...{
-						image: node.getAttr('image'),
-						color: node.getAttr('color'),
-						icon: node.getAttr('icon')
+						image: asNode.getAttr('image'),
+						color: asNode.getAttr('color'),
+						icon: asNode.getAttr('icon')
 					}
 				});
 			} else if (node instanceof Konva.Image && ['image', 'icon'].includes(type)) {
 				const src = node.getAttr('src');
-				node.setAttrs(attrs);
+				node.setAttrs(attrs as unknown as Konva.ImageConfig);
 
 				if (attrs?.src !== src) {
 					await this.updateImage(node, attrs?.src, false);
@@ -1314,7 +1322,7 @@ export class KonvaEditor extends KonvaBase {
 					node.setAttrs({
 						entity_id: '',
 						icon: icons['state-icon']
-					});
+					} as unknown as Konva.ImageConfig);
 
 					await this.updateIcon(node);
 				}
@@ -1585,7 +1593,8 @@ export class KonvaEditor extends KonvaBase {
 
 		nodes.forEach((node) => {
 			index = Math.min(index, this.layer.children.indexOf(node));
-			node.setAttr('prevDraggable', node.draggable());
+			// cast to Node: TS can't resolve the generic setAttr overload across a Shape | Group union
+			(node as Konva.Node).setAttr('prevDraggable', node.draggable());
 			node.draggable(false);
 			node.remove();
 			group.add(node);
@@ -1617,9 +1626,10 @@ export class KonvaEditor extends KonvaBase {
 			.getChildren()
 			.map((node) => node as Konva.Shape | Konva.Group)
 			.forEach((node, index) => {
-				node.setAttrs({
+				// cast to Node: TS can't resolve the generic setAttr/getAttr overloads across a Shape | Group union
+				(node as Konva.Node).setAttrs({
 					id: this.generateUniqueId(node?.attrs?.type),
-					draggable: !!node.getAttr('prevDraggable'),
+					draggable: !!(node as Konva.Node).getAttr('prevDraggable'),
 					prevDraggable: undefined
 				});
 

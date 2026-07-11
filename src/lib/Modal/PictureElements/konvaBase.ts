@@ -89,18 +89,19 @@ export class KonvaBase {
 			? `hsl(${entityAttrs?.hs_color}%, 50%)`
 			: undefined;
 
+		// custom attrs only, `image` intentionally omitted here
 		node.setAttrs({
 			icon: computedIcon,
 			color: nodeColor,
 			state_color: computedStateColor
-		});
+		} as unknown as Konva.ImageConfig);
 
 		if (computedIcon && computedIcon !== nodeIcon) {
 			node.setAttrs({
 				icon: computedIcon,
 				color: nodeColor,
 				state_color: computedStateColor
-			});
+			} as unknown as Konva.ImageConfig);
 			await this.updateIcon(node);
 		} else if (computedStateColor && computedStateColor !== nodeStateColor) {
 			node.setAttr('state_color', computedStateColor);
@@ -198,7 +199,7 @@ export class KonvaBase {
 			y: centerY - (node.height() * scale) / 2,
 			scaleX: scale,
 			scaleY: scale
-		});
+		} as Konva.ImageConfig);
 
 		node.move({
 			x: -this.layer.x(),
@@ -250,9 +251,9 @@ export class KonvaBase {
 
 			image.onload = () => {
 				node.image(image);
-				node.setAttrs({ width, height });
+				node.setAttrs({ width, height } as Konva.ImageConfig);
 				if (node.getAttr('id')) {
-					this.updateImageCache(node.getAttr('id'), image);
+					this.updateImageCache(node.getAttr('id') as string, image);
 				}
 				this.updateCallback();
 				resolve();
