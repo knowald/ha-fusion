@@ -62,7 +62,7 @@
 		"js-yaml": "^5.2.1",
 		"konva": "^9.3.22",
 		"maplibre-gl": "^4.7.1",
-		"marked": "^14.1.4",
+		"marked": "^18.0.6",
 		"sortablejs": "^1.15.7",
 		"svelte-modals": "2.0.1",
 		"svelte-tiny-virtual-list": "^3.0.1",
