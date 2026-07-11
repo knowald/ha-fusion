@@ -13,6 +13,7 @@ export default defineConfig({
 	optimizeDeps: {
 		include: [
 			// include all because of dynamic imports, prevents: ✨ optimized dependencies changed. reloading
+			'@event-calendar/core',
 			'@jaames/iro',
 			'd3-array',
 			'd3-scale',
@@ -35,12 +36,9 @@ export default defineConfig({
 			'konva/lib/Shape'
 		],
 		exclude: [
-			// legacy Svelte 4 libraries; prebundling compiles them in runes mode
+			// legacy Svelte 4 library; prebundling compiles it in runes mode
 			// (dynamicCompileOptions in svelte.config.js is ignored there) and fails
 			'svelte-tiny-virtual-list',
-			'@event-calendar/core',
-			'@event-calendar/day-grid',
-			'@event-calendar/list',
 			// exclude codemirror to avoid state duplication
 			// pnpm ls -P | grep codemirror | awk '{print "\047" $1 "\047,"}'
 			'@codemirror/autocomplete',
