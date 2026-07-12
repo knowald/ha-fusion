@@ -1,0 +1,101 @@
+<script lang="ts">
+	import Ripple from '$lib/Actions/ripple';
+	import { sortable } from '$lib/Actions/sortable';
+	import { PRESS_RIPPLE } from './config';
+	import type { HearthRoom } from './config';
+	import { currentRoom, editor, hearthConfig, hearthEditMode, updateConfig } from './store';
+	import Icon from './Icon.svelte';
+</script>
+
+<div class="divider"></div>
+<div class="rooms-label">ROOMS</div>
+
+<div
+	class="nav-item pressable"
+	class:active={$currentRoom === 'home'}
+	use:Ripple={PRESS_RIPPLE}
+	onclick={() => currentRoom.set('home')}
+>
+	<Icon name="home" size={21} />
+	<span class="nav-name">Home</span>
+</div>
+
+<div
+	class="room-list"
+	use:sortable={{
+		group: 'hearth-rooms',
+		disabled: !$hearthEditMode,
+		filter: '.add',
+		items: $hearthConfig.rooms,
+		onFinalize: (items: HearthRoom[]) =>
+			updateConfig((config) => {
+				config.rooms = items;
+			})
+	}}
+>
+	{#each $hearthConfig.rooms as room (room.id)}
+		<div
+			class="nav-item pressable"
+			data-id={room.id}
+			class:active={$currentRoom === room.id}
+			use:Ripple={PRESS_RIPPLE}
+			onclick={() => currentRoom.set(room.id)}
+		>
+			<Icon name={room.icon} size={21} />
+			<span class="nav-name">{room.name}</span>
+		</div>
+	{/each}
+	{#if $hearthEditMode}
+		<div
+			class="nav-item add pressable"
+			use:Ripple={PRESS_RIPPLE}
+			onclick={() => editor.set({ kind: 'room', id: null })}
+		>
+			<Icon name="add" size={21} />
+			<span class="nav-name">Add room</span>
+		</div>
+	{/if}
+</div>
+
+<style>
+	.divider {
+		height: 1px;
+		background: rgb(var(--h-surface-rgb) / 0.08);
+		margin: 24px 0;
+	}
+
+	.rooms-label {
+		font-family: var(--h-font-mono);
+		font-size: 11px;
+		letter-spacing: 2px;
+		color: var(--h-text-6);
+		margin-bottom: 12px;
+	}
+
+	.nav-item {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		padding: 12px 14px;
+		border-radius: var(--h-radius-sm);
+		cursor: pointer;
+		border: 1px solid transparent;
+		color: var(--h-text-4);
+	}
+
+	.nav-item.active {
+		background: rgb(var(--h-accent-rgb) / 0.14);
+		border-color: rgb(var(--h-accent-rgb) / 0.22);
+		color: var(--h-accent-text);
+	}
+
+	.nav-item.add {
+		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		color: var(--h-text-6);
+	}
+
+	.nav-name {
+		font-size: 15px;
+		font-weight: 500;
+	}
+</style>

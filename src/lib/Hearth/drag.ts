@@ -1,0 +1,94 @@
+import type { Action } from 'svelte/action';
+
+interface DragOptions {
+	set: (value: number) => void;
+	tap?: () => void;
+	end?: (value: number) => void;
+	/** Skip gesture handling entirely (used in edit mode so SortableJS gets the pointer) */
+	disabled?: boolean;
+	/**
+	 * Selector for interactive children the gesture must not swallow. Needed
+	 * because Svelte 5 delegates the child's own handlers to the app root, so
+	 * their stopPropagation runs after this action's native pointerdown -
+	 * without this check the tile captures the pointer and the child's click
+	 * retargets to the tile.
+	 */
+	ignore?: string;
+}
+
+/**
+ * Horizontal drag-to-value with tap detection: movement under 4px counts as a
+ * tap, anything more sets a 0-100 value from the pointer's position within the
+ * element. Apply `touch-action: none` on the element so touch drags work.
+ */
+export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) => {
+	let current = options;
+	let tracking: { moved: boolean; startX: number } | null = null;
+
+	function fraction(event: PointerEvent) {
+		const rect = node.getBoundingClientRect();
+		return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+	}
+
+	function handleDown(event: PointerEvent) {
+		if (current.disabled) return;
+		if (current.ignore && (event.target as Element).closest?.(current.ignore)) return;
+		try {
+			node.setPointerCapture(event.pointerId);
+		} catch {
+			// pointer capture is best-effort
+		}
+		tracking = { moved: false, startX: event.clientX };
+	}
+
+	function handleMove(event: PointerEvent) {
+		if (!tracking) return;
+		if (Math.abs(event.clientX - tracking.startX) > 4) tracking.moved = true;
+		if (tracking.moved) current.set(Math.round(fraction(event) * 100));
+	}
+
+	function handleUp(event: PointerEvent) {
+		if (!tracking) return;
+		if (!tracking.moved && current.tap) {
+			current.tap();
+		} else if (tracking.moved) {
+			const value = Math.round(fraction(event) * 100);
+			current.set(value);
+			current.end?.(value);
+		}
+		tracking = null;
+	}
+
+	node.addEventListener('pointerdown', handleDown);
+	node.addEventListener('pointermove', handleMove);
+	node.addEventListener('pointerup', handleUp);
+
+	return {
+		update(next) {
+			current = next;
+		},
+		destroy() {
+			node.removeEventListener('pointerdown', handleDown);
+			node.removeEventListener('pointermove', handleMove);
+			node.removeEventListener('pointerup', handleUp);
+		}
+	};
+};
+
+/** Listens for the sortable action's cross-container `dndreceive` event. */
+export const onDndReceive: Action<
+	HTMLElement,
+	(detail: { id: string; newIndex: number }) => void
+> = (node, handler) => {
+	let current = handler;
+	const listener = (event: Event) => current((event as CustomEvent).detail);
+	node.addEventListener('dndreceive', listener);
+	return {
+		update(next) {
+			current = next;
+		},
+		destroy() {
+			node.removeEventListener('dndreceive', listener);
+		}
+	};
+};
