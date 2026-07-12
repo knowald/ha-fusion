@@ -23,6 +23,19 @@
 		onmoveup?: () => void;
 		onmovedown?: () => void;
 	} = $props();
+
+	let confirmRemove = $state(false);
+	let confirmTimer: ReturnType<typeof setTimeout>;
+
+	function handleRemove() {
+		clearTimeout(confirmTimer);
+		if (confirmRemove) {
+			onremove?.();
+			return;
+		}
+		confirmRemove = true;
+		confirmTimer = setTimeout(() => (confirmRemove = false), 4000);
+	}
 </script>
 
 <div class="overlay" onclick={onclose}>
@@ -44,8 +57,13 @@
 		</div>
 		<div class="footer">
 			{#if onremove}
-				<div class="button danger pressable" use:Ripple={PRESS_RIPPLE} onclick={onremove}>
-					Remove
+				<div
+					class="button danger pressable"
+					class:confirm={confirmRemove}
+					use:Ripple={PRESS_RIPPLE}
+					onclick={handleRemove}
+				>
+					{confirmRemove ? 'Remove - are you sure?' : 'Remove'}
 				</div>
 			{/if}
 			<div class="spacer"></div>
@@ -131,6 +149,7 @@
 	}
 
 	.button {
+		border: 1px solid transparent;
 		padding: 12px 22px;
 		border-radius: var(--h-radius-xs);
 		font-size: 14px;
@@ -153,5 +172,9 @@
 	.button.danger {
 		background: rgb(var(--h-bad-rgb) / 0.16);
 		color: var(--h-bad-text);
+	}
+
+	.button.danger.confirm {
+		border-color: var(--h-bad-text);
 	}
 </style>

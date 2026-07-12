@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
 	import {
 		deriveAccent,
 		deriveBackground,
@@ -15,8 +16,30 @@
 	import EditSheet from './EditSheet.svelte';
 	import ColorField from './ColorField.svelte';
 	import SelectField from './SelectField.svelte';
+	import TextField from './TextField.svelte';
 
 	let theme = $derived($hearthConfig.theme ?? {});
+
+	function unwrapUrl(value?: string): string {
+		if (!value || value === 'none') return '';
+		const match = value.match(/^url\((.*)\)$/);
+		return match ? match[1].replace(/^['"]|['"]$/g, '') : value;
+	}
+
+	let backgroundImageUrl = $state(unwrapUrl(get(hearthConfig).theme?.background_image));
+
+	// applied on Done rather than per keystroke to keep the undo stack sane
+	function applyBackgroundImage() {
+		const url = backgroundImageUrl.trim();
+		if (url === unwrapUrl(theme.background_image)) return;
+		updateConfig((config) => {
+			if (url) {
+				config.theme = { ...config.theme, background_image: `url(${url})` };
+			} else if (config.theme) {
+				delete config.theme.background_image;
+			}
+		});
+	}
 
 	function knob(key: string): string {
 		return theme[key] ?? THEME_DEFAULTS[key] ?? '#000000';
@@ -32,6 +55,7 @@
 		updateConfig((config) => {
 			config.theme = preset ? { ...preset } : undefined;
 		});
+		backgroundImageUrl = '';
 	}
 
 	let radiusScale = $derived.by(() => {
@@ -46,9 +70,14 @@
 	function close() {
 		editor.set(null);
 	}
+
+	function done() {
+		applyBackgroundImage();
+		close();
+	}
 </script>
 
-<EditSheet title="Theme" onclose={close} ondone={close}>
+<EditSheet title="Theme" onclose={close} ondone={done}>
 	<div class="group-label">PRESETS</div>
 	<div class="presets">
 		{#each THEME_PRESETS as preset (preset.id)}
@@ -106,6 +135,12 @@
 			onchange={(value) => patchTheme({ media: value })}
 		/>
 	</div>
+
+	<TextField
+		label="Background image URL"
+		bind:value={backgroundImageUrl}
+		placeholder="/local/wallpaper.jpg or https://..."
+	/>
 
 	<SelectField
 		label="Corners"

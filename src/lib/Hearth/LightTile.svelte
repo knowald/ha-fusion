@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE } from './config';
+	import { lang } from '$lib/Stores';
+	import { capitalize, PRESS_RIPPLE } from './config';
 	import { horizontalDrag } from './drag';
 	import Icon from './Icon.svelte';
 	import {
@@ -48,7 +49,7 @@
 		<Icon name="lightbulb" size={26} color={iconColor} fill={view?.on} />
 		<div>
 			<div class="name">{light?.name ?? id}</div>
-			<div class="state">{view?.on ? `${view.level}%` : 'Off'}</div>
+			<div class="state">{view?.on ? `${view.level}%` : capitalize($lang('off'))}</div>
 		</div>
 	</div>
 	{#if $hearthEditMode}

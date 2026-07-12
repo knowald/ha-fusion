@@ -13,9 +13,17 @@
 		saveState,
 		undoConfig
 	} from './store';
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE, THEME_BRIDGE_CSS, THEME_DEFAULTS, themeStyle } from './config';
+	import {
+		PRESS_RIPPLE,
+		THEME_BRIDGE_CSS,
+		THEME_DEFAULTS,
+		THEME_PRESETS,
+		themeStyle,
+		type HearthTheme
+	} from './config';
 	import ControlPopup from './ControlPopup.svelte';
 	import EditorHost from './edit/EditorHost.svelte';
 	import HomeOverview from './HomeOverview.svelte';
@@ -41,10 +49,24 @@
 		}
 	}
 
+	// display-only theme override via ?theme=<preset id>: the matched preset
+	// entry (theme null = default look) replaces the stored theme without
+	// touching the config or undo history
+	let presetOverride = $state<{ theme: HearthTheme | null } | undefined>(undefined);
+
+	onMount(() => {
+		const presetId = new URLSearchParams(location.search).get('theme');
+		presetOverride = THEME_PRESETS.find((preset) => preset.id === presetId);
+	});
+
+	let activeTheme = $derived(
+		presetOverride ? (presetOverride.theme ?? undefined) : $hearthConfig.theme
+	);
+
 	// tokens live on :root (not .frame) so modals portaled outside the frame
 	// resolve them too; base first, user theme overrides second
 	let rootCss = $derived(
-		`:root { ${themeStyle(THEME_DEFAULTS)} ${themeStyle($hearthConfig.theme)} ${THEME_BRIDGE_CSS} }`
+		`:root { ${themeStyle(THEME_DEFAULTS)} ${themeStyle(activeTheme)} ${THEME_BRIDGE_CSS} }`
 	);
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -174,7 +196,10 @@
 		height: 100dvh;
 		position: relative;
 		overflow: hidden;
-		background: radial-gradient(1000px 700px at 14% -5%, var(--h-bg-0), var(--h-bg-1) 62%);
+		background:
+			var(--h-bg-image), radial-gradient(1000px 700px at 14% -5%, var(--h-bg-0), var(--h-bg-1) 62%);
+		background-size: cover;
+		background-position: center;
 		color: var(--h-text-1);
 		font-family: var(--h-font-ui);
 	}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE } from './config';
+	import { lang } from '$lib/Stores';
+	import { capitalize, PRESS_RIPPLE } from './config';
 	import {
 		blindViews,
 		editor,
@@ -19,7 +20,11 @@
 	let position = $derived($blindViews[id] ?? 0);
 	let open = $derived(position > 0);
 	let stateText = $derived(
-		position === 100 ? 'Open' : position === 0 ? 'Closed' : `${position}% open`
+		position === 100
+			? capitalize($lang('open'))
+			: position === 0
+				? capitalize($lang('closed'))
+				: `${position}% open`
 	);
 
 	let pending = $derived(blind !== undefined && $pendingEntities[blind.entity] !== undefined);

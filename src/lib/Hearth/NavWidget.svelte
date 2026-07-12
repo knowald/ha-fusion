@@ -98,4 +98,29 @@
 		font-size: 15px;
 		font-weight: 500;
 	}
+
+	/* phones: rooms become a horizontal chip row instead of a tall list */
+	@media (max-width: 700px) {
+		.divider {
+			margin: 16px 0;
+		}
+
+		.room-list {
+			display: flex;
+			overflow-x: auto;
+			gap: 8px;
+			padding-bottom: 4px;
+			scrollbar-width: none;
+		}
+
+		.room-list::-webkit-scrollbar {
+			display: none;
+		}
+
+		.room-list .nav-item {
+			flex: none;
+			white-space: nowrap;
+			padding: 10px 14px;
+		}
+	}
 </style>

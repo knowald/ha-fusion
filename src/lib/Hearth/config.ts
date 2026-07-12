@@ -421,6 +421,11 @@ export function slugify(name: string) {
 	);
 }
 
+/** Uppercases the first letter, e.g. for lowercase translation values. */
+export function capitalize(text: string) {
+	return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 export function uniqueId(base: string, taken: string[]) {
 	let id = base;
 	let counter = 2;
@@ -446,6 +451,8 @@ export const PRESS_RIPPLE = { color: 'rgb(var(--h-surface-rgb) / 0.12)' };
 export const THEME_VARS: Record<string, { cssVar: string; rgb?: boolean }> = {
 	background_inner: { cssVar: '--h-bg-0' },
 	background_outer: { cssVar: '--h-bg-1' },
+	// CSS image value ('none' or 'url(...)') layered over the background gradient
+	background_image: { cssVar: '--h-bg-image' },
 	sheet_top: { cssVar: '--h-sheet-0' },
 	sheet_bottom: { cssVar: '--h-sheet-1' },
 	overlay: { cssVar: '--h-overlay' },
@@ -497,6 +504,7 @@ export const THEME_VARS: Record<string, { cssVar: string; rgb?: boolean }> = {
 export const THEME_DEFAULTS: Record<string, string> = {
 	background_inner: '#2a2017',
 	background_outer: '#16110c',
+	background_image: 'none',
 	sheet_top: '#2c2118',
 	sheet_bottom: '#1d160f',
 	overlay: 'rgba(10, 7, 4, 0.62)',
@@ -682,7 +690,7 @@ export const THEME_PRESETS: { id: string; name: string; theme: HearthTheme | nul
 	{
 		// approximates the original ha-fusion "muted" theme: cool grey-blue
 		// background, white active buttons, Inter, small radii (no background
-		// photo - that would need an image knob)
+		// photo - set the background_image knob for one)
 		id: 'muted',
 		name: 'Muted (fusion)',
 		theme: {
@@ -724,7 +732,7 @@ export function themeStyle(theme?: HearthTheme): string {
  */
 export const THEME_BRIDGE_CSS = `
 	--theme-font-family: var(--h-font-ui);
-	--theme-background-image: radial-gradient(1000px 700px at 14% -5%, var(--h-bg-0), var(--h-bg-1) 62%);
+	--theme-background-image: var(--h-bg-image), radial-gradient(1000px 700px at 14% -5%, var(--h-bg-0), var(--h-bg-1) 62%);
 	--theme-colors-text: var(--h-text-2);
 	--theme-colors-title: var(--h-text-1);
 	--theme-colors-icon: var(--h-icon);

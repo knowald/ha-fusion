@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
-	import { PRESS_RIPPLE } from './config';
+	import { lang, states } from '$lib/Stores';
+	import { capitalize, PRESS_RIPPLE } from './config';
 	import type { HearthDevice } from './config';
 	import {
 		editor,
@@ -34,9 +34,11 @@
 			return value === null ? '-' : `${Math.round(value)}${device.unit ?? ''}`;
 		}
 		if (device.type === 'fan') {
-			return on ? `On · ${Math.round(entity?.attributes?.percentage ?? 0)}%` : 'Off';
+			return on
+				? `${capitalize($lang('on'))} · ${Math.round(entity?.attributes?.percentage ?? 0)}%`
+				: capitalize($lang('off'));
 		}
-		return on ? 'On' : 'Off';
+		return capitalize($lang(on ? 'on' : 'off'));
 	});
 	let iconColor = $derived(
 		device.type === 'sensor' ? 'var(--h-icon)' : on ? 'var(--h-accent-bright)' : 'var(--h-icon-dim)'

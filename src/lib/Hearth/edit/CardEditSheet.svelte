@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
-	import * as yaml from 'js-yaml';
+	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_OBJECT_TYPES,
 		OVERVIEW_CARD_TYPES,
+		PRESS_RIPPLE,
 		slugify,
 		uniqueId,
 		type EntityRef,
@@ -12,9 +13,12 @@
 		type OverviewCard
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
+	import CardRenderer from '../CardRenderer.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import FusionFields, { applyLeftoverYaml, dumpLeftoverYaml } from './FusionFields.svelte';
 	import Icon from '../Icon.svelte';
+	import IconField from './IconField.svelte';
 	import TextField from './TextField.svelte';
 	import SelectField from './SelectField.svelte';
 	import YamlField from './YamlField.svelte';
@@ -53,26 +57,34 @@
 	);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'button'));
-	let fusionYaml = $state(fusionOptionsToYaml(initialFusion));
+	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
+	let advancedOpen = $state(false);
+	let advancedYaml = $state('');
+	let advancedValid = $state(true);
 
 	const yamlPlaceholder = 'entity_id: light.living_room\nname: Living Room';
 
-	function fusionOptionsToYaml(config: Record<string, any>) {
+	function withoutType(config: Record<string, any>) {
 		const options = { ...config };
 		delete options.type;
-		return Object.keys(options).length ? yaml.dump(options) : '';
+		return options;
 	}
 
-	function parseFusionYaml(): Record<string, any> | null {
-		if (!fusionYaml.trim()) return {};
-		try {
-			const parsed = yaml.load(fusionYaml);
-			return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-				? (parsed as Record<string, any>)
-				: null;
-		} catch {
-			return null;
-		}
+	// the YAML area edits only the keys the form fields do not cover, so its
+	// text is re-dumped whenever the covered key set can have changed
+	function resetAdvancedYaml() {
+		advancedYaml = dumpLeftoverYaml(fusionType, fusionOptions);
+		advancedValid = true;
+	}
+
+	function toggleAdvanced() {
+		advancedOpen = !advancedOpen;
+		if (advancedOpen) resetAdvancedYaml();
+	}
+
+	function setAdvancedYaml(value: string) {
+		advancedYaml = value;
+		advancedValid = applyLeftoverYaml(fusionType, fusionOptions, value);
 	}
 
 	let entityDomains = $derived(
@@ -147,10 +159,12 @@
 			};
 		}
 		if (type === 'fusion') {
-			return { id, type, config: { type: fusionType, ...(parseFusionYaml() ?? {}) } };
+			return { id, type, config: { type: fusionType, ...$state.snapshot(fusionOptions) } };
 		}
 		return { id, type, entity: entity.trim() || undefined };
 	}
+
+	let previewCard = $derived.by(() => buildCard('preview'));
 
 	function done() {
 		updateConfig((config) => {
@@ -181,10 +195,15 @@
 	title={index !== null ? 'Edit card' : 'Add card'}
 	onclose={close}
 	ondone={done}
-	doneDisabled={type === 'fusion' && parseFusionYaml() === null}
+	doneDisabled={type === 'fusion' && advancedOpen && !advancedValid}
 	onremove={index !== null ? remove : undefined}
 >
 	<SelectField label="Type" bind:value={type} options={OVERVIEW_CARD_TYPES} />
+
+	<div class="group-label">PREVIEW</div>
+	<div class="preview" style="pointer-events: none">
+		<CardRenderer card={previewCard} />
+	</div>
 
 	{#if type === 'lights' || type === 'blinds' || type === 'air' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
 		<TextField label="Title" bind:value={title} placeholder={type === 'air' ? 'Air' : 'Lights'} />
@@ -207,11 +226,7 @@
 				<div class="filter-fields">
 					<EntityField label="Entity" bind:value={ref.entity} />
 					<TextField label="Name (optional)" bind:value={ref.name} />
-					<TextField
-						label="Icon (optional)"
-						bind:value={ref.icon}
-						placeholder="Material Symbols name"
-					/>
+					<IconField label="Icon (optional)" bind:value={ref.icon} />
 				</div>
 				<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
 					<Icon name="delete" size={20} />
@@ -231,11 +246,7 @@
 				<div class="filter-fields">
 					<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
 					<TextField label="Name (optional)" bind:value={ref.name} />
-					<TextField
-						label="Icon (optional)"
-						bind:value={ref.icon}
-						placeholder="Material Symbols name"
-					/>
+					<IconField label="Icon (optional)" bind:value={ref.icon} />
 				</div>
 				<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
 					<Icon name="delete" size={20} />
@@ -249,12 +260,28 @@
 	{/if}
 
 	{#if type === 'fusion'}
-		<SelectField label="Object type" bind:value={fusionType} options={FUSION_OBJECT_TYPES} />
-		<YamlField label="Options (YAML)" bind:value={fusionYaml} placeholder={yamlPlaceholder} />
-		<div class="hint">
-			Options match the original ha-fusion object config for the chosen type, e.g. entity_id, name,
-			icon.
+		<SelectField
+			label="Object type"
+			bind:value={fusionType}
+			options={FUSION_OBJECT_TYPES}
+			onchange={() => advancedOpen && resetAdvancedYaml()}
+		/>
+		<FusionFields type={fusionType} bind:options={fusionOptions} />
+		<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+			<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+			<span>Advanced (YAML)</span>
 		</div>
+		{#if advancedOpen}
+			<YamlField
+				label="Other options (YAML)"
+				bind:value={() => advancedYaml, setAdvancedYaml}
+				placeholder={yamlPlaceholder}
+			/>
+			<div class="hint">
+				Options match the original ha-fusion object config for the chosen type, e.g. entity_id,
+				name, icon.
+			</div>
+		{/if}
 	{/if}
 
 	{#if type === 'air'}
@@ -287,6 +314,30 @@
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 18px 0 10px;
+	}
+
+	.preview {
+		background: var(--h-inset);
+		border-radius: var(--h-radius-md);
+		padding: 14px;
+		margin-bottom: 14px;
+	}
+
+	.advanced-toggle {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 4px;
+		border-radius: var(--h-radius-xs);
+		color: var(--h-text-5);
+		font-size: 13px;
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.advanced-toggle:hover {
+		color: var(--h-text-3);
 	}
 
 	.filter-row {

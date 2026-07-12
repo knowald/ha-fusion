@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
-	import * as yaml from 'js-yaml';
+	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_WIDGET_TYPES,
+		PRESS_RIPPLE,
 		RAIL_WIDGET_TYPES,
 		slugify,
 		uniqueId,
@@ -11,6 +12,8 @@
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import FusionFields, { applyLeftoverYaml, dumpLeftoverYaml } from './FusionFields.svelte';
+	import Icon from '../Icon.svelte';
 	import IconField from './IconField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
@@ -37,26 +40,34 @@
 	let name = $state(initial?.type === 'entity' ? (initial.name ?? '') : '');
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'sensor'));
-	let fusionYaml = $state(fusionOptionsToYaml(initialFusion));
+	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
+	let advancedOpen = $state(false);
+	let advancedYaml = $state('');
+	let advancedValid = $state(true);
 
 	const yamlPlaceholder = 'entity_id: sensor.average_temperature\nname: Home';
 
-	function fusionOptionsToYaml(config: Record<string, any>) {
+	function withoutType(config: Record<string, any>) {
 		const options = { ...config };
 		delete options.type;
-		return Object.keys(options).length ? yaml.dump(options) : '';
+		return options;
 	}
 
-	function parseFusionYaml(): Record<string, any> | null {
-		if (!fusionYaml.trim()) return {};
-		try {
-			const parsed = yaml.load(fusionYaml);
-			return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-				? (parsed as Record<string, any>)
-				: null;
-		} catch {
-			return null;
-		}
+	// the YAML area edits only the keys the form fields do not cover, so its
+	// text is re-dumped whenever the covered key set can have changed
+	function resetAdvancedYaml() {
+		advancedYaml = dumpLeftoverYaml(fusionType, fusionOptions);
+		advancedValid = true;
+	}
+
+	function toggleAdvanced() {
+		advancedOpen = !advancedOpen;
+		if (advancedOpen) resetAdvancedYaml();
+	}
+
+	function setAdvancedYaml(value: string) {
+		advancedYaml = value;
+		advancedValid = applyLeftoverYaml(fusionType, fusionOptions, value);
 	}
 
 	function close() {
@@ -85,7 +96,7 @@
 			};
 		}
 		if (type === 'fusion') {
-			return { id, type, config: { type: fusionType, ...(parseFusionYaml() ?? {}) } };
+			return { id, type, config: { type: fusionType, ...$state.snapshot(fusionOptions) } };
 		}
 		return { id, type: type as 'nav' | 'spacer' };
 	}
@@ -120,7 +131,7 @@
 	title={index !== null ? 'Edit widget' : 'Add widget'}
 	onclose={close}
 	ondone={done}
-	doneDisabled={type === 'fusion' && parseFusionYaml() === null}
+	doneDisabled={type === 'fusion' && advancedOpen && !advancedValid}
 	onremove={index !== null ? remove : undefined}
 >
 	<SelectField label="Type" bind:value={type} options={RAIL_WIDGET_TYPES} />
@@ -146,16 +157,49 @@
 	{/if}
 
 	{#if type === 'fusion'}
-		<SelectField label="Widget type" bind:value={fusionType} options={FUSION_WIDGET_TYPES} />
-		<YamlField label="Options (YAML)" bind:value={fusionYaml} placeholder={yamlPlaceholder} />
-		<div class="hint">
-			Options match the original ha-fusion sidebar config for the chosen type, e.g. entity_id, name,
-			period.
+		<SelectField
+			label="Widget type"
+			bind:value={fusionType}
+			options={FUSION_WIDGET_TYPES}
+			onchange={() => advancedOpen && resetAdvancedYaml()}
+		/>
+		<FusionFields type={fusionType} bind:options={fusionOptions} />
+		<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+			<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+			<span>Advanced (YAML)</span>
 		</div>
+		{#if advancedOpen}
+			<YamlField
+				label="Other options (YAML)"
+				bind:value={() => advancedYaml, setAdvancedYaml}
+				placeholder={yamlPlaceholder}
+			/>
+			<div class="hint">
+				Options match the original ha-fusion sidebar config for the chosen type, e.g. entity_id,
+				name, period.
+			</div>
+		{/if}
 	{/if}
 </EditSheet>
 
 <style>
+	.advanced-toggle {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 4px;
+		border-radius: var(--h-radius-xs);
+		color: var(--h-text-5);
+		font-size: 13px;
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.advanced-toggle:hover {
+		color: var(--h-text-3);
+	}
+
 	.hint {
 		font-size: 12px;
 		color: var(--h-text-6);
