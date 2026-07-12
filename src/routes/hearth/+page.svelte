@@ -4,7 +4,7 @@
 	import { configuration, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
 	import { normalizeHearthConfig } from '$lib/Hearth/config';
-	import { hearthConfig } from '$lib/Hearth/store';
+	import { hearthConfig, hearthRevision } from '$lib/Hearth/store';
 	import HearthDashboard from '$lib/Hearth/HearthDashboard.svelte';
 
 	let { data }: { data: any } = $props();
@@ -14,6 +14,8 @@
 	$configuration = data?.configuration;
 	// svelte-ignore state_referenced_locally
 	$hearthConfig = normalizeHearthConfig(data?.hearth);
+	// svelte-ignore state_referenced_locally
+	$hearthRevision = data?.hearthRevision ?? 0;
 	// svelte-ignore state_referenced_locally
 	$translation = data?.translations ?? {};
 	// svelte-ignore state_referenced_locally

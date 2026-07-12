@@ -8,6 +8,9 @@ import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
 
 export const hearthConfig = writable<HearthConfig>(structuredClone(DEFAULT_HEARTH_CONFIG));
 
+// server-managed save counter for conflict detection between tabs
+export const hearthRevision = writable(0);
+
 const undoStack: HearthConfig[] = [];
 const redoStack: HearthConfig[] = [];
 
@@ -82,19 +85,36 @@ export function cancelEdit() {
 	hearthEditMode.set(false);
 }
 
-export async function saveEdit() {
+export const saveState = writable<'idle' | 'saved' | 'conflict' | 'error'>('idle');
+let savedToastTimer: ReturnType<typeof setTimeout>;
+
+/** Returns false on a revision conflict (another tab saved first). */
+export async function saveEdit(): Promise<boolean> {
 	const response = await fetch('/_api/save_hearth', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(get(hearthConfig))
+		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig) })
 	});
-	if (!response.ok) throw new Error(`save failed: ${response.status}`);
+	if (response.status === 409) {
+		saveState.set('conflict');
+		return false;
+	}
+	if (!response.ok) {
+		saveState.set('error');
+		throw new Error(`save failed: ${response.status}`);
+	}
+	const { revision } = await response.json();
+	hearthRevision.set(revision);
+	saveState.set('saved');
+	clearTimeout(savedToastTimer);
+	savedToastTimer = setTimeout(() => saveState.set('idle'), 2500);
 	editSnapshot = null;
 	undoStack.length = 0;
 	redoStack.length = 0;
 	syncHistoryFlags();
 	editor.set(null);
 	hearthEditMode.set(false);
+	return true;
 }
 
 /* navigation & popups */
@@ -398,6 +418,25 @@ export function seekMedia(entity: string, fraction: number) {
 		entity_id: entity,
 		seek_position: clamp(fraction, 0, 1) * duration
 	});
+}
+
+/* climate */
+
+export function setClimateTemperature(entity: string, temperature: number) {
+	markPending(entity);
+	service('climate', 'set_temperature', { entity_id: entity, temperature });
+}
+
+export function setClimateHvacMode(entity: string, mode: string) {
+	markPending(entity);
+	service('climate', 'set_hvac_mode', { entity_id: entity, hvac_mode: mode });
+}
+
+/* scenes */
+
+export function activateScene(entity: string) {
+	markPending(entity);
+	service('scene', 'turn_on', { entity_id: entity });
 }
 
 /* vacuum */

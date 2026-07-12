@@ -11,6 +11,7 @@
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import IconField from './IconField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 	import YamlField from './YamlField.svelte';
@@ -133,7 +134,7 @@
 	{/if}
 
 	{#if type === 'status'}
-		<TextField label="Icon" bind:value={icon} placeholder="eco" />
+		<IconField label="Icon" bind:value={icon} placeholder="eco" />
 		<TextField label="Text" bind:value={text} placeholder="All systems nominal" />
 		<EntityField label="Entity (optional, appends its state)" bind:value={entity} />
 	{/if}
@@ -141,7 +142,7 @@
 	{#if type === 'entity'}
 		<EntityField label="Entity" bind:value={entity} />
 		<TextField label="Name (optional)" bind:value={name} />
-		<TextField label="Icon (optional)" bind:value={icon} placeholder="Material Symbols name" />
+		<IconField label="Icon (optional)" bind:value={icon} />
 	{/if}
 
 	{#if type === 'fusion'}

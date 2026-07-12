@@ -4,6 +4,7 @@
 	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import IconField from './IconField.svelte';
 	import TextField from './TextField.svelte';
 
 	let { id }: { id: string | null } = $props();
@@ -100,7 +101,7 @@
 	onmovedown={id ? () => move(1) : undefined}
 >
 	<TextField label="Name" bind:value={name} placeholder="Living Room" />
-	<TextField label="Icon" bind:value={icon} placeholder="Material Symbols name, e.g. weekend" />
+	<IconField label="Icon" bind:value={icon} placeholder="weekend" />
 	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />

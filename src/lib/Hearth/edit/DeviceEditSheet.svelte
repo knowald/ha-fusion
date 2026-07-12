@@ -4,6 +4,7 @@
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import IconField from './IconField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 
@@ -86,7 +87,7 @@
 	/>
 	<TextField label="Name" bind:value={name} placeholder="Television" />
 	<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
-	<TextField label="Icon" bind:value={icon} placeholder="Material Symbols name, e.g. tv" />
+	<IconField label="Icon" bind:value={icon} placeholder="tv" />
 	{#if type === 'sensor'}
 		<TextField label="Unit" bind:value={unit} placeholder="%" />
 	{/if}

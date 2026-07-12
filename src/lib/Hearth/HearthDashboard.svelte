@@ -10,8 +10,10 @@
 		hearthEditMode,
 		redoConfig,
 		saveEdit,
+		saveState,
 		undoConfig
 	} from './store';
+	import { fade } from 'svelte/transition';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE, THEME_BRIDGE_CSS, THEME_DEFAULTS, themeStyle } from './config';
 	import ControlPopup from './ControlPopup.svelte';
@@ -21,19 +23,16 @@
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
 
-	let saveError = $state(false);
-
 	let roomExists = $derived(
 		$currentRoom === 'home' || $hearthConfig.rooms.some((room) => room.id === $currentRoom)
 	);
 
 	async function handleSave() {
-		saveError = false;
+		$saveState = 'idle';
 		try {
 			await saveEdit();
 		} catch (error) {
 			console.error(error);
-			saveError = true;
 		}
 	}
 
@@ -79,9 +78,24 @@
 	</div>
 	<ControlPopup />
 	<EditorHost />
+	{#if $saveState === 'saved'}
+		<div class="save-toast" transition:fade={{ duration: 250 }}>
+			<Icon name="check_circle" size={18} />
+			Saved
+		</div>
+	{/if}
 	{#if $hearthEditMode}
 		<div class="edit-bar">
-			{#if saveError}
+			{#if $saveState === 'conflict'}
+				<span class="save-error">Config changed elsewhere</span>
+				<div
+					class="bar-button pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => location.reload()}
+				>
+					Reload
+				</div>
+			{:else if $saveState === 'error'}
 				<span class="save-error">Save failed</span>
 			{/if}
 			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'theme' })}>
@@ -244,6 +258,25 @@
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	}
+
+	.save-toast {
+		position: absolute;
+		bottom: 84px;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 40;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 16px;
+		border-radius: var(--h-radius-md);
+		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
+		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		color: var(--h-good-text);
+		font-size: 14px;
+		font-weight: 600;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 	}
 

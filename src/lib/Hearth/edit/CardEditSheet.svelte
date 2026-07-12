@@ -37,6 +37,9 @@
 	let entities = $state<EntityRef[]>(
 		initial?.type === 'entities' ? initial.entities.map((ref) => ({ ...ref })) : []
 	);
+	let scenes = $state<EntityRef[]>(
+		initial?.type === 'scenes' ? initial.scenes.map((ref) => ({ ...ref })) : []
+	);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'button'));
 	let fusionYaml = $state(fusionOptionsToYaml(initialFusion));
@@ -68,7 +71,9 @@
 				? ['vacuum']
 				: type === 'camera'
 					? ['camera']
-					: ['sensor']
+					: type === 'climate'
+						? ['climate']
+						: ['sensor']
 	);
 
 	function close() {
@@ -113,8 +118,22 @@
 					.filter((ref) => ref.entity)
 			};
 		}
-		if (type === 'camera') {
+		if (type === 'camera' || type === 'climate') {
 			return { id, type, title: title.trim() || undefined, entity: entity.trim() || undefined };
+		}
+		if (type === 'scenes') {
+			return {
+				id,
+				type,
+				title: title.trim() || undefined,
+				scenes: scenes
+					.map((ref) => ({
+						entity: ref.entity.trim(),
+						name: ref.name?.trim() || undefined,
+						icon: ref.icon?.trim() || undefined
+					}))
+					.filter((ref) => ref.entity)
+			};
 		}
 		if (type === 'fusion') {
 			return { id, type, config: { type: fusionType, ...(parseFusionYaml() ?? {}) } };
@@ -153,7 +172,7 @@
 >
 	<SelectField label="Type" bind:value={type} options={OVERVIEW_CARD_TYPES} />
 
-	{#if type === 'lights' || type === 'blinds' || type === 'air' || type === 'entities' || type === 'camera'}
+	{#if type === 'lights' || type === 'blinds' || type === 'air' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
 		<TextField label="Title" bind:value={title} placeholder={type === 'air' ? 'Air' : 'Lights'} />
 	{/if}
 
@@ -163,7 +182,7 @@
 		<TextField label="Unit" bind:value={unit} placeholder="°C" />
 	{/if}
 
-	{#if type === 'media' || type === 'vacuum' || type === 'camera'}
+	{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
 		<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
 	{/if}
 
@@ -188,6 +207,30 @@
 		<div class="add-filter" onclick={() => entities.push({ entity: '', name: '', icon: '' })}>
 			<Icon name="add" size={18} />
 			<span>Add entity</span>
+		</div>
+	{/if}
+
+	{#if type === 'scenes'}
+		<div class="group-label">SCENES</div>
+		{#each scenes as ref, refIndex (refIndex)}
+			<div class="filter-row">
+				<div class="filter-fields">
+					<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
+					<TextField label="Name (optional)" bind:value={ref.name} />
+					<TextField
+						label="Icon (optional)"
+						bind:value={ref.icon}
+						placeholder="Material Symbols name"
+					/>
+				</div>
+				<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
+					<Icon name="delete" size={20} />
+				</span>
+			</div>
+		{/each}
+		<div class="add-filter" onclick={() => scenes.push({ entity: '', name: '', icon: '' })}>
+			<Icon name="add" size={18} />
+			<span>Add scene</span>
 		</div>
 	{/if}
 

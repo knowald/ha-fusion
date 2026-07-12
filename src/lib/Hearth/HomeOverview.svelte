@@ -7,11 +7,13 @@
 	import AirCard from './AirCard.svelte';
 	import BlindsSection from './BlindsSection.svelte';
 	import CameraCard from './CameraCard.svelte';
+	import ClimateCard from './ClimateCard.svelte';
 	import EditChip from './EditChip.svelte';
 	import EntitiesCard from './EntitiesCard.svelte';
 	import FusionCard from './FusionCard.svelte';
 	import LightsSection from './LightsSection.svelte';
 	import MediaCard from './MediaCard.svelte';
+	import ScenesCard from './ScenesCard.svelte';
 	import TemperatureCard from './TemperatureCard.svelte';
 	import VacuumRow from './VacuumRow.svelte';
 
@@ -76,6 +78,10 @@
 						<EntitiesCard {card} />
 					{:else if card.type === 'camera'}
 						<CameraCard {card} />
+					{:else if card.type === 'climate'}
+						<ClimateCard {card} />
+					{:else if card.type === 'scenes'}
+						<ScenesCard {card} />
 					{:else if card.type === 'fusion'}
 						<FusionCard {card} />
 					{/if}

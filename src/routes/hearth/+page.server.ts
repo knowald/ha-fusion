@@ -24,13 +24,19 @@ async function loadJson(file: string) {
 	}
 }
 
-export async function load({
-	request
-}): Promise<{ configuration: Configuration; hearth: unknown; translations: Translations }> {
+export async function load({ request }): Promise<{
+	configuration: Configuration;
+	hearth: unknown;
+	hearthRevision: number;
+	translations: Translations;
+}> {
 	const [configuration = {}, hearth] = await Promise.all([
 		loadYaml('./data/configuration.yaml') as Promise<Configuration | undefined>,
 		loadYaml('./data/hearth.yaml')
 	]);
+
+	const rawRevision = (hearth as Record<string, unknown> | undefined)?.revision;
+	const hearthRevision = typeof rawRevision === 'number' ? rawRevision : 0;
 
 	configuration.hassUrl =
 		process.env.HASS_URL || request.headers.get('X-Proxy-Target') || undefined;
@@ -44,5 +50,10 @@ export async function load({
 			: undefined
 	]);
 
-	return { configuration, hearth, translations: locale ? { ...locale, _default: en } : en };
+	return {
+		configuration,
+		hearth,
+		hearthRevision,
+		translations: locale ? { ...locale, _default: en } : en
+	};
 }

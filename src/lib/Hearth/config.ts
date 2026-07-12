@@ -66,6 +66,8 @@ export type OverviewCard =
 	| { id: string; type: 'vacuum'; entity?: string }
 	| { id: string; type: 'entities'; title?: string; entities: EntityRef[] }
 	| { id: string; type: 'camera'; entity?: string; title?: string }
+	| { id: string; type: 'climate'; entity?: string; title?: string }
+	| { id: string; type: 'scenes'; title?: string; scenes: EntityRef[] }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
 
 export type HearthTheme = Record<string, string>;
@@ -98,6 +100,8 @@ export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }
 	{ value: 'vacuum', label: 'Vacuum' },
 	{ value: 'entities', label: 'Entity grid (any domain)' },
 	{ value: 'camera', label: 'Camera' },
+	{ value: 'climate', label: 'Climate (thermostat)' },
+	{ value: 'scenes', label: 'Scene chips' },
 	{ value: 'fusion', label: 'Fusion object (template, picture elements, ...)' }
 ];
 
@@ -338,7 +342,8 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 				id: card.id ?? `card-${columnIndex}-${index}`,
 				...(card.type === 'entities'
 					? { entities: Array.isArray(card.entities) ? card.entities : [] }
-					: {})
+					: {}),
+				...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {})
 			}))
 		),
 		lights: Array.isArray(config.lights) ? config.lights : [],
