@@ -7,6 +7,7 @@
 		slugify,
 		uniqueId,
 		type EntityRef,
+		type HearthConfig,
 		type HearthFilter,
 		type OverviewCard
 	} from '../config';
@@ -18,11 +19,21 @@
 	import SelectField from './SelectField.svelte';
 	import YamlField from './YamlField.svelte';
 
-	let { column, index }: { column: number; index: number | null } = $props();
+	let { column, index, roomId }: { column: number; index: number | null; roomId?: string } =
+		$props();
+
+	// with roomId the sheet edits that room's cards list instead of an
+	// overview column; initializes the list on first write
+	function cardList(config: HearthConfig): OverviewCard[] | undefined {
+		if (roomId === undefined) return config.overview[column];
+		const room = config.rooms.find((entry) => entry.id === roomId);
+		if (!room) return undefined;
+		return (room.cards ??= []);
+	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}
 	// svelte-ignore state_referenced_locally
-	const initial = index !== null ? get(hearthConfig).overview[column]?.[index] : undefined;
+	const initial = index !== null ? cardList(get(hearthConfig))?.[index] : undefined;
 
 	let type = $state<OverviewCard['type']>(initial?.type ?? 'media');
 	let title = $state(initial && 'title' in initial ? (initial.title ?? '') : '');
@@ -143,12 +154,15 @@
 
 	function done() {
 		updateConfig((config) => {
-			const cards = config.overview[column];
+			const cards = cardList(config);
 			if (!cards) return;
 			if (index !== null) {
 				cards[index] = buildCard(cards[index].id);
 			} else {
-				const taken = config.overview.flat().map((card) => card.id);
+				const taken = [
+					...config.overview.flat(),
+					...config.rooms.flatMap((room) => room.cards ?? [])
+				].map((card) => card.id);
 				cards.push(buildCard(uniqueId(slugify(type), taken)));
 			}
 		});
@@ -157,7 +171,7 @@
 
 	function remove() {
 		updateConfig((config) => {
-			if (index !== null) config.overview[column]?.splice(index, 1);
+			if (index !== null) cardList(config)?.splice(index, 1);
 		});
 		close();
 	}

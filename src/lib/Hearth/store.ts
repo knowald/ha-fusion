@@ -59,7 +59,8 @@ export type Editor =
 	| { kind: 'blind'; id: string | null }
 	| { kind: 'device'; roomId: string; index: number | null }
 	| { kind: 'room'; id: string | null }
-	| { kind: 'card'; column: number; index: number | null }
+	// with roomId the target list is that room's cards array (column ignored)
+	| { kind: 'card'; column: number; index: number | null; roomId?: string }
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' };
 

@@ -22,6 +22,11 @@
 	import Icon from './Icon.svelte';
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
+	import Screensaver from './Screensaver.svelte';
+	import SetupWizard from './SetupWizard.svelte';
+	import { wakeLock } from './wakeLock';
+
+	let showSetupWizard = $state(false);
 
 	let roomExists = $derived(
 		$currentRoom === 'home' || $hearthConfig.rooms.some((room) => room.id === $currentRoom)
@@ -63,7 +68,7 @@
 	{@html `<style>${rootCss}</style>`}
 </svelte:head>
 
-<section class="frame">
+<section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
 	<div class="layout" class:editing={$hearthEditMode}>
 		<div class="rail-scroll">
 			<Rail />
@@ -78,6 +83,12 @@
 	</div>
 	<ControlPopup />
 	<EditorHost />
+	{#if ($hearthConfig.screensaver_minutes ?? 0) > 0}
+		<Screensaver minutes={$hearthConfig.screensaver_minutes} />
+	{/if}
+	{#if showSetupWizard}
+		<SetupWizard onclose={() => (showSetupWizard = false)} />
+	{/if}
 	{#if $saveState === 'saved'}
 		<div class="save-toast" transition:fade={{ duration: 250 }}>
 			<Icon name="check_circle" size={18} />
@@ -98,6 +109,9 @@
 			{:else if $saveState === 'error'}
 				<span class="save-error">Save failed</span>
 			{/if}
+			<span class="bar-icon pressable" onclick={() => (showSetupWizard = true)}>
+				<Icon name="auto_awesome" size={20} />
+			</span>
 			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'theme' })}>
 				<Icon name="palette" size={20} />
 			</span>

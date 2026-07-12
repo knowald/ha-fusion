@@ -21,7 +21,7 @@
 		{:else if $editor.kind === 'room'}
 			<RoomEditSheet id={$editor.id} />
 		{:else if $editor.kind === 'card'}
-			<CardEditSheet column={$editor.column} index={$editor.index} />
+			<CardEditSheet column={$editor.column} index={$editor.index} roomId={$editor.roomId} />
 		{:else if $editor.kind === 'railWidget'}
 			<RailWidgetEditSheet index={$editor.index} />
 		{:else}

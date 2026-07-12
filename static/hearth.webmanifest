@@ -1,0 +1,21 @@
+{
+	"name": "Hearth",
+	"short_name": "Hearth",
+	"start_url": "/hearth",
+	"display": "fullscreen",
+	"orientation": "landscape",
+	"background_color": "#16110c",
+	"theme_color": "#16110c",
+	"icons": [
+		{
+			"src": "/icon-192.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "/favicon.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	]
+}

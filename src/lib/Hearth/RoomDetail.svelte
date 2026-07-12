@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
 	import { states } from '$lib/Stores';
+	import type { OverviewCard } from './config';
 	import { editor, hearthConfig, hearthEditMode, sensorNumber, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import BlindTile from './BlindTile.svelte';
+	import CardRenderer from './CardRenderer.svelte';
 	import DeviceTile from './DeviceTile.svelte';
+	import EditChip from './EditChip.svelte';
 	import EntityTile from './EntityTile.svelte';
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';
@@ -107,6 +110,40 @@
 			{/if}
 		</div>
 
+		{#if (room.cards?.length ?? 0) > 0 || $hearthEditMode}
+			<div class="section-title cards-title">Cards</div>
+			<div
+				class="cards"
+				use:sortable={{
+					group: `hearth-room-cards-${roomId}`,
+					handle: '.drag-handle',
+					filter: '.add-tile',
+					disabled: !$hearthEditMode,
+					items: room.cards ?? [],
+					onFinalize: (items: OverviewCard[]) =>
+						updateConfig((config) => {
+							const target = config.rooms.find((entry) => entry.id === roomId);
+							if (target) target.cards = items.filter(Boolean);
+						})
+				}}
+			>
+				{#each room.cards ?? [] as card, index (card.id)}
+					<div class="card-slot" data-id={card.id}>
+						{#if $hearthEditMode}
+							<EditChip onedit={() => editor.set({ kind: 'card', column: 0, index, roomId })} />
+						{/if}
+						<CardRenderer {card} />
+					</div>
+				{/each}
+				{#if $hearthEditMode}
+					<AddTile
+						label="Add card"
+						onadd={() => editor.set({ kind: 'card', column: 0, index: null, roomId })}
+					/>
+				{/if}
+			</div>
+		{/if}
+
 		{#if empty}
 			<div class="empty">No other devices in this room</div>
 		{/if}
@@ -205,6 +242,20 @@
 
 	.grid.devices {
 		align-content: start;
+	}
+
+	.cards-title {
+		margin-top: 30px;
+	}
+
+	.cards {
+		display: flex;
+		flex-direction: column;
+		gap: 18px;
+	}
+
+	.card-slot {
+		position: relative;
 	}
 
 	.empty {

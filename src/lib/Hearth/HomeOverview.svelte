@@ -4,18 +4,8 @@
 	import { onDndReceive } from './drag';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
-	import AirCard from './AirCard.svelte';
-	import BlindsSection from './BlindsSection.svelte';
-	import CameraCard from './CameraCard.svelte';
-	import ClimateCard from './ClimateCard.svelte';
+	import CardRenderer from './CardRenderer.svelte';
 	import EditChip from './EditChip.svelte';
-	import EntitiesCard from './EntitiesCard.svelte';
-	import FusionCard from './FusionCard.svelte';
-	import LightsSection from './LightsSection.svelte';
-	import MediaCard from './MediaCard.svelte';
-	import ScenesCard from './ScenesCard.svelte';
-	import TemperatureCard from './TemperatureCard.svelte';
-	import VacuumRow from './VacuumRow.svelte';
 
 	function reorderColumn(column: number, items: OverviewCard[]) {
 		updateConfig((config) => {
@@ -62,29 +52,7 @@
 					{#if $hearthEditMode}
 						<EditChip onedit={() => editor.set({ kind: 'card', column: columnIndex, index })} />
 					{/if}
-					{#if card.type === 'lights'}
-						<LightsSection {card} />
-					{:else if card.type === 'blinds'}
-						<BlindsSection {card} />
-					{:else if card.type === 'temperature'}
-						<TemperatureCard {card} />
-					{:else if card.type === 'air'}
-						<AirCard {card} />
-					{:else if card.type === 'media'}
-						<MediaCard {card} />
-					{:else if card.type === 'vacuum'}
-						<VacuumRow {card} />
-					{:else if card.type === 'entities'}
-						<EntitiesCard {card} />
-					{:else if card.type === 'camera'}
-						<CameraCard {card} />
-					{:else if card.type === 'climate'}
-						<ClimateCard {card} />
-					{:else if card.type === 'scenes'}
-						<ScenesCard {card} />
-					{:else if card.type === 'fusion'}
-						<FusionCard {card} />
-					{/if}
+					<CardRenderer {card} />
 				</div>
 			{/each}
 			{#if $hearthEditMode}

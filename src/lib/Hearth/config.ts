@@ -28,6 +28,7 @@ export interface HearthRoom {
 	lights: string[];
 	blinds: string[];
 	devices: HearthDevice[];
+	cards?: OverviewCard[];
 }
 
 export interface HearthFilter {
@@ -79,6 +80,9 @@ export interface HearthConfig {
 	lights: HearthLight[];
 	blinds: HearthBlind[];
 	rooms: HearthRoom[];
+	// display options for wall tablets; screensaver off when unset
+	screensaver_minutes?: number;
+	keep_screen_on?: boolean;
 }
 
 export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] = [
@@ -284,6 +288,17 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 	]
 };
 
+function normalizeCard(card: any, fallbackId: string): OverviewCard {
+	return {
+		...card,
+		id: card.id ?? fallbackId,
+		...(card.type === 'entities'
+			? { entities: Array.isArray(card.entities) ? card.entities : [] }
+			: {}),
+		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {})
+	};
+}
+
 /**
  * Accepts current config files, the pre-card v1 shape (flat entity fields, no
  * rail/overview), and garbage. Anything unusable falls back to defaults.
@@ -300,7 +315,14 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			...room,
 			lights: Array.isArray(room.lights) ? room.lights : [],
 			blinds: Array.isArray(room.blinds) ? room.blinds : [],
-			devices: Array.isArray(room.devices) ? room.devices : []
+			devices: Array.isArray(room.devices) ? room.devices : [],
+			...(room.cards !== undefined
+				? {
+						cards: (Array.isArray(room.cards) ? room.cards : []).map((card: any, index: number) =>
+							normalizeCard(card, `card-${room.id}-${index}`)
+						)
+					}
+				: {})
 		})
 	);
 
@@ -337,18 +359,14 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
 		rail: rail.map((widget, index) => ({ ...widget, id: widget.id ?? `widget-${index}` })),
 		overview: overview.map((column, columnIndex) =>
-			column.map((card, index) => ({
-				...card,
-				id: card.id ?? `card-${columnIndex}-${index}`,
-				...(card.type === 'entities'
-					? { entities: Array.isArray(card.entities) ? card.entities : [] }
-					: {}),
-				...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {})
-			}))
+			column.map((card, index) => normalizeCard(card, `card-${columnIndex}-${index}`))
 		),
 		lights: Array.isArray(config.lights) ? config.lights : [],
 		blinds: Array.isArray(config.blinds) ? config.blinds : [],
-		rooms
+		rooms,
+		screensaver_minutes:
+			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
+		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined
 	};
 }
 
