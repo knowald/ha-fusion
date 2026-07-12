@@ -53,7 +53,7 @@
 				servicePlaceholder = parsed?.service || $lang('none');
 			} else {
 				// toggleService
-				const service = getTogglableService($states[sel?.entity_id]);
+				const service = getTogglableService($states?.[sel?.entity_id]);
 				servicePlaceholder = service || $lang('none');
 			}
 		} catch {
@@ -85,7 +85,7 @@
 			return true;
 		}
 
-		if ($states[entityId] && !getTogglableService($states[entityId])) {
+		if ($states?.[entityId] && !getTogglableService($states?.[entityId])) {
 			return true;
 		}
 
@@ -203,7 +203,7 @@
 						class="input"
 						type="text"
 						placeholder={template?.name?.output ||
-							getName(sel, (entity_id && $states[entity_id]) || undefined) ||
+							getName(sel, (entity_id && $states?.[entity_id]) || undefined) ||
 							$lang('name')}
 						autocomplete="off"
 						spellcheck="false"
@@ -580,7 +580,7 @@
 			<div class="vacuum-list">
 				{#each vacuumPlans as plan, i (i)}
 					<div class="vacuum-list-item">
-						<span class="overflow">{$states[plan]?.attributes?.friendly_name || plan}</span>
+						<span class="overflow">{$states?.[plan]?.attributes?.friendly_name || plan}</span>
 						<button class="vacuum-remove-btn" onclick={() => removePlan(i)}>x</button>
 					</div>
 				{/each}

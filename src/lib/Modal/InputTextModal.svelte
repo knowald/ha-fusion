@@ -10,7 +10,7 @@
 
 	let showPassword = $state(false);
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entityState = $derived(entity?.state);
 
 	/**

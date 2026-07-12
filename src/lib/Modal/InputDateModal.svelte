@@ -7,7 +7,7 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entityState = $derived(entity?.state);
 	let type = $derived(getType(entity?.attributes?.has_date, entity?.attributes?.has_time));
 	let domain = $derived(getDomain(entity.entity_id) as string);

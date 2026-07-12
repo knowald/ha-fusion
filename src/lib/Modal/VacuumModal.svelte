@@ -12,7 +12,7 @@
 
 	const MAX_ITEMS = 4;
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
@@ -44,7 +44,9 @@
 	);
 
 	// battery_level may be in vacuum attributes or in a separate sensor entity
-	let batteryEntity = $derived($states[sel?.entity_id?.replace('vacuum.', 'sensor.') + '_battery']);
+	let batteryEntity = $derived(
+		$states?.[sel?.entity_id?.replace('vacuum.', 'sensor.') + '_battery']
+	);
 	let batteryLevel = $derived(
 		attributes?.battery_level ?? (batteryEntity ? Number(batteryEntity.state) : null)
 	);
@@ -76,7 +78,7 @@
 	let plans = $derived((sel?.vacuum_plans as string[]) || []);
 	let rooms = $derived((sel?.vacuum_rooms as { id: string; name: string }[]) || []);
 	let mopIntensityEntity = $derived(sel?.vacuum_mop_intensity_entity);
-	let mopEntity = $derived(mopIntensityEntity ? $states[mopIntensityEntity] : undefined);
+	let mopEntity = $derived(mopIntensityEntity ? $states?.[mopIntensityEntity] : undefined);
 	let mopOptions = $derived(
 		mopEntity?.attributes?.options?.map((option: string) => ({
 			id: option,
@@ -163,7 +165,7 @@
 			<h2>{$lang('vacuum_plans') !== 'vacuum_plans' ? $lang('vacuum_plans') : 'Cleaning plans'}</h2>
 			<div class="plans-grid">
 				{#each plans as planId, i (i)}
-					{@const planEntity = $states[planId]}
+					{@const planEntity = $states?.[planId]}
 					<button class="plan-button" onclick={() => handlePlanPress(planId)} use:Ripple={$ripple}>
 						<div class="plan-icon">
 							<Icon icon="mdi:play-circle-outline" height="none" />

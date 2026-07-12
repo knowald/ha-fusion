@@ -37,7 +37,7 @@
 	let busy: boolean;
 	let timeout: ReturnType<typeof setTimeout>;
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
 
 	// ec

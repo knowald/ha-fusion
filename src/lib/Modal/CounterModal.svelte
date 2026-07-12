@@ -8,7 +8,7 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entityState = $derived(Number(entity?.state));
 	let attributes = $derived(entity?.attributes);
 	let canIncrement = $derived(entityState !== attributes?.maximum);

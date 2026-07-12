@@ -18,7 +18,7 @@
 	let selectedId: boolean | undefined = $state(undefined);
 	let tempItemNames: SvelteMap<string, string> = new SvelteMap();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 
 	let anyCompleted = $derived(getCompleted(items));
 

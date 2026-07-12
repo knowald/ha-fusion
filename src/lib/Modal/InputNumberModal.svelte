@@ -14,7 +14,7 @@
 	let timeout: ReturnType<typeof setTimeout>;
 	let errorMessage = $state<string | undefined>(undefined);
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 
 	let value = $derived(
 		entity && (draggingValue === 0 || draggingValue !== undefined)

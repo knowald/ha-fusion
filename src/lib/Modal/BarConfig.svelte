@@ -62,7 +62,7 @@
 					type="text"
 					bind:value={name}
 					onchange={(event) => set('name', event)}
-					placeholder={getName(sel, (entity_id && $states[entity_id]) || undefined)}
+					placeholder={getName(sel, (entity_id && $states?.[entity_id]) || undefined)}
 					class:input={true}
 					class:placeholder={!name}
 					autocomplete="off"

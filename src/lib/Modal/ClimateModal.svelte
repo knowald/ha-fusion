@@ -13,7 +13,7 @@
 	// buttons or select, based on how many items
 	const MAX_ITEMS = 4;
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);

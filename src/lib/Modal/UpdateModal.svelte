@@ -18,7 +18,7 @@
 	let installed = $state<boolean>(false);
 	let releaseNotes = $state<string | Promise<string> | undefined>(undefined);
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let attributes = $derived(entity?.attributes);
 	let supported_features = $derived(attributes?.supported_features);
 

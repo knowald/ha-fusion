@@ -8,7 +8,7 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let toggle = $derived(entity?.state === 'on');
 
 	/**

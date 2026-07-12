@@ -113,7 +113,7 @@
 					name={$lang('name')}
 					class="input"
 					type="text"
-					placeholder={getName(sel, (sel.entity_id && $states[sel.entity_id]) || undefined) ||
+					placeholder={getName(sel, (sel.entity_id && $states?.[sel.entity_id]) || undefined) ||
 						$lang('name')}
 					autocomplete="off"
 					spellcheck="false"

@@ -12,7 +12,7 @@
 
 	let request: Promise<unknown> | undefined = undefined;
 
-	let entity = $derived($states[selected?.entity_id] as HassEntity);
+	let entity = $derived($states?.[selected?.entity_id] as HassEntity);
 	let attributes = $derived(entity?.attributes);
 
 	let supported_features = $derived(attributes?.supported_features);

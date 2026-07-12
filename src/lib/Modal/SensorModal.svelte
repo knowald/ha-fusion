@@ -7,7 +7,7 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 </script>
 
 {#if isOpen}

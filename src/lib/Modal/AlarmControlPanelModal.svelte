@@ -11,7 +11,7 @@
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let entity_id = $derived(entity?.entity_id);
 	let entityState = $derived(entity?.state);
 	let attributes = $derived(entity?.attributes);

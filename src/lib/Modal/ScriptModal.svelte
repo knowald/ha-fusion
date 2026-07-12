@@ -15,7 +15,7 @@
 
 	let description = $state<string | undefined>(undefined);
 
-	let entity = $derived($states[sel?.entity_id]);
+	let entity = $derived($states?.[sel?.entity_id]);
 	let toggle = $derived(entity?.state === 'on');
 	let current = $derived(entity?.attributes?.current > 0);
 

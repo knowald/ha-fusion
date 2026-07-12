@@ -24,7 +24,7 @@
 	let nextPosition: number | undefined = undefined;
 	let currentSliderValue = $state(0);
 
-	let entity = $derived($states[selected?.entity_id]);
+	let entity = $derived($states?.[selected?.entity_id]);
 	let attributes = $derived(entity?.attributes);
 	let playing = $derived(entity?.state === 'playing');
 	let updated_at = $derived(new Date(attributes?.media_position_updated_at).getTime());
