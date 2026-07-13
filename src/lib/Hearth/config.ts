@@ -719,7 +719,10 @@ export function themeStyle(theme?: HearthTheme): string {
 		.filter(([key]) => key in THEME_VARS)
 		.map(([key, value]) => {
 			const { cssVar, rgb } = THEME_VARS[key];
-			const resolved = rgb ? hexToTriplet(value) : /^\d+$/.test(value) ? `${value}px` : value;
+			// the result lands in a raw <style> tag, so strip anything that could
+			// close the tag or the :root block (no legal CSS value needs these)
+			const safe = String(value).replace(/[<>{}]/g, '');
+			const resolved = rgb ? hexToTriplet(safe) : /^\d+$/.test(safe) ? `${safe}px` : safe;
 			return `${cssVar}: ${resolved};`;
 		})
 		.join(' ');
