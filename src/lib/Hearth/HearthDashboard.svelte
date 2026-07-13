@@ -60,6 +60,11 @@
 		presetOverride = THEME_PRESETS.find((preset) => preset.id === presetId);
 	});
 
+	// the override would mask theme edits, so drop it while editing
+	$effect(() => {
+		if ($hearthEditMode) presetOverride = undefined;
+	});
+
 	let activeTheme = $derived(
 		presetOverride ? (presetOverride.theme ?? undefined) : $hearthConfig.theme
 	);

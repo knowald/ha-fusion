@@ -64,7 +64,11 @@
 		if (target < 0 || target >= devices.length) return;
 		updateConfig((config) => {
 			const room = config.rooms.find((entry) => entry.id === roomId);
-			if (room) moveItem(room.devices, index, delta);
+			if (!room) return;
+			// the move remounts the sheet, which would discard in-progress field
+			// edits - persist them first when they are valid
+			if (name.trim() && entity.trim()) room.devices[index] = buildDevice();
+			moveItem(room.devices, index, delta);
 		});
 		editor.set({ kind: 'device', roomId, index: target });
 	}

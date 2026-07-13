@@ -53,9 +53,13 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ revision }, { status: 409 });
 	}
 
+	// the revision key is server-managed; a client-supplied one must not win
+	const configBody = { ...config };
+	delete configBody.revision;
+
 	let data;
 	try {
-		data = yaml.dump({ revision: revision + 1, ...config });
+		data = yaml.dump({ revision: revision + 1, ...configBody });
 	} catch (err: any) {
 		error(500, err.message);
 	}

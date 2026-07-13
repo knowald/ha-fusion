@@ -193,6 +193,8 @@ function clearPending(entityId: string) {
 }
 
 function markPending(entityId: string, ttl = 5000) {
+	// mirrors the edit-mode guard in service(): no command, no pending glow
+	if (get(hearthEditMode)) return;
 	clearTimeout(pendingTimers[entityId]);
 	pendingEntities.update((current) => ({ ...current, [entityId]: true }));
 	pendingTimers[entityId] = setTimeout(() => clearPending(entityId), ttl);
@@ -214,6 +216,8 @@ states.subscribe(($states) => {
 });
 
 function service(domain: string, name: string, data: Record<string, unknown>) {
+	// edit mode arranges layout; taps there must never fire real device commands
+	if (get(hearthEditMode)) return;
 	const conn = get(connection);
 	if (!conn) return;
 	callService(conn, domain, name, data).catch((error) => console.error(error));

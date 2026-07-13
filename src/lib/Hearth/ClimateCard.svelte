@@ -46,13 +46,28 @@
 		return text.charAt(0).toUpperCase() + text.slice(1);
 	});
 
+	// rapid taps step from the optimistic value, not the last HA-confirmed one
+	let localTarget = $state<number | null>(null);
+	let localTargetTimer: ReturnType<typeof setTimeout> | undefined;
+
+	$effect(() => {
+		void target;
+		localTarget = null;
+	});
+
+	let displayTarget = $derived(localTarget ?? target);
+
 	function stepTarget(direction: number) {
-		if (!card.entity || target === null) return;
+		if (!card.entity || displayTarget === null) return;
 		const min = attributes.min_temp ?? 7;
 		const max = attributes.max_temp ?? 35;
 		// steps like 0.5 accumulate float noise, snap to one decimal
-		const next = Math.round((target + direction * step) * 10) / 10;
-		setClimateTemperature(card.entity, Math.max(min, Math.min(max, next)));
+		const next = Math.round((displayTarget + direction * step) * 10) / 10;
+		const clamped = Math.max(min, Math.min(max, next));
+		localTarget = clamped;
+		clearTimeout(localTargetTimer);
+		localTargetTimer = setTimeout(() => (localTarget = null), 5000);
+		setClimateTemperature(card.entity, clamped);
 	}
 </script>
 
@@ -83,7 +98,9 @@
 						<span class="step pressable" use:Ripple={PRESS_RIPPLE} onclick={() => stepTarget(-1)}>
 							<Icon name="remove" size={18} />
 						</span>
-						<span class="target-value">{target === null ? '-' : target.toFixed(1)}</span>
+						<span class="target-value"
+							>{displayTarget === null ? '-' : displayTarget.toFixed(1)}</span
+						>
 						<span class="step pressable" use:Ripple={PRESS_RIPPLE} onclick={() => stepTarget(1)}>
 							<Icon name="add" size={18} />
 						</span>

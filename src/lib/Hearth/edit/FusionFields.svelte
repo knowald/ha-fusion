@@ -94,9 +94,9 @@
 	}
 
 	/**
-	 * Replaces the non-spec keys of `options` with the parsed YAML mapping,
-	 * leaving form-covered keys alone. Returns false (options untouched) when
-	 * the YAML is invalid.
+	 * Replaces the non-spec keys of `options` with the parsed YAML mapping.
+	 * Spec-covered keys typed in the YAML merge into the form fields instead
+	 * of being dropped. Returns false (options untouched) when invalid.
 	 */
 	export function applyLeftoverYaml(
 		type: string,
@@ -117,7 +117,7 @@
 			if (!spec.includes(key)) delete options[key];
 		}
 		for (const [key, value] of Object.entries(parsed as Record<string, any>)) {
-			if (!spec.includes(key)) options[key] = value;
+			options[key] = value;
 		}
 		return true;
 	}
