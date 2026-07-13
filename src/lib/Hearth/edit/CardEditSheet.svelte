@@ -47,7 +47,7 @@
 	let pm25Entity = $state(initial?.type === 'air' ? (initial.pm25_entity ?? '') : '');
 	let humidityEntity = $state(initial?.type === 'air' ? (initial.humidity_entity ?? '') : '');
 	let filters = $state<HearthFilter[]>(
-		initial?.type === 'air' ? initial.filters.map((filter) => ({ ...filter })) : []
+		initial?.type === 'air' ? (initial.filters ?? []).map((filter) => ({ ...filter })) : []
 	);
 	let entities = $state<EntityRef[]>(
 		initial?.type === 'entities' ? initial.entities.map((ref) => ({ ...ref })) : []

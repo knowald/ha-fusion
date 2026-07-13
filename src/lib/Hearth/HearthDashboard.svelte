@@ -46,6 +46,7 @@
 			await saveEdit();
 		} catch (error) {
 			console.error(error);
+			$saveState = 'error';
 		}
 	}
 
@@ -76,7 +77,7 @@
 		if (event.key === 's') {
 			event.preventDefault();
 			handleSave();
-		} else if (event.key === 'z' && !typing) {
+		} else if (event.key.toLowerCase() === 'z' && !typing) {
 			event.preventDefault();
 			if (event.shiftKey) redoConfig();
 			else undoConfig();

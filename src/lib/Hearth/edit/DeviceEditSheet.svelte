@@ -58,11 +58,15 @@
 
 	function move(delta: number) {
 		if (index === null) return;
+		const target = index + delta;
+		const devices = get(hearthConfig).rooms.find((entry) => entry.id === roomId)?.devices ?? [];
+		// moveItem no-ops at the list boundary; keep the editor index in sync
+		if (target < 0 || target >= devices.length) return;
 		updateConfig((config) => {
 			const room = config.rooms.find((entry) => entry.id === roomId);
 			if (room) moveItem(room.devices, index, delta);
 		});
-		editor.set({ kind: 'device', roomId, index: index + delta });
+		editor.set({ kind: 'device', roomId, index: target });
 	}
 </script>
 

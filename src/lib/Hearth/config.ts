@@ -295,7 +295,8 @@ function normalizeCard(card: any, fallbackId: string): OverviewCard {
 		...(card.type === 'entities'
 			? { entities: Array.isArray(card.entities) ? card.entities : [] }
 			: {}),
-		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {})
+		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {}),
+		...(card.type === 'air' ? { filters: Array.isArray(card.filters) ? card.filters : [] } : {})
 	};
 }
 
