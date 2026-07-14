@@ -42,7 +42,7 @@ export interface EntityRef {
 	icon?: string;
 }
 
-export type RailWidget =
+type RailWidgetVariant =
 	| { id: string; type: 'clock'; city?: string }
 	| { id: string; type: 'weather'; entity?: string }
 	| { id: string; type: 'nav' }
@@ -50,6 +50,9 @@ export type RailWidget =
 	| { id: string; type: 'status'; icon?: string; text?: string; entity?: string }
 	| { id: string; type: 'entity'; entity?: string; name?: string; icon?: string }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
+
+// hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
+export type RailWidget = RailWidgetVariant & { hide_mobile?: boolean };
 
 export type OverviewCard =
 	| { id: string; type: 'lights'; title?: string }
@@ -361,7 +364,11 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 
 	return {
 		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
-		rail: rail.map((widget, index) => ({ ...widget, id: widget.id ?? `widget-${index}` })),
+		rail: rail.map((widget, index) => ({
+			...widget,
+			id: widget.id ?? `widget-${index}`,
+			hide_mobile: widget.hide_mobile === true ? true : undefined
+		})),
 		overview: overview.map((column, columnIndex) =>
 			column.map((card, index) => normalizeCard(card, `card-${columnIndex}-${index}`))
 		),

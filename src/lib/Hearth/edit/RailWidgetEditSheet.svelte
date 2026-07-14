@@ -38,6 +38,7 @@
 	);
 	let text = $state(initial?.type === 'status' ? (initial.text ?? '') : '');
 	let name = $state(initial?.type === 'entity' ? (initial.name ?? '') : '');
+	let hideMobile = $state(initial?.hide_mobile ?? false);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'sensor'));
 	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
@@ -75,15 +76,17 @@
 	}
 
 	function buildWidget(id: string): RailWidget {
-		if (type === 'clock') return { id, type, city: city.trim() || undefined };
-		if (type === 'weather') return { id, type, entity: entity.trim() || undefined };
+		const hide_mobile = hideMobile || undefined;
+		if (type === 'clock') return { id, type, city: city.trim() || undefined, hide_mobile };
+		if (type === 'weather') return { id, type, entity: entity.trim() || undefined, hide_mobile };
 		if (type === 'status') {
 			return {
 				id,
 				type,
 				icon: icon.trim() || undefined,
 				text: text.trim() || undefined,
-				entity: entity.trim() || undefined
+				entity: entity.trim() || undefined,
+				hide_mobile
 			};
 		}
 		if (type === 'entity') {
@@ -92,13 +95,19 @@
 				type,
 				entity: entity.trim() || undefined,
 				name: name.trim() || undefined,
-				icon: icon.trim() || undefined
+				icon: icon.trim() || undefined,
+				hide_mobile
 			};
 		}
 		if (type === 'fusion') {
-			return { id, type, config: { type: fusionType, ...$state.snapshot(fusionOptions) } };
+			return {
+				id,
+				type,
+				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
+				hide_mobile
+			};
 		}
-		return { id, type: type as 'nav' | 'spacer' };
+		return { id, type: type as 'nav' | 'spacer', hide_mobile };
 	}
 
 	function done() {
@@ -180,6 +189,11 @@
 			</div>
 		{/if}
 	{/if}
+
+	<label class="check">
+		<input type="checkbox" bind:checked={hideMobile} />
+		<span>Hide on mobile</span>
+	</label>
 </EditSheet>
 
 <style>
@@ -204,5 +218,21 @@
 		font-size: 12px;
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
+	}
+
+	.check {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 14px;
+		color: var(--h-text-3);
+		margin-top: 4px;
+		cursor: pointer;
+	}
+
+	.check input {
+		accent-color: var(--h-accent-deep);
+		width: 16px;
+		height: 16px;
 	}
 </style>

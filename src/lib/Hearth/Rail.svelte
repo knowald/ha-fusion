@@ -31,6 +31,8 @@
 			class="widget"
 			class:spacer={widget.type === 'spacer' && !$hearthEditMode}
 			class:spacer-visible={widget.type === 'spacer' && $hearthEditMode}
+			class:hide-mobile={widget.hide_mobile && !$hearthEditMode}
+			class:hide-mobile-editing={widget.hide_mobile && $hearthEditMode}
 			data-id={widget.id}
 		>
 			{#if $hearthEditMode}
@@ -90,5 +92,15 @@
 		color: var(--h-text-6);
 		font-size: 13px;
 		text-align: center;
+	}
+
+	@media (max-width: 900px) {
+		.widget.hide-mobile {
+			display: none;
+		}
+
+		.widget.hide-mobile-editing {
+			opacity: 0.45;
+		}
 	}
 </style>
