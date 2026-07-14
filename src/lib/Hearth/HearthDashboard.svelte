@@ -140,6 +140,9 @@
 			<span class="bar-icon pressable" onclick={() => (showSetupWizard = true)}>
 				<Icon name="auto_awesome" size={20} />
 			</span>
+			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'settings' })}>
+				<Icon name="settings" size={20} />
+			</span>
 			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'theme' })}>
 				<Icon name="palette" size={20} />
 			</span>

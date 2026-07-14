@@ -6,6 +6,7 @@
 	import LightEditSheet from './LightEditSheet.svelte';
 	import RailWidgetEditSheet from './RailWidgetEditSheet.svelte';
 	import RoomEditSheet from './RoomEditSheet.svelte';
+	import SettingsEditSheet from './SettingsEditSheet.svelte';
 	import ThemeEditSheet from './ThemeEditSheet.svelte';
 </script>
 
@@ -24,6 +25,8 @@
 			<CardEditSheet column={$editor.column} index={$editor.index} roomId={$editor.roomId} />
 		{:else if $editor.kind === 'railWidget'}
 			<RailWidgetEditSheet index={$editor.index} />
+		{:else if $editor.kind === 'settings'}
+			<SettingsEditSheet />
 		{:else}
 			<ThemeEditSheet />
 		{/if}

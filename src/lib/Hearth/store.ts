@@ -62,7 +62,8 @@ export type Editor =
 	// with roomId the target list is that room's cards array (column ignored)
 	| { kind: 'card'; column: number; index: number | null; roomId?: string }
 	| { kind: 'railWidget'; index: number | null }
-	| { kind: 'theme' };
+	| { kind: 'theme' }
+	| { kind: 'settings' };
 
 export const editor = writable<Editor | null>(null);
 
