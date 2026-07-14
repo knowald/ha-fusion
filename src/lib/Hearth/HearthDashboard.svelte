@@ -15,6 +15,7 @@
 	} from './store';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { connected } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		PRESS_RIPPLE,
@@ -55,14 +56,40 @@
 	// touching the config or undo history
 	let presetOverride = $state<{ theme: HearthTheme | null } | undefined>(undefined);
 
+	// ?menu=false hides the edit-toggle pencil for kiosk frames; edit mode
+	// stays reachable if already active, it just can't be entered from here
+	let hideEditToggle = $state(false);
+
 	onMount(() => {
-		const presetId = new URLSearchParams(location.search).get('theme');
+		const params = new URLSearchParams(location.search);
+
+		const presetId = params.get('theme');
 		presetOverride = THEME_PRESETS.find((preset) => preset.id === presetId);
+
+		const roomId = params.get('room');
+		if (roomId && $hearthConfig.rooms.some((room) => room.id === roomId)) {
+			currentRoom.set(roomId);
+		}
+
+		hideEditToggle = params.get('menu') === 'false';
 	});
 
 	// the override would mask theme edits, so drop it while editing
 	$effect(() => {
 		if ($hearthEditMode) presetOverride = undefined;
+	});
+
+	// only surface a disconnect once it has lasted 2s, so brief websocket
+	// blips (reload, sleep/wake) don't flash the banner
+	let showDisconnected = $state(false);
+
+	$effect(() => {
+		if ($connected) {
+			showDisconnected = false;
+			return;
+		}
+		const timer = setTimeout(() => (showDisconnected = true), 2000);
+		return () => clearTimeout(timer);
 	});
 
 	let activeTheme = $derived(
@@ -119,6 +146,12 @@
 	{#if showSetupWizard}
 		<SetupWizard onclose={() => (showSetupWizard = false)} />
 	{/if}
+	{#if showDisconnected}
+		<div class="connection-toast" transition:fade={{ duration: 250 }}>
+			<Icon name="cloud_off" size={18} />
+			Connection lost. Reconnecting...
+		</div>
+	{/if}
 	{#if $saveState === 'saved'}
 		<div class="save-toast" transition:fade={{ duration: 250 }}>
 			<Icon name="check_circle" size={18} />
@@ -159,7 +192,7 @@
 				Save
 			</div>
 		</div>
-	{:else}
+	{:else if !hideEditToggle}
 		<div class="edit-toggle pressable" onclick={enterEditMode}>
 			<Icon name="edit" size={18} />
 		</div>
@@ -308,6 +341,25 @@
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	}
+
+	.connection-toast {
+		position: absolute;
+		top: calc(18px + var(--h-pad-y));
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 40;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 16px;
+		border-radius: var(--h-radius-md);
+		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
+		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		color: var(--h-bad-text);
+		font-size: 14px;
+		font-weight: 600;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 	}
 
