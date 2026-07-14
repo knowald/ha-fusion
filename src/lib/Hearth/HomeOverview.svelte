@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
-	import type { OverviewCard } from './config';
+	import { slugify, takenCardIds, uniqueId, type OverviewCard } from './config';
 	import { onDndReceive } from './drag';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
@@ -13,15 +13,31 @@
 		});
 	}
 
+	// Alt-drop duplicate: gives the clone a fresh id the same way the "Add
+	// card" flow does.
+	function cloneCard(card: OverviewCard): OverviewCard {
+		const cloned = structuredClone(card);
+		cloned.id = uniqueId(slugify(card.type), takenCardIds($hearthConfig));
+		return cloned;
+	}
+
 	// a card dropped from another column: move it in one config update; the
-	// source column's onRemove then finds nothing and no-ops
-	function receiveCard(column: number, id: string, newIndex: number) {
+	// source column's onRemove then finds nothing and no-ops. Alt-drop
+	// duplicates instead: the source keeps its card and the target gets a
+	// clone with a fresh id.
+	function receiveCard(column: number, id: string, newIndex: number, alt: boolean) {
 		updateConfig((config) => {
 			for (const sourceColumn of config.overview) {
 				const index = sourceColumn.findIndex((card) => card.id === id);
 				if (index >= 0) {
-					const [card] = sourceColumn.splice(index, 1);
-					config.overview[column].splice(newIndex, 0, card);
+					if (alt) {
+						const cloned = structuredClone(sourceColumn[index]);
+						cloned.id = uniqueId(slugify(cloned.type), takenCardIds(config));
+						config.overview[column].splice(newIndex, 0, cloned);
+					} else {
+						const [card] = sourceColumn.splice(index, 1);
+						config.overview[column].splice(newIndex, 0, card);
+					}
 					return;
 				}
 			}
@@ -38,10 +54,13 @@
 				handle: '.drag-handle',
 				filter: '.add-tile',
 				disabled: !$hearthEditMode,
+				clone: true,
+				cloneItem: cloneCard,
 				items: column,
 				onFinalize: (items: OverviewCard[]) => reorderColumn(columnIndex, items)
 			}}
-			use:onDndReceive={(detail) => receiveCard(columnIndex, detail.id, detail.newIndex)}
+			use:onDndReceive={(detail) =>
+				receiveCard(columnIndex, detail.id, detail.newIndex, detail.alt ?? false)}
 		>
 			{#each column as card, index (card.id)}
 				<div

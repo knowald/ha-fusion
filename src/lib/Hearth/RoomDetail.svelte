@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
 	import { states } from '$lib/Stores';
-	import type { OverviewCard } from './config';
+	import { slugify, takenCardIds, uniqueId, type OverviewCard } from './config';
 	import { editor, hearthConfig, hearthEditMode, sensorNumber, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import BlindTile from './BlindTile.svelte';
@@ -119,6 +119,12 @@
 					handle: '.drag-handle',
 					filter: '.add-tile',
 					disabled: !$hearthEditMode,
+					clone: true,
+					cloneItem: (card: OverviewCard) => {
+						const cloned = structuredClone(card);
+						cloned.id = uniqueId(slugify(cloned.type), takenCardIds($hearthConfig));
+						return cloned;
+					},
 					items: room.cards ?? [],
 					onFinalize: (items: OverviewCard[]) =>
 						updateConfig((config) => {

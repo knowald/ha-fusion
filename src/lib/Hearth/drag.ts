@@ -78,7 +78,7 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 /** Listens for the sortable action's cross-container `dndreceive` event. */
 export const onDndReceive: Action<
 	HTMLElement,
-	(detail: { id: string; newIndex: number }) => void
+	(detail: { id: string; newIndex: number; alt?: boolean }) => void
 > = (node, handler) => {
 	let current = handler;
 	const listener = (event: Event) => current((event as CustomEvent).detail);

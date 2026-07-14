@@ -446,6 +446,13 @@ export function uniqueId(base: string, taken: string[]) {
 	return id;
 }
 
+/** Every overview + room card id in the config, for generating a fresh unique one. */
+export function takenCardIds(config: HearthConfig): string[] {
+	return [...config.overview.flat(), ...config.rooms.flatMap((room) => room.cards ?? [])].map(
+		(card) => card.id
+	);
+}
+
 export function moveItem<T>(list: T[], index: number, delta: number) {
 	const target = index + delta;
 	if (index < 0 || target < 0 || target >= list.length) return;

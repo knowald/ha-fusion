@@ -2,6 +2,23 @@ import Sortable from 'sortablejs';
 import type { Options as SortableOptions, SortableEvent, GroupOptions } from 'sortablejs';
 import type { ActionReturn } from 'svelte/action';
 
+// Alt-drag clone: SortableJS's onEnd/onAdd events don't reliably expose which
+// modifier keys were held at drop time, so track Alt via window listeners
+// into a module-level flag instead.
+let altPressed = false;
+if (typeof window !== 'undefined') {
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'Alt') altPressed = true;
+	});
+	window.addEventListener('keyup', (event) => {
+		if (event.key === 'Alt') altPressed = false;
+	});
+	// alt-tabbing away mid-drag would otherwise leave the flag stuck on
+	window.addEventListener('blur', () => {
+		altPressed = false;
+	});
+}
+
 export interface DndOptions {
 	group: string | GroupOptions;
 	animation?: number;
@@ -29,6 +46,10 @@ export interface DndOptions {
 	items: any[];
 	/** Key on each item that holds its unique ID. Defaults to 'id'. */
 	itemKey?: string;
+	/** When true, dropping while Alt is held duplicates the item instead of moving it. */
+	clone?: boolean;
+	/** Transform run on the duplicate produced by an Alt-drop, e.g. to assign it a fresh id. */
+	cloneItem?: (item: any) => any;
 }
 
 function getItemId(el: Element, idAttr: string): string {
@@ -66,6 +87,8 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 
 				if (oldIndex == null || newIndex == null) return;
 
+				const cloning = Boolean(options.clone && altPressed);
+
 				if (from === to) {
 					// Same container: revert SortableJS' DOM move so Svelte owns
 					// rendering, then notify with the reordered items.
@@ -73,8 +96,17 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 					to.insertBefore(draggedEl, to.children[oldIndex] ?? null);
 
 					const items = [...options.items];
-					const [moved] = items.splice(oldIndex, 1);
-					items.splice(newIndex, 0, moved);
+					if (cloning) {
+						// keep the source item at oldIndex, insert a duplicate at
+						// newIndex instead of moving the original
+						const duplicate = options.cloneItem
+							? options.cloneItem(items[oldIndex])
+							: structuredClone(items[oldIndex]);
+						items.splice(newIndex, 0, duplicate);
+					} else {
+						const [moved] = items.splice(oldIndex, 1);
+						items.splice(newIndex, 0, moved);
+					}
 					options.onFinalize(items, evt);
 				} else {
 					// Cross-container: the target zone's onAdd has already reverted
@@ -84,7 +116,9 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 					const movedId = getItemId(draggedEl, idAttr);
 					const movedItem = options.items.find((item) => String(item[itemKey]) === movedId);
 
-					if (movedItem) {
+					// when cloning, the source keeps its item - only the target
+					// side (onAdd) inserts a duplicate
+					if (movedItem && !cloning) {
 						options.onRemove?.(movedId, evt);
 					}
 				}
@@ -108,7 +142,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 				// custom event so the consumer can coordinate.
 				node.dispatchEvent(
 					new CustomEvent('dndreceive', {
-						detail: { id: movedId, newIndex },
+						detail: { id: movedId, newIndex, alt: Boolean(options.clone && altPressed) },
 						bubbles: true
 					})
 				);

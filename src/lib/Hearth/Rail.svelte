@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
-	import type { RailWidget } from './config';
+	import { slugify, uniqueId, type RailWidget } from './config';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import ClockWidget from './ClockWidget.svelte';
@@ -19,6 +19,15 @@
 		handle: '.drag-handle',
 		filter: '.add-tile',
 		disabled: !$hearthEditMode,
+		clone: true,
+		cloneItem: (widget: RailWidget) => {
+			const cloned = structuredClone(widget);
+			cloned.id = uniqueId(
+				slugify(widget.type),
+				$hearthConfig.rail.map((entry) => entry.id)
+			);
+			return cloned;
+		},
 		items: $hearthConfig.rail,
 		onFinalize: (items: RailWidget[]) =>
 			updateConfig((config) => {
