@@ -83,6 +83,9 @@ export interface HearthConfig {
 	// display options for wall tablets; screensaver off when unset
 	screensaver_minutes?: number;
 	keep_screen_on?: boolean;
+	// extra edge padding in px, for kiosks whose frame covers screen edges
+	padding_x?: number;
+	padding_y?: number;
 }
 
 export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] = [
@@ -367,7 +370,9 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		rooms,
 		screensaver_minutes:
 			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
-		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined
+		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined,
+		padding_x: typeof config.padding_x === 'number' ? config.padding_x : undefined,
+		padding_y: typeof config.padding_y === 'number' ? config.padding_y : undefined
 	};
 }
 

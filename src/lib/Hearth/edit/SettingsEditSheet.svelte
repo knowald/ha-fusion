@@ -6,6 +6,8 @@
 	let screensaver = $derived(String($hearthConfig.screensaver_minutes ?? 0));
 	let keepScreenOn = $derived($hearthConfig.keep_screen_on ?? true);
 	let columns = $derived(String($hearthConfig.overview.length));
+	let paddingX = $derived($hearthConfig.padding_x ?? 0);
+	let paddingY = $derived($hearthConfig.padding_y ?? 0);
 
 	const SCREENSAVER_OPTIONS = [
 		{ value: '0', label: 'Off' },
@@ -33,6 +35,13 @@
 	function setKeepScreenOn(enabled: boolean) {
 		updateConfig((config) => {
 			config.keep_screen_on = enabled ? undefined : false;
+		});
+	}
+
+	function setPadding(axis: 'padding_x' | 'padding_y', value: string) {
+		const pixels = Math.round(parseFloat(value));
+		updateConfig((config) => {
+			config[axis] = Number.isFinite(pixels) && pixels > 0 ? Math.min(pixels, 300) : undefined;
 		});
 	}
 
@@ -70,6 +79,31 @@
 		/>
 		<span>Keep screen awake while the dashboard is open</span>
 	</label>
+	<div class="pad-row">
+		<label class="field">
+			<span class="field-label">Side padding (px)</span>
+			<input
+				type="number"
+				min="0"
+				max="300"
+				value={paddingX}
+				onchange={(event) => setPadding('padding_x', event.currentTarget.value)}
+			/>
+		</label>
+		<label class="field">
+			<span class="field-label">Top/bottom padding (px)</span>
+			<input
+				type="number"
+				min="0"
+				max="300"
+				value={paddingY}
+				onchange={(event) => setPadding('padding_y', event.currentTarget.value)}
+			/>
+		</label>
+	</div>
+	<div class="hint">
+		Extra space around the whole app, for screens whose frame covers the edges.
+	</div>
 
 	<div class="group-label">LAYOUT</div>
 	<SelectField
@@ -107,6 +141,43 @@
 		accent-color: var(--h-accent-deep);
 		width: 16px;
 		height: 16px;
+	}
+
+	.pad-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+	}
+
+	.field {
+		display: block;
+		margin-bottom: 14px;
+	}
+
+	.field-label {
+		display: block;
+		font-family: var(--h-font-mono);
+		font-size: 11px;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		color: var(--h-label);
+		margin-bottom: 6px;
+	}
+
+	.field input {
+		width: 100%;
+		padding: 11px 13px;
+		border-radius: var(--h-radius-xs);
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		background: var(--h-track);
+		color: var(--h-text-2);
+		font-family: inherit;
+		font-size: 14px;
+		outline: none;
+	}
+
+	.field input:focus {
+		border-color: rgb(var(--h-accent-rgb) / 0.4);
 	}
 
 	.hint {

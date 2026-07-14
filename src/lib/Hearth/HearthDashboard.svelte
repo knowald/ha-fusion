@@ -72,7 +72,9 @@
 	// tokens live on :root (not .frame) so modals portaled outside the frame
 	// resolve them too; base first, user theme overrides second
 	let rootCss = $derived(
-		`:root { ${themeStyle(THEME_DEFAULTS)} ${themeStyle(activeTheme)} ${THEME_BRIDGE_CSS} }`
+		`:root { ${themeStyle(THEME_DEFAULTS)} ${themeStyle(activeTheme)} ${THEME_BRIDGE_CSS} ` +
+			`--h-pad-x: ${Math.max(0, $hearthConfig.padding_x ?? 0)}px; ` +
+			`--h-pad-y: ${Math.max(0, $hearthConfig.padding_y ?? 0)}px; }`
 	);
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -217,7 +219,7 @@
 		display: grid;
 		grid-template-columns: 300px 1fr;
 		gap: 30px;
-		padding: 40px;
+		padding: calc(40px + var(--h-pad-y)) calc(40px + var(--h-pad-x));
 		height: 100%;
 	}
 
@@ -259,7 +261,7 @@
 	@media (max-width: 900px) {
 		.layout {
 			grid-template-columns: 1fr;
-			padding: 24px;
+			padding: calc(24px + var(--h-pad-y)) calc(24px + var(--h-pad-x));
 			gap: 24px;
 			overflow-y: auto;
 		}
@@ -273,8 +275,8 @@
 
 	.edit-toggle {
 		position: absolute;
-		right: 14px;
-		bottom: 14px;
+		right: calc(14px + var(--h-pad-x));
+		bottom: calc(14px + var(--h-pad-y));
 		z-index: 30;
 		display: flex;
 		align-items: center;
@@ -295,7 +297,7 @@
 
 	.edit-bar {
 		position: absolute;
-		bottom: 18px;
+		bottom: calc(18px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 40;
@@ -311,7 +313,7 @@
 
 	.save-toast {
 		position: absolute;
-		bottom: 84px;
+		bottom: calc(84px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 40;
