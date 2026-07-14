@@ -1,6 +1,9 @@
 <script lang="ts">
+	import Ripple from '$lib/Actions/ripple';
+	import { PRESS_RIPPLE } from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
+	import Icon from '../Icon.svelte';
 	import SelectField from './SelectField.svelte';
 
 	let screensaver = $derived(String($hearthConfig.screensaver_minutes ?? 0));
@@ -116,6 +119,17 @@
 		Removing a column moves its cards into the previous one. Changes apply with Save, like all
 		edits.
 	</div>
+
+	<div class="group-label">ADVANCED</div>
+	<div
+		class="yaml-button pressable"
+		use:Ripple={PRESS_RIPPLE}
+		onclick={() => editor.set({ kind: 'code' })}
+	>
+		<Icon name="code" size={18} />
+		<span>Edit configuration YAML</span>
+	</div>
+	<div class="hint">Edits the whole configuration as YAML in one place.</div>
 </EditSheet>
 
 <style>
@@ -184,5 +198,24 @@
 		font-size: 12px;
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
+	}
+
+	.yaml-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 11px 13px;
+		border-radius: var(--h-radius-xs);
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		background: var(--h-track);
+		color: var(--h-text-2);
+		font-size: 14px;
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.yaml-button:hover {
+		color: var(--h-text-1);
 	}
 </style>

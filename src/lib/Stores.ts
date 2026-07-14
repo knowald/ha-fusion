@@ -181,7 +181,7 @@ export const dragging = writable<boolean>(false);
 
 // codemirror
 export const autocompleteOpen = writable(false);
-export const autocompleteList = derived(states, ($states) => Object.keys($states));
+export const autocompleteList = derived(states, ($states) => Object.keys($states ?? {}));
 export const pasteContent = writable<string | undefined>();
 
 // entity select

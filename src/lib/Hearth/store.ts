@@ -63,7 +63,8 @@ export type Editor =
 	| { kind: 'card'; column: number; index: number | null; roomId?: string }
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' }
-	| { kind: 'settings' };
+	| { kind: 'settings' }
+	| { kind: 'code' };
 
 export const editor = writable<Editor | null>(null);
 

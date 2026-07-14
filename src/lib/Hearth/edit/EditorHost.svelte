@@ -2,6 +2,7 @@
 	import { editor } from '../store';
 	import BlindEditSheet from './BlindEditSheet.svelte';
 	import CardEditSheet from './CardEditSheet.svelte';
+	import CodeEditSheet from './CodeEditSheet.svelte';
 	import DeviceEditSheet from './DeviceEditSheet.svelte';
 	import LightEditSheet from './LightEditSheet.svelte';
 	import RailWidgetEditSheet from './RailWidgetEditSheet.svelte';
@@ -27,6 +28,8 @@
 			<RailWidgetEditSheet index={$editor.index} />
 		{:else if $editor.kind === 'settings'}
 			<SettingsEditSheet />
+		{:else if $editor.kind === 'code'}
+			<CodeEditSheet />
 		{:else}
 			<ThemeEditSheet />
 		{/if}
