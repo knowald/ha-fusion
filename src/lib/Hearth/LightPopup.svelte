@@ -1,19 +1,53 @@
 <script lang="ts">
+	import { states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE, SWATCH_COLORS } from './config';
 	import { horizontalDrag } from './drag';
-	import { hexToRgb, lightViews, setLightColor, setLightLevel, setLightTemp } from './store';
+	import {
+		callEntityService,
+		hearthConfig,
+		hexToRgb,
+		lightViews,
+		setLightColor,
+		setLightLevel,
+		setLightTemp
+	} from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
 	let { id }: { id: string } = $props();
 
 	let view = $derived($lightViews[id]);
 	// tab choice is local UI state; the light's actual mode is the default
-	let tabChoice = $state<'temp' | 'color' | null>(null);
+	let tabChoice = $state<'temp' | 'color' | 'white' | null>(null);
 	let mode = $derived(tabChoice ?? view.mode);
 	let kelvinLabel = $derived(
 		`${view.kelvin}K · ${view.kelvin < 3300 ? 'Warm white' : view.kelvin < 5000 ? 'Neutral' : 'Cool white'}`
 	);
+
+	let entityId = $derived($hearthConfig.lights.find((light) => light.id === id)?.entity);
+	let attributes = $derived(entityId ? ($states?.[entityId]?.attributes ?? {}) : {});
+	let colorModes: string[] = $derived(
+		Array.isArray(attributes.supported_color_modes) ? attributes.supported_color_modes : []
+	);
+	let supportsWhite = $derived(colorModes.includes('white'));
+	let effectList: string[] = $derived(
+		Array.isArray(attributes.effect_list) ? attributes.effect_list : []
+	);
+	let currentEffect = $derived(attributes.effect);
+
+	function callLightService(name: string, data: Record<string, unknown>) {
+		if (!entityId) return;
+		callEntityService('light', name, entityId, data);
+	}
+
+	function selectWhite() {
+		tabChoice = 'white';
+		callLightService('turn_on', { white: true });
+	}
+
+	function selectEffect(effect: string) {
+		callLightService('turn_on', { effect });
+	}
 
 	function swatchSelected(swatch: string) {
 		if (!view.colorCss) return false;
@@ -57,6 +91,9 @@
 		>
 			Color
 		</div>
+		{#if supportsWhite}
+			<div class="tab pressable" class:active={mode === 'white'} onclick={selectWhite}>White</div>
+		{/if}
 	</div>
 </div>
 
@@ -69,7 +106,7 @@
 		<span class="kelvin">{kelvinLabel}</span>
 		<span>Daylight</span>
 	</div>
-{:else}
+{:else if mode === 'color'}
 	<div class="swatches">
 		{#each SWATCH_COLORS as swatch (swatch)}
 			<div
@@ -78,6 +115,24 @@
 				style:background={swatch}
 				onclick={() => setLightColor(id, swatch)}
 			></div>
+		{/each}
+	</div>
+{/if}
+
+{#if effectList.length}
+	<div class="color-header">
+		<div class="color-label">EFFECT</div>
+	</div>
+	<div class="effects">
+		{#each effectList as effect (effect)}
+			<div
+				class="effect-chip pressable"
+				class:active={currentEffect === effect}
+				use:Ripple={PRESS_RIPPLE}
+				onclick={() => selectEffect(effect)}
+			>
+				{effect}
+			</div>
 		{/each}
 	</div>
 {/if}
@@ -190,5 +245,28 @@
 		outline: 2px solid var(--h-text-1);
 		outline-offset: 3px;
 		opacity: 1;
+	}
+
+	.effects {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.effect-chip {
+		padding: 8px 14px;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.06);
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		font-size: 13px;
+		color: var(--h-text-3);
+		cursor: pointer;
+	}
+
+	.effect-chip.active {
+		background: rgb(var(--h-accent-rgb) / 0.2);
+		color: var(--h-accent-text);
+		font-weight: 600;
+		border-color: transparent;
 	}
 </style>

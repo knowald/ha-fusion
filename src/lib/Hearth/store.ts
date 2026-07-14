@@ -224,6 +224,16 @@ function service(domain: string, name: string, data: Record<string, unknown>) {
 	callService(conn, domain, name, data).catch((error) => console.error(error));
 }
 
+export function callEntityService(
+	domain: string,
+	name: string,
+	entityId: string,
+	data: Record<string, unknown> = {}
+) {
+	markPending(entityId);
+	service(domain, name, { entity_id: entityId, ...data });
+}
+
 function clamp(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(max, value));
 }
