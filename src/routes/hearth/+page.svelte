@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { configuration, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
 	import { normalizeHearthConfig } from '$lib/Hearth/config';
@@ -42,7 +42,39 @@
 		}
 	}
 
+	/**
+	 * Reconnect if long-lived access token changes
+	 */
+	$effect(() => {
+		if ($configuration?.token) updateConnection();
+	});
+
+	function updateConnection() {
+		if (isConnecting || !browser) return;
+		clearInterval(retryInterval);
+
+		connect();
+		retryInterval = setInterval(connect, 3000);
+	}
+
 	onDestroy(() => clearInterval(retryInterval));
+
+	onMount(async () => {
+		/**
+		 * Unregister service worker because it
+		 * interferes with MJPEG camera streams
+		 */
+		if ('serviceWorker' in navigator) {
+			try {
+				const registrations = await navigator.serviceWorker.getRegistrations();
+				for (const registration of registrations) {
+					await registration.unregister();
+				}
+			} catch (error) {
+				console.error('Error during service worker unregistration:', error);
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -62,3 +94,15 @@
 </svelte:head>
 
 <HearthDashboard />
+
+<!-- modules -->
+{#if $configuration?.custom_js}
+	{#await import('$lib/Components/CustomJs.svelte') then CustomJs}
+		<CustomJs.default />
+	{/await}
+{/if}
+
+<!-- custom css -->
+{#await import('$lib/Components/CustomCss.svelte') then CustomCss}
+	<CustomCss.default />
+{/await}
