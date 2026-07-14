@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		closePopup,
+		editor,
 		hearthConfig,
 		lightViews,
 		pendingEntities,
@@ -17,7 +18,17 @@
 		blind: { icon: 'blinds', sub: 'Window covering' },
 		fan: { icon: 'mode_fan', sub: 'Ceiling fan' }
 	};
+
+	function handleKeydown(event: KeyboardEvent) {
+		// an edit sheet stacks above the popup and owns Escape while open
+		if (event.key === 'Escape' && $popup && !$editor) {
+			event.stopPropagation();
+			closePopup();
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 {#if $popup}
 	<div class="overlay" onclick={closePopup}>

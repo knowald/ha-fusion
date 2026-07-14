@@ -36,7 +36,16 @@
 		confirmRemove = true;
 		confirmTimer = setTimeout(() => (confirmRemove = false), 4000);
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.stopPropagation();
+			onclose();
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="overlay" onclick={onclose}>
 	<div class="sheet" onclick={(event) => event.stopPropagation()}>

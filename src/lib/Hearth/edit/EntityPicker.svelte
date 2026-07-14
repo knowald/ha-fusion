@@ -53,7 +53,10 @@
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<!-- capture phase: this picker nests inside EditSheet, which also closes on
+	Escape. Capture always runs before bubble-phase listeners regardless of
+	mount order, so stopping propagation here reliably closes only the picker. -->
+<svelte:window onkeydowncapture={handleKeydown} />
 
 <div class="overlay" onclick={onclose}>
 	<div class="panel" onclick={(event) => event.stopPropagation()}>
