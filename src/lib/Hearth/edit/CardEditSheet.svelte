@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
+	import { tick } from 'svelte';
+	import { loadIcons } from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_OBJECT_TYPES,
 		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
 		slugify,
+		takenCardIds,
 		uniqueId,
 		type EntityRef,
 		type HearthConfig,
@@ -13,6 +16,8 @@
 		type OverviewCard
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
+	import { openModal } from '$lib/Modals';
+	import { icons as pictureElementsIcons } from '$lib/Modal/PictureElements/icons';
 	import CardRenderer from '../CardRenderer.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
@@ -85,6 +90,35 @@
 	function setAdvancedYaml(value: string) {
 		advancedYaml = value;
 		advancedValid = applyLeftoverYaml(fusionType, fusionOptions, value);
+	}
+
+	/**
+	 * Opens the original picture-elements Konva editor for the fusion card's
+	 * `elements`. The editor mutates the `sel` object it's given in place (see
+	 * its onDestroy) rather than writing through any store, so it's passed a
+	 * plain snapshot; once the modal closes that snapshot is copied back into
+	 * `fusionOptions`, which flows into hearthConfig through the normal
+	 * done()/updateConfig() path.
+	 */
+	async function openElementsEditor() {
+		const sel = {
+			id: initial?.id ?? 'hearth-fusion',
+			elements: $state.snapshot(fusionOptions).elements ?? []
+		};
+
+		const [{ default: PictureElementsConfig }] = await Promise.all([
+			import('$lib/Modal/PictureElements/PictureElementsConfig.svelte'),
+			loadIcons(Object.values(pictureElementsIcons))
+		]);
+
+		await openModal(PictureElementsConfig, { sel });
+		// PictureElementsConfig writes sel.elements from its onDestroy, which
+		// runs as part of the Svelte reactivity flush triggered by the modal
+		// stack closing - wait for that flush before reading sel back.
+		await tick();
+
+		fusionOptions.elements = sel.elements;
+		if (advancedOpen) resetAdvancedYaml();
 	}
 
 	let entityDomains = $derived(
@@ -173,11 +207,7 @@
 			if (index !== null) {
 				cards[index] = buildCard(cards[index].id);
 			} else {
-				const taken = [
-					...config.overview.flat(),
-					...config.rooms.flatMap((room) => room.cards ?? [])
-				].map((card) => card.id);
-				cards.push(buildCard(uniqueId(slugify(type), taken)));
+				cards.push(buildCard(uniqueId(slugify(type), takenCardIds(config))));
 			}
 		});
 		close();
@@ -189,6 +219,31 @@
 		});
 		close();
 	}
+
+	// only meaningful for an existing room card - overview-column cards have
+	// no other room to move from, and a not-yet-created card has nothing to
+	// splice out of the source list
+	let canMoveRoom = $derived(roomId !== undefined && index !== null);
+
+	let targetRoomId = $state(roomId ?? '');
+
+	function moveToRoom(newRoomId: string) {
+		if (!canMoveRoom || !newRoomId || newRoomId === roomId || index === null) return;
+		let newIndex = 0;
+		updateConfig((config) => {
+			const sourceCards = config.rooms.find((entry) => entry.id === roomId)?.cards;
+			const targetRoom = config.rooms.find((entry) => entry.id === newRoomId);
+			if (!sourceCards || !targetRoom) return;
+			// persist in-progress field edits before the editor.set below remounts
+			// the sheet and discards local state
+			sourceCards[index] = buildCard(sourceCards[index].id);
+			const [card] = sourceCards.splice(index, 1);
+			const targetCards = (targetRoom.cards ??= []);
+			newIndex = targetCards.length;
+			targetCards.push(card);
+		});
+		editor.set({ kind: 'card', column: 0, index: newIndex, roomId: newRoomId });
+	}
 </script>
 
 <EditSheet
@@ -199,6 +254,15 @@
 	onremove={index !== null ? remove : undefined}
 >
 	<SelectField label="Type" bind:value={type} options={OVERVIEW_CARD_TYPES} />
+
+	{#if canMoveRoom && $hearthConfig.rooms.length > 1}
+		<SelectField
+			label="Move to room"
+			bind:value={targetRoomId}
+			options={$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))}
+			onchange={moveToRoom}
+		/>
+	{/if}
 
 	<div class="group-label">PREVIEW</div>
 	<div class="preview" style="pointer-events: none">
@@ -267,6 +331,12 @@
 			onchange={() => advancedOpen && resetAdvancedYaml()}
 		/>
 		<FusionFields type={fusionType} bind:options={fusionOptions} />
+		{#if fusionType === 'picture_elements'}
+			<div class="elements-editor pressable" use:Ripple={PRESS_RIPPLE} onclick={openElementsEditor}>
+				<Icon name="edit" size={18} />
+				<span>Open elements editor</span>
+			</div>
+		{/if}
 		<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
 			<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
 			<span>Advanced (YAML)</span>
@@ -323,7 +393,8 @@
 		margin-bottom: 14px;
 	}
 
-	.advanced-toggle {
+	.advanced-toggle,
+	.elements-editor {
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -336,8 +407,13 @@
 		-webkit-user-select: none;
 	}
 
-	.advanced-toggle:hover {
+	.advanced-toggle:hover,
+	.elements-editor:hover {
 		color: var(--h-text-3);
+	}
+
+	.elements-editor {
+		margin-bottom: 14px;
 	}
 
 	.filter-row {
