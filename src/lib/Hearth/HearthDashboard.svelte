@@ -32,10 +32,12 @@
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
 	import Screensaver from './Screensaver.svelte';
+	import SearchOverlay from './SearchOverlay.svelte';
 	import SetupWizard from './SetupWizard.svelte';
 	import { wakeLock } from './wakeLock';
 
 	let showSetupWizard = $state(false);
+	let showSearch = $state(false);
 
 	let roomExists = $derived(
 		$currentRoom === 'home' || $hearthConfig.rooms.some((room) => room.id === $currentRoom)
@@ -79,6 +81,13 @@
 		if ($hearthEditMode) presetOverride = undefined;
 	});
 
+	// the search overlay only opens outside edit mode; entering edit mode
+	// while it happens to be open (not reachable via the UI today, but cheap
+	// to guard) closes it rather than leaving it stranded above the edit bar
+	$effect(() => {
+		if ($hearthEditMode) showSearch = false;
+	});
+
 	// only surface a disconnect once it has lasted 2s, so brief websocket
 	// blips (reload, sleep/wake) don't flash the banner
 	let showDisconnected = $state(false);
@@ -105,9 +114,24 @@
 	);
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (!$hearthEditMode || !(event.metaKey || event.ctrlKey)) return;
 		const target = event.target as HTMLElement;
 		const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName);
+
+		if (
+			!typing &&
+			!$hearthEditMode &&
+			!showSearch &&
+			event.key === 'f' &&
+			!event.metaKey &&
+			!event.ctrlKey &&
+			!event.altKey
+		) {
+			event.preventDefault();
+			showSearch = true;
+			return;
+		}
+
+		if (!$hearthEditMode || !(event.metaKey || event.ctrlKey)) return;
 		if (event.key === 's') {
 			event.preventDefault();
 			handleSave();
@@ -140,6 +164,9 @@
 	</div>
 	<ControlPopup />
 	<EditorHost />
+	{#if showSearch}
+		<SearchOverlay onclose={() => (showSearch = false)} />
+	{/if}
 	{#if ($hearthConfig.screensaver_minutes ?? 0) > 0}
 		<Screensaver minutes={$hearthConfig.screensaver_minutes} />
 	{/if}
