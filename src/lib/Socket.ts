@@ -9,7 +9,8 @@ import {
 	ERR_INVALID_AUTH,
 	ERR_CONNECTION_LOST,
 	ERR_HASS_HOST_REQUIRED,
-	ERR_INVALID_HTTPS_TO_HTTP
+	ERR_INVALID_HTTPS_TO_HTTP,
+	ERR_INVALID_AUTH_CALLBACK
 } from 'home-assistant-js-websocket';
 import type { Auth, AuthData } from 'home-assistant-js-websocket';
 import {
@@ -28,8 +29,15 @@ const options = {
 	hassUrl: undefined as string | undefined,
 	async loadTokens() {
 		try {
-			return JSON.parse(localStorage.hassTokens);
+			const raw = localStorage.hassTokens;
+			// guard against a missing key or the literal "null"/"undefined" string
+			if (!raw || raw === 'null' || raw === 'undefined') return undefined;
+			const tokens = JSON.parse(raw);
+			// treat a value that isn't actually a token object as no tokens
+			if (!tokens?.access_token && !tokens?.refresh_token) return undefined;
+			return tokens;
 		} catch {
+			// corrupt json in localStorage, treat as no tokens
 			return undefined;
 		}
 	},
@@ -37,7 +45,7 @@ const options = {
 		localStorage.hassTokens = JSON.stringify(tokens);
 	},
 	clearTokens() {
-		localStorage.hassTokens = null;
+		localStorage.removeItem('hassTokens');
 	}
 };
 
@@ -62,8 +70,17 @@ export async function authentication(configuration: Configuration) {
 
 			// default auth flow
 		} else {
-			auth = await getAuth({ ...options, hassUrl: configuration?.hassUrl });
-			if (auth.expired) auth.refreshAccessToken();
+			// ingress serves the app from a per-installation path, the
+			// default redirect (location.href) drops that path on callback
+			const isIngress = window.location.pathname.includes('/api/hassio_ingress/');
+			const redirectUrl = isIngress ? `${window.location.origin}/?auth_callback=1` : undefined;
+
+			auth = await getAuth({
+				...options,
+				hassUrl: configuration?.hassUrl,
+				...(redirectUrl && { redirectUrl })
+			});
+			if (auth.expired) await auth.refreshAccessToken();
 		}
 
 		// connection
@@ -174,6 +191,16 @@ function handleError(_error: unknown) {
 		case ERR_INVALID_AUTH:
 			console.error('ERR_INVALID_AUTH');
 			options.clearTokens();
+			break;
+		case ERR_INVALID_AUTH_CALLBACK:
+			// raised by getAuth() when the auth callback state (client id /
+			// hass url) doesn't match, clear the stale tokens and query
+			// string so the next retry restarts the auth flow cleanly
+			console.error('ERR_INVALID_AUTH_CALLBACK');
+			options.clearTokens();
+			if (location.search.includes('auth_callback=1')) {
+				history.replaceState(null, '', location.pathname);
+			}
 			break;
 		case ERR_CANNOT_CONNECT:
 			console.error('ERR_CANNOT_CONNECT');
