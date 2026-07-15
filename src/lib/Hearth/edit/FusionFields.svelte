@@ -124,6 +124,7 @@
 </script>
 
 <script lang="ts">
+	import { autocompleteList } from '$lib/Stores';
 	import EntityField from './EntityField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
@@ -197,11 +198,23 @@
 	{:else if field.control === 'template'}
 		<label class="field">
 			<span class="field-label">{field.label}</span>
-			<textarea
-				value={textValue(field.key)}
-				oninput={(event) => setText(field.key, event.currentTarget.value)}
-				rows="7"
-				spellcheck="false"></textarea>
+			{#await import('$lib/Components/CodeEditor.svelte')}
+				<textarea
+					value={textValue(field.key)}
+					oninput={(event) => setText(field.key, event.currentTarget.value)}
+					rows="7"
+					spellcheck="false"></textarea>
+			{:then CodeEditor}
+				<div class="code-editor">
+					<CodeEditor.default
+						value={textValue(field.key)}
+						type="jinja2"
+						transitionend={true}
+						autocompleteList={$autocompleteList}
+						onchange={(next) => setText(field.key, next)}
+					/>
+				</div>
+			{/await}
 		</label>
 	{/if}
 {:else}
@@ -241,6 +254,11 @@
 
 	textarea:focus {
 		border-color: rgb(var(--h-accent-rgb) / 0.4);
+	}
+
+	.code-editor :global(.cm-scroller) {
+		max-height: 200px !important;
+		overflow-y: auto;
 	}
 
 	.check {
