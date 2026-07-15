@@ -87,12 +87,32 @@ type OverviewCardVariant =
 
 export type OverviewCard = OverviewCardVariant & { visibility?: VisibilityCondition[] };
 
+/**
+ * A named horizontal or vertical layout container, parity with the original
+ * dashboard's horizontal-stack/vertical-stack. One level deep only - a
+ * stack's children are always plain cards, never another stack.
+ */
+export interface OverviewStack {
+	id: string;
+	kind: 'stack';
+	title?: string;
+	direction: 'horizontal' | 'vertical';
+	cards: OverviewCard[];
+}
+
+/** Anything that can occupy a top-level slot in an overview column. */
+export type OverviewItem = OverviewCard | OverviewStack;
+
+export function isStack(item: OverviewItem): item is OverviewStack {
+	return 'kind' in item && item.kind === 'stack';
+}
+
 export type HearthTheme = Record<string, string>;
 
 export interface HearthConfig {
 	theme?: HearthTheme;
 	rail: RailWidget[];
-	overview: OverviewCard[][];
+	overview: OverviewItem[][];
 	lights: HearthLight[];
 	blinds: HearthBlind[];
 	rooms: HearthRoom[];
@@ -344,6 +364,22 @@ function normalizeCard(card: any, fallbackId: string): OverviewCard {
 	};
 }
 
+function normalizeStack(raw: any, fallbackId: string): OverviewStack {
+	const id = raw.id ?? fallbackId;
+	const direction: OverviewStack['direction'] =
+		raw.direction === 'vertical' ? 'vertical' : 'horizontal';
+	const title = typeof raw.title === 'string' ? raw.title.trim() : '';
+	const cards = (Array.isArray(raw.cards) ? raw.cards : [])
+		// children may be any non-stack card - nesting stops here
+		.filter((child: any) => child?.kind !== 'stack')
+		.map((child: any, index: number) => normalizeCard(child, `${id}-card-${index}`));
+	return { id, kind: 'stack', direction, cards, ...(title ? { title } : {}) };
+}
+
+function normalizeOverviewItem(raw: any, fallbackId: string): OverviewItem {
+	return raw?.kind === 'stack' ? normalizeStack(raw, fallbackId) : normalizeCard(raw, fallbackId);
+}
+
 /**
  * Accepts current config files, the pre-card v1 shape (flat entity fields, no
  * rail/overview), and garbage. Anything unusable falls back to defaults.
@@ -363,16 +399,17 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			devices: Array.isArray(room.devices) ? room.devices : [],
 			...(room.cards !== undefined
 				? {
-						cards: (Array.isArray(room.cards) ? room.cards : []).map((card: any, index: number) =>
-							normalizeCard(card, `card-${room.id}-${index}`)
-						)
+						// rooms are out of scope for stacks - drop any stray ones
+						cards: (Array.isArray(room.cards) ? room.cards : [])
+							.filter((card: any) => card?.kind !== 'stack')
+							.map((card: any, index: number) => normalizeCard(card, `card-${room.id}-${index}`))
 					}
 				: {})
 		})
 	);
 
 	let rail: RailWidget[];
-	let overview: OverviewCard[][];
+	let overview: OverviewItem[][];
 
 	if (Array.isArray(config.rail) && Array.isArray(config.overview)) {
 		rail = config.rail;
@@ -387,6 +424,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			if (widget.type === 'weather' && config.weather_entity) widget.entity = config.weather_entity;
 		}
 		for (const card of overview.flat()) {
+			if (isStack(card)) continue;
 			if (card.type === 'temperature' && config.average_temperature_entity) {
 				card.entity = config.average_temperature_entity;
 			}
@@ -409,7 +447,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			visibility: normalizeVisibility(widget.visibility)
 		})),
 		overview: overview.map((column, columnIndex) =>
-			column.map((card, index) => normalizeCard(card, `card-${columnIndex}-${index}`))
+			column.map((card, index) => normalizeOverviewItem(card, `card-${columnIndex}-${index}`))
 		),
 		lights: Array.isArray(config.lights) ? config.lights : [],
 		blinds: Array.isArray(config.blinds) ? config.blinds : [],
@@ -485,11 +523,37 @@ export function uniqueId(base: string, taken: string[]) {
 	return id;
 }
 
+function overviewItemIds(item: OverviewItem): string[] {
+	return isStack(item) ? [item.id, ...item.cards.flatMap(overviewItemIds)] : [item.id];
+}
+
 /** Every overview + room card id in the config, for generating a fresh unique one. */
 export function takenCardIds(config: HearthConfig): string[] {
-	return [...config.overview.flat(), ...config.rooms.flatMap((room) => room.cards ?? [])].map(
-		(card) => card.id
-	);
+	return [
+		...config.overview.flat().flatMap(overviewItemIds),
+		...config.rooms.flatMap((room) => room.cards ?? []).map((card) => card.id)
+	];
+}
+
+export function overviewItemTypeKey(item: OverviewItem): string {
+	return isStack(item) ? 'stack' : item.type;
+}
+
+/**
+ * Deep clone with a fresh id for the item and, if it's a stack, every child -
+ * so an Alt-drag duplicate never collides with an existing id anywhere in the
+ * config. Mutates `taken` as it goes so nested clones stay unique against
+ * each other too.
+ */
+export function cloneOverviewItem<T extends OverviewItem>(item: T, taken: string[]): T {
+	const cloned = structuredClone(item);
+	const assignIds = (node: OverviewItem) => {
+		node.id = uniqueId(slugify(overviewItemTypeKey(node)), taken);
+		taken.push(node.id);
+		if (isStack(node)) node.cards.forEach(assignIds);
+	};
+	assignIds(cloned);
+	return cloned;
 }
 
 export function moveItem<T>(list: T[], index: number, delta: number) {

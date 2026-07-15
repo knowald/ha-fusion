@@ -5,6 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_OBJECT_TYPES,
+		isStack,
 		normalizeVisibility,
 		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
@@ -31,16 +32,32 @@
 	import VisibilityField from './VisibilityField.svelte';
 	import YamlField from './YamlField.svelte';
 
-	let { column, index, roomId }: { column: number; index: number | null; roomId?: string } =
-		$props();
+	let {
+		column,
+		index,
+		roomId,
+		stackId
+	}: { column: number; index: number | null; roomId?: string; stackId?: string } = $props();
+
+	function stackCards(config: HearthConfig, targetStackId: string): OverviewCard[] | undefined {
+		const target = config.overview[column]?.find((item) => item.id === targetStackId);
+		return target && isStack(target) ? target.cards : undefined;
+	}
 
 	// with roomId the sheet edits that room's cards list instead of an
-	// overview column; initializes the list on first write
+	// overview column (initializing it on first write); with stackId it edits
+	// that stack's children instead. The column branch is cast to
+	// OverviewCard[] - EditChip only opens this sheet without roomId/stackId
+	// for a leaf-card slot, never a stack's slot (stacks have their own edit
+	// sheet), so a column index reached this way is never a stack.
 	function cardList(config: HearthConfig): OverviewCard[] | undefined {
-		if (roomId === undefined) return config.overview[column];
-		const room = config.rooms.find((entry) => entry.id === roomId);
-		if (!room) return undefined;
-		return (room.cards ??= []);
+		if (roomId !== undefined) {
+			const room = config.rooms.find((entry) => entry.id === roomId);
+			if (!room) return undefined;
+			return (room.cards ??= []);
+		}
+		if (stackId !== undefined) return stackCards(config, stackId);
+		return config.overview[column] as OverviewCard[] | undefined;
 	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}
@@ -246,10 +263,10 @@
 		close();
 	}
 
-	// only meaningful for an existing room card - overview-column cards have
-	// no other room to move from, and a not-yet-created card has nothing to
-	// splice out of the source list
-	let canMoveRoom = $derived(roomId !== undefined && index !== null);
+	// meaningful for an existing room card, or a card inside a stack (moving
+	// it out to a room) - a plain overview-column card has no current room to
+	// move from, and a not-yet-created card has nothing to splice out of
+	let canMoveRoom = $derived((roomId !== undefined || stackId !== undefined) && index !== null);
 
 	let targetRoomId = $state(roomId ?? '');
 
@@ -257,7 +274,10 @@
 		if (!canMoveRoom || !newRoomId || newRoomId === roomId || index === null) return;
 		let newIndex = 0;
 		updateConfig((config) => {
-			const sourceCards = config.rooms.find((entry) => entry.id === roomId)?.cards;
+			const sourceCards =
+				stackId !== undefined
+					? stackCards(config, stackId)
+					: config.rooms.find((entry) => entry.id === roomId)?.cards;
 			const targetRoom = config.rooms.find((entry) => entry.id === newRoomId);
 			if (!sourceCards || !targetRoom) return;
 			// persist in-progress field edits before the editor.set below remounts

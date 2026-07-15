@@ -1,6 +1,14 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
-	import { slugify, takenCardIds, uniqueId, type OverviewCard } from './config';
+	import {
+		cloneOverviewItem,
+		isStack,
+		takenCardIds,
+		uniqueId,
+		type OverviewCard,
+		type OverviewItem,
+		type OverviewStack
+	} from './config';
 	import { onDndReceive } from './drag';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
@@ -8,43 +16,138 @@
 	import EditChip from './EditChip.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
 
-	function reorderColumn(column: number, items: OverviewCard[]) {
+	// Alt-drop duplicate: gives the clone (and, for a stack, every child) a
+	// fresh id the same way the "Add card" flow does.
+	function cloneEntry<T extends OverviewItem>(item: T): T {
+		return cloneOverviewItem(item, takenCardIds($hearthConfig));
+	}
+
+	function reorderColumn(column: number, items: OverviewItem[]) {
 		updateConfig((config) => {
 			config.overview[column] = items.filter(Boolean);
 		});
 	}
 
-	// Alt-drop duplicate: gives the clone a fresh id the same way the "Add
-	// card" flow does.
-	function cloneCard(card: OverviewCard): OverviewCard {
-		const cloned = structuredClone(card);
-		cloned.id = uniqueId(slugify(card.type), takenCardIds($hearthConfig));
-		return cloned;
+	function reorderStack(columnIndex: number, stackId: string, items: OverviewCard[]) {
+		updateConfig((config) => {
+			const stack = config.overview[columnIndex]?.find(
+				(item): item is OverviewStack => isStack(item) && item.id === stackId
+			);
+			if (stack) stack.cards = items.filter(Boolean);
+		});
 	}
 
-	// a card dropped from another column: move it in one config update; the
-	// source column's onRemove then finds nothing and no-ops. Alt-drop
-	// duplicates instead: the source keeps its card and the target gets a
-	// clone with a fresh id.
+	// searches top-level columns, then each column's stacks' children - never
+	// recurses further since stacks cannot themselves contain a stack
+	function locateList(config: typeof $hearthConfig, id: string): OverviewItem[] | undefined {
+		for (const column of config.overview) {
+			if (column.some((item) => item.id === id)) return column;
+			for (const item of column) {
+				if (isStack(item) && item.cards.some((card) => card.id === id)) return item.cards;
+			}
+		}
+		return undefined;
+	}
+
+	// a card or stack dropped from another column/stack: move it in one
+	// config update; the source's onEnd then finds nothing to remove and
+	// no-ops. Alt-drop duplicates instead: the source keeps its item and the
+	// target gets a clone with a fresh id.
 	function receiveCard(column: number, id: string, newIndex: number, alt: boolean) {
 		updateConfig((config) => {
-			for (const sourceColumn of config.overview) {
-				const index = sourceColumn.findIndex((card) => card.id === id);
-				if (index >= 0) {
-					if (alt) {
-						const cloned = structuredClone(sourceColumn[index]);
-						cloned.id = uniqueId(slugify(cloned.type), takenCardIds(config));
-						config.overview[column].splice(newIndex, 0, cloned);
-					} else {
-						const [card] = sourceColumn.splice(index, 1);
-						config.overview[column].splice(newIndex, 0, card);
-					}
-					return;
-				}
+			const sourceList = locateList(config, id);
+			if (!sourceList) return;
+			const index = sourceList.findIndex((item) => item.id === id);
+			if (index < 0) return;
+			if (alt) {
+				config.overview[column].splice(
+					newIndex,
+					0,
+					cloneOverviewItem(sourceList[index], takenCardIds(config))
+				);
+			} else {
+				const [item] = sourceList.splice(index, 1);
+				config.overview[column].splice(newIndex, 0, item);
 			}
 		});
 	}
+
+	// same idea as receiveCard, but the target is a stack's children list.
+	// Stacks can never receive a stack - blocked at the sortable group's
+	// `put` check below, and re-checked here for safety.
+	function receiveIntoStack(
+		columnIndex: number,
+		stackId: string,
+		id: string,
+		newIndex: number,
+		alt: boolean
+	) {
+		updateConfig((config) => {
+			const stack = config.overview[columnIndex]?.find(
+				(item): item is OverviewStack => isStack(item) && item.id === stackId
+			);
+			if (!stack) return;
+			const sourceList = locateList(config, id);
+			if (!sourceList) return;
+			const index = sourceList.findIndex((item) => item.id === id);
+			if (index < 0) return;
+			const source = sourceList[index];
+			if (isStack(source)) return;
+			if (alt) {
+				stack.cards.splice(newIndex, 0, cloneOverviewItem(source, takenCardIds(config)));
+			} else {
+				sourceList.splice(index, 1);
+				stack.cards.splice(newIndex, 0, source);
+			}
+		});
+	}
+
+	function addStack(column: number) {
+		let newIndex = 0;
+		updateConfig((config) => {
+			const stack: OverviewStack = {
+				id: uniqueId('stack', takenCardIds(config)),
+				kind: 'stack',
+				direction: 'horizontal',
+				cards: []
+			};
+			newIndex = config.overview[column].length;
+			config.overview[column].push(stack);
+		});
+		editor.set({ kind: 'stack', column, index: newIndex });
+	}
+
+	// a stack's own sortable container refuses drops of another stack (no
+	// nesting); everything else in the shared 'hearth-cards' group is welcome
+	const stackGroup = {
+		name: 'hearth-cards',
+		put: (_to: unknown, _from: unknown, dragEl: HTMLElement) => dragEl.dataset.cardType !== 'stack'
+	};
 </script>
+
+{#snippet cardSlot(
+	card: OverviewCard,
+	target: { kind: 'card'; column: number; index: number; stackId?: string }
+)}
+	<VisibilityGate conditions={card.visibility}>
+		{#snippet children(visible)}
+			{#if $hearthEditMode || visible}
+				<div
+					class="card-slot"
+					data-id={card.id}
+					data-card-type={card.type}
+					class:stretch={card.type === 'media' || card.type === 'temperature'}
+					class:visibility-dimmed={$hearthEditMode && !visible}
+				>
+					{#if $hearthEditMode}
+						<EditChip onedit={() => editor.set(target)} />
+					{/if}
+					<CardRenderer {card} />
+				</div>
+			{/if}
+		{/snippet}
+	</VisibilityGate>
+{/snippet}
 
 <div class="overview" style:--overview-columns={$hearthConfig.overview.length}>
 	{#each $hearthConfig.overview as column, columnIndex (columnIndex)}
@@ -56,39 +159,81 @@
 				filter: '.add-tile',
 				disabled: !$hearthEditMode,
 				clone: true,
-				cloneItem: cloneCard,
+				cloneItem: cloneEntry,
 				items: column,
-				onFinalize: (items: OverviewCard[]) => reorderColumn(columnIndex, items)
+				onFinalize: (items: OverviewItem[]) => reorderColumn(columnIndex, items)
 			}}
 			use:onDndReceive={(detail) =>
 				receiveCard(columnIndex, detail.id, detail.newIndex, detail.alt ?? false)}
 		>
-			{#each column as card, index (card.id)}
-				<VisibilityGate conditions={card.visibility}>
-					{#snippet children(visible)}
-						{#if $hearthEditMode || visible}
-							<div
-								class="card-slot"
-								data-id={card.id}
-								class:stretch={card.type === 'media' || card.type === 'temperature'}
-								class:visibility-dimmed={$hearthEditMode && !visible}
-							>
-								{#if $hearthEditMode}
-									<EditChip
-										onedit={() => editor.set({ kind: 'card', column: columnIndex, index })}
-									/>
-								{/if}
-								<CardRenderer {card} />
-							</div>
+			{#each column as item, index (item.id)}
+				{#if isStack(item)}
+					<div
+						class="stack-slot"
+						class:editing={$hearthEditMode}
+						data-id={item.id}
+						data-card-type="stack"
+					>
+						{#if $hearthEditMode}
+							<EditChip onedit={() => editor.set({ kind: 'stack', column: columnIndex, index })} />
 						{/if}
-					{/snippet}
-				</VisibilityGate>
+						{#if item.title}
+							<div class="group-label">{item.title}</div>
+						{/if}
+						<div
+							class="stack"
+							class:vertical={item.direction === 'vertical'}
+							use:sortable={{
+								group: stackGroup,
+								handle: '.drag-handle',
+								filter: '.add-tile',
+								disabled: !$hearthEditMode,
+								clone: true,
+								cloneItem: cloneEntry,
+								items: item.cards,
+								onFinalize: (items: OverviewCard[]) => reorderStack(columnIndex, item.id, items)
+							}}
+							use:onDndReceive={(detail) =>
+								receiveIntoStack(
+									columnIndex,
+									item.id,
+									detail.id,
+									detail.newIndex,
+									detail.alt ?? false
+								)}
+						>
+							{#each item.cards as card, cardIndex (card.id)}
+								{@render cardSlot(card, {
+									kind: 'card',
+									column: columnIndex,
+									index: cardIndex,
+									stackId: item.id
+								})}
+							{/each}
+							{#if $hearthEditMode}
+								<AddTile
+									label="Add card"
+									onadd={() =>
+										editor.set({
+											kind: 'card',
+											column: columnIndex,
+											index: null,
+											stackId: item.id
+										})}
+								/>
+							{/if}
+						</div>
+					</div>
+				{:else}
+					{@render cardSlot(item, { kind: 'card', column: columnIndex, index })}
+				{/if}
 			{/each}
 			{#if $hearthEditMode}
 				<AddTile
 					label="Add card"
 					onadd={() => editor.set({ kind: 'card', column: columnIndex, index: null })}
 				/>
+				<AddTile label="Add stack" onadd={() => addStack(columnIndex)} />
 			{/if}
 		</div>
 	{/each}
@@ -126,5 +271,43 @@
 
 	.card-slot.visibility-dimmed {
 		opacity: 0.45;
+	}
+
+	.stack-slot {
+		position: relative;
+	}
+
+	.stack-slot.editing {
+		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border-radius: var(--h-radius-md);
+		padding: 12px;
+	}
+
+	.group-label {
+		font-family: var(--h-font-mono);
+		font-size: 11px;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		color: var(--h-label);
+		margin: 0 0 10px;
+	}
+
+	.stack {
+		display: flex;
+		gap: 18px;
+	}
+
+	.stack:not(.vertical) {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.stack:not(.vertical) > .card-slot {
+		flex: 1 1 200px;
+		min-width: 0;
+	}
+
+	.stack.vertical {
+		flex-direction: column;
 	}
 </style>

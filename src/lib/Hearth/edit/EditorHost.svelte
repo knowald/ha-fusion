@@ -8,6 +8,7 @@
 	import RailWidgetEditSheet from './RailWidgetEditSheet.svelte';
 	import RoomEditSheet from './RoomEditSheet.svelte';
 	import SettingsEditSheet from './SettingsEditSheet.svelte';
+	import StackEditSheet from './StackEditSheet.svelte';
 	import ThemeEditSheet from './ThemeEditSheet.svelte';
 </script>
 
@@ -23,7 +24,14 @@
 		{:else if $editor.kind === 'room'}
 			<RoomEditSheet id={$editor.id} />
 		{:else if $editor.kind === 'card'}
-			<CardEditSheet column={$editor.column} index={$editor.index} roomId={$editor.roomId} />
+			<CardEditSheet
+				column={$editor.column}
+				index={$editor.index}
+				roomId={$editor.roomId}
+				stackId={$editor.stackId}
+			/>
+		{:else if $editor.kind === 'stack'}
+			<StackEditSheet column={$editor.column} index={$editor.index} />
 		{:else if $editor.kind === 'railWidget'}
 			<RailWidgetEditSheet index={$editor.index} />
 		{:else if $editor.kind === 'settings'}

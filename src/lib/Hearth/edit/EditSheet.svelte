@@ -11,6 +11,7 @@
 		ondone,
 		doneDisabled = false,
 		onremove,
+		removeLabel = 'Remove',
 		onmoveup,
 		onmovedown
 	}: {
@@ -20,6 +21,7 @@
 		ondone: () => void;
 		doneDisabled?: boolean;
 		onremove?: () => void;
+		removeLabel?: string;
 		onmoveup?: () => void;
 		onmovedown?: () => void;
 	} = $props();
@@ -72,7 +74,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					onclick={handleRemove}
 				>
-					{confirmRemove ? 'Remove - are you sure?' : 'Remove'}
+					{confirmRemove ? `${removeLabel} - are you sure?` : removeLabel}
 				</div>
 			{/if}
 			<div class="spacer"></div>
