@@ -6,6 +6,7 @@
 	import AddTile from './AddTile.svelte';
 	import CardRenderer from './CardRenderer.svelte';
 	import EditChip from './EditChip.svelte';
+	import VisibilityGate from './VisibilityGate.svelte';
 
 	function reorderColumn(column: number, items: OverviewCard[]) {
 		updateConfig((config) => {
@@ -63,16 +64,25 @@
 				receiveCard(columnIndex, detail.id, detail.newIndex, detail.alt ?? false)}
 		>
 			{#each column as card, index (card.id)}
-				<div
-					class="card-slot"
-					data-id={card.id}
-					class:stretch={card.type === 'media' || card.type === 'temperature'}
-				>
-					{#if $hearthEditMode}
-						<EditChip onedit={() => editor.set({ kind: 'card', column: columnIndex, index })} />
-					{/if}
-					<CardRenderer {card} />
-				</div>
+				<VisibilityGate conditions={card.visibility}>
+					{#snippet children(visible)}
+						{#if $hearthEditMode || visible}
+							<div
+								class="card-slot"
+								data-id={card.id}
+								class:stretch={card.type === 'media' || card.type === 'temperature'}
+								class:visibility-dimmed={$hearthEditMode && !visible}
+							>
+								{#if $hearthEditMode}
+									<EditChip
+										onedit={() => editor.set({ kind: 'card', column: columnIndex, index })}
+									/>
+								{/if}
+								<CardRenderer {card} />
+							</div>
+						{/if}
+					{/snippet}
+				</VisibilityGate>
 			{/each}
 			{#if $hearthEditMode}
 				<AddTile
@@ -112,5 +122,9 @@
 	.card-slot.stretch {
 		flex: 1;
 		min-height: 0;
+	}
+
+	.card-slot.visibility-dimmed {
+		opacity: 0.45;
 	}
 </style>

@@ -3,11 +3,13 @@
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_WIDGET_TYPES,
+		normalizeVisibility,
 		PRESS_RIPPLE,
 		RAIL_WIDGET_TYPES,
 		slugify,
 		uniqueId,
-		type RailWidget
+		type RailWidget,
+		type VisibilityCondition
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
@@ -17,6 +19,7 @@
 	import IconField from './IconField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
+	import VisibilityField from './VisibilityField.svelte';
 	import YamlField from './YamlField.svelte';
 
 	let { index }: { index: number | null } = $props();
@@ -39,6 +42,9 @@
 	let text = $state(initial?.type === 'status' ? (initial.text ?? '') : '');
 	let name = $state(initial?.type === 'entity' ? (initial.name ?? '') : '');
 	let hideMobile = $state(initial?.hide_mobile ?? false);
+	let visibility = $state<VisibilityCondition[]>(
+		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
+	);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'sensor'));
 	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
@@ -77,8 +83,19 @@
 
 	function buildWidget(id: string): RailWidget {
 		const hide_mobile = hideMobile || undefined;
-		if (type === 'clock') return { id, type, city: city.trim() || undefined, hide_mobile };
-		if (type === 'weather') return { id, type, entity: entity.trim() || undefined, hide_mobile };
+		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
+		if (type === 'clock') {
+			return { id, type, city: city.trim() || undefined, hide_mobile, visibility: visibilityValue };
+		}
+		if (type === 'weather') {
+			return {
+				id,
+				type,
+				entity: entity.trim() || undefined,
+				hide_mobile,
+				visibility: visibilityValue
+			};
+		}
 		if (type === 'status') {
 			return {
 				id,
@@ -86,7 +103,8 @@
 				icon: icon.trim() || undefined,
 				text: text.trim() || undefined,
 				entity: entity.trim() || undefined,
-				hide_mobile
+				hide_mobile,
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'entity') {
@@ -96,7 +114,8 @@
 				entity: entity.trim() || undefined,
 				name: name.trim() || undefined,
 				icon: icon.trim() || undefined,
-				hide_mobile
+				hide_mobile,
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'fusion') {
@@ -104,10 +123,11 @@
 				id,
 				type,
 				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
-				hide_mobile
+				hide_mobile,
+				visibility: visibilityValue
 			};
 		}
-		return { id, type: type as 'nav' | 'spacer', hide_mobile };
+		return { id, type: type as 'nav' | 'spacer', hide_mobile, visibility: visibilityValue };
 	}
 
 	function done() {
@@ -194,6 +214,8 @@
 		<input type="checkbox" bind:checked={hideMobile} />
 		<span>Hide on mobile</span>
 	</label>
+
+	<VisibilityField bind:value={visibility} />
 </EditSheet>
 
 <style>

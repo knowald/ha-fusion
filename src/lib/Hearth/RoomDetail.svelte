@@ -11,6 +11,7 @@
 	import EntityTile from './EntityTile.svelte';
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';
+	import VisibilityGate from './VisibilityGate.svelte';
 
 	let { roomId }: { roomId: string } = $props();
 
@@ -134,12 +135,24 @@
 				}}
 			>
 				{#each room.cards ?? [] as card, index (card.id)}
-					<div class="card-slot" data-id={card.id}>
-						{#if $hearthEditMode}
-							<EditChip onedit={() => editor.set({ kind: 'card', column: 0, index, roomId })} />
-						{/if}
-						<CardRenderer {card} />
-					</div>
+					<VisibilityGate conditions={card.visibility}>
+						{#snippet children(visible)}
+							{#if $hearthEditMode || visible}
+								<div
+									class="card-slot"
+									data-id={card.id}
+									class:visibility-dimmed={$hearthEditMode && !visible}
+								>
+									{#if $hearthEditMode}
+										<EditChip
+											onedit={() => editor.set({ kind: 'card', column: 0, index, roomId })}
+										/>
+									{/if}
+									<CardRenderer {card} />
+								</div>
+							{/if}
+						{/snippet}
+					</VisibilityGate>
 				{/each}
 				{#if $hearthEditMode}
 					<AddTile
@@ -262,6 +275,10 @@
 
 	.card-slot {
 		position: relative;
+	}
+
+	.card-slot.visibility-dimmed {
+		opacity: 0.45;
 	}
 
 	.empty {

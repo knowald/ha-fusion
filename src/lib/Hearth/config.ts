@@ -42,6 +42,14 @@ export interface EntityRef {
 	icon?: string;
 }
 
+/**
+ * Per-item visibility condition, mirroring the original's section conditions
+ * but trimmed to the two cases Hearth's builder exposes. All conditions on an
+ * item AND together.
+ */
+export type VisibilityCondition =
+	{ entity: string; state?: string; state_not?: string } | { media: string };
+
 type RailWidgetVariant =
 	| { id: string; type: 'clock'; city?: string }
 	| { id: string; type: 'weather'; entity?: string }
@@ -52,9 +60,12 @@ type RailWidgetVariant =
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
 
 // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
-export type RailWidget = RailWidgetVariant & { hide_mobile?: boolean };
+export type RailWidget = RailWidgetVariant & {
+	hide_mobile?: boolean;
+	visibility?: VisibilityCondition[];
+};
 
-export type OverviewCard =
+type OverviewCardVariant =
 	| { id: string; type: 'lights'; title?: string }
 	| { id: string; type: 'blinds'; title?: string }
 	| { id: string; type: 'temperature'; label?: string; entity?: string; unit?: string }
@@ -73,6 +84,8 @@ export type OverviewCard =
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	| { id: string; type: 'scenes'; title?: string; scenes: EntityRef[] }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
+
+export type OverviewCard = OverviewCardVariant & { visibility?: VisibilityCondition[] };
 
 export type HearthTheme = Record<string, string>;
 
@@ -294,6 +307,30 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 	]
 };
 
+function normalizeVisibilityCondition(raw: any): VisibilityCondition | null {
+	if (!raw || typeof raw !== 'object') return null;
+	if (typeof raw.media === 'string' && raw.media.trim()) {
+		return { media: raw.media };
+	}
+	if (typeof raw.entity === 'string' && raw.entity.trim()) {
+		const condition: VisibilityCondition = { entity: raw.entity };
+		if (typeof raw.state === 'string' && raw.state !== '') condition.state = raw.state;
+		if (typeof raw.state_not === 'string' && raw.state_not !== '')
+			condition.state_not = raw.state_not;
+		return condition;
+	}
+	return null;
+}
+
+/** Drops the field entirely rather than keeping an empty array. */
+export function normalizeVisibility(raw: unknown): VisibilityCondition[] | undefined {
+	if (!Array.isArray(raw)) return undefined;
+	const conditions = raw
+		.map(normalizeVisibilityCondition)
+		.filter((condition): condition is VisibilityCondition => condition !== null);
+	return conditions.length ? conditions : undefined;
+}
+
 function normalizeCard(card: any, fallbackId: string): OverviewCard {
 	return {
 		...card,
@@ -302,7 +339,8 @@ function normalizeCard(card: any, fallbackId: string): OverviewCard {
 			? { entities: Array.isArray(card.entities) ? card.entities : [] }
 			: {}),
 		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {}),
-		...(card.type === 'air' ? { filters: Array.isArray(card.filters) ? card.filters : [] } : {})
+		...(card.type === 'air' ? { filters: Array.isArray(card.filters) ? card.filters : [] } : {}),
+		visibility: normalizeVisibility(card.visibility)
 	};
 }
 
@@ -367,7 +405,8 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		rail: rail.map((widget, index) => ({
 			...widget,
 			id: widget.id ?? `widget-${index}`,
-			hide_mobile: widget.hide_mobile === true ? true : undefined
+			hide_mobile: widget.hide_mobile === true ? true : undefined,
+			visibility: normalizeVisibility(widget.visibility)
 		})),
 		overview: overview.map((column, columnIndex) =>
 			column.map((card, index) => normalizeCard(card, `card-${columnIndex}-${index}`))

@@ -5,6 +5,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		FUSION_OBJECT_TYPES,
+		normalizeVisibility,
 		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
 		slugify,
@@ -13,7 +14,8 @@
 		type EntityRef,
 		type HearthConfig,
 		type HearthFilter,
-		type OverviewCard
+		type OverviewCard,
+		type VisibilityCondition
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import { openModal } from '$lib/Modals';
@@ -26,6 +28,7 @@
 	import IconField from './IconField.svelte';
 	import TextField from './TextField.svelte';
 	import SelectField from './SelectField.svelte';
+	import VisibilityField from './VisibilityField.svelte';
 	import YamlField from './YamlField.svelte';
 
 	let { column, index, roomId }: { column: number; index: number | null; roomId?: string } =
@@ -59,6 +62,9 @@
 	);
 	let scenes = $state<EntityRef[]>(
 		initial?.type === 'scenes' ? initial.scenes.map((ref) => ({ ...ref })) : []
+	);
+	let visibility = $state<VisibilityCondition[]>(
+		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
 	);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'button'));
@@ -138,15 +144,21 @@
 	}
 
 	function buildCard(id: string): OverviewCard {
-		if (type === 'lights') return { id, type, title: title.trim() || undefined };
-		if (type === 'blinds') return { id, type, title: title.trim() || undefined };
+		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
+		if (type === 'lights') {
+			return { id, type, title: title.trim() || undefined, visibility: visibilityValue };
+		}
+		if (type === 'blinds') {
+			return { id, type, title: title.trim() || undefined, visibility: visibilityValue };
+		}
 		if (type === 'temperature') {
 			return {
 				id,
 				type,
 				label: label.trim() || undefined,
 				entity: entity.trim() || undefined,
-				unit: unit.trim() || undefined
+				unit: unit.trim() || undefined,
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'air') {
@@ -158,7 +170,8 @@
 				humidity_entity: humidityEntity.trim() || undefined,
 				filters: filters
 					.map((filter) => ({ label: filter.label.trim(), entity: filter.entity.trim() }))
-					.filter((filter) => filter.label && filter.entity)
+					.filter((filter) => filter.label && filter.entity),
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'entities') {
@@ -172,11 +185,18 @@
 						name: ref.name?.trim() || undefined,
 						icon: ref.icon?.trim() || undefined
 					}))
-					.filter((ref) => ref.entity)
+					.filter((ref) => ref.entity),
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'camera' || type === 'climate') {
-			return { id, type, title: title.trim() || undefined, entity: entity.trim() || undefined };
+			return {
+				id,
+				type,
+				title: title.trim() || undefined,
+				entity: entity.trim() || undefined,
+				visibility: visibilityValue
+			};
 		}
 		if (type === 'scenes') {
 			return {
@@ -189,13 +209,19 @@
 						name: ref.name?.trim() || undefined,
 						icon: ref.icon?.trim() || undefined
 					}))
-					.filter((ref) => ref.entity)
+					.filter((ref) => ref.entity),
+				visibility: visibilityValue
 			};
 		}
 		if (type === 'fusion') {
-			return { id, type, config: { type: fusionType, ...$state.snapshot(fusionOptions) } };
+			return {
+				id,
+				type,
+				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
+				visibility: visibilityValue
+			};
 		}
-		return { id, type, entity: entity.trim() || undefined };
+		return { id, type, entity: entity.trim() || undefined, visibility: visibilityValue };
 	}
 
 	let previewCard = $derived.by(() => buildCard('preview'));
@@ -375,6 +401,8 @@
 			<span>Add filter</span>
 		</div>
 	{/if}
+
+	<VisibilityField bind:value={visibility} />
 </EditSheet>
 
 <style>

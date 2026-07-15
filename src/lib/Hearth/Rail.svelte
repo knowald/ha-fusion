@@ -9,6 +9,7 @@
 	import FusionWidget from './FusionWidget.svelte';
 	import NavWidget from './NavWidget.svelte';
 	import StatusWidget from './StatusWidget.svelte';
+	import VisibilityGate from './VisibilityGate.svelte';
 	import WeatherCard from './WeatherCard.svelte';
 </script>
 
@@ -36,35 +37,42 @@
 	}}
 >
 	{#each $hearthConfig.rail as widget, index (widget.id)}
-		<div
-			class="widget"
-			class:spacer={widget.type === 'spacer' && !$hearthEditMode}
-			class:spacer-visible={widget.type === 'spacer' && $hearthEditMode}
-			class:hide-mobile={widget.hide_mobile && !$hearthEditMode}
-			class:hide-mobile-editing={widget.hide_mobile && $hearthEditMode}
-			data-id={widget.id}
-		>
-			{#if $hearthEditMode}
-				<EditChip onedit={() => editor.set({ kind: 'railWidget', index })} />
-			{/if}
-			{#if widget.type === 'clock'}
-				<ClockWidget city={widget.city} />
-			{:else if widget.type === 'weather'}
-				<WeatherCard entity={widget.entity} />
-			{:else if widget.type === 'nav'}
-				<NavWidget />
-			{:else if widget.type === 'status'}
-				<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
-			{:else if widget.type === 'entity'}
-				{#if widget.entity}
-					<EntityTile entity={widget.entity} name={widget.name} icon={widget.icon} />
-				{:else}
-					<div class="widget-placeholder">Pick an entity in the widget editor</div>
+		<VisibilityGate conditions={widget.visibility}>
+			{#snippet children(visible)}
+				{#if $hearthEditMode || visible}
+					<div
+						class="widget"
+						class:spacer={widget.type === 'spacer' && !$hearthEditMode}
+						class:spacer-visible={widget.type === 'spacer' && $hearthEditMode}
+						class:hide-mobile={widget.hide_mobile && !$hearthEditMode}
+						class:hide-mobile-editing={widget.hide_mobile && $hearthEditMode}
+						class:visibility-dimmed={$hearthEditMode && !visible}
+						data-id={widget.id}
+					>
+						{#if $hearthEditMode}
+							<EditChip onedit={() => editor.set({ kind: 'railWidget', index })} />
+						{/if}
+						{#if widget.type === 'clock'}
+							<ClockWidget city={widget.city} />
+						{:else if widget.type === 'weather'}
+							<WeatherCard entity={widget.entity} />
+						{:else if widget.type === 'nav'}
+							<NavWidget />
+						{:else if widget.type === 'status'}
+							<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
+						{:else if widget.type === 'entity'}
+							{#if widget.entity}
+								<EntityTile entity={widget.entity} name={widget.name} icon={widget.icon} />
+							{:else}
+								<div class="widget-placeholder">Pick an entity in the widget editor</div>
+							{/if}
+						{:else if widget.type === 'fusion'}
+							<FusionWidget {widget} />
+						{/if}
+					</div>
 				{/if}
-			{:else if widget.type === 'fusion'}
-				<FusionWidget {widget} />
-			{/if}
-		</div>
+			{/snippet}
+		</VisibilityGate>
 	{/each}
 	{#if $hearthEditMode}
 		<AddTile label="Add widget" onadd={() => editor.set({ kind: 'railWidget', index: null })} />
@@ -92,6 +100,10 @@
 		border: 1px dashed rgb(var(--h-surface-rgb) / 0.1);
 		border-radius: var(--h-radius-sm);
 		margin: 6px 0;
+	}
+
+	.widget.visibility-dimmed {
+		opacity: 0.45;
 	}
 
 	.widget-placeholder {
