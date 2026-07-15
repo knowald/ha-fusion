@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { motion } from '$lib/Stores';
 
 	let { minutes = 10 }: { minutes?: number } = $props();
 
@@ -56,7 +57,7 @@
 		class="screensaver"
 		bind:this={overlay}
 		tabindex="-1"
-		transition:fade={{ duration: 400 }}
+		transition:fade={{ duration: $motion ? 400 : 0 }}
 		onpointerdown={dismiss}
 		onkeydown={dismiss}
 	>

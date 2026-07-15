@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { onDestroy, onMount } from 'svelte';
-	import { configuration, selectedLanguage, translation } from '$lib/Stores';
+	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
 	import { normalizeHearthConfig } from '$lib/Hearth/config';
 	import { hearthConfig, hearthRevision } from '$lib/Hearth/store';
@@ -20,6 +20,9 @@
 	$translation = data?.translations ?? {};
 	// svelte-ignore state_referenced_locally
 	$selectedLanguage = data?.configuration?.locale || 'en';
+
+	// motion:false in configuration.yaml disables transitions app-wide
+	if (data?.configuration?.motion === false) motion.set(0);
 
 	let isConnecting = false;
 	let retryInterval: ReturnType<typeof setInterval>;

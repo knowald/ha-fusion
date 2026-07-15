@@ -15,7 +15,7 @@
 	} from './store';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { connected } from '$lib/Stores';
+	import { connected, motion } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		PRESS_RIPPLE,
@@ -174,13 +174,13 @@
 		<SetupWizard onclose={() => (showSetupWizard = false)} />
 	{/if}
 	{#if showDisconnected}
-		<div class="connection-toast" transition:fade={{ duration: 250 }}>
+		<div class="connection-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="cloud_off" size={18} />
 			Connection lost. Reconnecting...
 		</div>
 	{/if}
 	{#if $saveState === 'saved'}
-		<div class="save-toast" transition:fade={{ duration: 250 }}>
+		<div class="save-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="check_circle" size={18} />
 			Saved
 		</div>
