@@ -17,6 +17,13 @@
 	import ColorField from './ColorField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
+	import Icon from '../Icon.svelte';
+
+	interface SavedTheme {
+		id: string;
+		name: string;
+		theme: HearthTheme;
+	}
 
 	let theme = $derived($hearthConfig.theme ?? {});
 
@@ -58,6 +65,78 @@
 		backgroundImageUrl = '';
 	}
 
+	let savedThemes = $state<SavedTheme[]>([]);
+	let themesLoading = $state(false);
+	let themesError = $state('');
+	let newThemeName = $state('');
+	let saving = $state(false);
+
+	async function loadThemes() {
+		themesLoading = true;
+		themesError = '';
+		try {
+			const response = await fetch('/_api/hearth_themes');
+			if (!response.ok) throw new Error(`load failed: ${response.status}`);
+			savedThemes = await response.json();
+		} catch (err: any) {
+			themesError = err.message ?? 'failed to load saved themes';
+		} finally {
+			themesLoading = false;
+		}
+	}
+
+	$effect(() => {
+		loadThemes();
+	});
+
+	async function saveCurrentTheme() {
+		const name = newThemeName.trim();
+		if (!name || saving) return;
+		saving = true;
+		themesError = '';
+		try {
+			const response = await fetch('/_api/hearth_themes', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ name, theme })
+			});
+			if (!response.ok) throw new Error(`save failed: ${response.status}`);
+			newThemeName = '';
+			await loadThemes();
+		} catch (err: any) {
+			themesError = err.message ?? 'failed to save theme';
+		} finally {
+			saving = false;
+		}
+	}
+
+	function applySavedTheme(saved: SavedTheme) {
+		updateConfig((config) => {
+			config.theme = { ...saved.theme };
+		});
+		backgroundImageUrl = unwrapUrl(saved.theme.background_image);
+	}
+
+	async function deleteSavedTheme(saved: SavedTheme) {
+		if (!confirm(`Delete theme "${saved.name}"?`)) return;
+		themesError = '';
+		try {
+			const response = await fetch('/_api/hearth_themes', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id: saved.id })
+			});
+			if (!response.ok) throw new Error(`delete failed: ${response.status}`);
+			savedThemes = savedThemes.filter((entry) => entry.id !== saved.id);
+		} catch (err: any) {
+			themesError = err.message ?? 'failed to delete theme';
+		}
+	}
+
+	function swatch(saved: SavedTheme, key: string): string {
+		return saved.theme[key] ?? THEME_DEFAULTS[key] ?? '#000000';
+	}
+
 	let radiusScale = $derived.by(() => {
 		const current = parseInt(theme.radius_md ?? '18');
 		return RADIUS_SCALES.reduce((nearest, scale) =>
@@ -90,6 +169,60 @@
 				<span>{preset.name}</span>
 			</div>
 		{/each}
+	</div>
+
+	<div class="group-label">SAVED THEMES</div>
+	<div class="save-row">
+		<input
+			type="text"
+			bind:value={newThemeName}
+			placeholder="Save current as..."
+			spellcheck="false"
+			onkeydown={(event) => event.key === 'Enter' && saveCurrentTheme()}
+		/>
+		<div
+			class="button pressable"
+			class:disabled={!newThemeName.trim() || saving}
+			onclick={saveCurrentTheme}
+		>
+			Save
+		</div>
+	</div>
+
+	{#if themesError}
+		<div class="error">{themesError}</div>
+	{/if}
+
+	{#if themesLoading}
+		<div class="hint">Loading saved themes...</div>
+	{:else if savedThemes.length}
+		<div class="saved-themes">
+			{#each savedThemes as saved (saved.id)}
+				<div class="saved-theme pressable" onclick={() => applySavedTheme(saved)}>
+					<div class="dots">
+						<span class="dot" style:background={swatch(saved, 'background_inner')}></span>
+						<span class="dot" style:background={swatch(saved, 'accent')}></span>
+						<span class="dot" style:background={swatch(saved, 'cool')}></span>
+						<span class="dot" style:background={swatch(saved, 'text_1')}></span>
+					</div>
+					<span class="saved-theme-name">{saved.name}</span>
+					<span
+						class="icon-button"
+						onclick={(event) => {
+							event.stopPropagation();
+							deleteSavedTheme(saved);
+						}}
+					>
+						<Icon name="delete" size={18} />
+					</span>
+				</div>
+			{/each}
+		</div>
+	{/if}
+
+	<div class="hint">
+		Saving or deleting a theme writes to disk immediately, independent of the dashboard save/undo
+		cycle. Applying a saved theme only changes the edited theme - save the dashboard to keep it.
 	</div>
 
 	<div class="group-label">COLORS</div>
@@ -221,5 +354,110 @@
 
 	.reset:hover {
 		color: var(--h-text-3);
+	}
+
+	.save-row {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.save-row input {
+		flex: 1;
+		padding: 11px 13px;
+		border-radius: var(--h-radius-xs);
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		background: var(--h-track);
+		color: var(--h-text-2);
+		font-family: inherit;
+		font-size: 14px;
+		outline: none;
+		min-width: 0;
+	}
+
+	.save-row input:focus {
+		border-color: rgb(var(--h-accent-rgb) / 0.4);
+	}
+
+	.save-row input::placeholder {
+		color: var(--h-text-6);
+	}
+
+	.save-row .button {
+		flex: none;
+		padding: 0 16px;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-accent-rgb) / 0.16);
+		color: var(--h-accent-text);
+		font-size: 14px;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+	}
+
+	.save-row .button.disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.saved-themes {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		margin-bottom: 8px;
+	}
+
+	.saved-theme {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 9px 12px;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.06);
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		font-size: 14px;
+		color: var(--h-text-3);
+		cursor: pointer;
+	}
+
+	.dots {
+		display: flex;
+		flex: none;
+	}
+
+	.dot {
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.25);
+		margin-left: -5px;
+	}
+
+	.dot:first-child {
+		margin-left: 0;
+	}
+
+	.saved-theme-name {
+		flex: 1;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.icon-button {
+		flex: none;
+		color: var(--h-icon);
+		cursor: pointer;
+	}
+
+	.icon-button:hover {
+		color: var(--h-bad-text);
+	}
+
+	.error {
+		font-size: 12px;
+		color: var(--h-bad-text);
+		margin-bottom: 10px;
 	}
 </style>
