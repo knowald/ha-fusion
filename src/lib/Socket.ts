@@ -87,6 +87,10 @@ export async function authentication(configuration: Configuration) {
 		const conn = await createConnection({ auth });
 		connection.set(conn);
 
+		// the lib fires "ready" inside the Connection constructor, before any
+		// listener can be attached, so the initial connect must be set manually
+		connected.set(true);
+
 		// states
 		subscribeEntities(conn, (hassEntities) => {
 			states.set(hassEntities);
