@@ -55,6 +55,36 @@ type RailWidgetVariant =
 	| { id: string; type: 'weather'; entity?: string }
 	| { id: string; type: 'nav' }
 	| { id: string; type: 'spacer' }
+	| { id: string; type: 'label'; text?: string }
+	// price is a static amount per kWh; price_entity overrides it when set
+	| {
+			id: string;
+			type: 'energy';
+			entity?: string;
+			price?: number;
+			price_entity?: string;
+			currency?: string;
+	  }
+	// generic running-activity row (washer, 3d print, charging, ...); hidden
+	// unless the status entity is active - by the active_states list when given,
+	// otherwise by not being in a common idle-state set
+	| {
+			id: string;
+			type: 'progress';
+			name?: string;
+			icon?: string;
+			status_entity?: string;
+			progress_entity?: string;
+			remaining_entity?: string;
+			active_states?: string[];
+	  }
+	| {
+			id: string;
+			type: 'calendar';
+			entities?: string[];
+			travel_entity?: string;
+			lookahead_hours?: number;
+	  }
 	| { id: string; type: 'status'; icon?: string; text?: string; entity?: string }
 	| { id: string; type: 'entity'; entity?: string; name?: string; icon?: string }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
@@ -129,6 +159,10 @@ export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] =
 	{ value: 'weather', label: 'Weather' },
 	{ value: 'nav', label: 'Room navigation' },
 	{ value: 'spacer', label: 'Spacer' },
+	{ value: 'label', label: 'Section label' },
+	{ value: 'energy', label: 'Energy today' },
+	{ value: 'progress', label: 'Progress (running activity)' },
+	{ value: 'calendar', label: 'Calendar (next event)' },
 	{ value: 'status', label: 'Status pill' },
 	{ value: 'entity', label: 'Entity' },
 	{ value: 'fusion', label: 'Fusion widget (graph, bar, camera, ...)' }
@@ -443,6 +477,22 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		rail: rail.map((widget, index) => ({
 			...widget,
 			id: widget.id ?? `widget-${index}`,
+			...(widget.type === 'calendar'
+				? {
+						entities: (Array.isArray(widget.entities) ? widget.entities : []).filter(
+							(entry: unknown): entry is string => typeof entry === 'string'
+						)
+					}
+				: {}),
+			...(widget.type === 'progress'
+				? {
+						active_states: Array.isArray(widget.active_states)
+							? widget.active_states.filter(
+									(entry: unknown): entry is string => typeof entry === 'string'
+								)
+							: undefined
+					}
+				: {}),
 			hide_mobile: widget.hide_mobile === true ? true : undefined,
 			visibility: normalizeVisibility(widget.visibility)
 		})),

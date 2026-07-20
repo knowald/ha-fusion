@@ -32,15 +32,46 @@
 	let city = $state(initial?.type === 'clock' ? (initial.city ?? '') : '');
 	let entity = $state(
 		initial &&
-			(initial.type === 'weather' || initial.type === 'status' || initial.type === 'entity')
+			(initial.type === 'weather' ||
+				initial.type === 'status' ||
+				initial.type === 'entity' ||
+				initial.type === 'energy')
 			? (initial.entity ?? '')
 			: ''
 	);
 	let icon = $state(
-		initial?.type === 'status' || initial?.type === 'entity' ? (initial.icon ?? '') : ''
+		initial?.type === 'status' || initial?.type === 'entity' || initial?.type === 'progress'
+			? (initial.icon ?? '')
+			: ''
 	);
-	let text = $state(initial?.type === 'status' ? (initial.text ?? '') : '');
-	let name = $state(initial?.type === 'entity' ? (initial.name ?? '') : '');
+	let text = $state(
+		initial?.type === 'status' || initial?.type === 'label' ? (initial.text ?? '') : ''
+	);
+	let name = $state(
+		initial?.type === 'entity' || initial?.type === 'progress' ? (initial.name ?? '') : ''
+	);
+	let price = $state(
+		initial?.type === 'energy' && typeof initial.price === 'number' ? String(initial.price) : ''
+	);
+	let priceEntity = $state(initial?.type === 'energy' ? (initial.price_entity ?? '') : '');
+	let currency = $state(initial?.type === 'energy' ? (initial.currency ?? '') : '');
+	let statusEntity = $state(initial?.type === 'progress' ? (initial.status_entity ?? '') : '');
+	let progressEntity = $state(initial?.type === 'progress' ? (initial.progress_entity ?? '') : '');
+	let remainingEntity = $state(
+		initial?.type === 'progress' ? (initial.remaining_entity ?? '') : ''
+	);
+	let activeStates = $state(
+		initial?.type === 'progress' ? (initial.active_states ?? []).join(', ') : ''
+	);
+	let calendarEntities = $state(
+		initial?.type === 'calendar' ? (initial.entities ?? []).join(', ') : ''
+	);
+	let travelEntity = $state(initial?.type === 'calendar' ? (initial.travel_entity ?? '') : '');
+	let lookaheadHours = $state(
+		initial?.type === 'calendar' && typeof initial.lookahead_hours === 'number'
+			? String(initial.lookahead_hours)
+			: ''
+	);
 	let hideMobile = $state(initial?.hide_mobile ?? false);
 	let visibility = $state<VisibilityCondition[]>(
 		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
@@ -92,6 +123,55 @@
 				id,
 				type,
 				entity: entity.trim() || undefined,
+				hide_mobile,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'label') {
+			return { id, type, text: text.trim() || undefined, hide_mobile, visibility: visibilityValue };
+		}
+		if (type === 'energy') {
+			const parsedPrice = parseFloat(price);
+			return {
+				id,
+				type,
+				entity: entity.trim() || undefined,
+				price: Number.isFinite(parsedPrice) ? parsedPrice : undefined,
+				price_entity: priceEntity.trim() || undefined,
+				currency: currency.trim() || undefined,
+				hide_mobile,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'progress') {
+			const parsedStates = activeStates
+				.split(',')
+				.map((state) => state.trim())
+				.filter(Boolean);
+			return {
+				id,
+				type,
+				name: name.trim() || undefined,
+				icon: icon.trim() || undefined,
+				status_entity: statusEntity.trim() || undefined,
+				progress_entity: progressEntity.trim() || undefined,
+				remaining_entity: remainingEntity.trim() || undefined,
+				active_states: parsedStates.length ? parsedStates : undefined,
+				hide_mobile,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'calendar') {
+			const parsedHours = parseFloat(lookaheadHours);
+			return {
+				id,
+				type,
+				entities: calendarEntities
+					.split(',')
+					.map((calendarEntity) => calendarEntity.trim())
+					.filter(Boolean),
+				travel_entity: travelEntity.trim() || undefined,
+				lookahead_hours: Number.isFinite(parsedHours) && parsedHours > 0 ? parsedHours : undefined,
 				hide_mobile,
 				visibility: visibilityValue
 			};
@@ -171,6 +251,59 @@
 
 	{#if type === 'weather'}
 		<EntityField label="Weather entity" bind:value={entity} domains={['weather']} />
+	{/if}
+
+	{#if type === 'label'}
+		<TextField label="Text" bind:value={text} placeholder="TODAY" />
+	{/if}
+
+	{#if type === 'energy'}
+		<EntityField
+			label="Energy sensor (today total or increasing)"
+			bind:value={entity}
+			domains={['sensor']}
+		/>
+		<TextField label="Price per kWh (optional)" bind:value={price} placeholder="0.72" />
+		<EntityField
+			label="Price entity (optional, overrides static price)"
+			bind:value={priceEntity}
+			domains={['sensor', 'input_number']}
+		/>
+		<TextField label="Currency label (optional)" bind:value={currency} placeholder="zł" />
+	{/if}
+
+	{#if type === 'progress'}
+		<TextField label="Name" bind:value={name} placeholder="Washer" />
+		<IconField label="Icon (optional)" bind:value={icon} placeholder="local_laundry_service" />
+		<EntityField label="Status entity" bind:value={statusEntity} />
+		<EntityField label="Progress entity (0-100, optional)" bind:value={progressEntity} />
+		<EntityField
+			label="Remaining time entity (minutes or timestamp, optional)"
+			bind:value={remainingEntity}
+		/>
+		<TextField
+			label="Active states (comma separated, optional)"
+			bind:value={activeStates}
+			placeholder="running, rinse, spin"
+		/>
+		<div class="hint">
+			Row is visible only while the status entity is active. Without an explicit list, common idle
+			states (idle, off, standby, docked, ...) hide it.
+		</div>
+	{/if}
+
+	{#if type === 'calendar'}
+		<TextField
+			label="Calendar entities (comma separated)"
+			bind:value={calendarEntities}
+			placeholder="calendar.family, calendar.work"
+		/>
+		<EntityField
+			label="Travel time entity (minutes, optional)"
+			bind:value={travelEntity}
+			domains={['sensor']}
+		/>
+		<TextField label="Look-ahead hours (default 24)" bind:value={lookaheadHours} placeholder="24" />
 	{/if}
 
 	{#if type === 'status'}
