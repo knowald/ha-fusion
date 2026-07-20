@@ -56,6 +56,25 @@ function getItemId(el: Element, idAttr: string): string {
 	return el.getAttribute(idAttr) ?? '';
 }
 
+/**
+ * Where a dragged element must be restored to. Svelte 5 tracks each-item
+ * fragments including their comment anchors, so the revert has to put the
+ * element back at its exact original node position (comments included) -
+ * restoring by element index can land it on the wrong side of an anchor,
+ * which corrupts the each block's fragment ranges and makes every later
+ * keyed reorder silently skip the DOM move.
+ */
+const dragOrigin = new WeakMap<Element, { parent: Node; next: Node | null }>();
+
+function revertToOrigin(draggedEl: Element) {
+	const origin = dragOrigin.get(draggedEl);
+	if (!origin) return;
+	origin.parent.insertBefore(
+		draggedEl,
+		origin.next && origin.next.parentNode === origin.parent ? origin.next : null
+	);
+}
+
 export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<DndOptions> {
 	const idAttr = options.idAttr ?? 'data-id';
 	const itemKey = options.itemKey ?? 'id';
@@ -79,6 +98,10 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 			direction: options.direction,
 
 			onStart(evt: SortableEvent) {
+				dragOrigin.set(evt.item, {
+					parent: evt.item.parentNode as Node,
+					next: evt.item.nextSibling
+				});
 				options.onStart?.(evt);
 			},
 
@@ -92,8 +115,7 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 				if (from === to) {
 					// Same container: revert SortableJS' DOM move so Svelte owns
 					// rendering, then notify with the reordered items.
-					if (draggedEl.parentNode === to) to.removeChild(draggedEl);
-					to.insertBefore(draggedEl, to.children[oldIndex] ?? null);
+					revertToOrigin(draggedEl);
 
 					const items = [...options.items];
 					if (cloning) {
@@ -126,13 +148,13 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 
 			onAdd(evt: SortableEvent) {
 				// An item was added from another container
-				const { item: draggedEl, newIndex, from, to } = evt;
+				const { item: draggedEl, newIndex } = evt;
 
 				if (newIndex == null) return;
 
-				// Revert DOM - put element back to source so Svelte manages rendering
-				if (draggedEl.parentNode === to) to.removeChild(draggedEl);
-				from.appendChild(draggedEl);
+				// Revert DOM - put element back to its exact source position so
+				// Svelte manages rendering
+				revertToOrigin(draggedEl);
 
 				// Read the item ID and find it in the source's data
 				const movedId = getItemId(draggedEl, idAttr);
