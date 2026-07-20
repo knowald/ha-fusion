@@ -20,7 +20,7 @@ jobs:
       VERSION: ${{ github.event.release.tag_name }}
     steps:
       - name: Check out the addon repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: knowald/addon-ha-fusion
           token: ${{ secrets.ADDON_REPO_TOKEN }}
