@@ -98,7 +98,9 @@
 	.rail {
 		display: flex;
 		flex-direction: column;
-		min-height: 0;
+		/* fill the rail-scroll viewport so spacer widgets have space to absorb,
+		   but never shrink below content height - overflow scrolls instead */
+		flex: 1 0 auto;
 	}
 
 	.widget {
