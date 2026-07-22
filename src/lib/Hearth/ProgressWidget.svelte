@@ -32,6 +32,10 @@
 		return () => clearInterval(timer);
 	});
 
+	let progressLabel = $derived(
+		progress !== null && widget.unit ? `${Math.round(progress)}${widget.unit}` : null
+	);
+
 	// the remaining entity may hold plain minutes or a finish timestamp
 	let remaining = $derived.by(() => {
 		const raw = widget.remaining_entity ? $states?.[widget.remaining_entity]?.state : undefined;
@@ -57,8 +61,8 @@
 				</div>
 			{/if}
 		</div>
-		{#if remaining !== null}
-			<span class="remaining">{remaining}</span>
+		{#if progressLabel !== null || remaining !== null}
+			<span class="remaining">{[progressLabel, remaining].filter(Boolean).join(' · ')}</span>
 		{/if}
 	</div>
 {/if}

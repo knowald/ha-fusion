@@ -74,6 +74,8 @@ type RailWidgetVariant =
 			icon?: string;
 			status_entity?: string;
 			progress_entity?: string;
+			// appended verbatim to the progress value readout, e.g. "%"
+			unit?: string;
 			remaining_entity?: string;
 			active_states?: string[];
 	  }

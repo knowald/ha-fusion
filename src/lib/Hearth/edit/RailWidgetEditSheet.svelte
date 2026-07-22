@@ -58,6 +58,7 @@
 	let currency = $state(initial?.type === 'energy' ? (initial.currency ?? '') : '');
 	let statusEntity = $state(initial?.type === 'progress' ? (initial.status_entity ?? '') : '');
 	let progressEntity = $state(initial?.type === 'progress' ? (initial.progress_entity ?? '') : '');
+	let progressUnit = $state(initial?.type === 'progress' ? (initial.unit ?? '') : '');
 	let remainingEntity = $state(
 		initial?.type === 'progress' ? (initial.remaining_entity ?? '') : ''
 	);
@@ -156,6 +157,7 @@
 				icon: icon.trim() || undefined,
 				status_entity: statusEntity.trim() || undefined,
 				progress_entity: progressEntity.trim() || undefined,
+				unit: progressUnit.trim() || undefined,
 				remaining_entity: remainingEntity.trim() || undefined,
 				active_states: parsedStates.length ? parsedStates : undefined,
 				hide_mobile,
@@ -287,6 +289,11 @@
 		<IconField label="Icon (optional)" bind:value={icon} placeholder="local_laundry_service" />
 		<EntityField label="Status entity" bind:value={statusEntity} />
 		<EntityField label="Progress entity (0-100, optional)" bind:value={progressEntity} />
+		<TextField
+			label="Progress unit (optional, shows the value with this suffix)"
+			bind:value={progressUnit}
+			placeholder="%"
+		/>
 		<EntityField
 			label="Remaining time entity (minutes or timestamp, optional)"
 			bind:value={remainingEntity}
