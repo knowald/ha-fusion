@@ -73,6 +73,12 @@
 	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
 	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
 	let entity = $state(initial && 'entity' in initial ? (initial.entity ?? '') : '');
+	let subtitle = $state(initial?.type === 'header' ? (initial.subtitle ?? '') : '');
+	let headerIcon = $state(initial?.type === 'header' ? (initial.icon ?? 'home') : 'home');
+	let headerTempEntity = $state(initial?.type === 'header' ? (initial.temp_entity ?? '') : '');
+	let headerHumidityEntity = $state(
+		initial?.type === 'header' ? (initial.humidity_entity ?? '') : ''
+	);
 	let gridStyle = $state<string>(initial?.type === 'entities' ? (initial.style ?? 'tile') : 'tile');
 	let gridColumns = $state<string>(
 		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
@@ -168,6 +174,18 @@
 
 	function buildCard(id: string): OverviewCard {
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
+		if (type === 'header') {
+			return {
+				id,
+				type,
+				title: title.trim() || undefined,
+				subtitle: subtitle.trim() || undefined,
+				icon: headerIcon.trim() || undefined,
+				temp_entity: headerTempEntity.trim() || undefined,
+				humidity_entity: headerHumidityEntity.trim() || undefined,
+				visibility: visibilityValue
+			};
+		}
 		if (type === 'temperature') {
 			return {
 				id,
@@ -307,8 +325,27 @@
 		<CardRenderer card={previewCard} />
 	</div>
 
-	{#if type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
-		<TextField label="Title" bind:value={title} placeholder="Lights" />
+	{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
+		<TextField
+			label="Title"
+			bind:value={title}
+			placeholder={type === 'header' ? 'Home' : 'Lights'}
+		/>
+	{/if}
+
+	{#if type === 'header'}
+		<TextField label="Subtitle" bind:value={subtitle} placeholder="Cozy · curtains open" />
+		<IconField label="Icon" bind:value={headerIcon} placeholder="home" />
+		<EntityField
+			label="Temperature sensor (optional)"
+			bind:value={headerTempEntity}
+			domains={['sensor']}
+		/>
+		<EntityField
+			label="Humidity sensor (optional)"
+			bind:value={headerHumidityEntity}
+			domains={['sensor']}
+		/>
 	{/if}
 
 	{#if type === 'temperature'}

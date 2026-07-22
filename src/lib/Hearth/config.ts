@@ -25,6 +25,8 @@ export interface HearthRoom {
 	summary?: string;
 	temp_entity?: string;
 	humidity_entity?: string;
+	// drops the built-in page header; a `header` card can take its place
+	hide_header?: boolean;
 	lights: string[];
 	blinds: string[];
 	devices: HearthDevice[];
@@ -93,6 +95,16 @@ export type RailWidget = RailWidgetVariant & {
 };
 
 type OverviewCardVariant =
+	// the room-style page header as a plain card, usable on any dashboard
+	| {
+			id: string;
+			type: 'header';
+			title?: string;
+			subtitle?: string;
+			icon?: string;
+			temp_entity?: string;
+			humidity_entity?: string;
+	  }
 	| { id: string; type: 'temperature'; label?: string; entity?: string; unit?: string }
 	| { id: string; type: 'media'; entity?: string }
 	| { id: string; type: 'vacuum'; entity?: string }
@@ -168,6 +180,7 @@ export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] =
 
 export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }[] = [
 	{ value: 'entities', label: 'Entity grid' },
+	{ value: 'header', label: 'Header' },
 	{ value: 'temperature', label: 'Sensor reading + sparkline' },
 	{ value: 'media', label: 'Media player' },
 	{ value: 'vacuum', label: 'Vacuum' },
@@ -536,6 +549,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map(
 		(room: any) => ({
 			...room,
+			hide_header: room.hide_header === true ? true : undefined,
 			lights: Array.isArray(room.lights) ? room.lights : [],
 			blinds: Array.isArray(room.blinds) ? room.blinds : [],
 			devices: Array.isArray(room.devices) ? room.devices : [],

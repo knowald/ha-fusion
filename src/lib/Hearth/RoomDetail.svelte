@@ -1,31 +1,20 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
-	import { states } from '$lib/Stores';
 	import { slugify, takenCardIds, uniqueId, type OverviewCard } from './config';
-	import { editor, hearthConfig, hearthEditMode, sensorNumber, updateConfig } from './store';
+	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import BlindTile from './BlindTile.svelte';
 	import CardRenderer from './CardRenderer.svelte';
 	import DeviceTile from './DeviceTile.svelte';
 	import EditChip from './EditChip.svelte';
 	import EntityTile from './EntityTile.svelte';
-	import Icon from './Icon.svelte';
+	import HeaderCard from './HeaderCard.svelte';
 	import LightTile from './LightTile.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
 
 	let { roomId }: { roomId: string } = $props();
 
 	let room = $derived($hearthConfig.rooms.find((entry) => entry.id === roomId));
-	let climate = $derived.by(() => {
-		const tempEntity = room?.temp_entity;
-		const humidityEntity = room?.humidity_entity;
-		const temp = sensorNumber(tempEntity ? $states?.[tempEntity]?.state : undefined);
-		const humidity = sensorNumber(humidityEntity ? $states?.[humidityEntity]?.state : undefined);
-		return {
-			temp: temp === null ? '-' : `${temp.toFixed(1)}°`,
-			humidity: humidity === null ? '-' : `${Math.round(humidity)}%`
-		};
-	});
 	let empty = $derived(
 		room !== undefined && room.devices.length === 0 && room.blinds.length === 0 && !$hearthEditMode
 	);
@@ -33,34 +22,18 @@
 
 {#if room}
 	<div class="detail">
-		<div
-			class="header"
-			class:editable={$hearthEditMode}
-			onclick={() => $hearthEditMode && editor.set({ kind: 'room', id: roomId })}
-		>
-			<div class="icon-tile">
-				<Icon name={room.icon} size={32} color="var(--h-accent-text)" />
+		{#if !room.hide_header || $hearthEditMode}
+			<div class="header-slot" class:hidden-header={room.hide_header}>
+				<HeaderCard
+					icon={room.icon}
+					title={room.name}
+					subtitle={room.summary}
+					tempEntity={room.temp_entity}
+					humidityEntity={room.humidity_entity}
+					onedit={() => editor.set({ kind: 'room', id: roomId })}
+				/>
 			</div>
-			<div class="titles">
-				<div class="name">{room.name}</div>
-				<div class="summary">{room.summary ?? ''}</div>
-			</div>
-			{#if $hearthEditMode}
-				<div class="edit-hint">
-					<Icon name="edit" size={20} />
-				</div>
-			{/if}
-			<div class="chips">
-				<div class="chip">
-					<div class="chip-value">{climate.temp}</div>
-					<div class="chip-label">Temp</div>
-				</div>
-				<div class="chip">
-					<div class="chip-value">{climate.humidity}</div>
-					<div class="chip-label">Humidity</div>
-				</div>
-			</div>
-		</div>
+		{/if}
 
 		<div class="section-title">Lighting</div>
 		<div
@@ -187,70 +160,13 @@
 		min-height: 100%;
 	}
 
-	.header {
-		display: flex;
-		align-items: center;
-		gap: 18px;
+	.header-slot {
 		margin-bottom: 30px;
 	}
 
-	.header.editable {
-		cursor: pointer;
-	}
-
-	.edit-hint {
-		color: var(--h-icon);
-	}
-
-	.icon-tile {
-		width: 64px;
-		height: 64px;
-		border-radius: var(--h-radius-md);
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.22);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.titles {
-		flex: 1;
-	}
-
-	.name {
-		font-size: 30px;
-		font-weight: 600;
-		color: var(--h-text-1);
-		letter-spacing: -0.5px;
-	}
-
-	.summary {
-		font-size: 14px;
-		color: var(--h-text-5);
-	}
-
-	.chips {
-		display: flex;
-		gap: 12px;
-	}
-
-	.chip {
-		padding: 12px 18px;
-		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
-		text-align: center;
-	}
-
-	.chip-value {
-		font-size: 22px;
-		font-weight: 600;
-		color: var(--h-text-1);
-	}
-
-	.chip-label {
-		font-size: 12px;
-		color: var(--h-text-5);
+	/* hidden headers stay visible in edit mode so the room remains reachable */
+	.header-slot.hidden-header {
+		opacity: 0.45;
 	}
 
 	.section-title {

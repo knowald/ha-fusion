@@ -21,6 +21,7 @@
 	let summary = $state(initial?.summary ?? '');
 	let tempEntity = $state(initial?.temp_entity ?? '');
 	let humidityEntity = $state(initial?.humidity_entity ?? '');
+	let hideHeader = $state(initial?.hide_header ?? false);
 	let selectedLights = $state<string[]>([...(initial?.lights ?? [])]);
 	let selectedBlinds = $state<string[]>([...(initial?.blinds ?? [])]);
 
@@ -50,6 +51,7 @@
 				room.summary = summary.trim() || undefined;
 				room.temp_entity = tempEntity.trim() || undefined;
 				room.humidity_entity = humidityEntity.trim() || undefined;
+				room.hide_header = hideHeader || undefined;
 				room.lights = lights;
 				room.blinds = blinds;
 			} else {
@@ -63,6 +65,7 @@
 					summary: summary.trim() || undefined,
 					temp_entity: tempEntity.trim() || undefined,
 					humidity_entity: humidityEntity.trim() || undefined,
+					hide_header: hideHeader || undefined,
 					lights,
 					blinds,
 					devices: []
@@ -105,6 +108,11 @@
 	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
+
+	<label class="check">
+		<input type="checkbox" bind:checked={hideHeader} />
+		<span>Hide room header</span>
+	</label>
 
 	{#if allLights.length}
 		<div class="group-label">LIGHTS IN THIS ROOM</div>
