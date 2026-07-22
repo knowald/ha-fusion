@@ -3,8 +3,9 @@
 	import { states } from '$lib/Stores';
 	import { horizontalDrag } from './drag';
 	import type { OverviewCard } from './config';
-	import { pendingEntities, seekMedia, toggleMediaPlayback } from './store';
+	import { pendingEntities, popup, seekMedia, toggleMediaPlayback } from './store';
 	import Icon from './Icon.svelte';
+	import TuneButton from './TuneButton.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'media' }> } = $props();
 
@@ -61,6 +62,19 @@
 		<div class="art placeholder"></div>
 	{/if}
 	<div class="scrim"></div>
+	{#if card.entity}
+		{@const entity = card.entity}
+		<div class="tune-wrap">
+			<TuneButton
+				onopen={() =>
+					popup.set({
+						kind: 'media',
+						entity,
+						name: attributes.friendly_name ?? 'Media'
+					})}
+			/>
+		</div>
+	{/if}
 	<div class="controls">
 		<div class="track-row">
 			<Icon name="music_note" size={30} color="var(--h-media)" fill />
@@ -128,6 +142,13 @@
 		position: absolute;
 		inset: 0;
 		background: linear-gradient(180deg, rgba(22, 17, 12, 0) 35%, rgba(22, 17, 12, 0.92));
+	}
+
+	.tune-wrap {
+		position: absolute;
+		top: 14px;
+		right: 16px;
+		color: #fff;
 	}
 
 	.controls {

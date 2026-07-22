@@ -13,11 +13,13 @@
 	import FanPopup from './FanPopup.svelte';
 	import Icon from './Icon.svelte';
 	import LightPopup from './LightPopup.svelte';
+	import MediaPopup from './MediaPopup.svelte';
 
 	const meta = {
 		light: { icon: 'lightbulb', sub: 'Dimmable light' },
 		blind: { icon: 'blinds', sub: 'Window covering' },
-		fan: { icon: 'mode_fan', sub: 'Ceiling fan' }
+		fan: { icon: 'mode_fan', sub: 'Ceiling fan' },
+		media: { icon: 'music_note', sub: 'Media player' }
 	};
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -33,39 +35,44 @@
 
 {#if $popup}
 	<div class="overlay" onclick={closePopup}>
-		<div class="sheet" onclick={(event) => event.stopPropagation()}>
-			<div class="header">
-				<div class="icon-tile">
-					<Icon name={meta[$popup.kind].icon} size={26} color="var(--h-accent-text)" />
-				</div>
-				<div class="titles">
-					<div class="name">{$popup.name}</div>
-					<div class="sub">{meta[$popup.kind].sub}</div>
-				</div>
-				{#if $popup.kind === 'light'}
-					{@const entity = $popup.entity}
-					<div
-						class="switch pressable"
-						class:on={lightViewFor(entity, $states, $controlOverrides).on}
-						class:pending={$pendingEntities[entity] !== undefined}
-						onclick={() => toggleLight(entity)}
-					>
-						<div class="knob"></div>
+		{#if $popup.kind === 'media'}
+			<!-- the media sheet is full-bleed art with its own chrome -->
+			<MediaPopup entity={$popup.entity} />
+		{:else}
+			<div class="sheet" onclick={(event) => event.stopPropagation()}>
+				<div class="header">
+					<div class="icon-tile">
+						<Icon name={meta[$popup.kind].icon} size={26} color="var(--h-accent-text)" />
 					</div>
-				{/if}
-				<span class="close pressable" onclick={closePopup}>
-					<Icon name="close" size={26} />
-				</span>
-			</div>
+					<div class="titles">
+						<div class="name">{$popup.name}</div>
+						<div class="sub">{meta[$popup.kind].sub}</div>
+					</div>
+					{#if $popup.kind === 'light'}
+						{@const entity = $popup.entity}
+						<div
+							class="switch pressable"
+							class:on={lightViewFor(entity, $states, $controlOverrides).on}
+							class:pending={$pendingEntities[entity] !== undefined}
+							onclick={() => toggleLight(entity)}
+						>
+							<div class="knob"></div>
+						</div>
+					{/if}
+					<span class="close pressable" onclick={closePopup}>
+						<Icon name="close" size={26} />
+					</span>
+				</div>
 
-			{#if $popup.kind === 'light'}
-				<LightPopup entity={$popup.entity} />
-			{:else if $popup.kind === 'blind'}
-				<BlindPopup entity={$popup.entity} />
-			{:else}
-				<FanPopup entity={$popup.entity} />
-			{/if}
-		</div>
+				{#if $popup.kind === 'light'}
+					<LightPopup entity={$popup.entity} />
+				{:else if $popup.kind === 'blind'}
+					<BlindPopup entity={$popup.entity} />
+				{:else}
+					<FanPopup entity={$popup.entity} />
+				{/if}
+			</div>
+		{/if}
 	</div>
 {/if}
 
