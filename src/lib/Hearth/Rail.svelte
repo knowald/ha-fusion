@@ -3,17 +3,9 @@
 	import { slugify, uniqueId, type RailWidget } from './config';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
-	import CalendarWidget from './CalendarWidget.svelte';
-	import ClockWidget from './ClockWidget.svelte';
 	import EditChip from './EditChip.svelte';
-	import EnergyWidget from './EnergyWidget.svelte';
-	import EntityTile from './EntityTile.svelte';
-	import FusionWidget from './FusionWidget.svelte';
-	import ProgressWidget from './ProgressWidget.svelte';
-	import NavWidget from './NavWidget.svelte';
-	import StatusWidget from './StatusWidget.svelte';
+	import RailWidgetRenderer from './RailWidgetRenderer.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
-	import WeatherCard from './WeatherCard.svelte';
 </script>
 
 <div
@@ -55,35 +47,7 @@
 						{#if $hearthEditMode}
 							<EditChip onedit={() => editor.set({ kind: 'railWidget', index })} />
 						{/if}
-						{#if widget.type === 'clock'}
-							<ClockWidget city={widget.city} />
-						{:else if widget.type === 'weather'}
-							<WeatherCard entity={widget.entity} />
-						{:else if widget.type === 'nav'}
-							<NavWidget />
-						{:else if widget.type === 'label'}
-							<div class="section-label">{widget.text ?? ''}</div>
-						{:else if widget.type === 'energy'}
-							<EnergyWidget {widget} />
-						{:else if widget.type === 'progress'}
-							<ProgressWidget {widget} />
-						{:else if widget.type === 'calendar'}
-							{#if widget.entities?.length}
-								<CalendarWidget {widget} />
-							{:else}
-								<div class="widget-placeholder">Pick calendar entities in the widget editor</div>
-							{/if}
-						{:else if widget.type === 'status'}
-							<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
-						{:else if widget.type === 'entity'}
-							{#if widget.entity}
-								<EntityTile entity={widget.entity} name={widget.name} icon={widget.icon} />
-							{:else}
-								<div class="widget-placeholder">Pick an entity in the widget editor</div>
-							{/if}
-						{:else if widget.type === 'fusion'}
-							<FusionWidget {widget} />
-						{/if}
+						<RailWidgetRenderer {widget} />
 					</div>
 				{/if}
 			{/snippet}
@@ -121,24 +85,6 @@
 
 	.widget.visibility-dimmed {
 		opacity: 0.45;
-	}
-
-	.section-label {
-		font-family: var(--h-font-mono);
-		font-size: 11px;
-		letter-spacing: 2px;
-		text-transform: uppercase;
-		color: var(--h-text-6);
-		margin: 18px 0 10px;
-	}
-
-	.widget-placeholder {
-		padding: 14px;
-		border-radius: var(--h-radius-sm);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
-		color: var(--h-text-6);
-		font-size: 13px;
-		text-align: center;
 	}
 
 	@media (max-width: 900px) {

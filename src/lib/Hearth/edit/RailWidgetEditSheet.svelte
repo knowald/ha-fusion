@@ -14,6 +14,7 @@
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
+	import RailWidgetRenderer from '../RailWidgetRenderer.svelte';
 	import FusionFields, { applyLeftoverYaml, dumpLeftoverYaml } from './FusionFields.svelte';
 	import Icon from '../Icon.svelte';
 	import IconField from './IconField.svelte';
@@ -210,6 +211,8 @@
 		return { id, type: type as 'nav' | 'spacer', hide_mobile, visibility: visibilityValue };
 	}
 
+	let previewWidget = $derived.by(() => buildWidget('preview'));
+
 	function done() {
 		updateConfig((config) => {
 			if (index !== null) {
@@ -244,6 +247,13 @@
 	onremove={index !== null ? remove : undefined}
 >
 	<SelectField label="Type" bind:value={type} options={RAIL_WIDGET_TYPES} />
+
+	{#if type !== 'spacer'}
+		<div class="group-label">PREVIEW</div>
+		<div class="preview" style="pointer-events: none">
+			<RailWidgetRenderer widget={previewWidget} />
+		</div>
+	{/if}
 
 	{#if type === 'clock'}
 		<TextField label="City" bind:value={city} placeholder="Wrocław" />
@@ -352,6 +362,21 @@
 </EditSheet>
 
 <style>
+	.group-label {
+		font-family: var(--h-font-mono);
+		font-size: 11px;
+		letter-spacing: 2px;
+		color: var(--h-label);
+		margin: 18px 0 10px;
+	}
+
+	.preview {
+		background: var(--h-inset);
+		border-radius: var(--h-radius-md);
+		padding: 14px;
+		margin-bottom: 14px;
+	}
+
 	.advanced-toggle {
 		display: flex;
 		align-items: center;
