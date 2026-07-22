@@ -109,21 +109,29 @@
 	 * settings dialog's save behavior, so fields not touched here (token,
 	 * custom_js) are carried through from the already-loaded store.
 	 */
-	async function persistConfiguration() {
-		saveError = null;
-		try {
-			const json: Record<string, unknown> = { ...($configuration ?? {}) };
-			delete json.hassUrl;
-			const response = await fetch(`${base}/_api/save_config`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(json)
-			});
-			if (!response.ok) saveError = `Save failed [${response.status}]`;
-		} catch (error) {
-			console.error(error);
-			saveError = 'Save failed';
-		}
+	// saves are serialized: each queued save snapshots $configuration when it
+	// actually runs, so a slow earlier request can never overwrite a newer one
+	let saveChain: Promise<void> = Promise.resolve();
+
+	function persistConfiguration() {
+		const run = saveChain.then(async () => {
+			saveError = null;
+			try {
+				const json: Record<string, unknown> = { ...($configuration ?? {}) };
+				delete json.hassUrl;
+				const response = await fetch(`${base}/_api/save_config`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(json)
+				});
+				if (!response.ok) saveError = `Save failed [${response.status}]`;
+			} catch (error) {
+				console.error(error);
+				saveError = 'Save failed';
+			}
+		});
+		saveChain = run;
+		return run;
 	}
 
 	async function setLocale(value: string) {

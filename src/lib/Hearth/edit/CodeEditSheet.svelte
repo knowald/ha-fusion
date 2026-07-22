@@ -12,7 +12,12 @@
 
 	let error = $derived.by(() => {
 		try {
-			parser.load(value);
+			const parsed = parser.load(value);
+			// scalars and arrays parse fine but would normalize to the default
+			// config, silently wiping the layout - only a mapping is acceptable
+			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+				return 'Configuration must be a YAML mapping';
+			}
 			return null;
 		} catch (parseError) {
 			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML';

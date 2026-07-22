@@ -70,10 +70,15 @@ export async function authentication(configuration: Configuration) {
 
 			// default auth flow
 		} else {
-			// ingress serves the app from a per-installation path, the
-			// default redirect (location.href) drops that path on callback
+			// ingress serves the app from a per-installation path; pass an
+			// explicit redirect that keeps that path (origin alone would land
+			// the callback on the HA frontend, not this app) and strips the
+			// query string so callback state matching stays clean - the lib
+			// appends its own auth_callback flag
 			const isIngress = window.location.pathname.includes('/api/hassio_ingress/');
-			const redirectUrl = isIngress ? `${window.location.origin}/?auth_callback=1` : undefined;
+			const redirectUrl = isIngress
+				? `${window.location.origin}${window.location.pathname}`
+				: undefined;
 
 			auth = await getAuth({
 				...options,

@@ -23,13 +23,19 @@
 			return;
 		}
 
-		const entries = queries.map((query) => {
-			const mql = window.matchMedia(query);
+		const entries = queries.flatMap((query) => {
+			let mql: MediaQueryList;
+			try {
+				mql = window.matchMedia(query);
+			} catch {
+				// user-entered queries can be malformed css; treat as non-matching
+				return [];
+			}
 			const listener = () => {
 				mediaMatches = { ...mediaMatches, [query]: mql.matches };
 			};
 			mql.addEventListener('change', listener);
-			return { query, mql, listener };
+			return [{ query, mql, listener }];
 		});
 
 		mediaMatches = Object.fromEntries(entries.map(({ query, mql }) => [query, mql.matches]));

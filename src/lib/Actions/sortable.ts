@@ -119,12 +119,14 @@ export function sortable(node: HTMLElement, options: DndOptions): ActionReturn<D
 
 					const items = [...options.items];
 					if (cloning) {
-						// keep the source item at oldIndex, insert a duplicate at
-						// newIndex instead of moving the original
+						// keep the source item at oldIndex and insert a duplicate at
+						// the drop position; SortableJS computes newIndex after the
+						// dragged element left its slot, so a forward drag needs +1
+						// to land after the retained original
 						const duplicate = options.cloneItem
 							? options.cloneItem(items[oldIndex])
 							: structuredClone(items[oldIndex]);
-						items.splice(newIndex, 0, duplicate);
+						items.splice(newIndex > oldIndex ? newIndex + 1 : newIndex, 0, duplicate);
 					} else {
 						const [moved] = items.splice(oldIndex, 1);
 						items.splice(newIndex, 0, moved);
