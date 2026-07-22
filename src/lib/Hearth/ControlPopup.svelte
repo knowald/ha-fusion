@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { states } from '$lib/Stores';
 	import {
 		closePopup,
+		controlOverrides,
 		editor,
-		hearthConfig,
-		lightViews,
+		lightViewFor,
 		pendingEntities,
 		popup,
 		toggleLight
@@ -42,13 +43,12 @@
 					<div class="sub">{meta[$popup.kind].sub}</div>
 				</div>
 				{#if $popup.kind === 'light'}
-					{@const id = $popup.id}
-					{@const entity = $hearthConfig.lights.find((light) => light.id === id)?.entity}
+					{@const entity = $popup.entity}
 					<div
 						class="switch pressable"
-						class:on={$lightViews[id]?.on}
-						class:pending={entity !== undefined && $pendingEntities[entity] !== undefined}
-						onclick={() => toggleLight(id)}
+						class:on={lightViewFor(entity, $states, $controlOverrides).on}
+						class:pending={$pendingEntities[entity] !== undefined}
+						onclick={() => toggleLight(entity)}
 					>
 						<div class="knob"></div>
 					</div>
@@ -59,9 +59,9 @@
 			</div>
 
 			{#if $popup.kind === 'light'}
-				<LightPopup id={$popup.id} />
+				<LightPopup entity={$popup.entity} />
 			{:else if $popup.kind === 'blind'}
-				<BlindPopup id={$popup.id} />
+				<BlindPopup entity={$popup.entity} />
 			{:else}
 				<FanPopup entity={$popup.entity} />
 			{/if}

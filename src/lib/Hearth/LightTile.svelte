@@ -1,14 +1,13 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { lang } from '$lib/Stores';
+	import { lang, states } from '$lib/Stores';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import { horizontalDrag } from './drag';
 	import Icon from './Icon.svelte';
 	import {
-		editor,
-		hearthConfig,
+		controlOverrides,
 		hearthEditMode,
-		lightViews,
+		lightViewFor,
 		pendingEntities,
 		popup,
 		setLightLevel,
@@ -16,49 +15,60 @@
 	} from './store';
 	import TuneButton from './TuneButton.svelte';
 
-	let { id }: { id: string } = $props();
+	let {
+		entity,
+		name = undefined,
+		icon = undefined,
+		dragId = undefined,
+		onedit = undefined
+	}: {
+		entity: string;
+		name?: string;
+		icon?: string;
+		/** data-id for a surrounding sortable grid; also shows the drag handle */
+		dragId?: string;
+		onedit?: () => void;
+	} = $props();
 
-	let light = $derived($hearthConfig.lights.find((entry) => entry.id === id));
-	let view = $derived($lightViews[id]);
+	let view = $derived(lightViewFor(entity, $states, $controlOverrides));
+	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
-		view?.on ? (view.colorCss ?? 'var(--h-accent-bright)') : 'var(--h-icon-dim)'
+		view.on ? (view.colorCss ?? 'var(--h-accent-bright)') : 'var(--h-icon-dim)'
 	);
-	let pending = $derived(light !== undefined && $pendingEntities[light.entity] !== undefined);
-
-	function openEditor() {
-		editor.set({ kind: 'light', id });
-	}
+	let pending = $derived($pendingEntities[entity] !== undefined);
 </script>
 
 <div
 	class="tile pressable"
-	class:on={view?.on}
+	class:on={view.on}
 	class:pending
-	data-id={id}
+	data-id={dragId ?? entity}
 	use:Ripple={PRESS_RIPPLE}
-	onclick={() => $hearthEditMode && openEditor()}
+	onclick={() => $hearthEditMode && onedit?.()}
 	use:horizontalDrag={{
-		set: (value) => setLightLevel(id, value),
-		tap: () => toggleLight(id),
+		set: (value) => setLightLevel(entity, value),
+		tap: () => toggleLight(entity),
 		disabled: $hearthEditMode,
 		ignore: '.tune, .tile-edit'
 	}}
 >
-	<div class="fill" style:width="{view?.on ? view.level : 0}%"></div>
+	<div class="fill" style:width="{view.on ? view.level : 0}%"></div>
 	<div class="content">
-		<Icon name="lightbulb" size={26} color={iconColor} fill={view?.on} />
+		<Icon name={icon || 'lightbulb'} size={26} color={iconColor} fill={view.on} />
 		<div>
-			<div class="name">{light?.name ?? id}</div>
-			<div class="state">{view?.on ? `${view.level}%` : capitalize($lang('off'))}</div>
+			<div class="name">{label}</div>
+			<div class="state">{view.on ? `${view.level}%` : capitalize($lang('off'))}</div>
 		</div>
 	</div>
-	{#if $hearthEditMode}
+	{#if $hearthEditMode && onedit}
 		<span class="tile-edit">
-			<span class="drag-handle"><Icon name="drag_indicator" size={19} /></span>
-			<TuneButton icon="edit" onopen={openEditor} />
+			{#if dragId}
+				<span class="drag-handle"><Icon name="drag_indicator" size={19} /></span>
+			{/if}
+			<TuneButton icon="edit" onopen={onedit} />
 		</span>
-	{:else}
-		<TuneButton onopen={() => popup.set({ kind: 'light', id, name: light?.name ?? id })} />
+	{:else if !$hearthEditMode}
+		<TuneButton onopen={() => popup.set({ kind: 'light', entity, name: label })} />
 	{/if}
 </div>
 
@@ -103,12 +113,16 @@
 		display: flex;
 		align-items: center;
 		gap: 13px;
+		min-width: 0;
 	}
 
 	.name {
 		font-size: 15px;
 		font-weight: 500;
 		color: var(--h-text-3);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.on .name {

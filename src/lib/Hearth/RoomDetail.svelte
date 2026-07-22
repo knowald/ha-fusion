@@ -79,7 +79,13 @@
 			}}
 		>
 			{#each room.lights as lightId (lightId)}
-				<LightTile id={lightId} />
+				{@const light = $hearthConfig.lights.find((entry) => entry.id === lightId)}
+				<LightTile
+					entity={light?.entity ?? ''}
+					name={light?.name ?? lightId}
+					dragId={lightId}
+					onedit={() => editor.set({ kind: 'light', id: lightId })}
+				/>
 			{/each}
 			{#if $hearthEditMode}
 				<AddTile label="Assign lights" onadd={() => editor.set({ kind: 'room', id: roomId })} />
@@ -89,7 +95,12 @@
 		<div class="section-title">Devices</div>
 		<div class="grid devices">
 			{#each room.blinds as blindId (blindId)}
-				<BlindTile id={blindId} />
+				{@const blind = $hearthConfig.blinds.find((entry) => entry.id === blindId)}
+				<BlindTile
+					entity={blind?.entity ?? ''}
+					name={blind?.name ?? blindId}
+					onedit={() => editor.set({ kind: 'blind', id: blindId })}
+				/>
 			{/each}
 			{#each room.devices as device, index (index)}
 				{#if device.type === 'entity'}

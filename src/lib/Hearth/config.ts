@@ -31,15 +31,12 @@ export interface HearthRoom {
 	cards?: OverviewCard[];
 }
 
-export interface HearthFilter {
-	label: string;
-	entity: string;
-}
-
 export interface EntityRef {
 	entity: string;
 	name?: string;
 	icon?: string;
+	// per-entity presentation; falls back to the card's style when unset
+	display?: 'tile' | 'stat';
 }
 
 /**
@@ -96,20 +93,21 @@ export type RailWidget = RailWidgetVariant & {
 };
 
 type OverviewCardVariant =
-	| { id: string; type: 'lights'; title?: string }
-	| { id: string; type: 'blinds'; title?: string }
 	| { id: string; type: 'temperature'; label?: string; entity?: string; unit?: string }
-	| {
-			id: string;
-			type: 'air';
-			title?: string;
-			pm25_entity?: string;
-			humidity_entity?: string;
-			filters: HearthFilter[];
-	  }
 	| { id: string; type: 'media'; entity?: string }
 	| { id: string; type: 'vacuum'; entity?: string }
-	| { id: string; type: 'entities'; title?: string; entities: EntityRef[] }
+	// the general-purpose grid: any mix of domains, tiles adapt per domain
+	// (lights dim on drag, covers show position). `stat` renders big sensor
+	// readouts instead of tiles; `columns` fixes the column count.
+	| {
+			id: string;
+			type: 'entities';
+			title?: string;
+			style?: 'tile' | 'stat';
+			columns?: number;
+			show_count?: boolean;
+			entities: EntityRef[];
+	  }
 	| { id: string; type: 'camera'; entity?: string; title?: string }
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	| { id: string; type: 'scenes'; title?: string; scenes: EntityRef[] }
@@ -169,13 +167,10 @@ export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] =
 ];
 
 export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }[] = [
-	{ value: 'lights', label: 'Lights grid' },
-	{ value: 'blinds', label: 'Blinds grid' },
+	{ value: 'entities', label: 'Entity grid' },
 	{ value: 'temperature', label: 'Sensor reading + sparkline' },
-	{ value: 'air', label: 'Air quality' },
 	{ value: 'media', label: 'Media player' },
 	{ value: 'vacuum', label: 'Vacuum' },
-	{ value: 'entities', label: 'Entity grid (any domain)' },
 	{ value: 'camera', label: 'Camera' },
 	{ value: 'climate', label: 'Climate (thermostat)' },
 	{ value: 'scenes', label: 'Scene chips' },
@@ -225,8 +220,29 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 	],
 	overview: [
 		[
-			{ id: 'lights', type: 'lights', title: 'Lights' },
-			{ id: 'blinds', type: 'blinds', title: 'Blinds' },
+			{
+				id: 'lights',
+				type: 'entities',
+				title: 'Lights',
+				show_count: true,
+				entities: [
+					{ entity: 'light.living_room', name: 'Living Room' },
+					{ entity: 'light.hallway', name: 'Hallway' },
+					{ entity: 'light.bedroom', name: 'Bedroom' },
+					{ entity: 'light.kitchen', name: 'Kitchen' },
+					{ entity: 'light.office', name: 'Office' },
+					{ entity: 'light.bathroom_ikea_lights', name: 'Bathroom' }
+				]
+			},
+			{
+				id: 'blinds',
+				type: 'entities',
+				title: 'Blinds',
+				entities: [
+					{ entity: 'cover.0x0c2a6ffffe193952', name: 'Bedroom' },
+					{ entity: 'cover.rolety_biuro', name: 'Office' }
+				]
+			},
 			{
 				id: 'avg-temp',
 				type: 'temperature',
@@ -238,18 +254,28 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 		[
 			{
 				id: 'air',
-				type: 'air',
+				type: 'entities',
 				title: 'Air',
-				pm25_entity: 'sensor.mi_air_purifier_3_3h_beta_pm2_5',
-				humidity_entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-				filters: [
+				entities: [
 					{
-						label: 'Filter · Bedroom',
-						entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining'
+						entity: 'sensor.mi_air_purifier_3_3h_beta_pm2_5',
+						name: 'Home PM2.5',
+						display: 'stat'
 					},
 					{
-						label: 'Filter · Living',
-						entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining'
+						entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
+						name: 'Humidity',
+						display: 'stat'
+					},
+					{
+						entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining',
+						name: 'Filter · Bedroom',
+						icon: 'mode_fan'
+					},
+					{
+						entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining',
+						name: 'Filter · Living',
+						icon: 'mode_fan'
 					}
 				]
 			},
@@ -385,20 +411,91 @@ export function normalizeVisibility(raw: unknown): VisibilityCondition[] | undef
 	return conditions.length ? conditions : undefined;
 }
 
-function normalizeCard(card: any, fallbackId: string): OverviewCard {
+interface LegacyRegistries {
+	lights: HearthLight[];
+	blinds: HearthBlind[];
+}
+
+export function registryEntityRefs(registry: { entity: string; name: string }[]): EntityRef[] {
+	return registry.map(({ entity, name }) => ({ entity, name }));
+}
+
+/**
+ * Converts the retired single-purpose card types (lights grid, blinds grid,
+ * air quality) into equivalent entity-grid cards. The grids mirrored the
+ * top-level lights/blinds registries, so their entities come from there.
+ */
+function migrateLegacyCard(card: any, registries: LegacyRegistries): any {
+	if (card?.type === 'lights') {
+		return {
+			id: card.id,
+			type: 'entities',
+			title: card.title ?? 'Lights',
+			show_count: true,
+			entities: registryEntityRefs(registries.lights),
+			visibility: card.visibility
+		};
+	}
+	if (card?.type === 'blinds') {
+		return {
+			id: card.id,
+			type: 'entities',
+			title: card.title ?? 'Blinds',
+			entities: registryEntityRefs(registries.blinds),
+			visibility: card.visibility
+		};
+	}
+	if (card?.type === 'air') {
+		return {
+			id: card.id,
+			type: 'entities',
+			title: card.title ?? 'Air',
+			entities: [
+				...(card.pm25_entity
+					? [{ entity: card.pm25_entity, name: 'Home PM2.5', display: 'stat' }]
+					: []),
+				...(card.humidity_entity
+					? [{ entity: card.humidity_entity, name: 'Humidity', display: 'stat' }]
+					: []),
+				...(Array.isArray(card.filters) ? card.filters : [])
+					.filter((filter: any) => typeof filter?.entity === 'string')
+					.map((filter: any) => ({ entity: filter.entity, name: filter.label, icon: 'mode_fan' }))
+			],
+			visibility: card.visibility
+		};
+	}
+	return card;
+}
+
+function normalizeEntityRef(raw: any): EntityRef {
+	return {
+		...raw,
+		display: raw?.display === 'stat' || raw?.display === 'tile' ? raw.display : undefined
+	};
+}
+
+function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistries): OverviewCard {
+	const card = migrateLegacyCard(raw, registries);
 	return {
 		...card,
 		id: card.id ?? fallbackId,
 		...(card.type === 'entities'
-			? { entities: Array.isArray(card.entities) ? card.entities : [] }
+			? {
+					entities: (Array.isArray(card.entities) ? card.entities : []).map(normalizeEntityRef),
+					style: card.style === 'stat' ? 'stat' : undefined,
+					columns:
+						typeof card.columns === 'number' && card.columns >= 1
+							? Math.floor(card.columns)
+							: undefined,
+					show_count: card.show_count === true ? true : undefined
+				}
 			: {}),
 		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {}),
-		...(card.type === 'air' ? { filters: Array.isArray(card.filters) ? card.filters : [] } : {}),
 		visibility: normalizeVisibility(card.visibility)
 	};
 }
 
-function normalizeStack(raw: any, fallbackId: string): OverviewStack {
+function normalizeStack(raw: any, fallbackId: string, registries: LegacyRegistries): OverviewStack {
 	const id = raw.id ?? fallbackId;
 	const direction: OverviewStack['direction'] =
 		raw.direction === 'vertical' ? 'vertical' : 'horizontal';
@@ -406,12 +503,18 @@ function normalizeStack(raw: any, fallbackId: string): OverviewStack {
 	const cards = (Array.isArray(raw.cards) ? raw.cards : [])
 		// children may be any non-stack card - nesting stops here
 		.filter((child: any) => child?.kind !== 'stack')
-		.map((child: any, index: number) => normalizeCard(child, `${id}-card-${index}`));
+		.map((child: any, index: number) => normalizeCard(child, `${id}-card-${index}`, registries));
 	return { id, kind: 'stack', direction, cards, ...(title ? { title } : {}) };
 }
 
-function normalizeOverviewItem(raw: any, fallbackId: string): OverviewItem {
-	return raw?.kind === 'stack' ? normalizeStack(raw, fallbackId) : normalizeCard(raw, fallbackId);
+function normalizeOverviewItem(
+	raw: any,
+	fallbackId: string,
+	registries: LegacyRegistries
+): OverviewItem {
+	return raw?.kind === 'stack'
+		? normalizeStack(raw, fallbackId, registries)
+		: normalizeCard(raw, fallbackId, registries);
 }
 
 /**
@@ -425,6 +528,11 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	const config = raw as Record<string, any>;
 	const defaults = structuredClone(DEFAULT_HEARTH_CONFIG);
 
+	const registries: LegacyRegistries = {
+		lights: Array.isArray(config.lights) ? config.lights : defaults.lights,
+		blinds: Array.isArray(config.blinds) ? config.blinds : defaults.blinds
+	};
+
 	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map(
 		(room: any) => ({
 			...room,
@@ -436,7 +544,9 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 						// rooms are out of scope for stacks - drop any stray ones
 						cards: (Array.isArray(room.cards) ? room.cards : [])
 							.filter((card: any) => card?.kind !== 'stack')
-							.map((card: any, index: number) => normalizeCard(card, `card-${room.id}-${index}`))
+							.map((card: any, index: number) =>
+								normalizeCard(card, `card-${room.id}-${index}`, registries)
+							)
 					}
 				: {})
 		})
@@ -462,10 +572,25 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			if (card.type === 'temperature' && config.average_temperature_entity) {
 				card.entity = config.average_temperature_entity;
 			}
-			if (card.type === 'air') {
-				if (config.pm25_entity) card.pm25_entity = config.pm25_entity;
-				if (config.humidity_entity) card.humidity_entity = config.humidity_entity;
-				if (Array.isArray(config.filters)) card.filters = config.filters;
+			if (card.type === 'entities' && card.id === 'lights') {
+				card.entities = registryEntityRefs(registries.lights);
+			}
+			if (card.type === 'entities' && card.id === 'blinds') {
+				card.entities = registryEntityRefs(registries.blinds);
+			}
+			if (card.type === 'entities' && card.id === 'air') {
+				const refs: EntityRef[] = [
+					...(config.pm25_entity
+						? [{ entity: config.pm25_entity, name: 'Home PM2.5', display: 'stat' as const }]
+						: []),
+					...(config.humidity_entity
+						? [{ entity: config.humidity_entity, name: 'Humidity', display: 'stat' as const }]
+						: []),
+					...(Array.isArray(config.filters) ? config.filters : [])
+						.filter((filter: any) => typeof filter?.entity === 'string')
+						.map((filter: any) => ({ entity: filter.entity, name: filter.label, icon: 'mode_fan' }))
+				];
+				if (refs.length) card.entities = refs;
 			}
 			if (card.type === 'media' && config.media_entity) card.entity = config.media_entity;
 			if (card.type === 'vacuum' && config.vacuum_entity) card.entity = config.vacuum_entity;
@@ -497,7 +622,9 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			visibility: normalizeVisibility(widget.visibility)
 		})),
 		overview: overview.map((column, columnIndex) =>
-			column.map((card, index) => normalizeOverviewItem(card, `card-${columnIndex}-${index}`))
+			column.map((card, index) =>
+				normalizeOverviewItem(card, `card-${columnIndex}-${index}`, registries)
+			)
 		),
 		lights: Array.isArray(config.lights) ? config.lights : [],
 		blinds: Array.isArray(config.blinds) ? config.blinds : [],

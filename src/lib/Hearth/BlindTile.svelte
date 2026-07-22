@@ -1,11 +1,10 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { lang } from '$lib/Stores';
+	import { lang, states } from '$lib/Stores';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import {
-		blindViews,
-		editor,
-		hearthConfig,
+		blindPositionFor,
+		controlOverrides,
 		hearthEditMode,
 		pendingEntities,
 		popup,
@@ -14,11 +13,24 @@
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
 
-	let { id }: { id: string } = $props();
+	let {
+		entity,
+		name = undefined,
+		icon = undefined,
+		dragId = undefined,
+		onedit = undefined
+	}: {
+		entity: string;
+		name?: string;
+		icon?: string;
+		/** data-id for a surrounding sortable grid; also shows the drag handle */
+		dragId?: string;
+		onedit?: () => void;
+	} = $props();
 
-	let blind = $derived($hearthConfig.blinds.find((entry) => entry.id === id));
-	let position = $derived($blindViews[id] ?? 0);
+	let position = $derived(blindPositionFor(entity, $states, $controlOverrides));
 	let open = $derived(position > 0);
+	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let stateText = $derived(
 		position === 100
 			? capitalize($lang('open'))
@@ -27,38 +39,38 @@
 				: `${position}% open`
 	);
 
-	let pending = $derived(blind !== undefined && $pendingEntities[blind.entity] !== undefined);
-
-	function openEditor() {
-		editor.set({ kind: 'blind', id });
-	}
+	let pending = $derived($pendingEntities[entity] !== undefined);
 </script>
 
 <div
 	class="tile pressable"
 	class:open
 	class:pending
-	data-id={id}
+	data-id={dragId ?? entity}
 	use:Ripple={PRESS_RIPPLE}
-	onclick={() => ($hearthEditMode ? openEditor() : toggleBlind(id))}
+	onclick={() => ($hearthEditMode ? onedit?.() : toggleBlind(entity))}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">
-		<Icon name="blinds" size={26} color={open ? 'var(--h-cool-light)' : 'var(--h-icon-dim)'} />
+		<Icon
+			name={icon || 'blinds'}
+			size={26}
+			color={open ? 'var(--h-cool-light)' : 'var(--h-icon-dim)'}
+		/>
 		<div>
-			<div class="name">{blind?.name ?? id}</div>
+			<div class="name">{label}</div>
 			<div class="state" class:open>{stateText}</div>
 		</div>
 	</div>
-	{#if $hearthEditMode}
+	{#if $hearthEditMode && onedit}
 		<span class="tile-edit">
-			<span class="drag-handle"><Icon name="drag_indicator" size={19} /></span>
-			<TuneButton icon="edit" onopen={openEditor} />
+			{#if dragId}
+				<span class="drag-handle"><Icon name="drag_indicator" size={19} /></span>
+			{/if}
+			<TuneButton icon="edit" onopen={onedit} />
 		</span>
-	{:else}
-		<TuneButton
-			onopen={() => popup.set({ kind: 'blind', id, name: `Blinds · ${blind?.name ?? id}` })}
-		/>
+	{:else if !$hearthEditMode}
+		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label })} />
 	{/if}
 </div>
 
@@ -101,12 +113,16 @@
 		display: flex;
 		align-items: center;
 		gap: 13px;
+		min-width: 0;
 	}
 
 	.name {
 		font-size: 15px;
 		font-weight: 500;
 		color: var(--h-text-3);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.state {

@@ -1,4 +1,4 @@
-import { derived, get, writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
 import { connection, states } from '$lib/Stores';
 import { getTogglableService } from '$lib/Utils';
@@ -126,10 +126,7 @@ export async function saveEdit(): Promise<boolean> {
 
 export const currentRoom = writable<string>('home');
 
-export type Popup =
-	| { kind: 'light'; id: string; name: string }
-	| { kind: 'blind'; id: string; name: string }
-	| { kind: 'fan'; entity: string; name: string };
+export type Popup = { kind: 'light' | 'blind' | 'fan'; entity: string; name: string };
 
 export const popup = writable<Popup | null>(null);
 
@@ -138,18 +135,19 @@ export function closePopup() {
 }
 
 /**
- * Optimistic overrides keyed by "<kind>:<id>". While a drag is in progress the
- * dragged value wins over the entity state, then expires so the entity state
- * (updated via websocket) takes back over.
+ * Optimistic overrides keyed by "<kind>:<entity_id>". While a drag is in
+ * progress the dragged value wins over the entity state, then expires so the
+ * entity state (updated via websocket) takes back over. Exported read-only so
+ * tiles can feed it into lightViewFor/blindPositionFor.
  */
-const overrides = writable<Record<string, number>>({});
+export const controlOverrides = writable<Record<string, number>>({});
 const overrideTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
 function setOverride(key: string, value: number, ttl = 2000) {
 	clearTimeout(overrideTimers[key]);
-	overrides.update((current) => ({ ...current, [key]: value }));
+	controlOverrides.update((current) => ({ ...current, [key]: value }));
 	overrideTimers[key] = setTimeout(() => {
-		overrides.update((current) => {
+		controlOverrides.update((current) => {
 			const next = { ...current };
 			delete next[key];
 			return next;
@@ -252,90 +250,70 @@ export interface LightView {
 	kelvin: number;
 }
 
-function lightEntity(id: string) {
-	return get(hearthConfig).lights.find((light) => light.id === id)?.entity;
+/** Optimistic view of a light, from entity state plus in-flight drag overrides. */
+export function lightViewFor(
+	entityId: string,
+	$states: HassEntities | undefined,
+	$overrides: Record<string, number>
+): LightView {
+	const entity = $states?.[entityId];
+	const attributes = entity?.attributes ?? {};
+	const actualOn = entity?.state === 'on';
+	const levelOverride = $overrides[`level:${entityId}`];
+	const on = levelOverride !== undefined ? levelOverride > 0 : actualOn;
+	const level = levelOverride ?? (actualOn ? Math.round((attributes.brightness ?? 255) / 2.55) : 0);
+
+	const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
+	const maxKelvin = attributes.max_color_temp_kelvin ?? 6500;
+	const actualKelvin = attributes.color_temp_kelvin ?? (minKelvin + maxKelvin) / 2;
+	const tempPct = clamp(
+		$overrides[`temp:${entityId}`] ??
+			Math.round(((actualKelvin - minKelvin) / (maxKelvin - minKelvin)) * 100),
+		0,
+		100
+	);
+	const kelvin = Math.round((minKelvin + (tempPct / 100) * (maxKelvin - minKelvin)) / 50) * 50;
+
+	const rgb = attributes.rgb_color;
+	const inColorMode = actualOn && attributes.color_mode !== 'color_temp' && Array.isArray(rgb);
+
+	return {
+		on,
+		level,
+		colorCss: inColorMode ? `rgb(${rgb.join(',')})` : null,
+		mode: inColorMode ? 'color' : 'temp',
+		tempPct,
+		kelvin
+	};
 }
 
-export const lightViews = derived(
-	[states, overrides, hearthConfig],
-	([$states, $overrides, $config]) => {
-		const views: Record<string, LightView> = {};
-		for (const light of $config.lights) {
-			const entity = $states?.[light.entity];
-			const attributes = entity?.attributes ?? {};
-			const actualOn = entity?.state === 'on';
-			const levelOverride = $overrides[`level:${light.id}`];
-			const on = levelOverride !== undefined ? levelOverride > 0 : actualOn;
-			const level =
-				levelOverride ?? (actualOn ? Math.round((attributes.brightness ?? 255) / 2.55) : 0);
-
-			const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
-			const maxKelvin = attributes.max_color_temp_kelvin ?? 6500;
-			const actualKelvin = attributes.color_temp_kelvin ?? (minKelvin + maxKelvin) / 2;
-			const tempPct = clamp(
-				$overrides[`temp:${light.id}`] ??
-					Math.round(((actualKelvin - minKelvin) / (maxKelvin - minKelvin)) * 100),
-				0,
-				100
-			);
-			const kelvin = Math.round((minKelvin + (tempPct / 100) * (maxKelvin - minKelvin)) / 50) * 50;
-
-			const rgb = attributes.rgb_color;
-			const inColorMode = actualOn && attributes.color_mode !== 'color_temp' && Array.isArray(rgb);
-
-			views[light.id] = {
-				on,
-				level,
-				colorCss: inColorMode ? `rgb(${rgb.join(',')})` : null,
-				mode: inColorMode ? 'color' : 'temp',
-				tempPct,
-				kelvin
-			};
-		}
-		return views;
-	}
-);
-
-export const lightsOnCount = derived(
-	lightViews,
-	(views) => Object.values(views).filter((view) => view.on).length
-);
-
-export function toggleLight(id: string) {
-	const entity = lightEntity(id);
-	if (!entity) return;
-	markPending(entity);
-	service('light', 'toggle', { entity_id: entity });
+export function toggleLight(entityId: string) {
+	markPending(entityId);
+	service('light', 'toggle', { entity_id: entityId });
 }
 
-export function setLightLevel(id: string, value: number) {
-	const entity = lightEntity(id);
-	if (!entity) return;
+export function setLightLevel(entityId: string, value: number) {
 	const level = clamp(Math.max(1, value), 1, 100);
-	setOverride(`level:${id}`, level);
-	throttled(`level:${id}`, () =>
-		service('light', 'turn_on', { entity_id: entity, brightness_pct: level })
+	setOverride(`level:${entityId}`, level);
+	throttled(`level:${entityId}`, () =>
+		service('light', 'turn_on', { entity_id: entityId, brightness_pct: level })
 	);
 }
 
-export function setLightTemp(id: string, pct: number) {
-	const entity = lightEntity(id);
-	if (!entity) return;
-	setOverride(`temp:${id}`, clamp(pct, 0, 100));
-	const attributes = get(states)?.[entity]?.attributes ?? {};
+export function setLightTemp(entityId: string, pct: number) {
+	setOverride(`temp:${entityId}`, clamp(pct, 0, 100));
+	const attributes = get(states)?.[entityId]?.attributes ?? {};
 	const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
 	const maxKelvin = attributes.max_color_temp_kelvin ?? 6500;
 	const kelvin = Math.round(minKelvin + (clamp(pct, 0, 100) / 100) * (maxKelvin - minKelvin));
-	throttled(`temp:${id}`, () =>
-		service('light', 'turn_on', { entity_id: entity, color_temp_kelvin: kelvin })
+	throttled(`temp:${entityId}`, () =>
+		service('light', 'turn_on', { entity_id: entityId, color_temp_kelvin: kelvin })
 	);
 }
 
-export function setLightColor(id: string, hex: string) {
-	const entity = lightEntity(id);
-	if (!entity) return;
-	markPending(entity);
-	service('light', 'turn_on', { entity_id: entity, rgb_color: hexToRgb(hex) });
+export function setLightColor(entityId: string, hex: string) {
+	markPending(entityId);
+	service('light', 'turn_on', { entity_id: entityId, rgb_color: hexToRgb(hex) });
 }
 
 export function hexToRgb(hex: string): [number, number, number] {
@@ -348,39 +326,29 @@ export function hexToRgb(hex: string): [number, number, number] {
 
 /* blinds */
 
-function blindEntity(id: string) {
-	return get(hearthConfig).blinds.find((blind) => blind.id === id)?.entity;
+/** Optimistic 0-100 position of a cover, drag overrides included. */
+export function blindPositionFor(
+	entityId: string,
+	$states: HassEntities | undefined,
+	$overrides: Record<string, number>
+): number {
+	const entity = $states?.[entityId];
+	const actual = entity?.attributes?.current_position ?? (entity?.state === 'open' ? 100 : 0);
+	return clamp($overrides[`blind:${entityId}`] ?? Math.round(actual), 0, 100);
 }
 
-export const blindViews = derived(
-	[states, overrides, hearthConfig],
-	([$states, $overrides, $config]) => {
-		const views: Record<string, number> = {};
-		for (const blind of $config.blinds) {
-			const entity = $states?.[blind.entity];
-			const actual = entity?.attributes?.current_position ?? (entity?.state === 'open' ? 100 : 0);
-			views[blind.id] = clamp($overrides[`blind:${blind.id}`] ?? Math.round(actual), 0, 100);
-		}
-		return views;
-	}
-);
-
-export function toggleBlind(id: string) {
-	const entity = blindEntity(id);
-	if (!entity) return;
-	const open = get(blindViews)[id] > 0;
-	markPending(entity);
-	service('cover', open ? 'close_cover' : 'open_cover', { entity_id: entity });
+export function toggleBlind(entityId: string) {
+	const open = blindPositionFor(entityId, get(states), get(controlOverrides)) > 0;
+	markPending(entityId);
+	service('cover', open ? 'close_cover' : 'open_cover', { entity_id: entityId });
 }
 
-export function setBlindPosition(id: string, position: number) {
-	const entity = blindEntity(id);
-	if (!entity) return;
+export function setBlindPosition(entityId: string, position: number) {
 	const target = clamp(position, 0, 100);
-	setOverride(`blind:${id}`, target);
+	setOverride(`blind:${entityId}`, target);
 	throttled(
-		`blind:${id}`,
-		() => service('cover', 'set_cover_position', { entity_id: entity, position: target }),
+		`blind:${entityId}`,
+		() => service('cover', 'set_cover_position', { entity_id: entityId, position: target }),
 		400
 	);
 }

@@ -5,18 +5,18 @@
 	import { horizontalDrag } from './drag';
 	import {
 		callEntityService,
-		hearthConfig,
+		controlOverrides,
 		hexToRgb,
-		lightViews,
+		lightViewFor,
 		setLightColor,
 		setLightLevel,
 		setLightTemp
 	} from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
-	let { id }: { id: string } = $props();
+	let { entity }: { entity: string } = $props();
 
-	let view = $derived($lightViews[id]);
+	let view = $derived(lightViewFor(entity, $states, $controlOverrides));
 	// tab choice is local UI state; the light's actual mode is the default
 	let tabChoice = $state<'temp' | 'color' | 'white' | null>(null);
 	let mode = $derived(tabChoice ?? view.mode);
@@ -24,8 +24,7 @@
 		`${view.kelvin}K · ${view.kelvin < 3300 ? 'Warm white' : view.kelvin < 5000 ? 'Neutral' : 'Cool white'}`
 	);
 
-	let entityId = $derived($hearthConfig.lights.find((light) => light.id === id)?.entity);
-	let attributes = $derived(entityId ? ($states?.[entityId]?.attributes ?? {}) : {});
+	let attributes = $derived($states?.[entity]?.attributes ?? {});
 	let colorModes: string[] = $derived(
 		Array.isArray(attributes.supported_color_modes) ? attributes.supported_color_modes : []
 	);
@@ -36,8 +35,7 @@
 	let currentEffect = $derived(attributes.effect);
 
 	function callLightService(name: string, data: Record<string, unknown>) {
-		if (!entityId) return;
-		callEntityService('light', name, entityId, data);
+		callEntityService('light', name, entity, data);
 	}
 
 	function selectWhite() {
@@ -63,7 +61,7 @@
 	icon="light_mode"
 	value={view.on ? view.level : 0}
 	variant="amber"
-	onchange={(value) => setLightLevel(id, value)}
+	onchange={(value) => setLightLevel(entity, value)}
 />
 
 <div class="presets">
@@ -71,7 +69,7 @@
 		<div
 			class="preset pressable"
 			use:Ripple={PRESS_RIPPLE}
-			onclick={() => setLightLevel(id, preset)}
+			onclick={() => setLightLevel(entity, preset)}
 		>
 			{preset}%
 		</div>
@@ -98,7 +96,7 @@
 </div>
 
 {#if mode === 'temp'}
-	<div class="temp-bar" use:horizontalDrag={{ set: (value) => setLightTemp(id, value) }}>
+	<div class="temp-bar" use:horizontalDrag={{ set: (value) => setLightTemp(entity, value) }}>
 		<div class="temp-thumb" style:left="calc({view.tempPct}% - 9px)"></div>
 	</div>
 	<div class="temp-labels">
@@ -113,7 +111,7 @@
 				class="swatch pressable"
 				class:selected={swatchSelected(swatch)}
 				style:background={swatch}
-				onclick={() => setLightColor(id, swatch)}
+				onclick={() => setLightColor(entity, swatch)}
 			></div>
 		{/each}
 	</div>

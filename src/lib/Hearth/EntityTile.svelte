@@ -5,7 +5,9 @@
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import { entityOn, hearthEditMode, pendingEntities, toggleEntity } from './store';
 	import { openEntityModal } from './modals';
+	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';
+	import LightTile from './LightTile.svelte';
 	import TuneButton from './TuneButton.svelte';
 
 	let {
@@ -20,6 +22,7 @@
 		onedit?: () => void;
 	} = $props();
 
+	let domain = $derived(entity.split('.')[0]);
 	let stateObj = $derived($states?.[entity]);
 	let on = $derived(entityOn(entity, stateObj));
 	let pending = $derived($pendingEntities[entity] !== undefined);
@@ -35,22 +38,34 @@
 	}
 </script>
 
-<div class="tile pressable" class:on class:pending use:Ripple={PRESS_RIPPLE} onclick={handleClick}>
-	<div class="content">
-		<Icon name={icon || domainIcon(entity)} size={26} color={iconColor} fill={on} />
-		<div class="text">
-			<div class="name">{label}</div>
-			<div class="state" class:on>
-				<StateLogic entity_id={entity} selected={{ entity_id: entity }} />
+{#if domain === 'light'}
+	<LightTile {entity} {name} {icon} {onedit} />
+{:else if domain === 'cover'}
+	<BlindTile {entity} {name} {icon} {onedit} />
+{:else}
+	<div
+		class="tile pressable"
+		class:on
+		class:pending
+		use:Ripple={PRESS_RIPPLE}
+		onclick={handleClick}
+	>
+		<div class="content">
+			<Icon name={icon || domainIcon(entity)} size={26} color={iconColor} fill={on} />
+			<div class="text">
+				<div class="name">{label}</div>
+				<div class="state" class:on>
+					<StateLogic entity_id={entity} selected={{ entity_id: entity }} />
+				</div>
 			</div>
 		</div>
+		{#if $hearthEditMode && onedit}
+			<TuneButton icon="edit" onopen={onedit} />
+		{:else if !$hearthEditMode}
+			<TuneButton onopen={() => openEntityModal(entity, name)} />
+		{/if}
 	</div>
-	{#if $hearthEditMode && onedit}
-		<TuneButton icon="edit" onopen={onedit} />
-	{:else if !$hearthEditMode}
-		<TuneButton onopen={() => openEntityModal(entity, name)} />
-	{/if}
-</div>
+{/if}
 
 <style>
 	.tile {

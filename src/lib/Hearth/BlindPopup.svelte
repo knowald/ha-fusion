@@ -3,13 +3,12 @@
 	import { getSupport } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from './config';
-	import { blindViews, callEntityService, hearthConfig, setBlindPosition } from './store';
+	import { blindPositionFor, callEntityService, controlOverrides, setBlindPosition } from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
-	let { id }: { id: string } = $props();
+	let { entity }: { entity: string } = $props();
 
-	let entityId = $derived($hearthConfig.blinds.find((blind) => blind.id === id)?.entity);
-	let attributes = $derived(entityId ? $states?.[entityId]?.attributes : undefined);
+	let attributes = $derived($states?.[entity]?.attributes);
 
 	let supports = $derived(
 		getSupport(attributes?.supported_features, {
@@ -31,8 +30,7 @@
 	);
 
 	function callCoverService(service: string, data: Record<string, unknown> = {}) {
-		if (!entityId) return;
-		callEntityService('cover', service, entityId, data);
+		callEntityService('cover', service, entity, data);
 	}
 
 	function setTiltPosition(value: number) {
@@ -47,13 +45,17 @@
 <PopupSlider
 	label="POSITION"
 	icon="blinds"
-	value={$blindViews[id] ?? 0}
+	value={blindPositionFor(entity, $states, $controlOverrides)}
 	variant="blue"
-	onchange={(value) => setBlindPosition(id, value)}
+	onchange={(value) => setBlindPosition(entity, value)}
 />
 
 <div class="buttons">
-	<div class="button pressable" use:Ripple={PRESS_RIPPLE} onclick={() => setBlindPosition(id, 0)}>
+	<div
+		class="button pressable"
+		use:Ripple={PRESS_RIPPLE}
+		onclick={() => setBlindPosition(entity, 0)}
+	>
 		Close
 	</div>
 	{#if supports?.STOP}
@@ -68,7 +70,7 @@
 	<div
 		class="button primary pressable"
 		use:Ripple={PRESS_RIPPLE}
-		onclick={() => setBlindPosition(id, 100)}
+		onclick={() => setBlindPosition(entity, 100)}
 	>
 		Open fully
 	</div>

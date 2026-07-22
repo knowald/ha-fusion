@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connection, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE, type HearthRoom } from './config';
+	import { isStack, PRESS_RIPPLE, registryEntityRefs, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
 	import { buildProposal, fetchRegistry, type HearthProposal } from './registry';
 	import { updateConfig } from './store';
@@ -58,6 +58,13 @@
 			config.rooms = rooms;
 			config.lights = plain.lights.filter((light) => keptLights.has(light.id));
 			config.blinds = plain.blinds.filter((blind) => keptBlinds.has(blind.id));
+			// the default overview ships registry-mirror grids under these ids;
+			// refresh them so the imported home shows up without manual editing
+			for (const item of config.overview.flat()) {
+				if (isStack(item) || item.type !== 'entities') continue;
+				if (item.id === 'lights') item.entities = registryEntityRefs(config.lights);
+				if (item.id === 'blinds') item.entities = registryEntityRefs(config.blinds);
+			}
 		});
 		onclose();
 	}

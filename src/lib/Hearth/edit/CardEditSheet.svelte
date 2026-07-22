@@ -6,6 +6,7 @@
 	import {
 		FUSION_OBJECT_TYPES,
 		isStack,
+		moveItem,
 		normalizeVisibility,
 		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
@@ -14,7 +15,6 @@
 		uniqueId,
 		type EntityRef,
 		type HearthConfig,
-		type HearthFilter,
 		type OverviewCard,
 		type VisibilityCondition
 	} from '../config';
@@ -64,18 +64,24 @@
 	// svelte-ignore state_referenced_locally
 	const initial = index !== null ? cardList(get(hearthConfig))?.[index] : undefined;
 
-	let type = $state<OverviewCard['type']>(initial?.type ?? 'media');
+	// display widened to string so the per-entity select can hold '' for
+	// "follow the card style"; narrowed back to the union in buildCard
+	type EditableRef = { entity: string; name?: string; icon?: string; display?: string };
+
+	let type = $state<OverviewCard['type']>(initial?.type ?? 'entities');
 	let title = $state(initial && 'title' in initial ? (initial.title ?? '') : '');
 	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
 	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
 	let entity = $state(initial && 'entity' in initial ? (initial.entity ?? '') : '');
-	let pm25Entity = $state(initial?.type === 'air' ? (initial.pm25_entity ?? '') : '');
-	let humidityEntity = $state(initial?.type === 'air' ? (initial.humidity_entity ?? '') : '');
-	let filters = $state<HearthFilter[]>(
-		initial?.type === 'air' ? (initial.filters ?? []).map((filter) => ({ ...filter })) : []
+	let gridStyle = $state<string>(initial?.type === 'entities' ? (initial.style ?? 'tile') : 'tile');
+	let gridColumns = $state<string>(
+		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
 	);
-	let entities = $state<EntityRef[]>(
-		initial?.type === 'entities' ? initial.entities.map((ref) => ({ ...ref })) : []
+	let showCount = $state(initial?.type === 'entities' ? (initial.show_count ?? false) : false);
+	let entities = $state<EditableRef[]>(
+		initial?.type === 'entities'
+			? initial.entities.map((ref) => ({ ...ref, display: ref.display ?? '' }))
+			: []
 	);
 	let scenes = $state<EntityRef[]>(
 		initial?.type === 'scenes' ? initial.scenes.map((ref) => ({ ...ref })) : []
@@ -162,12 +168,6 @@
 
 	function buildCard(id: string): OverviewCard {
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
-		if (type === 'lights') {
-			return { id, type, title: title.trim() || undefined, visibility: visibilityValue };
-		}
-		if (type === 'blinds') {
-			return { id, type, title: title.trim() || undefined, visibility: visibilityValue };
-		}
 		if (type === 'temperature') {
 			return {
 				id,
@@ -178,29 +178,21 @@
 				visibility: visibilityValue
 			};
 		}
-		if (type === 'air') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				pm25_entity: pm25Entity.trim() || undefined,
-				humidity_entity: humidityEntity.trim() || undefined,
-				filters: filters
-					.map((filter) => ({ label: filter.label.trim(), entity: filter.entity.trim() }))
-					.filter((filter) => filter.label && filter.entity),
-				visibility: visibilityValue
-			};
-		}
 		if (type === 'entities') {
+			const columnCount = parseInt(gridColumns, 10);
 			return {
 				id,
 				type,
 				title: title.trim() || undefined,
+				style: gridStyle === 'stat' ? 'stat' : undefined,
+				columns: Number.isFinite(columnCount) && columnCount >= 1 ? columnCount : undefined,
+				show_count: showCount || undefined,
 				entities: entities
-					.map((ref) => ({
+					.map((ref): EntityRef => ({
 						entity: ref.entity.trim(),
 						name: ref.name?.trim() || undefined,
-						icon: ref.icon?.trim() || undefined
+						icon: ref.icon?.trim() || undefined,
+						display: ref.display === 'stat' || ref.display === 'tile' ? ref.display : undefined
 					}))
 					.filter((ref) => ref.entity),
 				visibility: visibilityValue
@@ -315,8 +307,8 @@
 		<CardRenderer card={previewCard} />
 	</div>
 
-	{#if type === 'lights' || type === 'blinds' || type === 'air' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
-		<TextField label="Title" bind:value={title} placeholder={type === 'air' ? 'Air' : 'Lights'} />
+	{#if type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
+		<TextField label="Title" bind:value={title} placeholder="Lights" />
 	{/if}
 
 	{#if type === 'temperature'}
@@ -330,6 +322,30 @@
 	{/if}
 
 	{#if type === 'entities'}
+		<SelectField
+			label="Style"
+			bind:value={gridStyle}
+			options={[
+				{ value: 'tile', label: 'Tiles' },
+				{ value: 'stat', label: 'Stat boxes' }
+			]}
+		/>
+		<SelectField
+			label="Columns"
+			bind:value={gridColumns}
+			options={[
+				{ value: '', label: 'Auto' },
+				{ value: '1', label: '1' },
+				{ value: '2', label: '2' },
+				{ value: '3', label: '3' },
+				{ value: '4', label: '4' }
+			]}
+		/>
+		<label class="check">
+			<input type="checkbox" bind:checked={showCount} />
+			<span>Show active count in header</span>
+		</label>
+
 		<div class="group-label">ENTITIES</div>
 		{#each entities as ref, refIndex (refIndex)}
 			<div class="filter-row">
@@ -337,13 +353,41 @@
 					<EntityField label="Entity" bind:value={ref.entity} />
 					<TextField label="Name (optional)" bind:value={ref.name} />
 					<IconField label="Icon (optional)" bind:value={ref.icon} />
+					<SelectField
+						label="Display"
+						bind:value={ref.display}
+						options={[
+							{ value: '', label: 'Card style' },
+							{ value: 'tile', label: 'Tile' },
+							{ value: 'stat', label: 'Stat box' }
+						]}
+					/>
 				</div>
-				<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
-					<Icon name="delete" size={20} />
+				<span class="row-actions">
+					<span
+						class="reorder"
+						class:disabled={refIndex === 0}
+						onclick={() => moveItem(entities, refIndex, -1)}
+					>
+						<Icon name="keyboard_arrow_up" size={20} />
+					</span>
+					<span
+						class="reorder"
+						class:disabled={refIndex === entities.length - 1}
+						onclick={() => moveItem(entities, refIndex, 1)}
+					>
+						<Icon name="keyboard_arrow_down" size={20} />
+					</span>
+					<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
+						<Icon name="delete" size={20} />
+					</span>
 				</span>
 			</div>
 		{/each}
-		<div class="add-filter" onclick={() => entities.push({ entity: '', name: '', icon: '' })}>
+		<div
+			class="add-filter"
+			onclick={() => entities.push({ entity: '', name: '', icon: '', display: '' })}
+		>
 			<Icon name="add" size={18} />
 			<span>Add entity</span>
 		</div>
@@ -398,28 +442,6 @@
 				name, icon.
 			</div>
 		{/if}
-	{/if}
-
-	{#if type === 'air'}
-		<EntityField label="PM2.5 sensor" bind:value={pm25Entity} domains={['sensor']} />
-		<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
-
-		<div class="group-label">FILTERS</div>
-		{#each filters as filter, filterIndex (filterIndex)}
-			<div class="filter-row">
-				<div class="filter-fields">
-					<TextField label="Label" bind:value={filter.label} placeholder="Filter · Bedroom" />
-					<EntityField label="Entity" bind:value={filter.entity} domains={['sensor']} />
-				</div>
-				<span class="remove" onclick={() => filters.splice(filterIndex, 1)}>
-					<Icon name="delete" size={20} />
-				</span>
-			</div>
-		{/each}
-		<div class="add-filter" onclick={() => filters.push({ label: '', entity: '' })}>
-			<Icon name="add" size={18} />
-			<span>Add filter</span>
-		</div>
 	{/if}
 
 	<VisibilityField bind:value={visibility} />
@@ -486,6 +508,49 @@
 
 	.remove:hover {
 		color: var(--h-bad-text);
+	}
+
+	.row-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		margin-top: 32px;
+	}
+
+	.row-actions .remove {
+		margin-top: 0;
+	}
+
+	.reorder {
+		color: var(--h-icon);
+		cursor: pointer;
+		display: inline-flex;
+	}
+
+	.reorder:hover {
+		color: var(--h-text-2);
+	}
+
+	.reorder.disabled {
+		opacity: 0.3;
+		pointer-events: none;
+	}
+
+	.check {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 14px;
+		color: var(--h-text-3);
+		margin-top: 4px;
+		cursor: pointer;
+	}
+
+	.check input {
+		accent-color: var(--h-accent-deep);
+		width: 16px;
+		height: 16px;
 	}
 
 	.add-filter {
