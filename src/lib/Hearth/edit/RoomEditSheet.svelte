@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
-	import { moveItem, slugify, uniqueId } from '../config';
+	import { moveItem, resizeCardColumns, slugify, uniqueId } from '../config';
 	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
 	import IconField from './IconField.svelte';
+	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 
 	let { id }: { id: string | null } = $props();
@@ -22,6 +23,7 @@
 	let tempEntity = $state(initial?.temp_entity ?? '');
 	let humidityEntity = $state(initial?.humidity_entity ?? '');
 	let hideHeader = $state(initial?.hide_header ?? false);
+	let columns = $state(initial?.columns ? String(initial.columns) : '');
 	let selectedLights = $state<string[]>([...(initial?.lights ?? [])]);
 	let selectedBlinds = $state<string[]>([...(initial?.blinds ?? [])]);
 
@@ -36,6 +38,11 @@
 	}
 
 	function done() {
+		const columnCount = parseInt(columns, 10);
+		const roomColumns =
+			Number.isFinite(columnCount) && columnCount >= 1 && columnCount <= 3
+				? columnCount
+				: undefined;
 		updateConfig((next) => {
 			const lights = next.lights
 				.map((entry) => entry.id)
@@ -52,6 +59,10 @@
 				room.temp_entity = tempEntity.trim() || undefined;
 				room.humidity_entity = humidityEntity.trim() || undefined;
 				room.hide_header = hideHeader || undefined;
+				room.columns = roomColumns;
+				if (roomColumns !== undefined && room.cards?.length && room.cards.length !== roomColumns) {
+					room.cards = resizeCardColumns(room.cards, roomColumns);
+				}
 				room.lights = lights;
 				room.blinds = blinds;
 			} else {
@@ -66,6 +77,7 @@
 					temp_entity: tempEntity.trim() || undefined,
 					humidity_entity: humidityEntity.trim() || undefined,
 					hide_header: hideHeader || undefined,
+					columns: roomColumns,
 					lights,
 					blinds,
 					devices: []
@@ -108,6 +120,16 @@
 	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
+	<SelectField
+		label="Room columns"
+		bind:value={columns}
+		options={[
+			{ value: '', label: 'Auto' },
+			{ value: '1', label: '1 column' },
+			{ value: '2', label: '2 columns' },
+			{ value: '3', label: '3 columns' }
+		]}
+	/>
 
 	<label class="check">
 		<input type="checkbox" bind:checked={hideHeader} />

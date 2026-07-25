@@ -1,16 +1,14 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
-	import { slugify, takenCardIds, uniqueId, type OverviewCard } from './config';
+	import { type HearthConfig, type OverviewItem } from './config';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import BlindTile from './BlindTile.svelte';
-	import CardRenderer from './CardRenderer.svelte';
+	import CardColumns from './CardColumns.svelte';
 	import DeviceTile from './DeviceTile.svelte';
-	import EditChip from './EditChip.svelte';
 	import EntityTile from './EntityTile.svelte';
 	import HeaderCard from './HeaderCard.svelte';
 	import LightTile from './LightTile.svelte';
-	import VisibilityGate from './VisibilityGate.svelte';
 
 	let { roomId }: { roomId: string } = $props();
 
@@ -18,6 +16,24 @@
 	let empty = $derived(
 		room !== undefined && room.devices.length === 0 && room.blinds.length === 0 && !$hearthEditMode
 	);
+
+	// display columns; an unset/empty cards list still renders the room's
+	// column count worth of drop targets in edit mode
+	let cardColumns = $derived(
+		room?.cards?.length
+			? room.cards
+			: Array.from({ length: room?.columns ?? 1 }, (): OverviewItem[] => [])
+	);
+
+	// resolves (and initializes) the room's card columns inside a config draft
+	function locateRoomCards(config: HearthConfig): OverviewItem[][] {
+		const target = config.rooms.find((entry) => entry.id === roomId);
+		if (!target) return [];
+		if (!target.cards?.length) {
+			target.cards = Array.from({ length: target.columns ?? 1 }, (): OverviewItem[] => []);
+		}
+		return target.cards;
+	}
 </script>
 
 {#if room}
@@ -38,6 +54,8 @@
 		<div class="section-title">Lighting</div>
 		<div
 			class="grid lighting"
+			class:fixed-columns={room.columns !== undefined}
+			style:--room-columns={room.columns}
 			use:sortable={{
 				group: `hearth-room-lights-${roomId}`,
 				handle: '.drag-handle',
@@ -66,7 +84,11 @@
 		</div>
 
 		<div class="section-title">Devices</div>
-		<div class="grid devices">
+		<div
+			class="grid devices"
+			class:fixed-columns={room.columns !== undefined}
+			style:--room-columns={room.columns}
+		>
 			{#each room.blinds as blindId (blindId)}
 				{@const blind = $hearthConfig.blinds.find((entry) => entry.id === blindId)}
 				<BlindTile
@@ -95,56 +117,14 @@
 			{/if}
 		</div>
 
-		{#if (room.cards?.length ?? 0) > 0 || $hearthEditMode}
+		{#if cardColumns.flat().length > 0 || $hearthEditMode}
 			<div class="section-title cards-title">Cards</div>
-			<div
-				class="cards"
-				use:sortable={{
-					group: `hearth-room-cards-${roomId}`,
-					handle: '.drag-handle',
-					filter: '.add-tile',
-					disabled: !$hearthEditMode,
-					clone: true,
-					cloneItem: (card: OverviewCard) => {
-						const cloned = structuredClone(card);
-						cloned.id = uniqueId(slugify(cloned.type), takenCardIds($hearthConfig));
-						return cloned;
-					},
-					items: room.cards ?? [],
-					onFinalize: (items: OverviewCard[]) =>
-						updateConfig((config) => {
-							const target = config.rooms.find((entry) => entry.id === roomId);
-							if (target) target.cards = items.filter(Boolean);
-						})
-				}}
-			>
-				{#each room.cards ?? [] as card, index (card.id)}
-					<VisibilityGate conditions={card.visibility}>
-						{#snippet children(visible)}
-							{#if $hearthEditMode || visible}
-								<div
-									class="card-slot"
-									data-id={card.id}
-									class:visibility-dimmed={$hearthEditMode && !visible}
-								>
-									{#if $hearthEditMode}
-										<EditChip
-											onedit={() => editor.set({ kind: 'card', column: 0, index, roomId })}
-										/>
-									{/if}
-									<CardRenderer {card} />
-								</div>
-							{/if}
-						{/snippet}
-					</VisibilityGate>
-				{/each}
-				{#if $hearthEditMode}
-					<AddTile
-						label="Add card"
-						onadd={() => editor.set({ kind: 'card', column: 0, index: null, roomId })}
-					/>
-				{/if}
-			</div>
+			<CardColumns
+				columns={cardColumns}
+				locate={locateRoomCards}
+				groupName={`hearth-room-cards-${roomId}`}
+				{roomId}
+			/>
 		{/if}
 
 		{#if empty}
@@ -182,6 +162,10 @@
 		gap: 12px;
 	}
 
+	.grid.fixed-columns {
+		grid-template-columns: repeat(var(--room-columns), minmax(0, 1fr));
+	}
+
 	.grid.lighting {
 		margin-bottom: 30px;
 	}
@@ -190,22 +174,15 @@
 		align-content: start;
 	}
 
+	/* Room grids collapse at the same tablet breakpoint as the Home overview. */
+	@media (max-width: 1200px) {
+		.grid.fixed-columns {
+			grid-template-columns: 1fr;
+		}
+	}
+
 	.cards-title {
 		margin-top: 30px;
-	}
-
-	.cards {
-		display: flex;
-		flex-direction: column;
-		gap: 18px;
-	}
-
-	.card-slot {
-		position: relative;
-	}
-
-	.card-slot.visibility-dimmed {
-		opacity: 0.45;
 	}
 
 	.empty {

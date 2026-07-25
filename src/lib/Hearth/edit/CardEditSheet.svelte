@@ -4,11 +4,11 @@
 	import { loadIcons } from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import {
+		ensureRoomCardColumns,
 		FUSION_OBJECT_TYPES,
 		isStack,
 		moveItem,
 		normalizeVisibility,
-		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
 		slugify,
 		takenCardIds,
@@ -16,6 +16,7 @@
 		type EntityRef,
 		type HearthConfig,
 		type OverviewCard,
+		type OverviewItem,
 		type VisibilityCondition
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
@@ -39,25 +40,39 @@
 		stackId
 	}: { column: number; index: number | null; roomId?: string; stackId?: string } = $props();
 
+	const CARD_GALLERY: { value: OverviewCard['type']; name: string; sub: string; icon: string }[] = [
+		{ value: 'entities', name: 'Entities', sub: 'tiles or readings', icon: 'grid_view' },
+		{ value: 'header', name: 'Header', sub: 'title and room stats', icon: 'view_agenda' },
+		{ value: 'temperature', name: 'Sensor', sub: 'reading and history', icon: 'monitoring' },
+		{ value: 'media', name: 'Media', sub: 'now playing', icon: 'music_note' },
+		{ value: 'vacuum', name: 'Vacuum', sub: 'cleaning control', icon: 'robot_2' },
+		{ value: 'camera', name: 'Camera', sub: 'live camera feed', icon: 'videocam' },
+		{ value: 'climate', name: 'Climate', sub: 'thermostat control', icon: 'thermostat' },
+		{ value: 'scenes', name: 'Scenes', sub: 'scene shortcuts', icon: 'palette' },
+		{ value: 'fusion', name: 'Fusion', sub: 'legacy objects', icon: 'widgets' }
+	];
+
+	// with roomId `column` indexes into that room's card columns instead of
+	// the overview's; the room's columns are initialized on first write via
+	// ensureRoomCardColumns in done()/moveToRoom
+	function containerColumns(config: HearthConfig): OverviewItem[][] | undefined {
+		if (roomId !== undefined) return config.rooms.find((entry) => entry.id === roomId)?.cards;
+		return config.overview;
+	}
+
 	function stackCards(config: HearthConfig, targetStackId: string): OverviewCard[] | undefined {
-		const target = config.overview[column]?.find((item) => item.id === targetStackId);
+		const target = containerColumns(config)?.[column]?.find((item) => item.id === targetStackId);
 		return target && isStack(target) ? target.cards : undefined;
 	}
 
-	// with roomId the sheet edits that room's cards list instead of an
-	// overview column (initializing it on first write); with stackId it edits
-	// that stack's children instead. The column branch is cast to
-	// OverviewCard[] - EditChip only opens this sheet without roomId/stackId
-	// for a leaf-card slot, never a stack's slot (stacks have their own edit
-	// sheet), so a column index reached this way is never a stack.
+	// with stackId the sheet edits that stack's children instead of the
+	// column itself. The column branch is cast to OverviewCard[] - EditChip
+	// only opens this sheet for a leaf-card slot, never a stack's slot
+	// (stacks have their own edit sheet), so an indexed slot reached this way
+	// is never a stack.
 	function cardList(config: HearthConfig): OverviewCard[] | undefined {
-		if (roomId !== undefined) {
-			const room = config.rooms.find((entry) => entry.id === roomId);
-			if (!room) return undefined;
-			return (room.cards ??= []);
-		}
 		if (stackId !== undefined) return stackCards(config, stackId);
-		return config.overview[column] as OverviewCard[] | undefined;
+		return containerColumns(config)?.[column] as OverviewCard[] | undefined;
 	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}
@@ -69,6 +84,7 @@
 	type EditableRef = { entity: string; name?: string; icon?: string; display?: string };
 
 	let type = $state<OverviewCard['type']>(initial?.type ?? 'entities');
+	let typeOpen = $state(false);
 	let title = $state(initial && 'title' in initial ? (initial.title ?? '') : '');
 	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
 	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
@@ -85,13 +101,29 @@
 		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
 	);
 	let showCount = $state(initial?.type === 'entities' ? (initial.show_count ?? false) : false);
+	let gridVerticalPadding = $state(
+		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
+	);
+	// optional ref keys become '' instead of undefined - the row fields bind
+	// them to props with fallback values, which undefined would crash
 	let entities = $state<EditableRef[]>(
 		initial?.type === 'entities'
-			? initial.entities.map((ref) => ({ ...ref, display: ref.display ?? '' }))
+			? initial.entities.map((ref) => ({
+					entity: ref.entity ?? '',
+					name: ref.name ?? '',
+					icon: ref.icon ?? '',
+					display: ref.display ?? ''
+				}))
 			: []
 	);
 	let scenes = $state<EntityRef[]>(
-		initial?.type === 'scenes' ? initial.scenes.map((ref) => ({ ...ref })) : []
+		initial?.type === 'scenes'
+			? initial.scenes.map((ref) => ({
+					entity: ref.entity ?? '',
+					name: ref.name ?? '',
+					icon: ref.icon ?? ''
+				}))
+			: []
 	);
 	let visibility = $state<VisibilityCondition[]>(
 		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
@@ -206,6 +238,7 @@
 				style: gridStyle === 'stat' ? 'stat' : undefined,
 				columns: Number.isFinite(columnCount) && columnCount >= 1 ? columnCount : undefined,
 				show_count: showCount || undefined,
+				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
 				entities: entities
 					.map((ref): EntityRef => ({
 						entity: ref.entity.trim(),
@@ -266,6 +299,10 @@
 
 	function done() {
 		updateConfig((config) => {
+			if (roomId !== undefined) {
+				const room = config.rooms.find((entry) => entry.id === roomId);
+				if (room) ensureRoomCardColumns(room);
+			}
 			const cards = cardList(config);
 			if (!cards) return;
 			if (index !== null) {
@@ -284,32 +321,85 @@
 		close();
 	}
 
-	// meaningful for an existing room card, or a card inside a stack (moving
-	// it out to a room) - a plain overview-column card has no current room to
-	// move from, and a not-yet-created card has nothing to splice out of
-	let canMoveRoom = $derived((roomId !== undefined || stackId !== undefined) && index !== null);
+	// Placement is deliberately separate from the settings form. Moving a card
+	// is an explicit operation; merely choosing a destination must not mutate the
+	// dashboard or remount this editor.
+	let canMove = $derived(index !== null);
+	let placementOpen = $state(false);
+	// The sheet is keyed by its editor target, so these are intentionally the
+	// initial placement whenever a card editor instance is mounted.
+	// svelte-ignore state_referenced_locally
+	let targetLocation = $state(roomId ?? 'home');
+	// svelte-ignore state_referenced_locally
+	let targetColumn = $state(String(column));
+	let locationOptions = $derived([
+		{ value: 'home', label: 'Home' },
+		...$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))
+	]);
+	let targetColumnCount = $derived.by(() => {
+		if (targetLocation === 'home') return Math.max(1, $hearthConfig.overview.length);
+		const room = $hearthConfig.rooms.find((entry) => entry.id === targetLocation);
+		return Math.max(1, room?.columns ?? room?.cards?.length ?? 1);
+	});
+	let targetColumnOptions = $derived(
+		Array.from({ length: targetColumnCount }, (_, columnIndex) => ({
+			value: String(columnIndex),
+			label: `Column ${columnIndex + 1}`
+		}))
+	);
+	let currentLocationName = $derived(
+		roomId === undefined
+			? 'Home'
+			: ($hearthConfig.rooms.find((room) => room.id === roomId)?.name ?? 'Room')
+	);
+	let currentType = $derived(CARD_GALLERY.find((kind) => kind.value === type) ?? CARD_GALLERY[0]);
+	let samePlacement = $derived(
+		stackId === undefined &&
+			(roomId ?? 'home') === targetLocation &&
+			column === Number(targetColumn)
+	);
 
-	let targetRoomId = $state(roomId ?? '');
+	function selectTargetLocation(value: string) {
+		targetLocation = value;
+		targetColumn = '0';
+	}
 
-	function moveToRoom(newRoomId: string) {
-		if (!canMoveRoom || !newRoomId || newRoomId === roomId || index === null) return;
+	function selectType(value: OverviewCard['type']) {
+		type = value;
+		typeOpen = false;
+	}
+
+	function moveCard() {
+		if (!canMove || samePlacement || index === null) return;
 		let newIndex = 0;
+		let newColumn = 0;
 		updateConfig((config) => {
-			const sourceCards =
-				stackId !== undefined
-					? stackCards(config, stackId)
-					: config.rooms.find((entry) => entry.id === roomId)?.cards;
-			const targetRoom = config.rooms.find((entry) => entry.id === newRoomId);
-			if (!sourceCards || !targetRoom) return;
+			const sourceCards = cardList(config);
+			if (!sourceCards) return;
+			const targetRoom = config.rooms.find((entry) => entry.id === targetLocation);
+			if (targetLocation !== 'home' && !targetRoom) return;
 			// persist in-progress field edits before the editor.set below remounts
 			// the sheet and discards local state
 			sourceCards[index] = buildCard(sourceCards[index].id);
 			const [card] = sourceCards.splice(index, 1);
-			const targetCards = (targetRoom.cards ??= []);
-			newIndex = targetCards.length;
-			targetCards.push(card);
+			const destinationColumns =
+				targetLocation === 'home' ? config.overview : ensureRoomCardColumns(targetRoom!);
+			if (destinationColumns.length === 0) destinationColumns.push([]);
+			const destinationColumnIndex = Math.min(
+				Math.max(0, Number(targetColumn) || 0),
+				Math.max(0, destinationColumns.length - 1)
+			);
+			newColumn = destinationColumnIndex;
+			const destination = destinationColumns[destinationColumnIndex];
+			newIndex = destination.length;
+			destination.push(card);
 		});
-		editor.set({ kind: 'card', column: 0, index: newIndex, roomId: newRoomId });
+		editor.set({
+			kind: 'card',
+			column: newColumn,
+			index: newIndex,
+			roomId: targetLocation === 'home' ? undefined : targetLocation
+		});
 	}
 </script>
 
@@ -319,187 +409,307 @@
 	ondone={done}
 	doneDisabled={type === 'fusion' && advancedOpen && !advancedValid}
 	onremove={index !== null ? remove : undefined}
+	wide
 >
-	<SelectField label="Type" bind:value={type} options={OVERVIEW_CARD_TYPES} />
+	<div class="card-editor-layout">
+		<div class="card-settings">
+			<div class="card-actions">
+				<button type="button" class="action-button" onclick={() => (typeOpen = true)}>
+					<span class="action-icon"><Icon name={currentType.icon} size={20} /></span>
+					<span class="action-copy"
+						><small>CARD TYPE</small><strong>{currentType.name}</strong></span
+					>
+					<Icon name="chevron_right" size={20} />
+				</button>
+				{#if canMove}
+					<button type="button" class="action-button" onclick={() => (placementOpen = true)}>
+						<span class="action-icon"><Icon name="dashboard" size={20} /></span>
+						<span class="action-copy"
+							><small>PLACEMENT</small><strong
+								>{currentLocationName} · {stackId ? 'Stack' : `Column ${column + 1}`}</strong
+							></span
+						>
+						<Icon name="chevron_right" size={20} />
+					</button>
+				{/if}
+			</div>
 
-	{#if canMoveRoom && $hearthConfig.rooms.length > 1}
-		<SelectField
-			label="Move to room"
-			bind:value={targetRoomId}
-			options={$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))}
-			onchange={moveToRoom}
-		/>
-	{/if}
+			{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
+				<TextField
+					label="Title"
+					bind:value={title}
+					placeholder={type === 'header' ? 'Home' : 'Lights'}
+				/>
+			{/if}
 
-	<div class="group-label">PREVIEW</div>
-	<div class="preview" style="pointer-events: none">
-		<CardRenderer card={previewCard} />
+			{#if type === 'header'}
+				<TextField label="Subtitle" bind:value={subtitle} placeholder="Cozy · curtains open" />
+				<IconField label="Icon" bind:value={headerIcon} placeholder="home" />
+				<EntityField
+					label="Temperature sensor (optional)"
+					bind:value={headerTempEntity}
+					domains={['sensor']}
+				/>
+				<EntityField
+					label="Humidity sensor (optional)"
+					bind:value={headerHumidityEntity}
+					domains={['sensor']}
+				/>
+			{/if}
+
+			{#if type === 'temperature'}
+				<TextField label="Label" bind:value={label} placeholder="Average home temperature" />
+				<EntityField label="Entity" bind:value={entity} domains={['sensor']} />
+				<TextField label="Unit" bind:value={unit} placeholder="°C" />
+			{/if}
+
+			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
+				<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
+			{/if}
+
+			{#if type === 'camera'}
+				<label class="check">
+					<input type="checkbox" bind:checked={cameraStream} />
+					<span>Live stream</span>
+				</label>
+			{/if}
+
+			{#if type === 'entities'}
+				<SelectField
+					label="Style"
+					bind:value={gridStyle}
+					options={[
+						{ value: 'tile', label: 'Tiles' },
+						{ value: 'stat', label: 'Stat boxes' }
+					]}
+				/>
+				<SelectField
+					label="Columns"
+					bind:value={gridColumns}
+					options={[
+						{ value: '', label: 'Auto' },
+						{ value: '1', label: '1' },
+						{ value: '2', label: '2' },
+						{ value: '3', label: '3' },
+						{ value: '4', label: '4' }
+					]}
+				/>
+				<SelectField
+					label="Vertical padding"
+					bind:value={gridVerticalPadding}
+					options={[
+						{ value: '', label: 'Standard' },
+						{ value: 'compact', label: 'Compact' }
+					]}
+				/>
+				<label class="check">
+					<input type="checkbox" bind:checked={showCount} />
+					<span>Show active count in header</span>
+				</label>
+
+				<div class="group-label">ENTITIES</div>
+				{#each entities as ref, refIndex (refIndex)}
+					<div class="filter-row">
+						<div class="filter-fields">
+							<EntityField label="Entity" bind:value={ref.entity} />
+							<TextField label="Name (optional)" bind:value={ref.name} />
+							<IconField label="Icon (optional)" bind:value={ref.icon} />
+							<SelectField
+								label="Display"
+								bind:value={ref.display}
+								options={[
+									{ value: '', label: 'Card style' },
+									{ value: 'tile', label: 'Tile' },
+									{ value: 'stat', label: 'Stat box' }
+								]}
+							/>
+						</div>
+						<span class="row-actions">
+							<span
+								class="reorder"
+								class:disabled={refIndex === 0}
+								onclick={() => moveItem(entities, refIndex, -1)}
+							>
+								<Icon name="keyboard_arrow_up" size={20} />
+							</span>
+							<span
+								class="reorder"
+								class:disabled={refIndex === entities.length - 1}
+								onclick={() => moveItem(entities, refIndex, 1)}
+							>
+								<Icon name="keyboard_arrow_down" size={20} />
+							</span>
+							<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
+								<Icon name="delete" size={20} />
+							</span>
+						</span>
+					</div>
+				{/each}
+				<div
+					class="add-filter"
+					onclick={() => entities.push({ entity: '', name: '', icon: '', display: '' })}
+				>
+					<Icon name="add" size={18} />
+					<span>Add entity</span>
+				</div>
+			{/if}
+
+			{#if type === 'scenes'}
+				<div class="group-label">SCENES</div>
+				{#each scenes as ref, refIndex (refIndex)}
+					<div class="filter-row">
+						<div class="filter-fields">
+							<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
+							<TextField label="Name (optional)" bind:value={ref.name} />
+							<IconField label="Icon (optional)" bind:value={ref.icon} />
+						</div>
+						<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
+							<Icon name="delete" size={20} />
+						</span>
+					</div>
+				{/each}
+				<div class="add-filter" onclick={() => scenes.push({ entity: '', name: '', icon: '' })}>
+					<Icon name="add" size={18} />
+					<span>Add scene</span>
+				</div>
+			{/if}
+
+			{#if type === 'fusion'}
+				<SelectField
+					label="Object type"
+					bind:value={fusionType}
+					options={FUSION_OBJECT_TYPES}
+					onchange={() => advancedOpen && resetAdvancedYaml()}
+				/>
+				<FusionFields type={fusionType} bind:options={fusionOptions} />
+				{#if fusionType === 'picture_elements'}
+					<div
+						class="elements-editor pressable"
+						use:Ripple={PRESS_RIPPLE}
+						onclick={openElementsEditor}
+					>
+						<Icon name="edit" size={18} />
+						<span>Open elements editor</span>
+					</div>
+				{/if}
+				<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+					<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+					<span>Advanced (YAML)</span>
+				</div>
+				{#if advancedOpen}
+					<YamlField
+						label="Other options (YAML)"
+						bind:value={() => advancedYaml, setAdvancedYaml}
+						placeholder={yamlPlaceholder}
+					/>
+					<div class="hint">
+						Options match the original ha-fusion object config for the chosen type, e.g. entity_id,
+						name, icon.
+					</div>
+				{/if}
+			{/if}
+
+			<VisibilityField bind:value={visibility} />
+		</div>
+
+		<aside class="preview-pane">
+			<div class="group-label first">LIVE PREVIEW</div>
+			<div class="preview" style="pointer-events: none">
+				<CardRenderer card={previewCard} />
+			</div>
+		</aside>
 	</div>
 
-	{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
-		<TextField
-			label="Title"
-			bind:value={title}
-			placeholder={type === 'header' ? 'Home' : 'Lights'}
-		/>
+	{#if typeOpen}
+		<div class="popup-backdrop" role="presentation" onclick={() => (typeOpen = false)}>
+			<div
+				class="action-popup"
+				role="dialog"
+				tabindex="-1"
+				aria-modal="true"
+				aria-label="Change card type"
+				onclick={(event) => event.stopPropagation()}
+				onkeydown={(event) => {
+					if (event.key === 'Escape') {
+						event.stopPropagation();
+						typeOpen = false;
+					}
+				}}
+			>
+				<div class="popup-header">
+					<div>
+						<small>STRUCTURE</small>
+						<h3>Change card type</h3>
+					</div>
+					<button type="button" aria-label="Close" onclick={() => (typeOpen = false)}
+						><Icon name="close" size={22} /></button
+					>
+				</div>
+				<p class="popup-intro">Choose how this card presents its content.</p>
+				<div class="type-gallery">
+					{#each CARD_GALLERY as kind (kind.value)}
+						<button
+							type="button"
+							class="type-option"
+							class:selected={type === kind.value}
+							onclick={() => selectType(kind.value)}
+						>
+							<span class="type-icon"><Icon name={kind.icon} size={21} /></span>
+							<span class="type-copy"
+								><span class="type-name">{kind.name}</span><span class="type-sub">{kind.sub}</span
+								></span
+							>
+							{#if type === kind.value}<Icon name="check" size={19} />{/if}
+						</button>
+					{/each}
+				</div>
+			</div>
+		</div>
 	{/if}
 
-	{#if type === 'header'}
-		<TextField label="Subtitle" bind:value={subtitle} placeholder="Cozy · curtains open" />
-		<IconField label="Icon" bind:value={headerIcon} placeholder="home" />
-		<EntityField
-			label="Temperature sensor (optional)"
-			bind:value={headerTempEntity}
-			domains={['sensor']}
-		/>
-		<EntityField
-			label="Humidity sensor (optional)"
-			bind:value={headerHumidityEntity}
-			domains={['sensor']}
-		/>
-	{/if}
-
-	{#if type === 'temperature'}
-		<TextField label="Label" bind:value={label} placeholder="Average home temperature" />
-		<EntityField label="Entity" bind:value={entity} domains={['sensor']} />
-		<TextField label="Unit" bind:value={unit} placeholder="°C" />
-	{/if}
-
-	{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
-		<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
-	{/if}
-
-	{#if type === 'camera'}
-		<label class="check">
-			<input type="checkbox" bind:checked={cameraStream} />
-			<span>Live stream</span>
-		</label>
-	{/if}
-
-	{#if type === 'entities'}
-		<SelectField
-			label="Style"
-			bind:value={gridStyle}
-			options={[
-				{ value: 'tile', label: 'Tiles' },
-				{ value: 'stat', label: 'Stat boxes' }
-			]}
-		/>
-		<SelectField
-			label="Columns"
-			bind:value={gridColumns}
-			options={[
-				{ value: '', label: 'Auto' },
-				{ value: '1', label: '1' },
-				{ value: '2', label: '2' },
-				{ value: '3', label: '3' },
-				{ value: '4', label: '4' }
-			]}
-		/>
-		<label class="check">
-			<input type="checkbox" bind:checked={showCount} />
-			<span>Show active count in header</span>
-		</label>
-
-		<div class="group-label">ENTITIES</div>
-		{#each entities as ref, refIndex (refIndex)}
-			<div class="filter-row">
-				<div class="filter-fields">
-					<EntityField label="Entity" bind:value={ref.entity} />
-					<TextField label="Name (optional)" bind:value={ref.name} />
-					<IconField label="Icon (optional)" bind:value={ref.icon} />
+	{#if placementOpen}
+		<div class="popup-backdrop" role="presentation" onclick={() => (placementOpen = false)}>
+			<div
+				class="action-popup placement-popup"
+				role="dialog"
+				tabindex="-1"
+				aria-modal="true"
+				aria-label="Move card"
+				onclick={(event) => event.stopPropagation()}
+				onkeydown={(event) => {
+					if (event.key === 'Escape') {
+						event.stopPropagation();
+						placementOpen = false;
+					}
+				}}
+			>
+				<div class="popup-header">
+					<div>
+						<small>STRUCTURE</small>
+						<h3>Move card</h3>
+					</div>
+					<button type="button" aria-label="Close" onclick={() => (placementOpen = false)}
+						><Icon name="close" size={22} /></button
+					>
+				</div>
+				<p class="popup-intro">
+					Currently in {currentLocationName} · {stackId ? 'Stack' : `Column ${column + 1}`}.
+				</p>
+				<div class="placement-controls">
 					<SelectField
-						label="Display"
-						bind:value={ref.display}
-						options={[
-							{ value: '', label: 'Card style' },
-							{ value: 'tile', label: 'Tile' },
-							{ value: 'stat', label: 'Stat box' }
-						]}
+						label="Page"
+						value={targetLocation}
+						options={locationOptions}
+						onchange={selectTargetLocation}
 					/>
-				</div>
-				<span class="row-actions">
-					<span
-						class="reorder"
-						class:disabled={refIndex === 0}
-						onclick={() => moveItem(entities, refIndex, -1)}
+					<SelectField label="Position" bind:value={targetColumn} options={targetColumnOptions} />
+					<button class="move-button" type="button" disabled={samePlacement} onclick={moveCard}
+						><Icon name="drive_file_move" size={18} />Move card</button
 					>
-						<Icon name="keyboard_arrow_up" size={20} />
-					</span>
-					<span
-						class="reorder"
-						class:disabled={refIndex === entities.length - 1}
-						onclick={() => moveItem(entities, refIndex, 1)}
-					>
-						<Icon name="keyboard_arrow_down" size={20} />
-					</span>
-					<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
-						<Icon name="delete" size={20} />
-					</span>
-				</span>
-			</div>
-		{/each}
-		<div
-			class="add-filter"
-			onclick={() => entities.push({ entity: '', name: '', icon: '', display: '' })}
-		>
-			<Icon name="add" size={18} />
-			<span>Add entity</span>
-		</div>
-	{/if}
-
-	{#if type === 'scenes'}
-		<div class="group-label">SCENES</div>
-		{#each scenes as ref, refIndex (refIndex)}
-			<div class="filter-row">
-				<div class="filter-fields">
-					<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
-					<TextField label="Name (optional)" bind:value={ref.name} />
-					<IconField label="Icon (optional)" bind:value={ref.icon} />
 				</div>
-				<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
-					<Icon name="delete" size={20} />
-				</span>
 			</div>
-		{/each}
-		<div class="add-filter" onclick={() => scenes.push({ entity: '', name: '', icon: '' })}>
-			<Icon name="add" size={18} />
-			<span>Add scene</span>
 		</div>
 	{/if}
-
-	{#if type === 'fusion'}
-		<SelectField
-			label="Object type"
-			bind:value={fusionType}
-			options={FUSION_OBJECT_TYPES}
-			onchange={() => advancedOpen && resetAdvancedYaml()}
-		/>
-		<FusionFields type={fusionType} bind:options={fusionOptions} />
-		{#if fusionType === 'picture_elements'}
-			<div class="elements-editor pressable" use:Ripple={PRESS_RIPPLE} onclick={openElementsEditor}>
-				<Icon name="edit" size={18} />
-				<span>Open elements editor</span>
-			</div>
-		{/if}
-		<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
-			<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
-			<span>Advanced (YAML)</span>
-		</div>
-		{#if advancedOpen}
-			<YamlField
-				label="Other options (YAML)"
-				bind:value={() => advancedYaml, setAdvancedYaml}
-				placeholder={yamlPlaceholder}
-			/>
-			<div class="hint">
-				Options match the original ha-fusion object config for the chosen type, e.g. entity_id,
-				name, icon.
-			</div>
-		{/if}
-	{/if}
-
-	<VisibilityField bind:value={visibility} />
 </EditSheet>
 
 <style>
@@ -511,11 +721,234 @@
 		margin: 18px 0 10px;
 	}
 
+	.group-label.first {
+		margin-top: 0;
+	}
+
+	.card-editor-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+		align-items: start;
+		gap: 28px;
+	}
+
+	.card-settings,
+	.preview-pane {
+		min-width: 0;
+	}
+
+	.preview-pane {
+		position: sticky;
+		top: 0;
+		align-self: start;
+	}
+
+	.type-gallery {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		margin-bottom: 20px;
+	}
+
+	.card-actions {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 8px;
+		margin-bottom: 20px;
+	}
+
+	.action-button {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		min-width: 0;
+		padding: 10px;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.035);
+		color: var(--h-icon);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.action-button:hover {
+		border-color: rgb(var(--h-surface-rgb) / 0.16);
+		background: rgb(var(--h-surface-rgb) / 0.06);
+	}
+
+	.action-icon {
+		display: flex;
+		padding: 7px;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.06);
+	}
+
+	.action-copy {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.action-copy small,
+	.popup-header small {
+		font-family: var(--h-font-mono);
+		font-size: 9px;
+		letter-spacing: 1.5px;
+		color: var(--h-label);
+	}
+
+	.action-copy strong {
+		overflow: hidden;
+		color: var(--h-text-3);
+		font-size: 12px;
+		font-weight: 550;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.popup-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		background: rgb(0 0 0 / 0.55);
+		backdrop-filter: blur(5px);
+	}
+
+	.action-popup {
+		width: min(620px, 100%);
+		max-height: min(680px, calc(100dvh - 40px));
+		padding: 22px;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border-radius: var(--h-radius-lg);
+		background: var(--h-sheet-0);
+		box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+		overflow: auto;
+	}
+
+	.action-popup.placement-popup {
+		width: min(520px, 100%);
+	}
+
+	.popup-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	.popup-header h3 {
+		margin: 2px 0 0;
+		color: var(--h-text-1);
+		font-size: 20px;
+	}
+
+	.popup-header button {
+		display: flex;
+		padding: 7px;
+		border: 0;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.06);
+		color: var(--h-icon);
+		cursor: pointer;
+	}
+
+	.popup-intro {
+		margin: 8px 0 18px;
+		color: var(--h-text-6);
+		font-size: 13px;
+	}
+
+	.placement-controls {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 0 10px;
+		padding: 14px;
+		border-radius: var(--h-radius-sm);
+		background: var(--h-inset);
+	}
+
+	.move-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 7px;
+		grid-column: 1 / -1;
+		padding: 10px 14px;
+		border: 0;
+		border-radius: var(--h-radius-xs);
+		background: var(--h-accent-deep);
+		color: white;
+		font: inherit;
+		font-size: 13px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.move-button:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.type-option {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		min-width: 0;
+		padding: 11px 12px;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.035);
+		color: var(--h-text-4);
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.type-option.selected {
+		background: rgb(var(--h-accent-rgb) / 0.14);
+		border-color: rgb(var(--h-accent-rgb) / 0.3);
+		color: var(--h-accent-bright);
+	}
+
+	.type-icon {
+		display: flex;
+		flex: none;
+	}
+
+	.type-copy {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.type-name {
+		font-size: 13px;
+		font-family: inherit;
+		text-align: left;
+		font-weight: 600;
+	}
+
+	.type-sub {
+		font-size: 10px;
+		color: var(--h-text-6);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 	.preview {
 		background: var(--h-inset);
 		border-radius: var(--h-radius-md);
 		padding: 14px;
 		margin-bottom: 14px;
+		max-height: calc(100dvh - 210px);
+		overflow: auto;
 	}
 
 	.advanced-toggle,
@@ -629,5 +1062,35 @@
 		font-size: 12px;
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
+	}
+
+	@media (max-width: 820px) {
+		.card-actions,
+		.placement-controls {
+			grid-template-columns: 1fr;
+		}
+
+		.card-editor-layout {
+			grid-template-columns: 1fr;
+			gap: 18px;
+		}
+
+		.preview-pane {
+			grid-row: 1;
+			z-index: 2;
+			padding: 12px;
+			margin: -12px -12px 0;
+			background: var(--h-sheet-0);
+			border-bottom: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		}
+
+		.preview-pane .group-label {
+			display: none;
+		}
+
+		.preview {
+			max-height: 30dvh;
+			margin-bottom: 0;
+		}
 	}
 </style>

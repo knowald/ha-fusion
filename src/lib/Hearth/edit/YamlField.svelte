@@ -20,7 +20,7 @@
 	});
 </script>
 
-<label class="field">
+<label class="field yaml-field">
 	<span class="field-label">{label}</span>
 	<textarea bind:value {placeholder} rows="7" spellcheck="false"></textarea>
 	{#if error}

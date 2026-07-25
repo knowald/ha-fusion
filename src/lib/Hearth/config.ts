@@ -27,10 +27,14 @@ export interface HearthRoom {
 	humidity_entity?: string;
 	// drops the built-in page header; a `header` card can take its place
 	hide_header?: boolean;
+	// fixes the column count of the room's lighting and device grids, and the
+	// number of card columns
+	columns?: number;
 	lights: string[];
 	blinds: string[];
 	devices: HearthDevice[];
-	cards?: OverviewCard[];
+	// card columns, same shape as the overview
+	cards?: OverviewItem[][];
 }
 
 export interface EntityRef {
@@ -546,6 +550,49 @@ function normalizeOverviewItem(
 }
 
 /**
+ * Reshapes card columns to `count`: overflow columns merge into the last kept
+ * one, missing columns are added empty. Cards are never dropped.
+ */
+export function resizeCardColumns(columns: OverviewItem[][], count: number): OverviewItem[][] {
+	const next: OverviewItem[][] = Array.from({ length: count }, (_, index) => [
+		...(columns[index] ?? [])
+	]);
+	for (const overflow of columns.slice(count)) next[count - 1].push(...overflow);
+	return next;
+}
+
+/** Initializes a room's card columns (matching its column count) on first use. */
+export function ensureRoomCardColumns(room: HearthRoom): OverviewItem[][] {
+	if (!room.cards?.length) {
+		room.cards = Array.from({ length: room.columns ?? 1 }, (): OverviewItem[] => []);
+	}
+	return room.cards;
+}
+
+/**
+ * Room cards were a flat list before card columns; a flat list becomes a
+ * single column. When the room fixes its column count the card columns are
+ * resized to match.
+ */
+function normalizeRoomCards(
+	room: any,
+	columns: number | undefined,
+	registries: LegacyRegistries
+): OverviewItem[][] {
+	const raw = Array.isArray(room.cards) ? room.cards : [];
+	const flat = raw.some((entry: any) => !Array.isArray(entry));
+	const rawColumns: any[][] = flat ? [raw] : raw;
+	const cards = rawColumns.map((column, columnIndex) =>
+		(Array.isArray(column) ? column : []).map((item: any, index: number) =>
+			normalizeOverviewItem(item, `card-${room.id}-${columnIndex}-${index}`, registries)
+		)
+	);
+	return columns !== undefined && cards.length !== columns
+		? resizeCardColumns(cards, columns)
+		: cards;
+}
+
+/**
  * Accepts current config files, the pre-card v1 shape (flat entity fields, no
  * rail/overview), and garbage. Anything unusable falls back to defaults.
  */
@@ -561,25 +608,21 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		blinds: Array.isArray(config.blinds) ? config.blinds : defaults.blinds
 	};
 
-	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map(
-		(room: any) => ({
+	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map((room: any) => {
+		const columns =
+			typeof room.columns === 'number' && room.columns >= 1 && room.columns <= 3
+				? Math.floor(room.columns)
+				: undefined;
+		return {
 			...room,
 			hide_header: room.hide_header === true ? true : undefined,
+			columns,
 			lights: Array.isArray(room.lights) ? room.lights : [],
 			blinds: Array.isArray(room.blinds) ? room.blinds : [],
 			devices: Array.isArray(room.devices) ? room.devices : [],
-			...(room.cards !== undefined
-				? {
-						// rooms are out of scope for stacks - drop any stray ones
-						cards: (Array.isArray(room.cards) ? room.cards : [])
-							.filter((card: any) => card?.kind !== 'stack')
-							.map((card: any, index: number) =>
-								normalizeCard(card, `card-${room.id}-${index}`, registries)
-							)
-					}
-				: {})
-		})
-	);
+			...(room.cards !== undefined ? { cards: normalizeRoomCards(room, columns, registries) } : {})
+		};
+	});
 
 	let rail: RailWidget[];
 	let overview: OverviewItem[][];
@@ -754,7 +797,7 @@ function overviewItemIds(item: OverviewItem): string[] {
 export function takenCardIds(config: HearthConfig): string[] {
 	return [
 		...config.overview.flat().flatMap(overviewItemIds),
-		...config.rooms.flatMap((room) => room.cards ?? []).map((card) => card.id)
+		...config.rooms.flatMap((room) => (room.cards ?? []).flat().flatMap(overviewItemIds))
 	];
 }
 

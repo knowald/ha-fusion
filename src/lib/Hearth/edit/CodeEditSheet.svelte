@@ -46,15 +46,17 @@
 	<div class="hint">
 		Edits the whole configuration. Applies as a single undo step; invalid YAML is rejected.
 	</div>
-	{#await import('$lib/Components/CodeEditor.svelte') then CodeEditor}
-		<CodeEditor.default
-			{value}
-			type="yaml"
-			transitionend={true}
-			autocompleteList={$autocompleteList}
-			onchange={(next) => (value = next)}
-		/>
-	{/await}
+	<div class="code-workspace">
+		{#await import('$lib/Components/CodeEditor.svelte') then CodeEditor}
+			<CodeEditor.default
+				{value}
+				type="yaml"
+				transitionend={true}
+				autocompleteList={$autocompleteList}
+				onchange={(next) => (value = next)}
+			/>
+		{/await}
+	</div>
 	{#if error}
 		<div class="error">{error}</div>
 	{/if}
@@ -71,5 +73,9 @@
 		font-size: 12px;
 		color: var(--h-bad-text);
 		margin-top: 10px;
+	}
+
+	.code-workspace {
+		min-height: 480px;
 	}
 </style>

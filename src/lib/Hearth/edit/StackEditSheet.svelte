@@ -1,16 +1,25 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
-	import { isStack, type OverviewStack } from '../config';
+	import { isStack, type HearthConfig, type OverviewStack } from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 
-	let { column, index }: { column: number; index: number } = $props();
+	let { column, index, roomId }: { column: number; index: number; roomId?: string } = $props();
+
+	// with roomId the stack lives in that room's card columns, not the overview
+	function columnItems(config: HearthConfig) {
+		const columns =
+			roomId !== undefined
+				? config.rooms.find((entry) => entry.id === roomId)?.cards
+				: config.overview;
+		return columns?.[column];
+	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}
 	// svelte-ignore state_referenced_locally
-	const initialItem = get(hearthConfig).overview[column]?.[index];
+	const initialItem = columnItems(get(hearthConfig))?.[index];
 	const initial = initialItem && isStack(initialItem) ? initialItem : undefined;
 
 	let title = $state(initial?.title ?? '');
@@ -27,7 +36,7 @@
 
 	function done() {
 		updateConfig((config) => {
-			const target = config.overview[column]?.[index];
+			const target = columnItems(config)?.[index];
 			if (!target || !isStack(target)) return;
 			target.title = title.trim() || undefined;
 			target.direction = direction;
@@ -39,9 +48,10 @@
 	// at the stack's position - they are never destroyed
 	function unwrap() {
 		updateConfig((config) => {
-			const target = config.overview[column]?.[index];
-			if (!target || !isStack(target)) return;
-			config.overview[column].splice(index, 1, ...target.cards);
+			const items = columnItems(config);
+			const target = items?.[index];
+			if (!items || !target || !isStack(target)) return;
+			items.splice(index, 1, ...target.cards);
 		});
 		close();
 	}

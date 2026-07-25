@@ -59,10 +59,11 @@ export type Editor =
 	| { kind: 'blind'; id: string | null }
 	| { kind: 'device'; roomId: string; index: number | null }
 	| { kind: 'room'; id: string | null }
-	// with roomId the target list is that room's cards array (column ignored);
-	// with stackId it's that stack's cards array within the column instead
+	// column indexes into the overview's columns, or the room's card columns
+	// when roomId is set; with stackId the target list is that stack's cards
+	// array within the column instead
 	| { kind: 'card'; column: number; index: number | null; roomId?: string; stackId?: string }
-	| { kind: 'stack'; column: number; index: number }
+	| { kind: 'stack'; column: number; index: number; roomId?: string }
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' }
 	| { kind: 'settings' }

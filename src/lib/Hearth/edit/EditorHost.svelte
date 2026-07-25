@@ -31,7 +31,7 @@
 				stackId={$editor.stackId}
 			/>
 		{:else if $editor.kind === 'stack'}
-			<StackEditSheet column={$editor.column} index={$editor.index} />
+			<StackEditSheet column={$editor.column} index={$editor.index} roomId={$editor.roomId} />
 		{:else if $editor.kind === 'railWidget'}
 			<RailWidgetEditSheet index={$editor.index} />
 		{:else if $editor.kind === 'settings'}
