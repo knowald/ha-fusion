@@ -65,6 +65,14 @@
 	let activeStates = $state(
 		initial?.type === 'progress' ? (initial.active_states ?? []).join(', ') : ''
 	);
+	let completedStates = $state(
+		initial?.type === 'progress'
+			? (initial.completed_states ?? ['complete', 'completed', 'finished', 'done']).join(', ')
+			: 'complete, completed, finished, done'
+	);
+	let completionDelay = $state(
+		initial?.type === 'progress' ? String(initial.completion_delay_minutes ?? 15) : '15'
+	);
 	let calendarEntities = $state(
 		initial?.type === 'calendar' ? (initial.entities ?? []).join(', ') : ''
 	);
@@ -150,6 +158,10 @@
 				.split(',')
 				.map((state) => state.trim())
 				.filter(Boolean);
+			const parsedCompletedStates = completedStates
+				.split(',')
+				.map((state) => state.trim())
+				.filter(Boolean);
 			return {
 				id,
 				type,
@@ -160,6 +172,8 @@
 				unit: progressUnit.trim() || undefined,
 				remaining_entity: remainingEntity.trim() || undefined,
 				active_states: parsedStates.length ? parsedStates : undefined,
+				completed_states: parsedCompletedStates.length ? parsedCompletedStates : undefined,
+				completion_delay_minutes: Number(completionDelay),
 				hide_mobile,
 				visibility: visibilityValue
 			};
@@ -303,9 +317,26 @@
 			bind:value={activeStates}
 			placeholder="running, rinse, spin"
 		/>
+		<TextField
+			label="Completed states (comma separated)"
+			bind:value={completedStates}
+			placeholder="complete, completed, finished, done"
+		/>
+		<SelectField
+			label="After completion"
+			bind:value={completionDelay}
+			options={[
+				{ value: '0', label: 'Hide immediately' },
+				{ value: '5', label: 'Hide after 5 minutes' },
+				{ value: '15', label: 'Hide after 15 minutes' },
+				{ value: '30', label: 'Hide after 30 minutes' },
+				{ value: '60', label: 'Hide after 1 hour' },
+				{ value: '-1', label: 'Keep until tapped' }
+			]}
+		/>
 		<div class="hint">
-			Row is visible only while the status entity is active. Without an explicit list, common idle
-			states (idle, off, standby, docked, ...) hide it.
+			Completed rows can be tapped to dismiss early. Without an explicit active-state list, common
+			idle states (idle, off, standby, docked, ...) hide the row.
 		</div>
 	{/if}
 

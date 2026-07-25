@@ -78,6 +78,10 @@ type RailWidgetVariant =
 			unit?: string;
 			remaining_entity?: string;
 			active_states?: string[];
+			// states that mark a just-finished activity; the row remains dismissible
+			// for completion_delay_minutes before hiding automatically
+			completed_states?: string[];
+			completion_delay_minutes?: number;
 	  }
 	| {
 			id: string;
@@ -631,7 +635,19 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 							? widget.active_states.filter(
 									(entry: unknown): entry is string => typeof entry === 'string'
 								)
-							: undefined
+							: undefined,
+						completed_states: Array.isArray(widget.completed_states)
+							? widget.completed_states.filter(
+									(entry: unknown): entry is string => typeof entry === 'string'
+								)
+							: undefined,
+						completion_delay_minutes:
+							typeof widget.completion_delay_minutes === 'number' &&
+							Number.isFinite(widget.completion_delay_minutes) &&
+							widget.completion_delay_minutes >= -1
+								? widget.completion_delay_minutes
+								: undefined
+					}
 					}
 				: {}),
 			hide_mobile: widget.hide_mobile === true ? true : undefined,

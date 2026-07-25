@@ -8,14 +8,23 @@
 
 	// states that read as "nothing running" when no active_states list is set
 	const IDLE_STATES = ['idle', 'off', 'unavailable', 'unknown', 'standby', 'none', 'docked'];
+	const DEFAULT_COMPLETED_STATES = ['complete', 'completed', 'finished', 'done'];
 
 	let status = $derived(widget.status_entity ? $states?.[widget.status_entity]?.state : undefined);
+	let normalizedStatus = $derived(status?.toLowerCase());
+	let completed = $derived(
+		normalizedStatus !== undefined &&
+			(widget.completed_states?.length
+				? widget.completed_states.some((state) => state.toLowerCase() === normalizedStatus)
+				: DEFAULT_COMPLETED_STATES.includes(normalizedStatus))
+	);
 
 	let active = $derived(
 		status !== undefined &&
+			!completed &&
 			(widget.active_states?.length
 				? widget.active_states.includes(status)
-				: !IDLE_STATES.includes(status))
+				: !IDLE_STATES.includes(normalizedStatus ?? ''))
 	);
 
 	let progress = $derived.by(() => {
@@ -27,10 +36,28 @@
 
 	// re-evaluated every 30s so timestamp countdowns tick without state changes
 	let now = $state(Date.now());
+	let completedAt = $state<number | null>(null);
+	let dismissed = $state(false);
 	$effect(() => {
 		const timer = setInterval(() => (now = Date.now()), 30_000);
 		return () => clearInterval(timer);
 	});
+	$effect(() => {
+		if (completed) {
+			if (completedAt === null) completedAt = Date.now();
+		} else {
+			completedAt = null;
+			dismissed = false;
+		}
+	});
+
+	let completionDelay = $derived(widget.completion_delay_minutes ?? 15);
+	let completionVisible = $derived(
+		completed &&
+			!dismissed &&
+			completionDelay !== 0 &&
+			(completionDelay < 0 || completedAt === null || now - completedAt < completionDelay * 60_000)
+	);
 
 	let progressLabel = $derived(
 		progress !== null && widget.unit ? `${Math.round(progress)}${widget.unit}` : null
@@ -48,8 +75,16 @@
 	});
 </script>
 
-{#if active || $hearthEditMode}
-	<div class="row" class:inactive={!active}>
+{#if active || completionVisible || $hearthEditMode}
+	<svelte:element
+		this={completed && !$hearthEditMode ? 'button' : 'div'}
+		class="row"
+		class:inactive={!active && !completed}
+		class:completed
+		type={completed && !$hearthEditMode ? 'button' : undefined}
+		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
+		onclick={completed && !$hearthEditMode ? () => (dismissed = true) : undefined}
+	>
 		<Icon name={widget.icon || 'autorenew'} size={20} color="var(--h-cool-icon)" />
 		<div class="body">
 			<div class="text">
@@ -64,7 +99,10 @@
 		{#if progressLabel !== null || remaining !== null}
 			<span class="remaining">{[progressLabel, remaining].filter(Boolean).join(' · ')}</span>
 		{/if}
-	</div>
+		{#if completed && !$hearthEditMode}
+			<span class="dismiss" aria-hidden="true">×</span>
+		{/if}
+	</svelte:element>
 {/if}
 
 <style>
@@ -77,6 +115,18 @@
 		background: rgb(var(--h-surface-rgb) / 0.045);
 		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
 		margin-bottom: 8px;
+		width: 100%;
+		font: inherit;
+		text-align: left;
+		color: inherit;
+	}
+
+	button.row {
+		cursor: pointer;
+	}
+
+	button.row:hover {
+		background: rgb(var(--h-surface-rgb) / 0.075);
 	}
 
 	.row.inactive {
@@ -116,5 +166,11 @@
 		font-size: 12px;
 		color: var(--h-cool-light);
 		white-space: nowrap;
+	}
+
+	.dismiss {
+		color: var(--h-text-3);
+		font-size: 18px;
+		line-height: 1;
 	}
 </style>
