@@ -456,7 +456,6 @@
 		gap: 2rem;
 		border-radius: 0.65rem;
 		outline-offset: 3px;
-		padding: 0.5rem;
 	}
 
 	.vertical-stack {
@@ -466,11 +465,12 @@
 		gap: 1.5rem;
 		border-radius: 0.65rem;
 		outline-offset: 3px;
-		padding: 0.5rem;
 	}
 
+	/* without stack padding a negative offset would draw over the items,
+	   0 keeps the nested outline just inside the parent's 3px-offset outline */
 	.vertical-stack.nested {
-		outline-offset: -3px;
+		outline-offset: 0;
 	}
 
 	.items {

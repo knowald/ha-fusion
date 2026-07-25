@@ -17,7 +17,7 @@
 		calendarView,
 		calendarFirstDay
 	} from '$lib/Stores';
-	import { getDomain, getName, getTogglableService } from '$lib/Utils';
+	import { getDomain, getName, getTogglableService, isDisplayOnlyDomain } from '$lib/Utils';
 	import Icon, { loadIcon } from '@iconify/svelte';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { marked } from 'marked';
@@ -66,7 +66,7 @@
 
 	// Determine if entity is display-only (non-interactive) using both sel.displayOnly and the prop
 	let isDisplayOnly = $derived(
-		sel?.displayOnly === true || displayOnly === true || determineIfDisplayOnly(entity_id, entity)
+		displayOnly === true || (sel?.displayOnly ?? isDisplayOnlyDomain(entity_id))
 	);
 
 	// Check if this is a light entity that supports brightness and has slide_brightness enabled
@@ -85,51 +85,6 @@
 				? Math.round((entity.attributes.brightness / 255) * 100)
 				: 0
 	);
-
-	/**
-	 * Determines if an entity is display-only based on its domain or other properties
-	 * Display-only entities are typically sensors or entities that don't have toggleable actions
-	 */
-	function determineIfDisplayOnly(
-		entityId: string | undefined,
-		entity: HassEntity | undefined
-	): boolean {
-		if (!entityId) return false;
-
-		// Only auto-detect if not explicitly set in configuration
-		if (sel?.displayOnly !== undefined) {
-			return sel.displayOnly;
-		}
-
-		// Get domain from entity_id
-		const domain = getDomain(entityId);
-		if (!domain) return false;
-
-		// List of domains that are typically display-only
-		const displayOnlyDomains = [
-			'sensor',
-			'binary_sensor',
-			'weather',
-			'sun',
-			'date',
-			'time',
-			'person',
-			'zone',
-			'device_tracker'
-		];
-
-		// Check if the domain is in the display-only list
-		if (displayOnlyDomains.includes(domain)) {
-			return true;
-		}
-
-		// Check if the entity doesn't have a toggleable service
-		if (entity && !getTogglableService(entity)) {
-			return true;
-		}
-
-		return false;
-	}
 
 	/** display loader if no state change has occurred within `$motion`ms */
 	let delayLoading: ReturnType<typeof setTimeout> | null = $state(null);
@@ -297,9 +252,11 @@
 			resetLoading = setTimeout(() => {
 				loading = false;
 			}, 20_000);
-		} else {
-			// not in getTogglableService just open modal
-			handleClickEvent();
+		} else if (more_info !== false) {
+			// not in getTogglableService just open modal; call openEntityModal
+			// directly because handleClickEvent would recurse back into toggle
+			// when more_info is false, where the click is a deliberate no-op
+			openEntityModal();
 		}
 	}
 
@@ -336,186 +293,193 @@
 		} else if (more_info === false) {
 			toggle();
 		} else {
-			switch (getDomain(sel?.entity_id)) {
-				// light
-				case 'light':
-					openModal(() => import('$lib/Modal/LightModal.svelte'), {
-						sel: sel
-					});
-					break;
+			await openEntityModal();
+		}
+	}
 
-				// switch
-				case 'input_boolean':
-				case 'remote':
-				case 'siren':
-				case 'switch':
-					openModal(() => import('$lib/Modal/SwitchModal.svelte'), { sel });
-					break;
+	/**
+	 * Opens modal for specified domain
+	 */
+	async function openEntityModal() {
+		switch (getDomain(sel?.entity_id)) {
+			// light
+			case 'light':
+				openModal(() => import('$lib/Modal/LightModal.svelte'), {
+					sel: sel
+				});
+				break;
 
-				// script
-				case 'script':
-					openModal(() => import('$lib/Modal/ScriptModal.svelte'), { sel });
-					break;
+			// switch
+			case 'input_boolean':
+			case 'remote':
+			case 'siren':
+			case 'switch':
+				openModal(() => import('$lib/Modal/SwitchModal.svelte'), { sel });
+				break;
 
-				// automation
-				case 'automation':
-					openModal(() => import('$lib/Modal/AutomationModal.svelte'), { sel });
-					break;
+			// script
+			case 'script':
+				openModal(() => import('$lib/Modal/ScriptModal.svelte'), { sel });
+				break;
 
-				// calendar
-				case 'calendar': {
-					// set first day of week
-					$calendarFirstDay =
-						'weekInfo' in Intl.Locale.prototype
-							? (new Intl.Locale($selectedLanguage) as any)?.weekInfo.firstDay
-							: (await import('weekstart')).getWeekStartByLocale($selectedLanguage);
+			// automation
+			case 'automation':
+				openModal(() => import('$lib/Modal/AutomationModal.svelte'), { sel });
+				break;
 
-					// set calendar view type
-					$calendarView = localStorage.getItem('calendar');
+			// calendar
+			case 'calendar': {
+				// set first day of week
+				$calendarFirstDay =
+					'weekInfo' in Intl.Locale.prototype
+						? (new Intl.Locale($selectedLanguage) as any)?.weekInfo.firstDay
+						: (await import('weekstart')).getWeekStartByLocale($selectedLanguage);
 
-					openModal(() => import('$lib/Modal/CalendarModal.svelte'), { sel });
-					break;
-				}
+				// set calendar view type
+				$calendarView = localStorage.getItem('calendar');
 
-				// sensor
-				case 'air_quality':
-				case 'date':
-				case 'time':
-				case 'event':
-				case 'image_processing':
-				case 'mailbox':
-				case 'sensor':
-				case 'binary_sensor':
-				case 'stt':
-				case 'weather':
-				case 'button':
-				case 'scene':
-				case 'schedule':
-				case 'sun':
-				case 'person':
-				case 'zone':
-				case 'input_button':
-					openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
-					break;
-
-				// update
-				case 'update':
-					openModal(() => import('$lib/Modal/UpdateModal.svelte'), { sel });
-					break;
-
-				// number
-				case 'input_number':
-				case 'number':
-					openModal(() => import('$lib/Modal/InputNumberModal.svelte'), { sel });
-					break;
-
-				// date
-				case 'input_datetime':
-				case 'datetime':
-					openModal(() => import('$lib/Modal/InputDateModal.svelte'), { sel });
-					break;
-
-				// select
-				case 'input_select':
-				case 'select':
-					openModal(() => import('$lib/Modal/InputSelectModal.svelte'), { sel });
-					break;
-
-				// text
-				case 'input_text':
-				case 'text':
-					openModal(() => import('$lib/Modal/InputTextModal.svelte'), { sel });
-					break;
-
-				case 'timer':
-					openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
-					break;
-
-				case 'vacuum':
-					openModal(() => import('$lib/Modal/VacuumModal.svelte'), { sel });
-					break;
-
-				case 'lawn_mower':
-					openModal(() => import('$lib/Modal/LawnMowerModal.svelte'), { sel });
-					break;
-
-				case 'valve':
-					openModal(() => import('$lib/Modal/ValveModal.svelte'), { sel });
-					break;
-
-				case 'image':
-					openModal(() => import('$lib/Modal/ImageModal.svelte'), { sel });
-					break;
-
-				case 'todo':
-					openModal(() => import('$lib/Modal/TodoModal.svelte'), { sel });
-					break;
-
-				case 'counter':
-					openModal(() => import('$lib/Modal/CounterModal.svelte'), { sel });
-					break;
-
-				case 'alarm_control_panel':
-					openModal(() => import('$lib/Modal/AlarmControlPanelModal.svelte'), { sel });
-					break;
-
-				case 'lock':
-					openModal(() => import('$lib/Modal/LockModal.svelte'), { sel });
-					break;
-
-				case 'climate':
-					openModal(() => import('$lib/Modal/ClimateModal.svelte'), { sel });
-					break;
-
-				case 'camera':
-					openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel });
-					break;
-
-				case 'water_heater':
-					openModal(() => import('$lib/Modal/WaterHeaterModal.svelte'), { sel });
-					break;
-
-				case 'humidifier':
-					openModal(() => import('$lib/Modal/HumidifierModal.svelte'), { sel });
-					break;
-
-				case 'media_player':
-					openModal(() => import('$lib/Modal/MediaPlayer.svelte'), {
-						selected: sel
-					});
-					break;
-
-				case 'group':
-					openModal(() => import('$lib/Modal/GroupModal.svelte'), { sel });
-					break;
-
-				case 'device_tracker': {
-					if ($states?.[sel?.entity_id]?.attributes?.source_type === 'gps') {
-						openModal(() => import('$lib/Modal/DeviceTrackerModal.svelte'), { sel });
-					} else {
-						openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
-					}
-					break;
-				}
-
-				case 'cover':
-					openModal(() => import('$lib/Modal/CoverModal.svelte'), {
-						selected: sel
-					});
-					break;
-
-				case 'fan':
-					openModal(() => import('$lib/Modal/FanModal.svelte'), {
-						selected: sel
-					});
-					break;
-
-				default:
-					openModal(() => import('$lib/Modal/Unknown.svelte'), {
-						selected: sel
-					});
-					break;
+				openModal(() => import('$lib/Modal/CalendarModal.svelte'), { sel });
+				break;
 			}
+
+			// sensor
+			case 'air_quality':
+			case 'date':
+			case 'time':
+			case 'event':
+			case 'image_processing':
+			case 'mailbox':
+			case 'sensor':
+			case 'binary_sensor':
+			case 'stt':
+			case 'weather':
+			case 'button':
+			case 'scene':
+			case 'schedule':
+			case 'sun':
+			case 'person':
+			case 'zone':
+			case 'input_button':
+				openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+				break;
+
+			// update
+			case 'update':
+				openModal(() => import('$lib/Modal/UpdateModal.svelte'), { sel });
+				break;
+
+			// number
+			case 'input_number':
+			case 'number':
+				openModal(() => import('$lib/Modal/InputNumberModal.svelte'), { sel });
+				break;
+
+			// date
+			case 'input_datetime':
+			case 'datetime':
+				openModal(() => import('$lib/Modal/InputDateModal.svelte'), { sel });
+				break;
+
+			// select
+			case 'input_select':
+			case 'select':
+				openModal(() => import('$lib/Modal/InputSelectModal.svelte'), { sel });
+				break;
+
+			// text
+			case 'input_text':
+			case 'text':
+				openModal(() => import('$lib/Modal/InputTextModal.svelte'), { sel });
+				break;
+
+			case 'timer':
+				openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
+				break;
+
+			case 'vacuum':
+				openModal(() => import('$lib/Modal/VacuumModal.svelte'), { sel });
+				break;
+
+			case 'lawn_mower':
+				openModal(() => import('$lib/Modal/LawnMowerModal.svelte'), { sel });
+				break;
+
+			case 'valve':
+				openModal(() => import('$lib/Modal/ValveModal.svelte'), { sel });
+				break;
+
+			case 'image':
+				openModal(() => import('$lib/Modal/ImageModal.svelte'), { sel });
+				break;
+
+			case 'todo':
+				openModal(() => import('$lib/Modal/TodoModal.svelte'), { sel });
+				break;
+
+			case 'counter':
+				openModal(() => import('$lib/Modal/CounterModal.svelte'), { sel });
+				break;
+
+			case 'alarm_control_panel':
+				openModal(() => import('$lib/Modal/AlarmControlPanelModal.svelte'), { sel });
+				break;
+
+			case 'lock':
+				openModal(() => import('$lib/Modal/LockModal.svelte'), { sel });
+				break;
+
+			case 'climate':
+				openModal(() => import('$lib/Modal/ClimateModal.svelte'), { sel });
+				break;
+
+			case 'camera':
+				openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel });
+				break;
+
+			case 'water_heater':
+				openModal(() => import('$lib/Modal/WaterHeaterModal.svelte'), { sel });
+				break;
+
+			case 'humidifier':
+				openModal(() => import('$lib/Modal/HumidifierModal.svelte'), { sel });
+				break;
+
+			case 'media_player':
+				openModal(() => import('$lib/Modal/MediaPlayer.svelte'), {
+					selected: sel
+				});
+				break;
+
+			case 'group':
+				openModal(() => import('$lib/Modal/GroupModal.svelte'), { sel });
+				break;
+
+			case 'device_tracker': {
+				if ($states?.[sel?.entity_id]?.attributes?.source_type === 'gps') {
+					openModal(() => import('$lib/Modal/DeviceTrackerModal.svelte'), { sel });
+				} else {
+					openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+				}
+				break;
+			}
+
+			case 'cover':
+				openModal(() => import('$lib/Modal/CoverModal.svelte'), {
+					selected: sel
+				});
+				break;
+
+			case 'fan':
+				openModal(() => import('$lib/Modal/FanModal.svelte'), {
+					selected: sel
+				});
+				break;
+
+			default:
+				openModal(() => import('$lib/Modal/Unknown.svelte'), {
+					selected: sel
+				});
+				break;
 		}
 	}
 

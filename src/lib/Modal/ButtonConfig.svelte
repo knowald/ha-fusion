@@ -6,7 +6,13 @@
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import { updateObj, getDomain, getName, getTogglableService } from '$lib/Utils';
+	import {
+		updateObj,
+		getDomain,
+		getName,
+		getTogglableService,
+		isDisplayOnlyDomain
+	} from '$lib/Utils';
 	import type { ButtonItem } from '$lib/Types';
 	import { openModal } from '$lib/Modals';
 	import * as parser from 'js-yaml';
@@ -29,7 +35,9 @@
 	let icon = $state(sel?.icon);
 	let stateOverride = $state(sel?.state);
 	let computedIcon = $state<string>();
-	let displayOnly = $state(sel?.displayOnly || false);
+	// Reflect the effective runtime value, not just the explicit setting,
+	// so the Yes/No selection matches how the button actually behaves
+	let displayOnly = $state(sel?.displayOnly ?? isDisplayOnlyDomain(sel?.entity_id));
 	let slideBrightness = $state(sel?.slide_brightness !== false);
 
 	let options = $derived($entityList(''));
@@ -62,37 +70,7 @@
 		}
 	}
 
-	function shouldSuggestDisplayOnly(entityId: string | undefined): boolean {
-		if (!entityId) return false;
-
-		const domain = getDomain(entityId);
-		if (!domain) return false;
-
-		// List of domains that are typically display-only
-		const displayOnlyDomains = [
-			'sensor',
-			'binary_sensor',
-			'weather',
-			'sun',
-			'date',
-			'time',
-			'person',
-			'zone',
-			'device_tracker'
-		];
-
-		if (displayOnlyDomains.includes(domain)) {
-			return true;
-		}
-
-		if ($states?.[entityId] && !getTogglableService($states?.[entityId])) {
-			return true;
-		}
-
-		return false;
-	}
-
-	let suggestDisplayOnly = $derived(shouldSuggestDisplayOnly(entity_id));
+	let suggestDisplayOnly = $derived(isDisplayOnlyDomain(entity_id));
 	let isLightEntity = $derived(getDomain(entity_id) === 'light');
 	let isVacuumEntity = $derived(getDomain(entity_id) === 'vacuum');
 
@@ -155,11 +133,9 @@
 					onchange={(event) => {
 						if (event === null) return;
 						set('entity_id', event);
-						// Reset display-only on entity change if not already a display-only entity
-						if (!shouldSuggestDisplayOnly(event)) {
-							displayOnly = false;
-							set('displayOnly', false);
-						}
+						// Re-sync display-only with the new entity's default
+						displayOnly = isDisplayOnlyDomain(event);
+						set('displayOnly');
 					}}
 					computeIcons={true}
 					getIconString={true}

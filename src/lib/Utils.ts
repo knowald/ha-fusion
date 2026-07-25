@@ -149,6 +149,28 @@ export function getTogglableService(entity: HassEntity) {
 }
 
 /**
+ * Domains that default to display-only buttons unless overridden per button.
+ * Domains without a togglable service (climate, alarm_control_panel, camera...)
+ * must not be listed here; they are interactive through their modals.
+ */
+export function isDisplayOnlyDomain(entity_id: string | undefined): boolean {
+	const domain = getDomain(entity_id);
+	if (!domain) return false;
+
+	return [
+		'sensor',
+		'binary_sensor',
+		'weather',
+		'sun',
+		'date',
+		'time',
+		'person',
+		'zone',
+		'device_tracker'
+	].includes(domain);
+}
+
+/**
  * Generates a unique 13-digit random ID
  * that doesn't collide with existing IDs
  */
