@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { states } from '$lib/Stores';
-	import { hearthEditMode, sensorNumber } from './store';
-	import { openEntityModal } from './modals';
+	import { sensorNumber } from './store';
 
 	let { entity, name = undefined }: { entity: string; name?: string } = $props();
 
@@ -20,10 +19,10 @@
 	);
 </script>
 
-<div class="stat" onclick={() => !$hearthEditMode && openEntityModal(entity, name)}>
+<div class="stat">
 	<div class="stat-label">{label}</div>
 	<div class="stat-value">
-		{display}{#if unit && value !== null}<span class="stat-unit"> {unit}</span>{/if}
+		{display}{#if unit && value !== null}<span class="stat-unit">{unit}</span>{/if}
 	</div>
 </div>
 
@@ -32,7 +31,6 @@
 		padding: 14px;
 		border-radius: var(--h-radius-sm);
 		background: var(--h-inset);
-		cursor: pointer;
 		user-select: none;
 		-webkit-user-select: none;
 	}
@@ -53,6 +51,7 @@
 	}
 
 	.stat-unit {
+		margin-left: 0.3em;
 		font-size: 13px;
 		color: var(--h-text-5);
 		font-weight: 400;
