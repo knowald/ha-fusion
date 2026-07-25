@@ -16,6 +16,26 @@
 		allDay: boolean;
 	}
 
+	function parseEvent(event: any): NextEvent | null {
+		// calendar.get_events returns ISO strings, with all-day events using a
+		// date-only value. Retain support for the object form used by some older
+		// calendar clients as well.
+		const rawStart = event?.start;
+		const startValue =
+			typeof rawStart === 'string' ? rawStart : (rawStart?.dateTime ?? rawStart?.date);
+		const start = new Date(startValue ?? NaN);
+		if (Number.isNaN(start.getTime())) return null;
+
+		return {
+			title: event?.summary ?? 'Busy',
+			start,
+			allDay:
+				typeof rawStart === 'string'
+					? /^\d{4}-\d{2}-\d{2}$/.test(rawStart)
+					: !!rawStart?.date && !rawStart?.dateTime
+		};
+	}
+
 	let next = $state<NextEvent | null>(null);
 
 	$effect(() => {
@@ -43,13 +63,8 @@
 				if (cancelled) return;
 				const events: NextEvent[] = Object.values(result?.response ?? {})
 					.flatMap((calendar: any) => calendar?.events ?? [])
-					.map((event: any) => {
-						// all-day events carry a plain date, timed ones a dateTime
-						const allDay = !!event?.start?.date && !event?.start?.dateTime;
-						const start = new Date(event?.start?.dateTime ?? event?.start?.date ?? NaN);
-						return { title: event?.summary ?? 'Busy', start, allDay };
-					})
-					.filter((event) => !Number.isNaN(event.start.getTime()))
+					.map(parseEvent)
+					.filter((event): event is NextEvent => event !== null)
 					.sort((a, b) => a.start.getTime() - b.start.getTime());
 				next = events[0] ?? null;
 			} catch {
