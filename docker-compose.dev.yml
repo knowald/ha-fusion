@@ -9,6 +9,8 @@ services:
       - .:/app
       # Prevent overwriting container's node_modules
       - /app/node_modules
+      # Keep generated SvelteKit files aligned with the container's dependencies
+      - /app/.svelte-kit
     networks:
       - ha-fusion-network
     ports:
