@@ -284,10 +284,9 @@
 		/* allow the flex child to shrink below content height so it scrolls */
 		min-height: 0;
 		overflow-y: auto;
+		/* Reserve room for overlay scrollbars so they never cover modal content. */
+		scrollbar-gutter: stable;
 		scrollbar-width: thin;
-		/* place the scrollbar at the modal edge instead of inside the padding */
-		margin-right: -1.5rem;
-		padding-right: 1.5rem;
 	}
 
 	.body::-webkit-scrollbar {
