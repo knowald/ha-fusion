@@ -105,8 +105,17 @@
 		}
 	});
 
-	// Because config may not include days_to_show, and some forecasts proviode 48 datapoints, we need to ensure it's correct
-	let calculated = $derived(Math.min(sel?.days_to_show ?? 7, 7));
+	// Some providers expose dozens of points; configuration supports at most seven.
+	let calculated = $derived(Math.max(1, Math.min(sel?.days_to_show ?? 7, 7)));
+	// Keep each forecast legible and render only as many as the measured width can hold.
+	const MIN_FORECAST_ITEM_WIDTH = 48;
+	let containerWidth = $state(0);
+	let visibleCount = $derived(
+		Math.min(
+			calculated,
+			Math.max(1, Math.floor(Math.max(0, containerWidth - 4) / MIN_FORECAST_ITEM_WIDTH))
+		)
+	);
 
 	interface Forecast {
 		condition: string;
@@ -129,6 +138,7 @@
 			return x;
 		})
 	);
+	let visibleForecast = $derived(forecast?.slice(0, visibleCount));
 
 	// Different forecast providers choose different intervals, we need to figure out display based on this
 	let forecast_diff = $derived(
@@ -145,8 +155,13 @@
 </script>
 
 {#if forecast}
-	<div class="container">
-		{#each forecast as forecast, i (i)}
+	<div
+		class="container"
+		bind:clientWidth={containerWidth}
+		style:--forecast-count={Math.max(1, visibleForecast?.length ?? 0)}
+		data-visible-count={visibleForecast?.length ?? 0}
+	>
+		{#each visibleForecast as forecast, i (i)}
 			<div class="item">
 				<div class="day">
 					{#if forecast_diff < 24}
@@ -194,20 +209,21 @@
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 		text-overflow: ellipsis;
 		overflow: hidden;
-		width: 3.6rem;
+		min-width: 0;
 	}
 
 	.container {
 		padding: var(--theme-sidebar-item-padding);
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(var(--forecast-count), minmax(0, 1fr));
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 		text-overflow: ellipsis;
 		overflow: hidden;
-		justify-content: space-between;
 		padding-left: 0;
 		padding-right: 0.25rem;
 		margin-left: -0.1rem;
 		min-height: 7.5rem;
+		width: 100%;
 	}
 
 	.empty {
@@ -222,17 +238,23 @@
 		grid-area: day;
 		justify-content: center;
 		display: flex;
-		width: 3.6rem;
+		width: 100%;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.icon {
 		grid-area: icon;
-		width: 3.6rem;
-		height: 3.6rem;
+		width: 100%;
+		max-width: 3.6rem;
+		aspect-ratio: 1;
 		display: flex;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 		justify-content: center;
 		transform-origin: right;
+		margin: 0 auto;
 	}
 
 	.temp {
@@ -240,13 +262,15 @@
 		justify-content: center;
 		display: flex;
 		white-space: nowrap;
-		width: 3.6rem;
+		width: 100%;
+		min-width: 0;
 		overflow: hidden;
+		text-overflow: ellipsis;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 	}
 
 	.ff-fill {
-		width: 3.6rem;
-		height: 3.6rem;
+		width: 100%;
+		height: 100%;
 	}
 </style>

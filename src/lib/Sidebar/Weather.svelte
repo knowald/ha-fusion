@@ -20,10 +20,20 @@
 
 	// sensor
 	let sensor = $derived(sel?.sensor && $states?.[sel?.sensor]);
+
+	let containerWidth = $state(0);
+	let compact = $derived(containerWidth > 0 && containerWidth < 220);
+	let minimal = $derived(containerWidth > 0 && containerWidth < 150);
 </script>
 
 {#if entity && entity?.state !== 'unavailable' && entity?.state !== 'unknown'}
-	<div class="container">
+	<div
+		class="container"
+		class:compact
+		class:minimal
+		bind:clientWidth={containerWidth}
+		data-width={Math.round(containerWidth)}
+	>
 		<div class="icon">
 			<img {src} width="100%" height="100%" alt="" />
 		</div>
@@ -56,10 +66,10 @@
 					<Icon icon={sel?.icon || 'codicon:blank'} height="none" />
 				</div>
 
-				{sensor?.state}
-				{#if sensor?.attributes?.unit_of_measurement}
-					{sensor?.attributes?.unit_of_measurement}
-				{/if}
+				<span class="sensor-value">
+					{sensor?.state}{#if sensor?.attributes?.unit_of_measurement}{sensor?.attributes
+							?.unit_of_measurement}{/if}
+				</span>
 			</div>
 		{/if}
 	</div>
@@ -80,14 +90,15 @@
 	.container {
 		padding: var(--theme-sidebar-item-padding);
 		display: grid;
-		grid-template-columns: min-content auto auto;
+		grid-template-columns: 3.5rem auto minmax(0, 1fr);
 		grid-template-rows: auto auto;
 		grid-template-areas:
 			'icon temperature sensor'
 			'icon state state';
 		align-items: center;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-		overflow: visible;
+		overflow: hidden;
+		width: 100%;
 	}
 
 	.icon {
@@ -105,9 +116,12 @@
 
 	.temperature {
 		grid-area: temperature;
-		justify-self: start;
 		align-self: end;
-		display: flex;
+		justify-self: stretch;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.state {
@@ -117,6 +131,7 @@
 		display: flex;
 		white-space: nowrap;
 		width: 100%;
+		min-width: 0;
 		overflow: hidden;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 	}
@@ -141,13 +156,53 @@
 		display: flex;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 		align-items: flex-end;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
 	}
 
 	.sensor-icon {
+		flex: 0 0 auto;
 		width: 1.22rem;
 		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
 		display: flex;
 		margin-right: 0.2rem;
 		align-self: center;
+	}
+
+	.sensor-value {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.container.compact {
+		grid-template-columns: 2.7rem minmax(0, 1fr);
+		grid-template-areas:
+			'icon temperature'
+			'icon state';
+	}
+
+	.compact .icon {
+		width: 2.3rem;
+		height: 2.3rem;
+		margin-left: 0;
+		margin-right: 0.4rem;
+		scale: 1;
+		transform-origin: center;
+	}
+
+	.compact .sensor {
+		display: none;
+	}
+
+	.container.minimal {
+		grid-template-rows: auto;
+		grid-template-areas: 'icon temperature';
+	}
+
+	.minimal .state {
+		display: none;
 	}
 </style>
