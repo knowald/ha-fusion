@@ -14,11 +14,13 @@
 		entity,
 		name = undefined,
 		icon = undefined,
+		compact = false,
 		onedit = undefined
 	}: {
 		entity: string;
 		name?: string;
 		icon?: string;
+		compact?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -39,12 +41,13 @@
 </script>
 
 {#if domain === 'light'}
-	<LightTile {entity} {name} {icon} {onedit} />
+	<LightTile {entity} {name} {icon} {compact} {onedit} />
 {:else if domain === 'cover'}
-	<BlindTile {entity} {name} {icon} {onedit} />
+	<BlindTile {entity} {name} {icon} {compact} {onedit} />
 {:else}
 	<div
 		class="tile pressable"
+		class:compact
 		class:on
 		class:pending
 		use:Ripple={PRESS_RIPPLE}
@@ -82,6 +85,11 @@
 		background: rgb(var(--h-surface-rgb) / 0.045);
 		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
 		cursor: pointer;
+	}
+
+	.tile.compact {
+		padding-top: 9px;
+		padding-bottom: 9px;
 	}
 
 	.tile.on {

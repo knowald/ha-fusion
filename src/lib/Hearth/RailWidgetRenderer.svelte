@@ -35,7 +35,12 @@
 	<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
 {:else if widget.type === 'entity'}
 	{#if widget.entity}
-		<EntityTile entity={widget.entity} name={widget.name} icon={widget.icon} />
+		<EntityTile
+			entity={widget.entity}
+			name={widget.name}
+			icon={widget.icon}
+			compact={widget.vertical_padding === 'compact'}
+		/>
 	{:else}
 		<div class="widget-placeholder">Pick an entity in the widget editor</div>
 	{/if}

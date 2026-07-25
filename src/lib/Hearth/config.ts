@@ -91,7 +91,14 @@ type RailWidgetVariant =
 			lookahead_hours?: number;
 	  }
 	| { id: string; type: 'status'; icon?: string; text?: string; entity?: string }
-	| { id: string; type: 'entity'; entity?: string; name?: string; icon?: string }
+	| {
+			id: string;
+			type: 'entity';
+			entity?: string;
+			name?: string;
+			icon?: string;
+			vertical_padding?: 'compact';
+	  }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
 
 // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
@@ -124,6 +131,7 @@ type OverviewCardVariant =
 			style?: 'tile' | 'stat';
 			columns?: number;
 			show_count?: boolean;
+			vertical_padding?: 'compact';
 			entities: EntityRef[];
 	  }
 	| { id: string; type: 'camera'; entity?: string; title?: string; stream?: boolean }
@@ -506,7 +514,8 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 						typeof card.columns === 'number' && card.columns >= 1
 							? Math.floor(card.columns)
 							: undefined,
-					show_count: card.show_count === true ? true : undefined
+					show_count: card.show_count === true ? true : undefined,
+					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined
 				}
 			: {}),
 		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {}),
@@ -648,6 +657,11 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 								? widget.completion_delay_minutes
 								: undefined
 					}
+				: {}),
+			...(widget.type === 'entity'
+				? {
+						vertical_padding:
+							widget.vertical_padding === 'compact' ? ('compact' as const) : undefined
 					}
 				: {}),
 			hide_mobile: widget.hide_mobile === true ? true : undefined,

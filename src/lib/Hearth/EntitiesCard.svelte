@@ -34,7 +34,12 @@
 				{#if (ref.display ?? card.style ?? 'tile') === 'stat'}
 					<StatTile entity={ref.entity} name={ref.name} />
 				{:else}
-					<EntityTile entity={ref.entity} name={ref.name} icon={ref.icon} />
+					<EntityTile
+						entity={ref.entity}
+						name={ref.name}
+						icon={ref.icon}
+						compact={card.vertical_padding === 'compact'}
+					/>
 				{/if}
 			{/each}
 		</div>

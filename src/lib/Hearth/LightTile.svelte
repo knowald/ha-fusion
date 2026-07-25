@@ -20,6 +20,7 @@
 		name = undefined,
 		icon = undefined,
 		dragId = undefined,
+		compact = false,
 		onedit = undefined
 	}: {
 		entity: string;
@@ -27,6 +28,7 @@
 		icon?: string;
 		/** data-id for a surrounding sortable grid; also shows the drag handle */
 		dragId?: string;
+		compact?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -40,6 +42,7 @@
 
 <div
 	class="tile pressable"
+	class:compact
 	class:on={view.on}
 	class:pending
 	data-id={dragId ?? entity}
@@ -87,6 +90,11 @@
 		-webkit-user-select: none;
 		background: rgb(var(--h-surface-rgb) / 0.045);
 		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+	}
+
+	.tile.compact {
+		padding-top: 9px;
+		padding-bottom: 9px;
 	}
 
 	.tile.on {
