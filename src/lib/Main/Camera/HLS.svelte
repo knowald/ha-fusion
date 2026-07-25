@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { connection, editMode } from '$lib/Stores';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import type Hls from 'hls.js';
 
 	/**
@@ -20,7 +20,8 @@
 		muted = true,
 		controls = false,
 		debug,
-		attachVideo
+		attachVideo,
+		allowEditStream = false
 	}: {
 		sel: any;
 		entity: any;
@@ -32,6 +33,7 @@
 		controls?: boolean | undefined;
 		debug: boolean;
 		attachVideo: boolean;
+		allowEditStream?: boolean;
 	} = $props();
 
 	let hls: Hls | undefined;
@@ -61,6 +63,12 @@
 
 			stream_url = response.url;
 			if (!stream_url) return;
+
+			// The video element is conditional on stream_url. Wait for Svelte to
+			// render it before handing it to hls.js or the browser's native HLS
+			// player.
+			await tick();
+			if (!video) return;
 
 			// hls
 			const { default: Hls } = await import('hls.js');
@@ -146,7 +154,7 @@
 		bind:this={video}
 		{muted}
 		{controls}
-		style:display={$editMode ? 'none' : 'initial'}
+		style:display={$editMode && !allowEditStream ? 'none' : 'initial'}
 		style:width={responsive ? '100%' : 'calc(14.5rem * 2 + 0.4rem)'}
 		style:object-fit={size}
 	></video>

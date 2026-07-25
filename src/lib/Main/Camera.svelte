@@ -10,13 +10,15 @@
 		demo = undefined,
 		responsive,
 		muted,
-		controls
+		controls,
+		allowEditStream = false
 	}: {
 		sel: CameraItem;
 		demo?: string | undefined;
 		responsive: boolean;
 		muted: boolean;
 		controls: boolean;
+		allowEditStream?: boolean;
 	} = $props();
 
 	const debug = false;
@@ -29,6 +31,10 @@
 		(demo && $states?.[demo]) || (sel?.entity_id ? $states?.[sel?.entity_id] : undefined)
 	);
 	let frontend_stream_type = $derived(entity?.attributes?.frontend_stream_type);
+	// Older Home Assistant camera entities may omit frontend_stream_type even
+	// though camera/stream can provide HLS. An explicitly enabled live card
+	// should try that API before falling back to a still image.
+	let effective_stream_type = $derived(frontend_stream_type || (sel?.stream ? 'hls' : undefined));
 	let size = $derived(sel?.size === 'contain' ? 'contain' : 'cover');
 
 	let cameraProps = $derived({
@@ -36,7 +42,9 @@
 		sel,
 		size,
 		responsive,
-		muted
+		muted,
+		effective_stream_type,
+		allowEditStream
 	});
 
 	/**
@@ -55,7 +63,7 @@
 	});
 
 	$effect(() => {
-		if ((!muted || $stream === true) && $entity_id && !$editMode) {
+		if ((!muted || $stream === true) && $entity_id && (!$editMode || allowEditStream)) {
 			attachVideo = true;
 		} else if ($stream === false || $stream === undefined || $entity_id) {
 			attachVideo = false;
@@ -97,7 +105,7 @@
 		</div>
 	{/if}
 
-	{#if frontend_stream_type === 'hls'}
+	{#if effective_stream_type === 'hls'}
 		<!-- hls -->
 		{#await import('$lib/Main/Camera/HLS.svelte') then HLS}
 			<HLS.default
@@ -109,7 +117,7 @@
 				{debug}
 			/>
 		{/await}
-	{:else if frontend_stream_type === 'web_rtc'}
+	{:else if effective_stream_type === 'web_rtc'}
 		<!-- web_rtc -->
 		{#await import('$lib/Main/Camera/WebRTC.svelte') then WebRTC}
 			<WebRTC.default

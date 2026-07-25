@@ -8,6 +8,7 @@
 		entity,
 		size,
 		stream_url,
+		effective_stream_type = undefined,
 		loaderVisible = $bindable(),
 		responsive = undefined,
 		muted = true
@@ -16,6 +17,7 @@
 		entity: any;
 		size?: string | undefined;
 		stream_url?: string | undefined;
+		effective_stream_type?: string | undefined;
 		loaderVisible?: boolean | undefined;
 		responsive?: boolean | undefined;
 		muted?: boolean | undefined;
@@ -27,7 +29,13 @@
 	let interval: ReturnType<typeof setInterval>;
 
 	let entity_picture = $derived(entity?.attributes?.entity_picture || '');
-	let proxy_stream = $derived((!muted || sel?.stream) && !stream_url && !$editMode);
+	// Only legacy MJPEG cameras use camera_proxy_stream. HLS and WebRTC
+	// cameras have dedicated players; requesting their proxy stream in
+	// parallel can fail and incorrectly replace the loading poster with the
+	// broken-image warning.
+	let proxy_stream = $derived(
+		(!muted || sel?.stream) && !effective_stream_type && !stream_url && !$editMode
+	);
 
 	function handleError(error: boolean) {
 		loaderVisible = false;

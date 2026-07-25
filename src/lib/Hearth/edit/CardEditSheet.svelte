@@ -73,6 +73,7 @@
 	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
 	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
 	let entity = $state(initial && 'entity' in initial ? (initial.entity ?? '') : '');
+	let cameraStream = $state(initial?.type === 'camera' ? (initial.stream ?? false) : false);
 	let subtitle = $state(initial?.type === 'header' ? (initial.subtitle ?? '') : '');
 	let headerIcon = $state(initial?.type === 'header' ? (initial.icon ?? 'home') : 'home');
 	let headerTempEntity = $state(initial?.type === 'header' ? (initial.temp_entity ?? '') : '');
@@ -216,7 +217,17 @@
 				visibility: visibilityValue
 			};
 		}
-		if (type === 'camera' || type === 'climate') {
+		if (type === 'camera') {
+			return {
+				id,
+				type,
+				title: title.trim() || undefined,
+				entity: entity.trim() || undefined,
+				stream: cameraStream || undefined,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'climate') {
 			return {
 				id,
 				type,
@@ -356,6 +367,13 @@
 
 	{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
 		<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
+	{/if}
+
+	{#if type === 'camera'}
+		<label class="check">
+			<input type="checkbox" bind:checked={cameraStream} />
+			<span>Live stream</span>
+		</label>
 	{/if}
 
 	{#if type === 'entities'}

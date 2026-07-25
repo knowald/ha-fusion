@@ -126,7 +126,7 @@ type OverviewCardVariant =
 			show_count?: boolean;
 			entities: EntityRef[];
 	  }
-	| { id: string; type: 'camera'; entity?: string; title?: string }
+	| { id: string; type: 'camera'; entity?: string; title?: string; stream?: boolean }
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	| { id: string; type: 'scenes'; title?: string; scenes: EntityRef[] }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };

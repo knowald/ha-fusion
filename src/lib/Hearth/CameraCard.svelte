@@ -12,10 +12,11 @@
 	{#if card.entity}
 		<div class="camera">
 			<Camera
-				sel={{ id: card.id, type: 'camera', entity_id: card.entity } as any}
+				sel={{ id: card.id, type: 'camera', entity_id: card.entity, stream: card.stream } as any}
 				responsive={true}
 				muted={true}
 				controls={false}
+				allowEditStream={true}
 			/>
 		</div>
 	{:else}
