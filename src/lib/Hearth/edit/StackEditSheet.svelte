@@ -6,15 +6,10 @@
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 
-	let { column, index, roomId }: { column: number; index: number; roomId?: string } = $props();
+	let { roomId, column, index }: { roomId: string; column: number; index: number } = $props();
 
-	// with roomId the stack lives in that room's card columns, not the overview
 	function columnItems(config: HearthConfig) {
-		const columns =
-			roomId !== undefined
-				? config.rooms.find((entry) => entry.id === roomId)?.cards
-				: config.overview;
-		return columns?.[column];
+		return config.rooms.find((entry) => entry.id === roomId)?.cards?.[column];
 	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}

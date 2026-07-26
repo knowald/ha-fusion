@@ -1,23 +1,7 @@
-export interface HearthLight {
-	id: string;
-	name: string;
-	entity: string;
-}
-
-export interface HearthBlind {
-	id: string;
-	name: string;
-	entity: string;
-}
-
-export type HearthDevice =
-	| { type: 'fan'; entity: string; name: string; icon: string }
-	| { type: 'switch'; entity: string; name: string; icon: string; readonly?: boolean }
-	| { type: 'sensor'; entity: string; name: string; icon: string; unit?: string }
-	// any HA domain: taps toggle when the domain supports it, otherwise (and via
-	// the tune button) the matching fusion domain modal opens
-	| { type: 'entity'; entity: string; name: string; icon?: string };
-
+/**
+ * A dashboard page. Home is one of these too - it has no special layout, no
+ * special storage and no special editing path.
+ */
 export interface HearthRoom {
 	id: string;
 	name: string;
@@ -27,14 +11,9 @@ export interface HearthRoom {
 	humidity_entity?: string;
 	// drops the built-in page header; a `header` card can take its place
 	hide_header?: boolean;
-	// fixes the column count of the room's lighting and device grids, and the
-	// number of card columns
+	// fixes the page's card column count
 	columns?: number;
-	lights: string[];
-	blinds: string[];
-	devices: HearthDevice[];
-	// card columns, same shape as the overview
-	cards?: OverviewItem[][];
+	cards: OverviewItem[][];
 }
 
 export interface EntityRef {
@@ -43,6 +22,20 @@ export interface EntityRef {
 	icon?: string;
 	// per-entity presentation; falls back to the card's style when unset
 	display?: 'tile' | 'stat';
+	// display-only tile, for entities whose integration exposes no working
+	// toggle (a PlayStation media_player, a read-only sensor)
+	readonly?: boolean;
+}
+
+export interface SceneRef extends EntityRef {
+	// small caption under the name in the scene bar, replaced by "active" while
+	// this scene is the active one
+	caption?: string;
+	// marks the scene active while this entity holds active_state ('on' when
+	// omitted); without it activity comes from which listed scene was applied
+	// most recently
+	active_entity?: string;
+	active_state?: string;
 }
 
 /**
@@ -136,11 +129,24 @@ type OverviewCardVariant =
 			columns?: number;
 			show_count?: boolean;
 			vertical_padding?: 'compact';
+			// every tile is a readout unless the entity overrides it; see
+			// EntityRef.readonly
+			readonly?: boolean;
+			// collapses the grid into a single summary row; tapping it opens the
+			// entities in a popover anchored to the row, so the layout never shifts
+			collapsed?: boolean;
+			// summary row icon, defaulting to the first entity's domain icon
+			icon?: string;
+			// summary row caption: the static text, else the state of summary_entity,
+			// else a count of the entities that are on
+			summary?: string;
+			summary_entity?: string;
 			entities: EntityRef[];
 	  }
 	| { id: string; type: 'camera'; entity?: string; title?: string; stream?: boolean }
 	| { id: string; type: 'climate'; entity?: string; title?: string }
-	| { id: string; type: 'scenes'; title?: string; scenes: EntityRef[] }
+	// `bar` renders the persistent scene row: equal-width tiles, active one lit
+	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
 	| { id: string; type: 'fusion'; config?: Record<string, any> };
 
 export type OverviewCard = OverviewCardVariant & { visibility?: VisibilityCondition[] };
@@ -170,9 +176,7 @@ export type HearthTheme = Record<string, string>;
 export interface HearthConfig {
 	theme?: HearthTheme;
 	rail: RailWidget[];
-	overview: OverviewItem[][];
-	lights: HearthLight[];
-	blinds: HearthBlind[];
+	// every page, Home included; the first one is where the dashboard opens
 	rooms: HearthRoom[];
 	// display options for wall tablets; screensaver off when unset
 	screensaver_minutes?: number;
@@ -185,7 +189,7 @@ export interface HearthConfig {
 export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] = [
 	{ value: 'clock', label: 'Clock' },
 	{ value: 'weather', label: 'Weather' },
-	{ value: 'nav', label: 'Room navigation' },
+	{ value: 'nav', label: 'Page navigation' },
 	{ value: 'spacer', label: 'Spacer' },
 	{ value: 'label', label: 'Section label' },
 	{ value: 'energy', label: 'Energy today' },
@@ -204,7 +208,7 @@ export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }
 	{ value: 'vacuum', label: 'Vacuum' },
 	{ value: 'camera', label: 'Camera' },
 	{ value: 'climate', label: 'Climate (thermostat)' },
-	{ value: 'scenes', label: 'Scene chips' },
+	{ value: 'scenes', label: 'Scenes (chips or bar)' },
 	{ value: 'fusion', label: 'Fusion object (template, picture elements, ...)' }
 ];
 
@@ -249,84 +253,80 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 		{ id: 'spacer', type: 'spacer' },
 		{ id: 'status', type: 'status', icon: 'eco', text: 'All systems nominal' }
 	],
-	overview: [
-		[
-			{
-				id: 'lights',
-				type: 'entities',
-				title: 'Lights',
-				show_count: true,
-				entities: [
-					{ entity: 'light.living_room', name: 'Living Room' },
-					{ entity: 'light.hallway', name: 'Hallway' },
-					{ entity: 'light.bedroom', name: 'Bedroom' },
-					{ entity: 'light.kitchen', name: 'Kitchen' },
-					{ entity: 'light.office', name: 'Office' },
-					{ entity: 'light.bathroom_ikea_lights', name: 'Bathroom' }
-				]
-			},
-			{
-				id: 'blinds',
-				type: 'entities',
-				title: 'Blinds',
-				entities: [
-					{ entity: 'cover.0x0c2a6ffffe193952', name: 'Bedroom' },
-					{ entity: 'cover.rolety_biuro', name: 'Office' }
-				]
-			},
-			{
-				id: 'avg-temp',
-				type: 'temperature',
-				label: 'Average home temperature',
-				entity: 'sensor.average_temperature',
-				unit: '°C'
-			}
-		],
-		[
-			{
-				id: 'air',
-				type: 'entities',
-				title: 'Air',
-				entities: [
-					{
-						entity: 'sensor.mi_air_purifier_3_3h_beta_pm2_5',
-						name: 'Home PM2.5',
-						display: 'stat'
-					},
-					{
-						entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-						name: 'Humidity',
-						display: 'stat'
-					},
-					{
-						entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining',
-						name: 'Filter · Bedroom',
-						icon: 'mode_fan'
-					},
-					{
-						entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining',
-						name: 'Filter · Living',
-						icon: 'mode_fan'
-					}
-				]
-			},
-			{ id: 'media', type: 'media', entity: 'media_player.spotify_kevin_nowald' },
-			{ id: 'vacuum', type: 'vacuum', entity: 'vacuum.roborock_qrevo_curv' }
-		]
-	],
-	lights: [
-		{ id: 'living', name: 'Living Room', entity: 'light.living_room' },
-		{ id: 'hallway', name: 'Hallway', entity: 'light.hallway' },
-		{ id: 'bedroom', name: 'Bedroom', entity: 'light.bedroom' },
-		{ id: 'kitchen', name: 'Kitchen', entity: 'light.kitchen' },
-		{ id: 'office', name: 'Office', entity: 'light.office' },
-		{ id: 'bathroom', name: 'Bathroom', entity: 'light.bathroom_ikea_lights' }
-	],
-	blinds: [
-		{ id: 'bedroom', name: 'Bedroom', entity: 'cover.0x0c2a6ffffe193952' },
-		{ id: 'office', name: 'Office', entity: 'cover.rolety_biuro' }
-	],
 	rooms: [
+		{
+			id: 'home',
+			name: 'Home',
+			icon: 'home',
+			// the rail already carries the clock and greeting on the home page
+			hide_header: true,
+			columns: 2,
+			cards: [
+				[
+					{
+						id: 'lights',
+						type: 'entities',
+						title: 'Lights',
+						show_count: true,
+						entities: [
+							{ entity: 'light.living_room', name: 'Living Room' },
+							{ entity: 'light.hallway', name: 'Hallway' },
+							{ entity: 'light.bedroom', name: 'Bedroom' },
+							{ entity: 'light.kitchen', name: 'Kitchen' },
+							{ entity: 'light.office', name: 'Office' },
+							{ entity: 'light.bathroom_ikea_lights', name: 'Bathroom' }
+						]
+					},
+					{
+						id: 'blinds',
+						type: 'entities',
+						title: 'Blinds',
+						entities: [
+							{ entity: 'cover.0x0c2a6ffffe193952', name: 'Bedroom' },
+							{ entity: 'cover.rolety_biuro', name: 'Office' }
+						]
+					},
+					{
+						id: 'avg-temp',
+						type: 'temperature',
+						label: 'Average home temperature',
+						entity: 'sensor.average_temperature',
+						unit: '°C'
+					}
+				],
+				[
+					{
+						id: 'air',
+						type: 'entities',
+						title: 'Air',
+						entities: [
+							{
+								entity: 'sensor.mi_air_purifier_3_3h_beta_pm2_5',
+								name: 'Home PM2.5',
+								display: 'stat'
+							},
+							{
+								entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
+								name: 'Humidity',
+								display: 'stat'
+							},
+							{
+								entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining',
+								name: 'Filter · Bedroom',
+								icon: 'mode_fan'
+							},
+							{
+								entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining',
+								name: 'Filter · Living',
+								icon: 'mode_fan'
+							}
+						]
+					},
+					{ id: 'media', type: 'media', entity: 'media_player.spotify_kevin_nowald' },
+					{ id: 'vacuum', type: 'vacuum', entity: 'vacuum.roborock_qrevo_curv' }
+				]
+			]
+		},
 		{
 			id: 'living',
 			name: 'Living Room',
@@ -334,26 +334,40 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 			summary: 'Cozy · curtains open',
 			temp_entity: 'sensor.timmerflotte_temp_hmd_sensor_temperature_5',
 			humidity_entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-			lights: ['living'],
-			blinds: [],
-			devices: [
-				{ type: 'fan', entity: 'fan.ceiling_fan', name: 'Ceiling Fan', icon: 'mode_fan' },
-				{ type: 'switch', entity: 'media_player.living_room_tv', name: 'Television', icon: 'tv' },
-				// the PS5 integration exposes no turn_on/off services
-				{
-					type: 'switch',
-					entity: 'media_player.playstation_5',
-					name: 'PlayStation 5',
-					icon: 'sports_esports',
-					readonly: true
-				},
-				{
-					type: 'sensor',
-					entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining',
-					name: 'Air Filter',
-					icon: 'mode_fan',
-					unit: '%'
-				}
+			columns: 2,
+			cards: [
+				[
+					{
+						id: 'living-lighting',
+						type: 'entities',
+						title: 'Lighting',
+						show_count: true,
+						entities: [{ entity: 'light.living_room', name: 'Living Room' }]
+					}
+				],
+				[
+					{
+						id: 'living-devices',
+						type: 'entities',
+						title: 'Devices',
+						entities: [
+							{ entity: 'fan.ceiling_fan', name: 'Ceiling Fan', icon: 'mode_fan' },
+							{ entity: 'media_player.living_room_tv', name: 'Television', icon: 'tv' },
+							// the PS5 integration exposes no turn_on/off services
+							{
+								entity: 'media_player.playstation_5',
+								name: 'PlayStation 5',
+								icon: 'sports_esports',
+								readonly: true
+							},
+							{
+								entity: 'sensor.mi_air_purifier_3_3h_beta_filter_lifetime_remaining',
+								name: 'Air Filter',
+								icon: 'mode_fan'
+							}
+						]
+					}
+				]
 			]
 		},
 		{
@@ -363,9 +377,23 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 			summary: 'Focused · blinds open',
 			temp_entity: 'sensor.average_temperature',
 			humidity_entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-			lights: ['office'],
-			blinds: ['office'],
-			devices: []
+			cards: [
+				[
+					{
+						id: 'office-lighting',
+						type: 'entities',
+						title: 'Lighting',
+						show_count: true,
+						entities: [{ entity: 'light.office', name: 'Office' }]
+					},
+					{
+						id: 'office-devices',
+						type: 'entities',
+						title: 'Devices',
+						entities: [{ entity: 'cover.rolety_biuro', name: 'Blinds' }]
+					}
+				]
+			]
 		},
 		{
 			id: 'bedroom',
@@ -374,16 +402,29 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 			summary: 'Calm · blinds open',
 			temp_entity: 'sensor.mi_air_purifier_3_3h_alpha_temperature',
 			humidity_entity: 'sensor.mi_air_purifier_3_3h_alpha_humidity',
-			lights: ['bedroom'],
-			blinds: ['bedroom'],
-			devices: [
-				{
-					type: 'sensor',
-					entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining',
-					name: 'Air Filter',
-					icon: 'mode_fan',
-					unit: '%'
-				}
+			cards: [
+				[
+					{
+						id: 'bedroom-lighting',
+						type: 'entities',
+						title: 'Lighting',
+						show_count: true,
+						entities: [{ entity: 'light.bedroom', name: 'Bedroom' }]
+					},
+					{
+						id: 'bedroom-devices',
+						type: 'entities',
+						title: 'Devices',
+						entities: [
+							{ entity: 'cover.0x0c2a6ffffe193952', name: 'Blind' },
+							{
+								entity: 'sensor.mi_air_purifier_3_3h_alpha_filter_lifetime_remaining',
+								name: 'Air Filter',
+								icon: 'mode_fan'
+							}
+						]
+					}
+				]
 			]
 		},
 		{
@@ -393,15 +434,24 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 			summary: 'Warmest room',
 			temp_entity: 'sensor.average_temperature',
 			humidity_entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-			lights: ['kitchen'],
-			blinds: [],
-			devices: [
-				{
-					type: 'switch',
-					entity: 'switch.eversweet_3_pro_power',
-					name: 'Pet Fountain',
-					icon: 'water_drop'
-				}
+			cards: [
+				[
+					{
+						id: 'kitchen-lighting',
+						type: 'entities',
+						title: 'Lighting',
+						show_count: true,
+						entities: [{ entity: 'light.kitchen', name: 'Kitchen' }]
+					},
+					{
+						id: 'kitchen-devices',
+						type: 'entities',
+						title: 'Devices',
+						entities: [
+							{ entity: 'switch.eversweet_3_pro_power', name: 'Pet Fountain', icon: 'water_drop' }
+						]
+					}
+				]
 			]
 		},
 		{
@@ -411,9 +461,17 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 			summary: 'Entryway',
 			temp_entity: 'sensor.average_temperature',
 			humidity_entity: 'sensor.timmerflotte_temp_hmd_sensor_humidity_5',
-			lights: ['hallway'],
-			blinds: [],
-			devices: []
+			cards: [
+				[
+					{
+						id: 'hallway-lighting',
+						type: 'entities',
+						title: 'Lighting',
+						show_count: true,
+						entities: [{ entity: 'light.hallway', name: 'Hallway' }]
+					}
+				]
+			]
 		}
 	]
 };
@@ -442,12 +500,17 @@ export function normalizeVisibility(raw: unknown): VisibilityCondition[] | undef
 	return conditions.length ? conditions : undefined;
 }
 
+/**
+ * v2 kept named light and blind registries at the top level, referenced by id
+ * from each room. Both are gone - a tile is an entity reference like any other -
+ * but migration still needs them to resolve those ids.
+ */
 interface LegacyRegistries {
-	lights: HearthLight[];
-	blinds: HearthBlind[];
+	lights: { id: string; name: string; entity: string }[];
+	blinds: { id: string; name: string; entity: string }[];
 }
 
-export function registryEntityRefs(registry: { entity: string; name: string }[]): EntityRef[] {
+function registryEntityRefs(registry: { entity: string; name: string }[]): EntityRef[] {
 	return registry.map(({ entity, name }) => ({ entity, name }));
 }
 
@@ -501,7 +564,30 @@ function migrateLegacyCard(card: any, registries: LegacyRegistries): any {
 function normalizeEntityRef(raw: any): EntityRef {
 	return {
 		...raw,
-		display: raw?.display === 'stat' || raw?.display === 'tile' ? raw.display : undefined
+		display: raw?.display === 'stat' || raw?.display === 'tile' ? raw.display : undefined,
+		// kept as a tri-state: an explicit false opts one entity out of a
+		// card-wide `readonly`
+		readonly: typeof raw?.readonly === 'boolean' ? raw.readonly : undefined
+	};
+}
+
+function trimmedOrUndefined(value: unknown): string | undefined {
+	return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function normalizeSceneRef(raw: any): SceneRef {
+	// YAML resolves `active_state: on` to a boolean and `active_state: 22` to a
+	// number; both are legal HA states once stringified
+	const activeState =
+		typeof raw?.active_state === 'boolean' || typeof raw?.active_state === 'number'
+			? String(raw.active_state)
+			: raw?.active_state;
+	return {
+		...normalizeEntityRef(raw),
+		caption: trimmedOrUndefined(raw?.caption),
+		active_entity: trimmedOrUndefined(raw?.active_entity),
+		// an empty state is meaningless, but a whitespace one is a legal HA state
+		active_state: typeof activeState === 'string' && activeState !== '' ? activeState : undefined
 	};
 }
 
@@ -519,10 +605,20 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 							? Math.floor(card.columns)
 							: undefined,
 					show_count: card.show_count === true ? true : undefined,
-					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined
+					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined,
+					readonly: card.readonly === true ? true : undefined,
+					collapsed: card.collapsed === true ? true : undefined,
+					icon: trimmedOrUndefined(card.icon),
+					summary: trimmedOrUndefined(card.summary),
+					summary_entity: trimmedOrUndefined(card.summary_entity)
 				}
 			: {}),
-		...(card.type === 'scenes' ? { scenes: Array.isArray(card.scenes) ? card.scenes : [] } : {}),
+		...(card.type === 'scenes'
+			? {
+					style: card.style === 'bar' ? 'bar' : undefined,
+					scenes: (Array.isArray(card.scenes) ? card.scenes : []).map(normalizeSceneRef)
+				}
+			: {}),
 		visibility: normalizeVisibility(card.visibility)
 	};
 }
@@ -561,7 +657,7 @@ export function resizeCardColumns(columns: OverviewItem[][], count: number): Ove
 	return next;
 }
 
-/** Initializes a room's card columns (matching its column count) on first use. */
+/** Initializes a page's card columns (matching its column count) on first use. */
 export function ensureRoomCardColumns(room: HearthRoom): OverviewItem[][] {
 	if (!room.cards?.length) {
 		room.cards = Array.from({ length: room.columns ?? 1 }, (): OverviewItem[] => []);
@@ -576,25 +672,144 @@ export function ensureRoomCardColumns(room: HearthRoom): OverviewItem[][] {
  */
 function normalizeRoomCards(
 	room: any,
+	roomId: string,
 	columns: number | undefined,
 	registries: LegacyRegistries
 ): OverviewItem[][] {
 	const raw = Array.isArray(room.cards) ? room.cards : [];
-	const flat = raw.some((entry: any) => !Array.isArray(entry));
-	const rawColumns: any[][] = flat ? [raw] : raw;
+	// a list of cards rather than a list of columns: everything in one column.
+	// Distinguished from a column list with a junk entry (a blank YAML sequence
+	// item) by requiring every entry to be a non-column, since one bad entry must
+	// not collapse the real columns around it.
+	const flat = raw.length > 0 && raw.every((entry: any) => !Array.isArray(entry));
+	const rawColumns: any[][] = flat
+		? [raw]
+		: raw.map((column: any) => (Array.isArray(column) ? column : []));
 	const cards = rawColumns.map((column, columnIndex) =>
-		(Array.isArray(column) ? column : []).map((item: any, index: number) =>
-			normalizeOverviewItem(item, `card-${room.id}-${columnIndex}-${index}`, registries)
-		)
+		column
+			// blank YAML entries and scalars are not cards; dropping them keeps the
+			// surrounding column intact instead of throwing on the way in
+			.filter((item: any) => item && typeof item === 'object' && !Array.isArray(item))
+			.map((item: any, index: number) =>
+				normalizeOverviewItem(item, `card-${roomId}-${columnIndex}-${index}`, registries)
+			)
 	);
 	return columns !== undefined && cards.length !== columns
 		? resizeCardColumns(cards, columns)
 		: cards;
 }
 
+/** v2 device entries carried their own shape; only the entity fields survive. */
+function deviceEntityRef(device: any): EntityRef | null {
+	if (typeof device?.entity !== 'string' || !device.entity.trim()) return null;
+	return {
+		entity: device.entity,
+		name: trimmedOrUndefined(device.name),
+		icon: trimmedOrUndefined(device.icon),
+		readonly: device.readonly === true ? true : undefined
+	};
+}
+
+function registryRefs(ids: unknown, registry: LegacyRegistries['lights']): EntityRef[] {
+	return (Array.isArray(ids) ? ids : [])
+		.map((id) => registry.find((entry) => entry.id === id))
+		.filter((entry): entry is LegacyRegistries['lights'][number] => entry !== undefined)
+		.map((entry) => ({ entity: entry.entity, name: entry.name }));
+}
+
 /**
- * Accepts current config files, the pre-card v1 shape (flat entity fields, no
- * rail/overview), and garbage. Anything unusable falls back to defaults.
+ * v2 rooms rendered lighting and device grids outside the card layout, so those
+ * two groups could not be moved, retitled or removed. They become ordinary
+ * entity-grid cards at the top of the page: lighting in the first column,
+ * devices in the second when the page has one.
+ */
+function migrateRoomGrids(
+	room: any,
+	roomId: string,
+	columns: OverviewItem[][],
+	registries: LegacyRegistries
+): OverviewItem[][] {
+	// a half-migrated config (v3 cards kept alongside the v2 grid fields) must
+	// not gain a second copy of either card
+	const migrated = new Set(
+		columns.flat().flatMap((item) => (isStack(item) ? item.cards.map((card) => card.id) : item.id))
+	);
+	const lighting = migrated.has(`${roomId}-lighting`)
+		? []
+		: registryRefs(room.lights, registries.lights);
+	const devices = migrated.has(`${roomId}-devices`)
+		? []
+		: [
+				...registryRefs(room.blinds, registries.blinds),
+				...(Array.isArray(room.devices) ? room.devices : [])
+					.map(deviceEntityRef)
+					.filter((ref: EntityRef | null): ref is EntityRef => ref !== null)
+			];
+	if (!lighting.length && !devices.length) return columns;
+
+	const next = columns.length ? columns : [[]];
+	const lightingCard: OverviewCard = {
+		id: `${roomId}-lighting`,
+		type: 'entities',
+		title: 'Lighting',
+		show_count: true,
+		entities: lighting
+	};
+	const devicesCard: OverviewCard = {
+		id: `${roomId}-devices`,
+		type: 'entities',
+		title: 'Devices',
+		entities: devices
+	};
+	// side by side when the page has room for both and both exist; otherwise
+	// stacked in the first column, so no column is left empty
+	if (next.length > 1 && lighting.length && devices.length) {
+		next[0] = [lightingCard, ...next[0]];
+		next[1] = [devicesCard, ...next[1]];
+	} else {
+		next[0] = [
+			...(lighting.length ? [lightingCard] : []),
+			...(devices.length ? [devicesCard] : []),
+			...next[0]
+		];
+	}
+	return next;
+}
+
+/**
+ * `taken` collects the ids already handed out and is mutated here: two pages
+ * sharing an id would make every id-keyed lookup (nav, drag, editor targets)
+ * ambiguous, and their migrated card ids would collide too.
+ */
+function normalizeRoom(
+	raw: any,
+	index: number,
+	registries: LegacyRegistries,
+	taken: string[]
+): HearthRoom {
+	const id = uniqueId(trimmedOrUndefined(raw?.id) ?? `page-${index + 1}`, taken);
+	taken.push(id);
+	const columns =
+		typeof raw?.columns === 'number' && raw.columns >= 1 && raw.columns <= 3
+			? Math.floor(raw.columns)
+			: undefined;
+	return {
+		id,
+		name: trimmedOrUndefined(raw?.name) ?? id,
+		icon: trimmedOrUndefined(raw?.icon) ?? 'meeting_room',
+		summary: trimmedOrUndefined(raw?.summary),
+		temp_entity: trimmedOrUndefined(raw?.temp_entity),
+		humidity_entity: trimmedOrUndefined(raw?.humidity_entity),
+		hide_header: raw?.hide_header === true ? true : undefined,
+		columns,
+		cards: migrateRoomGrids(raw, id, normalizeRoomCards(raw, id, columns, registries), registries)
+	};
+}
+
+/**
+ * Accepts current config files, the v2 shape (a separate `overview` for Home
+ * plus light/blind registries), the pre-card v1 shape (flat entity fields), and
+ * garbage. Anything unusable falls back to defaults.
  */
 export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	if (!raw || typeof raw !== 'object' || Array.isArray(raw) || !Object.keys(raw).length) {
@@ -604,50 +819,68 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	const defaults = structuredClone(DEFAULT_HEARTH_CONFIG);
 
 	const registries: LegacyRegistries = {
-		lights: Array.isArray(config.lights) ? config.lights : defaults.lights,
-		blinds: Array.isArray(config.blinds) ? config.blinds : defaults.blinds
+		lights: Array.isArray(config.lights) ? config.lights : [],
+		blinds: Array.isArray(config.blinds) ? config.blinds : []
 	};
 
-	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map((room: any) => {
-		const columns =
-			typeof room.columns === 'number' && room.columns >= 1 && room.columns <= 3
-				? Math.floor(room.columns)
-				: undefined;
-		return {
-			...room,
-			hide_header: room.hide_header === true ? true : undefined,
-			columns,
-			lights: Array.isArray(room.lights) ? room.lights : [],
-			blinds: Array.isArray(room.blinds) ? room.blinds : [],
-			devices: Array.isArray(room.devices) ? room.devices : [],
-			...(room.cards !== undefined ? { cards: normalizeRoomCards(room, columns, registries) } : {})
-		};
-	});
+	const takenRoomIds: string[] = [];
+	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map(
+		(room: any, index: number) => normalizeRoom(room, index, registries, takenRoomIds)
+	);
+
+	// v2 stored the home page separately in `overview`; it becomes the first
+	// ordinary page. Its id is uniquified like any other, so a config that
+	// already has its own page called `home` keeps both pages rather than losing
+	// the overview.
+	if (Array.isArray(config.overview)) {
+		rooms.unshift(
+			normalizeRoom(
+				{
+					id: 'home',
+					name: 'Home',
+					icon: 'home',
+					hide_header: true,
+					// only fix the column count while it is a supported one; a wider
+					// overview keeps its columns instead of being merged down
+					columns: config.overview.length <= 3 ? Math.max(1, config.overview.length) : undefined,
+					cards: config.overview
+				},
+				0,
+				registries,
+				takenRoomIds
+			)
+		);
+	}
 
 	let rail: RailWidget[];
-	let overview: OverviewItem[][];
 
-	if (Array.isArray(config.rail) && Array.isArray(config.overview)) {
+	if (Array.isArray(config.rail)) {
 		rail = config.rail;
-		overview = config.overview.map((column: unknown) => (Array.isArray(column) ? column : []));
 	} else {
-		// v1 migration: distribute the old flat entity fields into default
-		// rail widgets and overview cards
+		// v1 migration: distribute the old flat entity fields into the default
+		// rail widgets and home page cards
 		rail = defaults.rail;
-		overview = defaults.overview;
 		for (const widget of rail) {
 			if (widget.type === 'clock' && config.city) widget.city = config.city;
 			if (widget.type === 'weather' && config.weather_entity) widget.entity = config.weather_entity;
 		}
-		for (const card of overview.flat()) {
+		// v1 had no pages at all; the default home page carries its entity fields
+		if (!rooms.length) {
+			rooms.push(
+				...defaults.rooms
+					.filter((room) => room.id === 'home')
+					.map((room) => ({ ...room, id: uniqueId(room.id, takenRoomIds) }))
+			);
+		}
+		for (const card of rooms[0].cards.flat()) {
 			if (isStack(card)) continue;
 			if (card.type === 'temperature' && config.average_temperature_entity) {
 				card.entity = config.average_temperature_entity;
 			}
-			if (card.type === 'entities' && card.id === 'lights') {
+			if (card.type === 'entities' && card.id === 'lights' && registries.lights.length) {
 				card.entities = registryEntityRefs(registries.lights);
 			}
-			if (card.type === 'entities' && card.id === 'blinds') {
+			if (card.type === 'entities' && card.id === 'blinds' && registries.blinds.length) {
 				card.entities = registryEntityRefs(registries.blinds);
 			}
 			if (card.type === 'entities' && card.id === 'air') {
@@ -668,6 +901,9 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			if (card.type === 'vacuum' && config.vacuum_entity) card.entity = config.vacuum_entity;
 		}
 	}
+
+	// there is always something to render: an empty config gets the default home
+	if (!rooms.length) rooms.push(...defaults.rooms.filter((room) => room.id === 'home'));
 
 	return {
 		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
@@ -710,13 +946,6 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			hide_mobile: widget.hide_mobile === true ? true : undefined,
 			visibility: normalizeVisibility(widget.visibility)
 		})),
-		overview: overview.map((column, columnIndex) =>
-			column.map((card, index) =>
-				normalizeOverviewItem(card, `card-${columnIndex}-${index}`, registries)
-			)
-		),
-		lights: Array.isArray(config.lights) ? config.lights : [],
-		blinds: Array.isArray(config.blinds) ? config.blinds : [],
 		rooms,
 		screensaver_minutes:
 			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
@@ -793,12 +1022,9 @@ function overviewItemIds(item: OverviewItem): string[] {
 	return isStack(item) ? [item.id, ...item.cards.flatMap(overviewItemIds)] : [item.id];
 }
 
-/** Every overview + room card id in the config, for generating a fresh unique one. */
+/** Every card id on every page, for generating a fresh unique one. */
 export function takenCardIds(config: HearthConfig): string[] {
-	return [
-		...config.overview.flat().flatMap(overviewItemIds),
-		...config.rooms.flatMap((room) => (room.cards ?? []).flat().flatMap(overviewItemIds))
-	];
+	return config.rooms.flatMap((room) => (room.cards ?? []).flat().flatMap(overviewItemIds));
 }
 
 export function overviewItemTypeKey(item: OverviewItem): string {

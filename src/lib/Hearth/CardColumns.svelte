@@ -29,9 +29,8 @@
 		// it if needed - all mutations below go through this
 		locate: (config: HearthConfig) => OverviewItem[][];
 		groupName: string;
-		// set for a room's cards; carried into editor targets so the sheets
-		// resolve the room's columns instead of the overview's
-		roomId?: string;
+		// the page these columns belong to; carried into every editor target
+		roomId: string;
 		fill?: boolean;
 	} = $props();
 
@@ -134,7 +133,7 @@
 			newIndex = target.length;
 			target.push(stack);
 		});
-		editor.set({ kind: 'stack', column, index: newIndex, roomId });
+		editor.set({ kind: 'stack', roomId, column, index: newIndex });
 	}
 
 	// a stack's own sortable container refuses drops of another stack (no
@@ -147,7 +146,7 @@
 
 {#snippet cardSlot(
 	card: OverviewCard,
-	target: { kind: 'card'; column: number; index: number; roomId?: string; stackId?: string }
+	target: { kind: 'card'; roomId: string; column: number; index: number; stackId?: string }
 )}
 	<VisibilityGate conditions={card.visibility}>
 		{#snippet children(visible)}
@@ -156,6 +155,7 @@
 					class="card-slot"
 					data-id={card.id}
 					data-card-type={card.type}
+					class:editing={$hearthEditMode}
 					class:stretch={card.type === 'media' || card.type === 'temperature'}
 					class:visibility-dimmed={$hearthEditMode && !visible}
 				>
@@ -289,6 +289,13 @@
 
 	.card-slot {
 		position: relative;
+	}
+
+	/* every group is one editable, movable unit - show its bounds while editing */
+	.card-slot.editing {
+		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border-radius: var(--h-radius-md);
+		padding: 12px;
 	}
 
 	.card-slot.stretch {

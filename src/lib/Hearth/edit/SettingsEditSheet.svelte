@@ -3,14 +3,18 @@
 	import { base } from '$app/paths';
 	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE } from '../config';
-	import { editor, hearthConfig, updateConfig } from '../store';
+	import { ensureRoomCardColumns, PRESS_RIPPLE, resizeCardColumns } from '../config';
+	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import Icon from '../Icon.svelte';
 
 	let screensaver = $derived(String($hearthConfig.screensaver_minutes ?? 0));
 	let keepScreenOn = $derived($hearthConfig.keep_screen_on ?? true);
-	let columns = $derived(String($hearthConfig.overview.length));
+	// column count is a per-page setting; this row edits the page being viewed
+	let activeRoom = $derived(
+		$hearthConfig.rooms.find((room) => room.id === $currentRoom) ?? $hearthConfig.rooms[0]
+	);
+	let columns = $derived(String(activeRoom?.columns ?? activeRoom?.cards?.length ?? 1));
 	let paddingX = $derived($hearthConfig.padding_x ?? 0);
 	let paddingY = $derived($hearthConfig.padding_y ?? 0);
 
@@ -53,13 +57,13 @@
 	function setColumns(value: string) {
 		const count = parseInt(value);
 		if (!Number.isInteger(count) || count < 1 || count > 3) return;
+		const roomId = activeRoom?.id;
 		updateConfig((config) => {
+			const room = config.rooms.find((entry) => entry.id === roomId);
+			if (!room) return;
+			room.columns = count;
 			// shrinking merges the removed column's cards into the last kept one
-			while (config.overview.length > count) {
-				const removed = config.overview.pop() ?? [];
-				config.overview[config.overview.length - 1].push(...removed);
-			}
-			while (config.overview.length < count) config.overview.push([]);
+			room.cards = resizeCardColumns(ensureRoomCardColumns(room), count);
 		});
 	}
 
@@ -273,7 +277,7 @@
 			<div class="rows">
 				<div class="row">
 					<div class="row-main">
-						<div class="row-label">Overview columns</div>
+						<div class="row-label">Columns on {activeRoom?.name ?? 'this page'}</div>
 						<div class="row-sub">Removing a column moves its cards into the previous one</div>
 					</div>
 					<span class="select-wrap">

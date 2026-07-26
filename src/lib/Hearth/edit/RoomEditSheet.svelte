@@ -14,8 +14,6 @@
 	// initial value only - the sheet is remounted per editor target via {#key}
 	// svelte-ignore state_referenced_locally
 	const initial = id ? config.rooms.find((entry) => entry.id === id) : undefined;
-	const allLights = config.lights;
-	const allBlinds = config.blinds;
 
 	let name = $state(initial?.name ?? '');
 	let icon = $state(initial?.icon ?? 'weekend');
@@ -24,14 +22,6 @@
 	let humidityEntity = $state(initial?.humidity_entity ?? '');
 	let hideHeader = $state(initial?.hide_header ?? false);
 	let columns = $state(initial?.columns ? String(initial.columns) : '');
-	let selectedLights = $state<string[]>([...(initial?.lights ?? [])]);
-	let selectedBlinds = $state<string[]>([...(initial?.blinds ?? [])]);
-
-	function toggleSelection(list: string[], itemId: string) {
-		const position = list.indexOf(itemId);
-		if (position >= 0) list.splice(position, 1);
-		else list.push(itemId);
-	}
 
 	function close() {
 		editor.set(null);
@@ -44,12 +34,6 @@
 				? columnCount
 				: undefined;
 		updateConfig((next) => {
-			const lights = next.lights
-				.map((entry) => entry.id)
-				.filter((entryId) => selectedLights.includes(entryId));
-			const blinds = next.blinds
-				.map((entry) => entry.id)
-				.filter((entryId) => selectedBlinds.includes(entryId));
 			if (id) {
 				const room = next.rooms.find((entry) => entry.id === id);
 				if (!room) return;
@@ -63,8 +47,6 @@
 				if (roomColumns !== undefined && room.cards?.length && room.cards.length !== roomColumns) {
 					room.cards = resizeCardColumns(room.cards, roomColumns);
 				}
-				room.lights = lights;
-				room.blinds = blinds;
 			} else {
 				next.rooms.push({
 					id: uniqueId(
@@ -78,9 +60,7 @@
 					humidity_entity: humidityEntity.trim() || undefined,
 					hide_header: hideHeader || undefined,
 					columns: roomColumns,
-					lights,
-					blinds,
-					devices: []
+					cards: Array.from({ length: roomColumns ?? 1 }, () => [])
 				});
 			}
 		});
@@ -88,10 +68,12 @@
 	}
 
 	function remove() {
+		let fallback = '';
 		updateConfig((next) => {
 			next.rooms = next.rooms.filter((entry) => entry.id !== id);
+			fallback = next.rooms[0]?.id ?? '';
 		});
-		if (get(currentRoom) === id) currentRoom.set('home');
+		if (get(currentRoom) === id) currentRoom.set(fallback);
 		close();
 	}
 
@@ -107,11 +89,11 @@
 </script>
 
 <EditSheet
-	title={id ? 'Edit room' : 'Add room'}
+	title={id ? 'Edit page' : 'Add page'}
 	onclose={close}
 	ondone={done}
 	doneDisabled={!name.trim()}
-	onremove={id ? remove : undefined}
+	onremove={id && $hearthConfig.rooms.length > 1 ? remove : undefined}
 	onmoveup={id ? () => move(-1) : undefined}
 	onmovedown={id ? () => move(1) : undefined}
 >
@@ -121,7 +103,7 @@
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
 	<SelectField
-		label="Room columns"
+		label="Page columns"
 		bind:value={columns}
 		options={[
 			{ value: '', label: 'Auto' },
@@ -133,45 +115,21 @@
 
 	<label class="check">
 		<input type="checkbox" bind:checked={hideHeader} />
-		<span>Hide room header</span>
+		<span>Hide page header</span>
 	</label>
-
-	{#if allLights.length}
-		<div class="group-label">LIGHTS IN THIS ROOM</div>
-		{#each allLights as light (light.id)}
-			<label class="check">
-				<input
-					type="checkbox"
-					checked={selectedLights.includes(light.id)}
-					onchange={() => toggleSelection(selectedLights, light.id)}
-				/>
-				<span>{light.name}</span>
-			</label>
-		{/each}
-	{/if}
-
-	{#if allBlinds.length}
-		<div class="group-label">BLINDS IN THIS ROOM</div>
-		{#each allBlinds as blind (blind.id)}
-			<label class="check">
-				<input
-					type="checkbox"
-					checked={selectedBlinds.includes(blind.id)}
-					onchange={() => toggleSelection(selectedBlinds, blind.id)}
-				/>
-				<span>{blind.name}</span>
-			</label>
-		{/each}
-	{/if}
+	<div class="hint">
+		Everything on the page is a card: add, move and edit its groups from the page itself.
+		{#if id && $hearthConfig.rooms.length === 1}
+			This is the last page, so it cannot be removed.
+		{/if}
+	</div>
 </EditSheet>
 
 <style>
-	.group-label {
-		font-family: var(--h-font-mono);
-		font-size: 11px;
-		letter-spacing: 2px;
-		color: var(--h-label);
-		margin: 18px 0 8px;
+	.hint {
+		font-size: 12px;
+		color: var(--h-text-6);
+		margin: 6px 0 2px;
 	}
 
 	.check {

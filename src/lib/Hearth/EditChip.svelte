@@ -30,9 +30,11 @@
 		gap: 4px;
 		padding: 5px 7px;
 		border-radius: 10px;
-		background: color-mix(in srgb, var(--h-sheet-0) 92%, transparent);
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.25);
-		color: var(--h-text-3);
+		/* solid, not a color-mix: older tablet webviews drop the whole
+		   declaration and the chip becomes invisible over the card */
+		background: var(--h-sheet-0);
+		border: 1px solid rgb(var(--h-accent-rgb) / 0.35);
+		color: var(--h-text-2);
 	}
 
 	.drag-handle {

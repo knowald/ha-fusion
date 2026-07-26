@@ -8,6 +8,7 @@
 		enterEditMode,
 		hearthConfig,
 		hearthEditMode,
+		openPopovers,
 		redoConfig,
 		saveEdit,
 		saveState,
@@ -27,7 +28,6 @@
 	} from './config';
 	import ControlPopup from './ControlPopup.svelte';
 	import EditorHost from './edit/EditorHost.svelte';
-	import HomeOverview from './HomeOverview.svelte';
 	import Icon from './Icon.svelte';
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
@@ -39,9 +39,18 @@
 	let showSetupWizard = $state(false);
 	let showSearch = $state(false);
 
-	let roomExists = $derived(
-		$currentRoom === 'home' || $hearthConfig.rooms.some((room) => room.id === $currentRoom)
+	// the selected page, or the first one when it was renamed away or deleted
+	let activeRoomId = $derived(
+		$hearthConfig.rooms.some((room) => room.id === $currentRoom)
+			? $currentRoom
+			: ($hearthConfig.rooms[0]?.id ?? '')
 	);
+
+	// keep the selection on the page actually being rendered, so the rail
+	// highlights it and editor targets resolve against it
+	$effect(() => {
+		if (activeRoomId && activeRoomId !== $currentRoom) currentRoom.set(activeRoomId);
+	});
 
 	async function handleSave() {
 		$saveState = 'idle';
@@ -121,6 +130,7 @@
 			!typing &&
 			!$hearthEditMode &&
 			!showSearch &&
+			!$openPopovers &&
 			event.key === 'f' &&
 			!event.metaKey &&
 			!event.ctrlKey &&
@@ -132,6 +142,9 @@
 		}
 
 		if (!$hearthEditMode || !(event.metaKey || event.ctrlKey)) return;
+		// an open edit sheet owns these: saving would drop its unsubmitted form and
+		// undo would shift the card it is bound to out from under it
+		if ($editor) return;
 		if (event.key === 's') {
 			event.preventDefault();
 			handleSave();
@@ -155,11 +168,7 @@
 			<Rail />
 		</div>
 		<main class="main">
-			{#if $currentRoom === 'home' || !roomExists}
-				<HomeOverview />
-			{:else}
-				<RoomDetail roomId={$currentRoom} />
-			{/if}
+			<RoomDetail roomId={activeRoomId} />
 		</main>
 	</div>
 	<ControlPopup />

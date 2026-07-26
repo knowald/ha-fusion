@@ -8,17 +8,7 @@
 </script>
 
 <div class="divider"></div>
-<div class="rooms-label">ROOMS</div>
-
-<div
-	class="nav-item pressable"
-	class:active={$currentRoom === 'home'}
-	use:Ripple={PRESS_RIPPLE}
-	onclick={() => currentRoom.set('home')}
->
-	<Icon name="home" size={21} />
-	<span class="nav-name">Home</span>
-</div>
+<div class="rooms-label">PAGES</div>
 
 <div
 	class="room-list"
@@ -52,7 +42,7 @@
 			onclick={() => editor.set({ kind: 'room', id: null })}
 		>
 			<Icon name="add" size={21} />
-			<span class="nav-name">Add room</span>
+			<span class="nav-name">Add page</span>
 		</div>
 	{/if}
 </div>

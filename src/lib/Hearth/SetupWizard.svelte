@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connection, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
-	import { isStack, PRESS_RIPPLE, registryEntityRefs, type HearthRoom } from './config';
+	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
 	import { buildProposal, fetchRegistry, type HearthProposal } from './registry';
 	import { updateConfig } from './store';
@@ -38,12 +38,21 @@
 		return `${value} ${noun}${value === 1 ? '' : 's'}`;
 	}
 
+	/** Entity refs across a proposed page's cards, by card title. */
+	function cardEntities(room: HearthRoom, title: string) {
+		return room.cards
+			.flat()
+			.filter((item) => !isStack(item) && item.type === 'entities' && item.title === title)
+			.flatMap((item) => (!isStack(item) && item.type === 'entities' ? item.entities : []));
+	}
+
 	function summarize(room: HearthRoom) {
-		const parts: string[] = [];
-		if (room.lights.length) parts.push(count(room.lights.length, 'light'));
-		if (room.blinds.length) parts.push(count(room.blinds.length, 'blind'));
-		if (room.devices.length) parts.push(count(room.devices.length, 'device'));
-		return parts.join(', ');
+		const lighting = cardEntities(room, 'Lighting').length;
+		const devices = cardEntities(room, 'Devices').length;
+		return [
+			...(lighting ? [count(lighting, 'light')] : []),
+			...(devices ? [count(devices, 'device')] : [])
+		].join(', ');
 	}
 
 	function apply() {
@@ -52,19 +61,27 @@
 		// every later mutation and proxies cannot be structured-cloned
 		const plain = $state.snapshot(proposal) as HearthProposal;
 		const rooms = plain.rooms.filter((room) => included[room.id]);
-		const keptLights = new Set(rooms.flatMap((room) => room.lights));
-		const keptBlinds = new Set(rooms.flatMap((room) => room.blinds));
 		updateConfig((config) => {
-			config.rooms = rooms;
-			config.lights = plain.lights.filter((light) => keptLights.has(light.id));
-			config.blinds = plain.blinds.filter((blind) => keptBlinds.has(blind.id));
-			// the default overview ships registry-mirror grids under these ids;
-			// refresh them so the imported home shows up without manual editing
-			for (const item of config.overview.flat()) {
-				if (isStack(item) || item.type !== 'entities') continue;
-				if (item.id === 'lights') item.entities = registryEntityRefs(config.lights);
-				if (item.id === 'blinds') item.entities = registryEntityRefs(config.blinds);
-			}
+			// the first page (Home) is kept as it is; imported areas replace the rest
+			const kept = config.rooms.slice(0, 1);
+			// an area named like the kept page would otherwise duplicate its id, and
+			// with it the ids of the cards inside
+			const taken = kept.map((room) => room.id);
+			config.rooms = [
+				...kept,
+				...rooms.map((room) => {
+					const id = uniqueId(room.id, taken);
+					taken.push(id);
+					if (id === room.id) return room;
+					return {
+						...room,
+						id,
+						cards: room.cards.map((column) =>
+							column.map((item) => ({ ...item, id: item.id.replace(room.id, id) }))
+						)
+					};
+				})
+			];
 		});
 		onclose();
 	}
@@ -86,8 +103,8 @@
 			<span class="icon-button" onclick={onclose}><Icon name="close" size={22} /></span>
 		</div>
 		<p class="intro">
-			Builds rooms from your Home Assistant areas. Existing rooms, lights and blinds are replaced;
-			overview cards, rail and theme are kept.
+			Builds a page per Home Assistant area, each with a Lighting and a Devices card. The first
+			page, the rail and the theme are kept; the other pages are replaced.
 		</p>
 		{#if status === 'disconnected'}
 			<div class="hint">Not connected to Home Assistant</div>

@@ -1,14 +1,7 @@
 import { get } from 'svelte/store';
 import type { HassEntities } from 'home-assistant-js-websocket';
 import { connection } from '$lib/Stores';
-import {
-	slugify,
-	uniqueId,
-	type HearthBlind,
-	type HearthDevice,
-	type HearthLight,
-	type HearthRoom
-} from './config';
+import { slugify, uniqueId, type EntityRef, type HearthRoom } from './config';
 
 export interface RegistryArea {
 	area_id: string;
@@ -38,8 +31,6 @@ export interface RegistrySnapshot {
 
 export interface HearthProposal {
 	rooms: HearthRoom[];
-	lights: HearthLight[];
-	blinds: HearthBlind[];
 }
 
 export async function fetchRegistry(): Promise<RegistrySnapshot> {
@@ -96,10 +87,10 @@ const DEVICE_DOMAIN_ORDER = [
 const MAX_DEVICES_PER_ROOM = 8;
 
 /**
- * Turns the HA registries into a proposed rooms/lights/blinds fragment. Areas
- * come from the area registry; each entity lands in its own area or falls back
- * to its device's area. Disabled/hidden registry entries and entities without
- * a state object are skipped.
+ * Turns the HA registries into proposed pages, one per area, each with a
+ * Lighting and a Devices card. Each entity lands in its own area or falls back
+ * to its device's area. Disabled/hidden registry entries and entities without a
+ * state object are skipped.
  */
 export function buildProposal(
 	snapshot: RegistrySnapshot,
@@ -126,20 +117,16 @@ export function buildProposal(
 		entity.entity_id;
 
 	const rooms: HearthRoom[] = [];
-	const lights: HearthLight[] = [];
-	const blinds: HearthBlind[] = [];
 	const roomIds: string[] = [];
-	const lightIds: string[] = [];
-	const blindIds: string[] = [];
 
 	const sortedAreas = [...snapshot.areas].sort((a, b) => a.name.localeCompare(b.name));
 	for (const area of sortedAreas) {
 		const entities = areaEntities.get(area.area_id);
 		if (!entities) continue;
 
-		const roomLights: string[] = [];
-		const roomBlinds: string[] = [];
-		const deviceCandidates = new Map<string, HearthDevice[]>();
+		const lighting: EntityRef[] = [];
+		const covers: EntityRef[] = [];
+		const deviceCandidates = new Map<string, EntityRef[]>();
 		let tempEntity: string | undefined;
 		let humidityEntity: string | undefined;
 
@@ -148,18 +135,12 @@ export function buildProposal(
 			const name = stripRoomName(friendlyName(entity), area.name);
 
 			if (domain === 'light') {
-				const id = uniqueId(slugify(name), lightIds);
-				lightIds.push(id);
-				lights.push({ id, name, entity: entity.entity_id });
-				roomLights.push(id);
+				lighting.push({ entity: entity.entity_id, name });
 			} else if (domain === 'cover') {
-				const id = uniqueId(slugify(name), blindIds);
-				blindIds.push(id);
-				blinds.push({ id, name, entity: entity.entity_id });
-				roomBlinds.push(id);
+				covers.push({ entity: entity.entity_id, name });
 			} else if (DEVICE_DOMAIN_ORDER.includes(domain)) {
 				const list = deviceCandidates.get(domain) ?? [];
-				list.push({ type: 'entity', entity: entity.entity_id, name });
+				list.push({ entity: entity.entity_id, name });
 				deviceCandidates.set(domain, list);
 			} else if (domain === 'sensor') {
 				const deviceClass = currentStates[entity.entity_id]?.attributes?.device_class;
@@ -168,11 +149,15 @@ export function buildProposal(
 			}
 		}
 
-		const devices = DEVICE_DOMAIN_ORDER.flatMap(
-			(domain) => deviceCandidates.get(domain) ?? []
-		).slice(0, MAX_DEVICES_PER_ROOM);
+		const devices = [
+			...covers,
+			...DEVICE_DOMAIN_ORDER.flatMap((domain) => deviceCandidates.get(domain) ?? []).slice(
+				0,
+				MAX_DEVICES_PER_ROOM
+			)
+		];
 
-		if (!roomLights.length && !roomBlinds.length && !devices.length) continue;
+		if (!lighting.length && !devices.length) continue;
 
 		const roomId = uniqueId(slugify(area.name), roomIds);
 		roomIds.push(roomId);
@@ -182,11 +167,33 @@ export function buildProposal(
 			icon: areaIcon(area.name),
 			temp_entity: tempEntity,
 			humidity_entity: humidityEntity,
-			lights: roomLights,
-			blinds: roomBlinds,
-			devices
+			cards: [
+				[
+					...(lighting.length
+						? [
+								{
+									id: `${roomId}-lighting`,
+									type: 'entities' as const,
+									title: 'Lighting',
+									show_count: true,
+									entities: lighting
+								}
+							]
+						: []),
+					...(devices.length
+						? [
+								{
+									id: `${roomId}-devices`,
+									type: 'entities' as const,
+									title: 'Devices',
+									entities: devices
+								}
+							]
+						: [])
+				]
+			]
 		});
 	}
 
-	return { rooms, lights, blinds };
+	return { rooms };
 }

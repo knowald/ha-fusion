@@ -3,10 +3,17 @@
 	import { states } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import { activateScene, pendingEntities } from './store';
+	import { activateScene, activeSceneIndex, pendingEntities } from './store';
 	import Icon from './Icon.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'scenes' }> } = $props();
+
+	let bar = $derived(card.style === 'bar');
+	let activeIndex = $derived(activeSceneIndex(card.scenes, $states));
+
+	function sceneName(ref: { entity: string; name?: string }) {
+		return ref.name || $states?.[ref.entity]?.attributes?.friendly_name || ref.entity;
+	}
 </script>
 
 <div class="section">
@@ -16,18 +23,26 @@
 	{#if card.scenes.length === 0}
 		<div class="placeholder">Add scenes in the card editor</div>
 	{:else}
-		<div class="chips">
+		<div class="scenes" class:bar>
 			{#each card.scenes as ref, index (index)}
+				{@const active = index === activeIndex}
 				<div
-					class="chip pressable"
+					class="scene pressable"
+					class:active
 					class:pending={$pendingEntities[ref.entity] !== undefined}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => activateScene(ref.entity)}
 				>
-					<Icon name={ref.icon || 'palette'} size={18} />
-					<span class="chip-name">
-						{ref.name || $states?.[ref.entity]?.attributes?.friendly_name || ref.entity}
-					</span>
+					<Icon
+						name={ref.icon || 'palette'}
+						size={bar ? 24 : 18}
+						color={active ? 'var(--h-accent-bright)' : undefined}
+						fill={active}
+					/>
+					<span class="scene-name">{sceneName(ref)}</span>
+					{#if bar && (active || ref.caption)}
+						<span class="scene-caption">{active ? 'active' : ref.caption}</span>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -42,13 +57,13 @@
 		margin-bottom: 14px;
 	}
 
-	.chips {
+	.scenes {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 10px;
 	}
 
-	.chip {
+	.scene {
 		position: relative;
 		overflow: hidden;
 		display: flex;
@@ -64,11 +79,65 @@
 		-webkit-user-select: none;
 	}
 
-	.chip-name {
+	.scene.active {
+		background: rgb(var(--h-accent-rgb) / 0.13);
+		border-color: rgb(var(--h-accent-rgb) / 0.34);
+	}
+
+	.scene-name {
 		font-size: 14px;
 		font-weight: 500;
 		color: var(--h-text-3);
 		white-space: nowrap;
+	}
+
+	.scene.active .scene-name {
+		color: var(--h-text-1);
+	}
+
+	/* the persistent row: equal-width tiles on one line. Keep it to four scenes
+	   and it never scrolls; past that it scrolls rather than clipping. */
+	.scenes.bar {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.scenes.bar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scenes.bar .scene {
+		flex: 1 0 84px;
+		min-width: 0;
+		flex-direction: column;
+		gap: 8px;
+		padding: 15px 10px;
+		border-radius: var(--h-radius-md);
+	}
+
+	.scenes.bar .scene-name {
+		font-size: 13.5px;
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 100%;
+	}
+
+	.scene-caption {
+		font-family: var(--h-font-mono);
+		font-size: 10px;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+		color: var(--h-text-6);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 100%;
+	}
+
+	.scene.active .scene-caption {
+		color: var(--h-accent-dim-text);
 	}
 
 	.placeholder {

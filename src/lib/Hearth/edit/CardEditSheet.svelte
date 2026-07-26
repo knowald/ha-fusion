@@ -19,7 +19,7 @@
 		type OverviewItem,
 		type VisibilityCondition
 	} from '../config';
-	import { editor, hearthConfig, updateConfig } from '../store';
+	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
 	import { openModal } from '$lib/Modals';
 	import { icons as pictureElementsIcons } from '$lib/Modal/PictureElements/icons';
 	import CardRenderer from '../CardRenderer.svelte';
@@ -34,11 +34,11 @@
 	import YamlField from './YamlField.svelte';
 
 	let {
+		roomId,
 		column,
 		index,
-		roomId,
 		stackId
-	}: { column: number; index: number | null; roomId?: string; stackId?: string } = $props();
+	}: { roomId: string; column: number; index: number | null; stackId?: string } = $props();
 
 	const CARD_GALLERY: { value: OverviewCard['type']; name: string; sub: string; icon: string }[] = [
 		{ value: 'entities', name: 'Entities', sub: 'tiles or readings', icon: 'grid_view' },
@@ -52,12 +52,10 @@
 		{ value: 'fusion', name: 'Fusion', sub: 'legacy objects', icon: 'widgets' }
 	];
 
-	// with roomId `column` indexes into that room's card columns instead of
-	// the overview's; the room's columns are initialized on first write via
-	// ensureRoomCardColumns in done()/moveToRoom
+	// `column` indexes into the page's card columns; they are initialized on
+	// first write via ensureRoomCardColumns in done()/moveCard
 	function containerColumns(config: HearthConfig): OverviewItem[][] | undefined {
-		if (roomId !== undefined) return config.rooms.find((entry) => entry.id === roomId)?.cards;
-		return config.overview;
+		return config.rooms.find((entry) => entry.id === roomId)?.cards;
 	}
 
 	function stackCards(config: HearthConfig, targetStackId: string): OverviewCard[] | undefined {
@@ -81,7 +79,21 @@
 
 	// display widened to string so the per-entity select can hold '' for
 	// "follow the card style"; narrowed back to the union in buildCard
-	type EditableRef = { entity: string; name?: string; icon?: string; display?: string };
+	type EditableRef = {
+		entity: string;
+		name?: string;
+		icon?: string;
+		display?: string;
+		readonly?: boolean;
+	};
+	type EditableSceneRef = {
+		entity: string;
+		name?: string;
+		icon?: string;
+		caption?: string;
+		active_entity?: string;
+		active_state?: string;
+	};
 
 	let type = $state<OverviewCard['type']>(initial?.type ?? 'entities');
 	let typeOpen = $state(false);
@@ -104,6 +116,13 @@
 	let gridVerticalPadding = $state(
 		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
 	);
+	let gridReadonly = $state(initial?.type === 'entities' ? (initial.readonly ?? false) : false);
+	let gridCollapsed = $state(initial?.type === 'entities' ? (initial.collapsed ?? false) : false);
+	let gridIcon = $state(initial?.type === 'entities' ? (initial.icon ?? '') : '');
+	let gridSummary = $state(initial?.type === 'entities' ? (initial.summary ?? '') : '');
+	let gridSummaryEntity = $state(
+		initial?.type === 'entities' ? (initial.summary_entity ?? '') : ''
+	);
 	// optional ref keys become '' instead of undefined - the row fields bind
 	// them to props with fallback values, which undefined would crash
 	let entities = $state<EditableRef[]>(
@@ -112,16 +131,23 @@
 					entity: ref.entity ?? '',
 					name: ref.name ?? '',
 					icon: ref.icon ?? '',
-					display: ref.display ?? ''
+					display: ref.display ?? '',
+					readonly: ref.readonly ?? false
 				}))
 			: []
 	);
-	let scenes = $state<EntityRef[]>(
+	let sceneStyle = $state<string>(
+		initial?.type === 'scenes' ? (initial.style ?? 'chips') : 'chips'
+	);
+	let scenes = $state<EditableSceneRef[]>(
 		initial?.type === 'scenes'
 			? initial.scenes.map((ref) => ({
 					entity: ref.entity ?? '',
 					name: ref.name ?? '',
-					icon: ref.icon ?? ''
+					icon: ref.icon ?? '',
+					caption: ref.caption ?? '',
+					active_entity: ref.active_entity ?? '',
+					active_state: ref.active_state ?? ''
 				}))
 			: []
 	);
@@ -239,12 +265,18 @@
 				columns: Number.isFinite(columnCount) && columnCount >= 1 ? columnCount : undefined,
 				show_count: showCount || undefined,
 				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
+				readonly: gridReadonly || undefined,
+				collapsed: gridCollapsed || undefined,
+				icon: gridCollapsed ? gridIcon.trim() || undefined : undefined,
+				summary: gridCollapsed ? gridSummary.trim() || undefined : undefined,
+				summary_entity: gridCollapsed ? gridSummaryEntity.trim() || undefined : undefined,
 				entities: entities
 					.map((ref): EntityRef => ({
 						entity: ref.entity.trim(),
 						name: ref.name?.trim() || undefined,
 						icon: ref.icon?.trim() || undefined,
-						display: ref.display === 'stat' || ref.display === 'tile' ? ref.display : undefined
+						display: ref.display === 'stat' || ref.display === 'tile' ? ref.display : undefined,
+						readonly: ref.readonly || undefined
 					}))
 					.filter((ref) => ref.entity),
 				visibility: visibilityValue
@@ -274,11 +306,15 @@
 				id,
 				type,
 				title: title.trim() || undefined,
+				style: sceneStyle === 'bar' ? 'bar' : undefined,
 				scenes: scenes
 					.map((ref) => ({
 						entity: ref.entity.trim(),
 						name: ref.name?.trim() || undefined,
-						icon: ref.icon?.trim() || undefined
+						icon: ref.icon?.trim() || undefined,
+						caption: ref.caption?.trim() || undefined,
+						active_entity: ref.active_entity?.trim() || undefined,
+						active_state: ref.active_state?.trim() || undefined
 					}))
 					.filter((ref) => ref.entity),
 				visibility: visibilityValue
@@ -299,10 +335,8 @@
 
 	function done() {
 		updateConfig((config) => {
-			if (roomId !== undefined) {
-				const room = config.rooms.find((entry) => entry.id === roomId);
-				if (room) ensureRoomCardColumns(room);
-			}
+			const room = config.rooms.find((entry) => entry.id === roomId);
+			if (room) ensureRoomCardColumns(room);
 			const cards = cardList(config);
 			if (!cards) return;
 			if (index !== null) {
@@ -329,15 +363,13 @@
 	// The sheet is keyed by its editor target, so these are intentionally the
 	// initial placement whenever a card editor instance is mounted.
 	// svelte-ignore state_referenced_locally
-	let targetLocation = $state(roomId ?? 'home');
+	let targetLocation = $state(roomId);
 	// svelte-ignore state_referenced_locally
 	let targetColumn = $state(String(column));
-	let locationOptions = $derived([
-		{ value: 'home', label: 'Home' },
-		...$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))
-	]);
+	let locationOptions = $derived(
+		$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))
+	);
 	let targetColumnCount = $derived.by(() => {
-		if (targetLocation === 'home') return Math.max(1, $hearthConfig.overview.length);
 		const room = $hearthConfig.rooms.find((entry) => entry.id === targetLocation);
 		return Math.max(1, room?.columns ?? room?.cards?.length ?? 1);
 	});
@@ -348,15 +380,11 @@
 		}))
 	);
 	let currentLocationName = $derived(
-		roomId === undefined
-			? 'Home'
-			: ($hearthConfig.rooms.find((room) => room.id === roomId)?.name ?? 'Room')
+		$hearthConfig.rooms.find((room) => room.id === roomId)?.name ?? 'Page'
 	);
 	let currentType = $derived(CARD_GALLERY.find((kind) => kind.value === type) ?? CARD_GALLERY[0]);
 	let samePlacement = $derived(
-		stackId === undefined &&
-			(roomId ?? 'home') === targetLocation &&
-			column === Number(targetColumn)
+		stackId === undefined && roomId === targetLocation && column === Number(targetColumn)
 	);
 
 	function selectTargetLocation(value: string) {
@@ -377,13 +405,12 @@
 			const sourceCards = cardList(config);
 			if (!sourceCards) return;
 			const targetRoom = config.rooms.find((entry) => entry.id === targetLocation);
-			if (targetLocation !== 'home' && !targetRoom) return;
+			if (!targetRoom) return;
 			// persist in-progress field edits before the editor.set below remounts
 			// the sheet and discards local state
 			sourceCards[index] = buildCard(sourceCards[index].id);
 			const [card] = sourceCards.splice(index, 1);
-			const destinationColumns =
-				targetLocation === 'home' ? config.overview : ensureRoomCardColumns(targetRoom!);
+			const destinationColumns = ensureRoomCardColumns(targetRoom);
 			if (destinationColumns.length === 0) destinationColumns.push([]);
 			const destinationColumnIndex = Math.min(
 				Math.max(0, Number(targetColumn) || 0),
@@ -394,12 +421,9 @@
 			newIndex = destination.length;
 			destination.push(card);
 		});
-		editor.set({
-			kind: 'card',
-			column: newColumn,
-			index: newIndex,
-			roomId: targetLocation === 'home' ? undefined : targetLocation
-		});
+		// follow the card, otherwise Done returns to a page it no longer sits on
+		currentRoom.set(targetLocation);
+		editor.set({ kind: 'card', roomId: targetLocation, column: newColumn, index: newIndex });
 	}
 </script>
 
@@ -506,6 +530,27 @@
 					<input type="checkbox" bind:checked={showCount} />
 					<span>Show active count in header</span>
 				</label>
+				<label class="check">
+					<input type="checkbox" bind:checked={gridReadonly} />
+					<span>Display only (no tile ever sends a command)</span>
+				</label>
+				<label class="check">
+					<input type="checkbox" bind:checked={gridCollapsed} />
+					<span>Collapse into a summary row (details in a popover)</span>
+				</label>
+
+				{#if gridCollapsed}
+					<IconField label="Summary row icon (optional)" bind:value={gridIcon} />
+					<TextField
+						label="Summary text (optional)"
+						bind:value={gridSummary}
+						placeholder="5 open · 3 closed"
+					/>
+					<EntityField label="Summary from entity (optional)" bind:value={gridSummaryEntity} />
+					<div class="hint">
+						Without either, the row counts the entities that are on. The title names the group.
+					</div>
+				{/if}
 
 				<div class="group-label">ENTITIES</div>
 				{#each entities as ref, refIndex (refIndex)}
@@ -523,6 +568,12 @@
 									{ value: 'stat', label: 'Stat box' }
 								]}
 							/>
+							{#if !gridReadonly}
+								<label class="check">
+									<input type="checkbox" bind:checked={ref.readonly} />
+									<span>Display only</span>
+								</label>
+							{/if}
 						</div>
 						<span class="row-actions">
 							<span
@@ -547,7 +598,8 @@
 				{/each}
 				<div
 					class="add-filter"
-					onclick={() => entities.push({ entity: '', name: '', icon: '', display: '' })}
+					onclick={() =>
+						entities.push({ entity: '', name: '', icon: '', display: '', readonly: false })}
 				>
 					<Icon name="add" size={18} />
 					<span>Add entity</span>
@@ -555,6 +607,21 @@
 			{/if}
 
 			{#if type === 'scenes'}
+				<SelectField
+					label="Style"
+					bind:value={sceneStyle}
+					options={[
+						{ value: 'chips', label: 'Chips' },
+						{ value: 'bar', label: 'Scene bar' }
+					]}
+				/>
+				{#if sceneStyle === 'bar'}
+					<div class="hint">
+						Equal-width tiles on one row, the active scene lit. Keep it to four scenes so the row
+						never scrolls.
+					</div>
+				{/if}
+
 				<div class="group-label">SCENES</div>
 				{#each scenes as ref, refIndex (refIndex)}
 					<div class="filter-row">
@@ -562,13 +629,41 @@
 							<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
 							<TextField label="Name (optional)" bind:value={ref.name} />
 							<IconField label="Icon (optional)" bind:value={ref.icon} />
+							{#if sceneStyle === 'bar'}
+								<TextField
+									label="Caption (optional)"
+									bind:value={ref.caption}
+									placeholder="23:00, all off, ..."
+								/>
+							{/if}
+							<EntityField label="Active while entity (optional)" bind:value={ref.active_entity} />
+							<TextField
+								label="...is in state (optional)"
+								bind:value={ref.active_state}
+								placeholder="on"
+							/>
 						</div>
 						<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
 							<Icon name="delete" size={20} />
 						</span>
 					</div>
 				{/each}
-				<div class="add-filter" onclick={() => scenes.push({ entity: '', name: '', icon: '' })}>
+				<div class="hint">
+					Without an indicator entity, the most recently applied scene entity counts as active.
+					Scripts always need one, since a script has no activation timestamp.
+				</div>
+				<div
+					class="add-filter"
+					onclick={() =>
+						scenes.push({
+							entity: '',
+							name: '',
+							icon: '',
+							caption: '',
+							active_entity: '',
+							active_state: ''
+						})}
+				>
 					<Icon name="add" size={18} />
 					<span>Add scene</span>
 				</div>
@@ -1031,7 +1126,7 @@
 		gap: 10px;
 		font-size: 14px;
 		color: var(--h-text-3);
-		margin-top: 4px;
+		margin: 4px 0 10px;
 		cursor: pointer;
 	}
 

@@ -2,7 +2,7 @@ import { get, writable } from 'svelte/store';
 import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
 import { connection, states } from '$lib/Stores';
 import { getTogglableService } from '$lib/Utils';
-import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
+import { DEFAULT_HEARTH_CONFIG, type HearthConfig, type SceneRef } from './config';
 
 /* configuration */
 
@@ -55,15 +55,11 @@ export function redoConfig() {
 export const hearthEditMode = writable(false);
 
 export type Editor =
-	| { kind: 'light'; id: string | null }
-	| { kind: 'blind'; id: string | null }
-	| { kind: 'device'; roomId: string; index: number | null }
 	| { kind: 'room'; id: string | null }
-	// column indexes into the overview's columns, or the room's card columns
-	// when roomId is set; with stackId the target list is that stack's cards
-	// array within the column instead
-	| { kind: 'card'; column: number; index: number | null; roomId?: string; stackId?: string }
-	| { kind: 'stack'; column: number; index: number; roomId?: string }
+	// column indexes into the page's card columns; with stackId the target list
+	// is that stack's cards array within the column instead
+	| { kind: 'card'; roomId: string; column: number; index: number | null; stackId?: string }
+	| { kind: 'stack'; roomId: string; column: number; index: number }
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' }
 	| { kind: 'settings' }
@@ -130,6 +126,10 @@ export const currentRoom = writable<string>('home');
 export type Popup = { kind: 'light' | 'blind' | 'fan' | 'media'; entity: string; name: string };
 
 export const popup = writable<Popup | null>(null);
+
+// open anchored popovers (collapsed groups); window-level shortcuts check this
+// so they cannot open another layer on top of one
+export const openPopovers = writable(0);
 
 export function closePopup() {
 	popup.set(null);
@@ -469,6 +469,139 @@ export function setClimateHvacMode(entity: string, mode: string) {
 export function activateScene(entity: string) {
 	markPending(entity);
 	service('scene', 'turn_on', { entity_id: entity });
+}
+
+// only HA's own timestamp shape: Date.parse accepts far looser input, so a
+// numeric sensor state like "12" would otherwise parse as a date in 2001
+const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+/**
+ * Epoch ms of a scene's last activation - a scene entity's state is that
+ * timestamp - or null for a scene that has not run (or a script entity, whose
+ * state is on/off and carries no activation time).
+ */
+export function sceneActivatedAt(
+	entityId: string,
+	$states: HassEntities | undefined
+): number | null {
+	const state = $states?.[entityId]?.state;
+	if (!state || !ISO_TIMESTAMP.test(state)) return null;
+	const time = Date.parse(state);
+	return Number.isFinite(time) ? time : null;
+}
+
+/**
+ * Index of the scene the house is currently in, or -1. An indicator entity is
+ * the stronger signal, so every scene that has one is checked first and the
+ * first match wins; the rest then compete on which was applied most recently.
+ */
+export function activeSceneIndex(scenes: SceneRef[], $states: HassEntities | undefined): number {
+	const indicated = scenes.findIndex((ref) => {
+		if (!ref.active_entity) return false;
+		const state = $states?.[ref.active_entity]?.state;
+		return state !== undefined && state === (ref.active_state ?? 'on');
+	});
+	if (indicated >= 0) return indicated;
+
+	let latest = -1;
+	let latestTime = -Infinity;
+	for (const [index, ref] of scenes.entries()) {
+		// a scene with an indicator said no above; it never wins on timestamp
+		if (ref.active_entity) continue;
+		const time = sceneActivatedAt(ref.entity, $states);
+		if (time !== null && time > latestTime) {
+			latestTime = time;
+			latest = index;
+		}
+	}
+	return latest;
+}
+
+/* entity groups */
+
+const OPEN_CLOSED_CLASSES = ['door', 'window', 'garage_door', 'opening'];
+const OPENING_STATES = ['open', 'opening', 'closing'];
+
+/** Domains whose entities read as active or inactive in a group summary. */
+const SUMMARY_DOMAINS = [
+	'light',
+	'switch',
+	'input_boolean',
+	'fan',
+	'cover',
+	'valve',
+	'binary_sensor',
+	'media_player',
+	'lock',
+	'humidifier'
+];
+
+function groupActive(entityId: string, entity: HassEntity | undefined) {
+	if (!entity) return false;
+	const domain = entityId.split('.')[0];
+	if (domain === 'cover' || domain === 'valve') return OPENING_STATES.includes(entity.state);
+	if (domain === 'lock') return entity.state === 'unlocked';
+	return entityOn(entityId, entity);
+}
+
+/** Active/inactive wording for one entity. */
+function summaryWords(entityId: string, entity: HassEntity | undefined): [string, string] {
+	const domain = entityId.split('.')[0];
+	if (domain === 'cover' || domain === 'valve') return ['open', 'closed'];
+	if (domain === 'lock') return ['unlocked', 'locked'];
+	if (domain === 'binary_sensor') {
+		const deviceClass: string | undefined = entity?.attributes?.device_class;
+		if (deviceClass && OPEN_CLOSED_CLASSES.includes(deviceClass)) return ['open', 'closed'];
+		if (deviceClass === 'motion' || deviceClass === 'occupancy') return ['detected', 'clear'];
+	}
+	return ['on', 'off'];
+}
+
+const UNAVAILABLE_STATES = ['unavailable', 'unknown'];
+
+/**
+ * Collapsed-group caption, e.g. "5 open · 3 closed". Entities without an on/off
+ * notion (sensors) and entities that are unavailable are not counted, since
+ * calling either of those "off" would be a lie; a group with nothing countable
+ * falls back to its size. Wording follows the group's entities only while they
+ * agree - a mixed group says on/off. `badge` is the active half alone, for the
+ * popover header.
+ */
+export function entityGroupSummary(
+	entityIds: string[],
+	$states: HassEntities | undefined
+): { text: string; badge: string | null; activeLabel: string } {
+	// eligible by domain, so the wording holds before any state has arrived
+	const eligible = entityIds.filter((entityId) => SUMMARY_DOMAINS.includes(entityId.split('.')[0]));
+	if (!eligible.length) {
+		const size = `${entityIds.length} ${entityIds.length === 1 ? 'entity' : 'entities'}`;
+		return { text: size, badge: null, activeLabel: size };
+	}
+	// counted only where the state says something: an unavailable or not yet
+	// loaded entity is neither active nor inactive
+	const countable = eligible.filter((entityId) => {
+		const entity = $states?.[entityId];
+		return entity !== undefined && !UNAVAILABLE_STATES.includes(entity.state);
+	});
+	const words = eligible.map((entityId) => summaryWords(entityId, $states?.[entityId]));
+	const [activeWord, inactiveWord] = words.every(
+		([active, inactive]) => active === words[0][0] && inactive === words[0][1]
+	)
+		? words[0]
+		: (['on', 'off'] as [string, string]);
+	const active = countable.filter((entityId) => groupActive(entityId, $states?.[entityId])).length;
+	const inactive = countable.length - active;
+	const activeLabel = `${active} ${activeWord}`;
+	const parts = [
+		...(active ? [activeLabel] : []),
+		...(inactive ? [`${inactive} ${inactiveWord}`] : [])
+	];
+	// nothing countable yet: still say it in the group's own words
+	return {
+		text: parts.length ? parts.join(' · ') : activeLabel,
+		badge: active ? activeLabel : null,
+		activeLabel
+	};
 }
 
 /* vacuum */

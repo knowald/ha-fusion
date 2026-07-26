@@ -17,16 +17,16 @@
 		entity,
 		name = undefined,
 		icon = undefined,
-		dragId = undefined,
 		compact = false,
+		readonly = false,
 		onedit = undefined
 	}: {
 		entity: string;
 		name?: string;
 		icon?: string;
-		/** data-id for a surrounding sortable grid; also shows the drag handle */
-		dragId?: string;
 		compact?: boolean;
+		/** display only: taps never send a command */
+		readonly?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -42,16 +42,18 @@
 	);
 
 	let pending = $derived($pendingEntities[entity] !== undefined);
+	let interactive = $derived($hearthEditMode || !readonly);
 </script>
 
 <div
-	class="tile pressable"
+	class="tile"
 	class:compact
+	class:pressable={interactive}
 	class:open
 	class:pending
-	data-id={dragId ?? entity}
-	use:Ripple={PRESS_RIPPLE}
-	onclick={() => ($hearthEditMode ? onedit?.() : toggleBlind(entity))}
+	data-id={entity}
+	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
+	onclick={() => ($hearthEditMode ? onedit?.() : readonly || toggleBlind(entity))}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">
@@ -66,13 +68,9 @@
 		</div>
 	</div>
 	{#if $hearthEditMode && onedit}
-		<span class="tile-edit">
-			{#if dragId}
-				<span class="drag-handle"><Icon name="drag_indicator" size={19} /></span>
-			{/if}
-			<TuneButton icon="edit" onopen={onedit} />
-		</span>
-	{:else if !$hearthEditMode}
+		<TuneButton icon="edit" onopen={onedit} />
+	{:else if !$hearthEditMode && !readonly}
+		<!-- a readonly tile shows position but offers no way to change it -->
 		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label })} />
 	{/if}
 </div>
@@ -86,12 +84,17 @@
 		justify-content: space-between;
 		padding: 15px 16px;
 		border-radius: var(--h-radius-md);
-		cursor: pointer;
-		touch-action: none;
+		/* pan-y, not none: the horizontal gesture stays ours while a vertical
+		   swipe still scrolls the page or an enclosing popover */
+		touch-action: pan-y;
 		user-select: none;
 		-webkit-user-select: none;
 		background: rgb(var(--h-surface-rgb) / 0.045);
 		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+	}
+
+	.tile.pressable {
+		cursor: pointer;
 	}
 
 	.tile.compact {
@@ -140,19 +143,5 @@
 
 	.state.open {
 		color: var(--h-cool-text);
-	}
-
-	.tile-edit {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		color: var(--h-icon);
-	}
-
-	.drag-handle {
-		cursor: grab;
-		display: inline-flex;
 	}
 </style>
