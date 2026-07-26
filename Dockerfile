@@ -1,5 +1,7 @@
-# first stage, can't use alpine for building armv7
-FROM node:22 AS builder
+# first stage: build natively on the build host - the bundle is plain JS and
+# all production deps are pure JS, so the output is architecture-independent.
+# Building under qemu segfaults 32-bit node (armv7) since the bundle grew.
+FROM --platform=$BUILDPLATFORM node:22 AS builder
 WORKDIR /app
 
 # copy package files first for better layer caching
