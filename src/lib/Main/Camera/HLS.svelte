@@ -83,12 +83,15 @@
 					lowLatencyMode: true
 				};
 
-				if (!hls) hls = new Hls(config);
+				hls = new Hls(config);
+				const sourceUrl = stream_url;
 
-				hls.loadSource(stream_url);
-				hls.attachMedia(video);
-
-				// events
+				// Register recovery before loading begins. Home Assistant's HLS
+				// endpoint can briefly return an unavailable playlist while its
+				// stream worker starts or refreshes.
+				hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+					hls?.loadSource(sourceUrl);
+				});
 				hls.on(Hls.Events.MANIFEST_PARSED, () => {
 					if (debug) console.debug('HLS attached:', sel?.entity_id);
 					loaderVisible = false;
@@ -103,18 +106,22 @@
 					if (data.fatal) {
 						switch (data.type) {
 							case Hls.ErrorTypes.MEDIA_ERROR:
-								console.error('fatal media error encountered, try to recover');
+								if (debug) console.debug('Recovering HLS media error:', data.details);
 								hls?.recoverMediaError();
 								break;
 							case Hls.ErrorTypes.NETWORK_ERROR:
-								console.error('fatal network error encountered', data);
+								if (debug) console.debug('Retrying HLS network request:', data.details);
+								hls?.startLoad();
 								break;
 							default:
 								hls?.destroy();
+								hls = undefined;
 								break;
 						}
 					}
 				});
+
+				hls.attachMedia(video);
 
 				// safari native hls
 			} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
