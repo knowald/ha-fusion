@@ -55,13 +55,14 @@
 		busy = true;
 
 		try {
-			// get url
-			const response: { url: string } = await $connection?.sendMessagePromise({
+			// get url; a card pointing at a camera that no longer exists gets no
+			// response at all, which used to throw on the property read
+			const response: { url?: string } | undefined = await $connection?.sendMessagePromise({
 				type: 'camera/stream',
 				entity_id: entity?.entity_id
 			});
 
-			stream_url = response.url;
+			stream_url = response?.url;
 			if (!stream_url) return;
 
 			// The video element is conditional on stream_url. Wait for Svelte to

@@ -210,8 +210,11 @@ export function generateId(data: Dashboard) {
  * YYYY-MM-DDTHH:MM:SS
  */
 export function isTimestamp(state: string) {
-	const format = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-	return format.test(state);
+	// anchored: a state that merely contains a date-like run (a log line, an
+	// attribute dump) is not a timestamp, and treating it as one used to reach
+	// relativeTime with an unparseable value
+	const format = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+	return format.test(state) && !isNaN(new Date(state).getTime());
 }
 
 /**
@@ -221,8 +224,11 @@ export function isTimestamp(state: string) {
 export function relativeTime(timestamp: string, languageCode: string | undefined) {
 	const date = new Date(timestamp);
 
+	// an unparseable date used to make `diff` NaN, which walked the unit loop
+	// past its last entry and threw - taking down whatever render was in flight
 	if (isNaN(date.getTime())) {
-		console.error('Invalid timestamp');
+		console.error(`Invalid timestamp: ${timestamp}`);
+		return timestamp;
 	}
 
 	const formatter = new Intl.RelativeTimeFormat(languageCode, { numeric: 'auto' });
@@ -242,7 +248,7 @@ export function relativeTime(timestamp: string, languageCode: string | undefined
 	const diff = (date.getTime() - now.getTime()) / 1000;
 
 	let diffUnit = Math.abs(diff);
-	for (index = 0; index < units.length; index++) {
+	for (index = 0; index < units.length - 1; index++) {
 		if (diffUnit < units[index][1]) break;
 		diffUnit /= units[index][1];
 	}
