@@ -1,5 +1,11 @@
 # Changelog
 
+## [2026.7.3](https://github.com/knowald/ha-fusion/releases/tag/2026.7.3) - 2026-07-26
+
+### Fixed
+
+- Repair the multi-arch Docker image build by compiling the web bundle on the build platform, 32-bit node segfaulted under emulation (2a82569)
+
 ## [2026.7.2](https://github.com/knowald/ha-fusion/releases/tag/2026.7.2) - 2026-07-26
 
 ### Added
