@@ -1,5 +1,26 @@
 # Changelog
 
+## [2026.7.2](https://github.com/knowald/ha-fusion/releases/tag/2026.7.2) - 2026-07-26
+
+### Added
+
+- Add an early preview of the Hearth dashboard, opt in by setting `hearth: true` in `configuration.yaml` to get a drawer button that opens it (11714cc)
+
+### Changed
+
+- Bump JS dependencies within semver ranges and fix audit vulnerabilities (b88855c)
+- Bump GitHub Actions used by CI workflows (2de6447, 8ce9635, 5e42074, d00fc8e, 4f86983)
+
+### Fixed
+
+- Recover camera HLS playback after network errors (d6fa0f3)
+- Harden auth token handling and redirect back to the ingress path after login (d7aae9c)
+- Set the connected store on the initial websocket connection (ff6e096)
+- Guard modal state reads against pre-connection undefined states (6e91dc2)
+- Declare mutated component state with $state so updates render (bcf20c0)
+- Reserve a scrollbar gutter in the modal body instead of padding tricks (c1a1906)
+- Make the sidebar weather responsive (7e8eb64)
+
 ## [2026.7.1](https://github.com/knowald/ha-fusion/releases/tag/2026.7.1) - 2026-07-09
 
 ### Fixed
