@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { editMode, history, historyIndex, motion } from '$lib/Stores';
+	import { configuration, editMode, history, historyIndex, motion } from '$lib/Stores';
 	import Separator from '$lib/Drawer/Separator.svelte';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -96,6 +96,14 @@
 				{/await}
 			</div>
 
+			{#if $configuration?.hearth}
+				<div class="hearth">
+					{#await import('$lib/Drawer/HearthButton.svelte') then HearthButton}
+						<HearthButton.default />
+					{/await}
+				</div>
+			{/if}
+
 			<div class="settings push">
 				{#await import('$lib/Drawer/SettingsButton.svelte') then SettingsButton}
 					<SettingsButton.default {data} />
@@ -155,6 +163,11 @@
 		grid-area: settings;
 	}
 
+	.hearth {
+		grid-area: hearth;
+		justify-self: end;
+	}
+
 	.push {
 		justify-self: end;
 		margin-right: 3.7rem;
@@ -163,8 +176,8 @@
 	.grid {
 		display: grid;
 		gap: 0.5rem;
-		grid-template-areas: 'edit code div search settings';
-		grid-template-columns: auto auto auto 1fr auto;
+		grid-template-areas: 'edit code div search hearth settings';
+		grid-template-columns: auto auto auto 1fr auto auto;
 		width: 100%;
 	}
 
@@ -185,10 +198,10 @@
 		}
 
 		.grid {
-			grid-template-columns: auto auto 1fr 1fr;
+			grid-template-columns: auto auto 1fr auto auto;
 			grid-template-areas:
-				'edit code . settings'
-				'search search search search';
+				'edit code . hearth settings'
+				'search search search search search';
 		}
 
 		.grid-editmode {

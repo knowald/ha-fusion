@@ -73,6 +73,10 @@
 			if (Object.keys(addons).length > 0) json.addons = addons;
 			if (custom_js) json.custom_js = custom_js;
 
+			// hearth preview opt-in is yaml-only; carry it through the full-file
+			// rewrite so saving settings doesn't drop it
+			if ($configuration.hearth) json.hearth = true;
+
 			if (!formMotion) {
 				$motion = 0;
 				json.motion = false;

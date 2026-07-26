@@ -189,6 +189,12 @@
 		target.type = event.type === 'focus' ? 'text' : 'password';
 	}
 
+	function openClassicDashboard() {
+		// full page load; with relative paths (ingress) `base` resolves against
+		// the current URL, keeping the per-installation ingress prefix
+		location.assign(`${base}/`);
+	}
+
 	function handleLogout() {
 		if (!confirm('Log out and clear the Home Assistant session?')) return;
 		localStorage.removeItem('hassTokens');
@@ -371,6 +377,14 @@
 					<div class="row-main">
 						<div class="row-label">Edit configuration YAML</div>
 						<div class="row-sub">Edits the whole configuration as YAML in one place</div>
+					</div>
+					<Icon name="chevron_right" size={20} />
+				</div>
+				<div class="row action pressable" use:Ripple={PRESS_RIPPLE} onclick={openClassicDashboard}>
+					<Icon name="grid_view" size={18} />
+					<div class="row-main">
+						<div class="row-label">Classic dashboard</div>
+						<div class="row-sub">Back to the original ha-fusion dashboard</div>
 					</div>
 					<Icon name="chevron_right" size={20} />
 				</div>
