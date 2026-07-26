@@ -24,6 +24,12 @@ export default tseslint.config(
 			parserOptions: {
 				parser: tseslint.parser
 			}
+		},
+		rules: {
+			// svelte components are typescript; tsc checks undefined names and
+			// core no-undef false-positives on type-only DOM names like
+			// RTCIceCandidateInit (typescript-eslint disables it for .ts files)
+			'no-undef': 'off'
 		}
 	},
 	{

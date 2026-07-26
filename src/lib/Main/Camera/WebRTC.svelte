@@ -16,7 +16,6 @@
 	 */
 
 	let {
-		sel,
 		entity,
 		stream_url = $bindable(),
 		muted = true,
@@ -28,7 +27,6 @@
 		attachVideo,
 		allowEditStream = false
 	}: {
-		sel: any;
 		entity: any;
 		stream_url?: any | undefined;
 		muted?: boolean | undefined;
