@@ -1,7 +1,7 @@
 # first stage: build natively on the build host - the bundle is plain JS and
 # all production deps are pure JS, so the output is architecture-independent.
 # Building under qemu segfaults 32-bit node (armv7) since the bundle grew.
-FROM --platform=$BUILDPLATFORM node:22 AS builder
+FROM --platform=$BUILDPLATFORM node:24 AS builder
 WORKDIR /app
 
 # copy package files first for better layer caching
@@ -19,7 +19,7 @@ RUN pnpm run build && \
   pnpm prune --prod
 
 # second stage
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 # copy files to /app
