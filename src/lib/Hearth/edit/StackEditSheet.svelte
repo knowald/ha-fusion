@@ -19,6 +19,7 @@
 
 	let title = $state(initial?.title ?? '');
 	let direction = $state<OverviewStack['direction']>(initial?.direction ?? 'horizontal');
+	let fill = $state<string>(typeof initial?.fill === 'number' ? String(initial.fill) : '');
 
 	const DIRECTION_OPTIONS: { value: OverviewStack['direction']; label: string }[] = [
 		{ value: 'horizontal', label: 'Horizontal' },
@@ -35,6 +36,8 @@
 			if (!target || !isStack(target)) return;
 			target.title = title.trim() || undefined;
 			target.direction = direction;
+			const fillValue = fill === '' ? undefined : Number(fill);
+			target.fill = Number.isFinite(fillValue as number) ? fillValue : undefined;
 		});
 		close();
 	}
@@ -55,4 +58,14 @@
 <EditSheet title="Edit stack" onclose={close} ondone={done} onremove={unwrap} removeLabel="Unwrap">
 	<TextField label="Title (optional)" bind:value={title} placeholder="Living room" />
 	<SelectField label="Direction" bind:value={direction} options={DIRECTION_OPTIONS} />
+	<SelectField
+		label="Fill leftover height"
+		bind:value={fill}
+		options={[
+			{ value: '', label: 'No, size to content' },
+			{ value: '1', label: 'Yes, one share' },
+			{ value: '2', label: 'Yes, double share' },
+			{ value: '3', label: 'Yes, triple share' }
+		]}
+	/>
 </EditSheet>

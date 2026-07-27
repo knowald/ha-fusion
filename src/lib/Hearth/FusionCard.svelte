@@ -21,7 +21,11 @@
 	let load = $derived(item?.type ? components[item.type] : undefined);
 </script>
 
-<div class="fusion">
+<div
+	class="fusion"
+	class:sized={card.height}
+	style:height={card.height ? `${card.height}px` : undefined}
+>
 	{#if !load}
 		<div class="placeholder">Fusion object: set a type in the card editor</div>
 	{:else}
@@ -45,6 +49,13 @@
 		font-size: 1rem;
 		border-radius: var(--h-radius-md);
 		overflow: hidden;
+	}
+
+	/* embeds size themselves (the spotify player from the fusion item height,
+	   inline); an explicit card height has to win over that */
+	.fusion.sized > :global(*) {
+		height: 100% !important;
+		min-height: 0 !important;
 	}
 
 	.placeholder {

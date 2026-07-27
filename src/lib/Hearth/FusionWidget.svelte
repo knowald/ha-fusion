@@ -82,7 +82,12 @@
 	});
 </script>
 
-<div class="fusion" onclick={handleClick}>
+<div
+	class="fusion"
+	class:sized={widget.height}
+	style:--fusion-height={widget.height ? `${widget.height}px` : undefined}
+	onclick={handleClick}
+>
 	{#if !load}
 		<div class="placeholder">Fusion widget: set a type in the widget editor</div>
 	{:else}
@@ -99,6 +104,15 @@
 	.fusion {
 		font-size: var(--theme-sidebar-font-size, 1rem);
 		color: var(--h-text-2);
+	}
+
+	/* the drawing area, not the widget's label row: the graph's timeline, an
+	   iframe, a camera still or an image */
+	.fusion.sized :global(.timeline),
+	.fusion.sized :global(iframe),
+	.fusion.sized :global(img),
+	.fusion.sized :global(video) {
+		height: var(--fusion-height) !important;
 	}
 
 	.placeholder {

@@ -51,7 +51,7 @@
 	});
 </script>
 
-<div class="card">
+<div class="card" style:height={card.height ? `${card.height}px` : undefined}>
 	<div class="label">{card.label ?? ''}</div>
 	<div class="reading">
 		<span class="value">{value === null ? '-' : value.toFixed(1)}</span>

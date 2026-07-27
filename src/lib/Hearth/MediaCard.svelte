@@ -55,7 +55,11 @@
 	}
 </script>
 
-<div class="card">
+<div
+	class="card"
+	style:height={card.height ? `${card.height}px` : undefined}
+	style:min-height={card.height ? `${card.height}px` : undefined}
+>
 	{#if attributes.entity_picture}
 		<img class="art" src={attributes.entity_picture} alt="" />
 	{:else}

@@ -4,7 +4,7 @@
 	import CardColumns from './CardColumns.svelte';
 	import HeaderCard from './HeaderCard.svelte';
 
-	let { roomId }: { roomId: string } = $props();
+	let { roomId, fillScreen = false }: { roomId: string; fillScreen?: boolean } = $props();
 
 	let room = $derived($hearthConfig.rooms.find((entry) => entry.id === roomId));
 
@@ -24,7 +24,7 @@
 </script>
 
 {#if room}
-	<div class="page">
+	<div class="page" class:fill={fillScreen}>
 		{#if !room.hide_header || $hearthEditMode}
 			<div class="header-slot" class:hidden-header={room.hide_header}>
 				<HeaderCard
@@ -44,6 +44,7 @@
 			groupName="hearth-cards"
 			{roomId}
 			fill
+			clipToHeight={fillScreen}
 		/>
 	</div>
 {/if}
@@ -53,6 +54,13 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 100%;
+	}
+
+	/* fill mode: the page is exactly the screen, so the columns can hand their
+	   leftover height to the cards that stretch */
+	.page.fill {
+		height: 100%;
+		min-height: 0;
 	}
 
 	.header-slot {

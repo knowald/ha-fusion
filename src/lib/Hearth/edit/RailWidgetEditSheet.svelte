@@ -101,6 +101,9 @@
 	let visibility = $state<VisibilityCondition[]>(
 		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
 	);
+	let height = $state<string>(
+		initial?.type === 'fusion' && initial.height ? String(initial.height) : ''
+	);
 	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
 	let fusionType = $state<string>(String(initialFusion.type ?? 'sensor'));
 	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
@@ -264,10 +267,12 @@
 			};
 		}
 		if (type === 'fusion') {
+			const heightValue = parseInt(height, 10);
 			return {
 				id,
 				type,
 				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
+				height: Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined,
 				hide_mobile,
 				visibility: visibilityValue
 			};
@@ -492,6 +497,7 @@
 						onchange={() => advancedOpen && resetAdvancedYaml()}
 					/>
 					<FusionFields type={fusionType} bind:options={fusionOptions} />
+					<TextField label="Height in px (optional)" bind:value={height} placeholder="120" />
 					<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
 						<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
 						<span>Advanced (YAML)</span>

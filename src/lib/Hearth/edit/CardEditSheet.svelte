@@ -108,6 +108,16 @@
 	let headerHumidityEntity = $state(
 		initial?.type === 'header' ? (initial.humidity_entity ?? '') : ''
 	);
+	// blank means the type's own default: media and sensor cards fill, the rest
+	// size to their content
+	let fill = $state<string>(
+		initial && 'fill' in initial && typeof initial.fill === 'number' ? String(initial.fill) : ''
+	);
+	// blank means "size to content" for a fusion embed, or "fill the column" for
+	// the two cards that stretch
+	let height = $state<string>(
+		initial && 'height' in initial && initial.height ? String(initial.height) : ''
+	);
 	let gridStyle = $state<string>(initial?.type === 'entities' ? (initial.style ?? 'tile') : 'tile');
 	let gridColumns = $state<string>(
 		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
@@ -233,6 +243,10 @@
 
 	function buildCard(id: string): OverviewCard {
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
+		const heightValue = parseInt(height, 10);
+		const cardHeight = Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined;
+		const fillValue = fill === '' ? undefined : Number(fill);
+		const cardFill = Number.isFinite(fillValue as number) ? fillValue : undefined;
 		if (type === 'header') {
 			return {
 				id,
@@ -242,6 +256,7 @@
 				icon: headerIcon.trim() || undefined,
 				temp_entity: headerTempEntity.trim() || undefined,
 				humidity_entity: headerHumidityEntity.trim() || undefined,
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -252,6 +267,8 @@
 				label: label.trim() || undefined,
 				entity: entity.trim() || undefined,
 				unit: unit.trim() || undefined,
+				height: cardHeight,
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -279,6 +296,7 @@
 						readonly: ref.readonly || undefined
 					}))
 					.filter((ref) => ref.entity),
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -289,6 +307,7 @@
 				title: title.trim() || undefined,
 				entity: entity.trim() || undefined,
 				stream: cameraStream || undefined,
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -298,6 +317,7 @@
 				type,
 				title: title.trim() || undefined,
 				entity: entity.trim() || undefined,
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -317,6 +337,7 @@
 						active_state: ref.active_state?.trim() || undefined
 					}))
 					.filter((ref) => ref.entity),
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -325,6 +346,18 @@
 				id,
 				type,
 				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
+				height: cardHeight,
+				fill: cardFill,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'media') {
+			return {
+				id,
+				type,
+				entity: entity.trim() || undefined,
+				height: cardHeight,
+				fill: cardFill,
 				visibility: visibilityValue
 			};
 		}
@@ -489,6 +522,31 @@
 
 			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
 				<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
+			{/if}
+
+			<SelectField
+				label="Fill leftover height"
+				bind:value={fill}
+				options={[
+					{ value: '', label: 'Default for this card type' },
+					{ value: '0', label: 'No, size to content' },
+					{ value: '1', label: 'Yes, one share' },
+					{ value: '2', label: 'Yes, double share' },
+					{ value: '3', label: 'Yes, triple share' }
+				]}
+			/>
+			<div class="hint">
+				Cards sharing a column split whatever height is left over, in proportion to their shares.
+				Only visible on a page set to fill the screen, or when a column is taller than its cards.
+			</div>
+
+			{#if type === 'temperature' || type === 'media' || type === 'fusion'}
+				<TextField label="Height in px (optional)" bind:value={height} placeholder="240" />
+				<div class="hint">
+					{type === 'fusion'
+						? 'Without it the embed keeps its own height.'
+						: 'Without it the card fills the rest of its column.'}
+				</div>
 			{/if}
 
 			{#if type === 'camera'}

@@ -21,6 +21,7 @@
 	let tempEntity = $state(initial?.temp_entity ?? '');
 	let humidityEntity = $state(initial?.humidity_entity ?? '');
 	let hideHeader = $state(initial?.hide_header ?? false);
+	let fillScreen = $state(initial?.fill_screen ? 'fill' : 'scroll');
 	let columns = $state(initial?.columns ? String(initial.columns) : '');
 
 	function close() {
@@ -43,6 +44,7 @@
 				room.temp_entity = tempEntity.trim() || undefined;
 				room.humidity_entity = humidityEntity.trim() || undefined;
 				room.hide_header = hideHeader || undefined;
+				room.fill_screen = fillScreen === 'fill' || undefined;
 				room.columns = roomColumns;
 				if (roomColumns !== undefined && room.cards?.length && room.cards.length !== roomColumns) {
 					room.cards = resizeCardColumns(room.cards, roomColumns);
@@ -59,6 +61,7 @@
 					temp_entity: tempEntity.trim() || undefined,
 					humidity_entity: humidityEntity.trim() || undefined,
 					hide_header: hideHeader || undefined,
+					fill_screen: fillScreen === 'fill' || undefined,
 					columns: roomColumns,
 					cards: Array.from({ length: roomColumns ?? 1 }, () => [])
 				});
@@ -102,6 +105,20 @@
 	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
+	<SelectField
+		label="Screen height"
+		bind:value={fillScreen}
+		options={[
+			{ value: 'scroll', label: 'Scrollable (default)' },
+			{ value: 'fill', label: 'Fill the screen' }
+		]}
+	/>
+	{#if fillScreen === 'fill'}
+		<div class="hint">
+			Media and sensor cards without a fixed height share the leftover space; anything past the
+			bottom edge is clipped. Below the tablet breakpoint the page scrolls regardless.
+		</div>
+	{/if}
 	<SelectField
 		label="Page columns"
 		bind:value={columns}

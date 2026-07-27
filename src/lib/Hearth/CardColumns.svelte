@@ -2,6 +2,7 @@
 	import { sortable } from '$lib/Actions/sortable';
 	import {
 		cloneOverviewItem,
+		fillWeight,
 		isStack,
 		takenCardIds,
 		uniqueId,
@@ -22,7 +23,8 @@
 		locate,
 		groupName,
 		roomId,
-		fill = false
+		fill = false,
+		clipToHeight = false
 	}: {
 		columns: OverviewItem[][];
 		// resolves the mutable columns array inside a config draft, initializing
@@ -32,6 +34,9 @@
 		// the page these columns belong to; carried into every editor target
 		roomId: string;
 		fill?: boolean;
+		// the page fills the screen: bound the grid so stretching cards share the
+		// leftover height rather than the page growing a scrollbar
+		clipToHeight?: boolean;
 	} = $props();
 
 	// Alt-drop duplicate: gives the clone (and, for a stack, every child) a
@@ -156,7 +161,8 @@
 					data-id={card.id}
 					data-card-type={card.type}
 					class:editing={$hearthEditMode}
-					class:stretch={card.type === 'media' || card.type === 'temperature'}
+					class:stretch={fillWeight(card) > 0}
+					style:--card-fill={fillWeight(card)}
 					class:visibility-dimmed={$hearthEditMode && !visible}
 				>
 					{#if $hearthEditMode}
@@ -169,7 +175,12 @@
 	</VisibilityGate>
 {/snippet}
 
-<div class="overview" class:fill style:--overview-columns={columns.length}>
+<div
+	class="overview"
+	class:fill
+	class:clip={clipToHeight}
+	style:--overview-columns={columns.length}
+>
 	{#each columns as column, columnIndex (columnIndex)}
 		<div
 			class="column"
@@ -191,6 +202,8 @@
 					<div
 						class="stack-slot"
 						class:editing={$hearthEditMode}
+						class:stretch={fillWeight(item) > 0}
+						style:--card-fill={fillWeight(item)}
 						data-id={item.id}
 						data-card-type="stack"
 					>
@@ -270,8 +283,23 @@
 		gap: 30px;
 	}
 
+	/* grow into the page's leftover height. It has to be flex-grow: the grid is a
+	   flex item of a page whose own height is auto, so a percentage min-height
+	   resolves against nothing and is silently ignored. */
 	.overview.fill {
-		min-height: 100%;
+		flex: 1 0 auto;
+	}
+
+	.overview.clip {
+		flex: 1;
+		height: 100%;
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	.overview.clip .column {
+		min-height: 0;
+		overflow: hidden;
 	}
 
 	@media (max-width: 1200px) {
@@ -298,8 +326,43 @@
 		padding: 12px;
 	}
 
-	.card-slot.stretch {
+	/* a filling slot takes its share of the column's leftover height; the floor
+	   keeps a heavy neighbour from crushing it into an unreadable sliver */
+	.card-slot.stretch,
+	.stack-slot.stretch {
+		flex: var(--card-fill, 1) 1 0;
+		min-height: 90px;
+	}
+
+	.card-slot.stretch[data-card-type='media'] {
+		min-height: 140px;
+	}
+
+	.card-slot.stretch[data-card-type='temperature'] {
+		min-height: 110px;
+	}
+
+	/* the card inside has to follow the slot rather than its own content */
+	.card-slot.stretch > :global(.section),
+	.card-slot.stretch > :global(.card) {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		min-height: 0;
+	}
+
+	/* the card absorbs the slack, its tiles do not: rows keep their natural
+	   height and the leftover sits below them (an entity grid draws no
+	   background, so that space is invisible). Too little room clips instead. */
+	.card-slot.stretch :global(.grid) {
 		flex: 1;
+		min-height: 0;
+		grid-auto-rows: minmax(44px, min-content);
+		align-content: start;
+		overflow: hidden;
+	}
+
+	.card-slot.stretch :global(.grid) > :global(*) {
 		min-height: 0;
 	}
 

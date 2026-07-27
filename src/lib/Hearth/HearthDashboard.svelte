@@ -46,6 +46,37 @@
 			: ($hearthConfig.rooms[0]?.id ?? '')
 	);
 
+	let activeRoom = $derived($hearthConfig.rooms.find((room) => room.id === activeRoomId));
+
+	// a fill page clips whatever does not fit, which is invisible until you walk
+	// to the tablet - so while editing, measure and say by how much
+	let mainElement = $state<HTMLElement | undefined>();
+	let overflowBy = $state(0);
+
+	$effect(() => {
+		if (!mainElement || !$hearthEditMode || !activeRoom?.fill_screen) {
+			overflowBy = 0;
+			return;
+		}
+		const element = mainElement;
+		// the clipping happens per column, not on <main>, so <main> always looks
+		// like it fits - measure the columns and report the worst one
+		const measure = () => {
+			// a column can overflow, and so can a filling card clipping its own
+			// grid - report whichever is worse
+			const clipped = [...element.querySelectorAll<HTMLElement>('.column, .card-slot')];
+			overflowBy = clipped.reduce(
+				(worst, node) => Math.max(worst, node.scrollHeight - node.clientHeight),
+				Math.max(0, element.scrollHeight - element.clientHeight)
+			);
+		};
+		measure();
+		const observer = new ResizeObserver(measure);
+		observer.observe(element);
+		for (const node of element.querySelectorAll('.column, .card-slot')) observer.observe(node);
+		return () => observer.disconnect();
+	});
+
 	// keep the selection on the page actually being rendered, so the rail
 	// highlights it and editor targets resolve against it
 	$effect(() => {
@@ -167,8 +198,8 @@
 		<div class="rail-scroll">
 			<Rail />
 		</div>
-		<main class="main">
-			<RoomDetail roomId={activeRoomId} />
+		<main class="main" class:fill={activeRoom?.fill_screen} bind:this={mainElement}>
+			<RoomDetail roomId={activeRoomId} fillScreen={activeRoom?.fill_screen ?? false} />
 		</main>
 	</div>
 	<ControlPopup />
@@ -192,6 +223,12 @@
 		<div class="save-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="check_circle" size={18} />
 			Saved
+		</div>
+	{/if}
+	{#if overflowBy > 0}
+		<div class="overflow-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
+			<Icon name="unfold_less" size={18} />
+			Page overflows this screen by {overflowBy}px
 		</div>
 	{/if}
 	{#if $hearthEditMode}
@@ -321,6 +358,12 @@
 		display: none;
 	}
 
+	/* a page that fills the screen never scrolls: its stretching cards absorb
+	   the leftover height and the rest is clipped at the bottom edge */
+	.main.fill {
+		overflow: hidden;
+	}
+
 	/* keep scrolled content clear of the floating save bar */
 	.layout.editing :global(.main > *),
 	.layout.editing .rail-scroll :global(.rail) {
@@ -413,6 +456,25 @@
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
 		color: var(--h-good-text);
+		font-size: 14px;
+		font-weight: 600;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	}
+
+	.overflow-toast {
+		position: absolute;
+		top: calc(18px + var(--h-pad-y));
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 40;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 16px;
+		border-radius: var(--h-radius-md);
+		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
+		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		color: var(--h-accent-text);
 		font-size: 14px;
 		font-weight: 600;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);

@@ -11,6 +11,9 @@ export interface HearthRoom {
 	humidity_entity?: string;
 	// drops the built-in page header; a `header` card can take its place
 	hide_header?: boolean;
+	// the page fills the screen instead of scrolling: cards that stretch share
+	// the leftover height and anything past the bottom edge is clipped
+	fill_screen?: boolean;
 	// fixes the page's card column count
 	columns?: number;
 	cards: OverviewItem[][];
@@ -96,7 +99,7 @@ type RailWidgetVariant =
 			icon?: string;
 			vertical_padding?: 'compact';
 	  }
-	| { id: string; type: 'fusion'; config?: Record<string, any> };
+	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
 export type RailWidget = RailWidgetVariant & {
@@ -115,8 +118,16 @@ type OverviewCardVariant =
 			temp_entity?: string;
 			humidity_entity?: string;
 	  }
-	| { id: string; type: 'temperature'; label?: string; entity?: string; unit?: string }
-	| { id: string; type: 'media'; entity?: string }
+	// height fixes the card in px; without it the card fills its column
+	| {
+			id: string;
+			type: 'temperature';
+			label?: string;
+			entity?: string;
+			unit?: string;
+			height?: number;
+	  }
+	| { id: string; type: 'media'; entity?: string; height?: number }
 	| { id: string; type: 'vacuum'; entity?: string }
 	// the general-purpose grid: any mix of domains, tiles adapt per domain
 	// (lights dim on drag, covers show position). `stat` renders big sensor
@@ -147,9 +158,18 @@ type OverviewCardVariant =
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	// `bar` renders the persistent scene row: equal-width tiles, active one lit
 	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
-	| { id: string; type: 'fusion'; config?: Record<string, any> };
+	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
-export type OverviewCard = OverviewCardVariant & { visibility?: VisibilityCondition[] };
+/**
+ * `fill` is a share of the leftover height in the card's column: 0 (or unset,
+ * for most types) sizes to content, 1 takes one share, 2 takes twice as much as
+ * a 1. Media and sensor cards fill by default, which is how they behaved before
+ * the option existed. A fixed `height` wins over any weight.
+ */
+export type OverviewCard = OverviewCardVariant & {
+	visibility?: VisibilityCondition[];
+	fill?: number;
+};
 
 /**
  * A named horizontal or vertical layout container, parity with the original
@@ -161,6 +181,8 @@ export interface OverviewStack {
 	kind: 'stack';
 	title?: string;
 	direction: 'horizontal' | 'vertical';
+	// same share-of-leftover-height meaning as on a card
+	fill?: number;
 	cards: OverviewCard[];
 }
 
@@ -169,6 +191,19 @@ export type OverviewItem = OverviewCard | OverviewStack;
 
 export function isStack(item: OverviewItem): item is OverviewStack {
 	return 'kind' in item && item.kind === 'stack';
+}
+
+/** Card types that take a share of the leftover height unless told otherwise. */
+const FILL_BY_DEFAULT = ['media', 'temperature'];
+
+/**
+ * How many shares of its column's leftover height an item takes. 0 means it
+ * sizes to its content.
+ */
+export function fillWeight(item: OverviewItem): number {
+	if (!isStack(item) && 'height' in item && item.height) return 0;
+	if (typeof item.fill === 'number') return Math.max(0, item.fill);
+	return !isStack(item) && FILL_BY_DEFAULT.includes(item.type) ? 1 : 0;
 }
 
 export type HearthTheme = Record<string, string>;
@@ -561,6 +596,18 @@ function migrateLegacyCard(card: any, registries: LegacyRegistries): any {
 	return card;
 }
 
+/** A fill weight; anything unusable means "use the type's default". */
+function normalizeFill(raw: unknown): number | undefined {
+	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 0
+		? Math.min(12, Math.round(raw * 10) / 10)
+		: undefined;
+}
+
+/** A card or widget height in px; anything unusable means "size to content". */
+function normalizeHeight(raw: unknown): number | undefined {
+	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 40 ? Math.round(raw) : undefined;
+}
+
 function normalizeEntityRef(raw: any): EntityRef {
 	return {
 		...raw,
@@ -613,12 +660,16 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 					summary_entity: trimmedOrUndefined(card.summary_entity)
 				}
 			: {}),
+		...(card.type === 'temperature' || card.type === 'media' || card.type === 'fusion'
+			? { height: normalizeHeight(card.height) }
+			: {}),
 		...(card.type === 'scenes'
 			? {
 					style: card.style === 'bar' ? 'bar' : undefined,
 					scenes: (Array.isArray(card.scenes) ? card.scenes : []).map(normalizeSceneRef)
 				}
 			: {}),
+		fill: normalizeFill(card.fill),
 		visibility: normalizeVisibility(card.visibility)
 	};
 }
@@ -632,7 +683,14 @@ function normalizeStack(raw: any, fallbackId: string, registries: LegacyRegistri
 		// children may be any non-stack card - nesting stops here
 		.filter((child: any) => child?.kind !== 'stack')
 		.map((child: any, index: number) => normalizeCard(child, `${id}-card-${index}`, registries));
-	return { id, kind: 'stack', direction, cards, ...(title ? { title } : {}) };
+	return {
+		id,
+		kind: 'stack',
+		direction,
+		cards,
+		fill: normalizeFill(raw.fill),
+		...(title ? { title } : {})
+	};
 }
 
 function normalizeOverviewItem(
@@ -801,6 +859,7 @@ function normalizeRoom(
 		temp_entity: trimmedOrUndefined(raw?.temp_entity),
 		humidity_entity: trimmedOrUndefined(raw?.humidity_entity),
 		hide_header: raw?.hide_header === true ? true : undefined,
+		fill_screen: raw?.fill_screen === true ? true : undefined,
 		columns,
 		cards: migrateRoomGrids(raw, id, normalizeRoomCards(raw, id, columns, registries), registries)
 	};
@@ -943,6 +1002,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 							widget.vertical_padding === 'compact' ? ('compact' as const) : undefined
 					}
 				: {}),
+			...(widget.type === 'fusion' ? { height: normalizeHeight(widget.height) } : {}),
 			hide_mobile: widget.hide_mobile === true ? true : undefined,
 			visibility: normalizeVisibility(widget.visibility)
 		})),
