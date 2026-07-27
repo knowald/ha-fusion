@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { states } from '$lib/Stores';
 	import { capitalize, type RailWidget } from './config';
 	import { hearthEditMode, sensorNumber } from './store';
@@ -10,7 +11,8 @@
 	const IDLE_STATES = ['idle', 'off', 'unavailable', 'unknown', 'standby', 'none', 'docked'];
 	const DEFAULT_COMPLETED_STATES = ['complete', 'completed', 'finished', 'done'];
 
-	let status = $derived(widget.status_entity ? $states?.[widget.status_entity]?.state : undefined);
+	let statusEntity = $derived(widget.status_entity ? $states?.[widget.status_entity] : undefined);
+	let status = $derived(statusEntity?.state);
 	let normalizedStatus = $derived(status?.toLowerCase());
 	let completed = $derived(
 		normalizedStatus !== undefined &&
@@ -36,20 +38,58 @@
 
 	// re-evaluated every 30s so timestamp countdowns tick without state changes
 	let now = $state(Date.now());
-	let completedAt = $state<number | null>(null);
-	let dismissed = $state(false);
+	let fallbackCompletedAt = $state<number | null>(null);
+	let dismissedCompletion = $state<string | null>(null);
 	$effect(() => {
 		const timer = setInterval(() => (now = Date.now()), 30_000);
 		return () => clearInterval(timer);
 	});
 	$effect(() => {
 		if (completed) {
-			if (completedAt === null) completedAt = Date.now();
+			if (fallbackCompletedAt === null) fallbackCompletedAt = Date.now();
 		} else {
-			completedAt = null;
-			dismissed = false;
+			fallbackCompletedAt = null;
+			dismissedCompletion = null;
 		}
 	});
+
+	// A completion is one occurrence, not just one status value. Home Assistant
+	// changes last_changed when the entity leaves and later re-enters a completed
+	// state, so a newly completed activity is not hidden by an older dismissal.
+	let completionId = $derived(
+		completed && normalizedStatus && statusEntity?.last_changed
+			? `${normalizedStatus}:${statusEntity.last_changed}`
+			: null
+	);
+	let dismissalStorageKey = $derived(`hearth:dismissed-progress:${widget.id}`);
+	$effect(() => {
+		if (!browser || !completionId) return;
+		try {
+			dismissedCompletion = localStorage.getItem(dismissalStorageKey);
+		} catch {
+			// Storage may be unavailable in privacy-restricted browser contexts.
+			dismissedCompletion = null;
+		}
+	});
+
+	let completedAt = $derived.by(() => {
+		const changedAt = statusEntity?.last_changed
+			? Date.parse(statusEntity.last_changed)
+			: Number.NaN;
+		return Number.isNaN(changedAt) ? fallbackCompletedAt : changedAt;
+	});
+	let dismissed = $derived(completionId !== null && dismissedCompletion === completionId);
+
+	function dismissCompletion() {
+		if (!completionId) return;
+		dismissedCompletion = completionId;
+		if (!browser) return;
+		try {
+			localStorage.setItem(dismissalStorageKey, completionId);
+		} catch {
+			// The in-memory dismissal still works for this page session.
+		}
+	}
 
 	let completionDelay = $derived(widget.completion_delay_minutes ?? 15);
 	let completionVisible = $derived(
@@ -83,7 +123,7 @@
 		class:completed
 		type={completed && !$hearthEditMode ? 'button' : undefined}
 		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
-		onclick={completed && !$hearthEditMode ? () => (dismissed = true) : undefined}
+		onclick={completed && !$hearthEditMode ? dismissCompletion : undefined}
 	>
 		<Icon name={widget.icon || 'autorenew'} size={20} color="var(--h-cool-icon)" />
 		<div class="body">
