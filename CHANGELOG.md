@@ -2,10 +2,6 @@
 
 ## [2026.7.4](https://github.com/knowald/ha-fusion/releases/tag/2026.7.4) - 2026-07-27
 
-### Changed
-
-- Build and run the Docker images on Node 24 (891f0c4)
-
 ### Fixed
 
 - Keep rendering when an entity state looks like a timestamp but cannot be parsed, the state is shown as-is instead of throwing (e3a7a0c)
