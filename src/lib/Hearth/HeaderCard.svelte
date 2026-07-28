@@ -112,10 +112,14 @@
 	}
 
 	.chip {
-		padding: 12px 18px;
+		height: 64px;
+		padding: 0 18px;
 		border-radius: var(--h-radius-sm);
 		background: rgb(var(--h-surface-rgb) / 0.05);
 		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		text-align: center;
 	}
 
