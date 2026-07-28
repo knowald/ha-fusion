@@ -10,7 +10,15 @@
 	import TemperatureCard from './TemperatureCard.svelte';
 	import VacuumRow from './VacuumRow.svelte';
 
-	let { card }: { card: OverviewCard } = $props();
+	let {
+		card,
+		onentitiesreorder = undefined,
+		showEntityDragHandles = true
+	}: {
+		card: OverviewCard;
+		onentitiesreorder?: (entities: Extract<OverviewCard, { type: 'entities' }>['entities']) => void;
+		showEntityDragHandles?: boolean;
+	} = $props();
 </script>
 
 {#if card.type === 'header'}
@@ -28,7 +36,7 @@
 {:else if card.type === 'vacuum'}
 	<VacuumRow {card} />
 {:else if card.type === 'entities'}
-	<EntitiesCard {card} />
+	<EntitiesCard {card} {onentitiesreorder} {showEntityDragHandles} />
 {:else if card.type === 'camera'}
 	<CameraCard {card} />
 {:else if card.type === 'climate'}

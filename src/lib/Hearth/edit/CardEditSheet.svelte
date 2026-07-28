@@ -146,6 +146,9 @@
 				}))
 			: []
 	);
+	let entitiesOpen = $state(true);
+	let expandedEntityRows = $state<number[]>([]);
+	let previewReorder = $state(false);
 	let sceneStyle = $state<string>(
 		initial?.type === 'scenes' ? (initial.style ?? 'chips') : 'chips'
 	);
@@ -365,6 +368,50 @@
 	}
 
 	let previewCard = $derived.by(() => buildCard('preview'));
+
+	function reorderPreviewEntities(reordered: EntityRef[]) {
+		// buildCard filters incomplete rows out of the preview. Keep those rows in
+		// place in the form while applying the preview's order to the valid ones.
+		const positions = entities.flatMap((ref, position) => (ref.entity.trim() ? [position] : []));
+		if (positions.length !== reordered.length) return;
+		const next = entities.map((ref) => ({ ...ref }));
+		for (const [order, position] of positions.entries()) {
+			const ref = reordered[order];
+			next[position] = {
+				entity: ref.entity,
+				name: ref.name ?? '',
+				icon: ref.icon ?? '',
+				display: ref.display ?? '',
+				readonly: ref.readonly ?? false
+			};
+		}
+		entities = next;
+		expandedEntityRows = [];
+	}
+
+	function toggleEntityRow(index: number) {
+		expandedEntityRows = expandedEntityRows.includes(index)
+			? expandedEntityRows.filter((entry) => entry !== index)
+			: [...expandedEntityRows, index];
+	}
+
+	function moveEntityRow(index: number, direction: -1 | 1) {
+		moveItem(entities, index, direction);
+		expandedEntityRows = [];
+	}
+
+	function removeEntityRow(index: number) {
+		entities.splice(index, 1);
+		expandedEntityRows = expandedEntityRows
+			.filter((entry) => entry !== index)
+			.map((entry) => (entry > index ? entry - 1 : entry));
+	}
+
+	function addEntityRow() {
+		entities.push({ entity: '', name: '', icon: '', display: '', readonly: false });
+		entitiesOpen = true;
+		expandedEntityRows = [entities.length - 1];
+	}
 
 	function done() {
 		updateConfig((config) => {
@@ -610,58 +657,95 @@
 					</div>
 				{/if}
 
-				<div class="group-label">ENTITIES</div>
-				{#each entities as ref, refIndex (refIndex)}
-					<div class="filter-row">
-						<div class="filter-fields">
-							<EntityField label="Entity" bind:value={ref.entity} />
-							<TextField label="Name (optional)" bind:value={ref.name} />
-							<IconField label="Icon (optional)" bind:value={ref.icon} />
-							<SelectField
-								label="Display"
-								bind:value={ref.display}
-								options={[
-									{ value: '', label: 'Card style' },
-									{ value: 'tile', label: 'Tile' },
-									{ value: 'stat', label: 'Stat box' }
-								]}
-							/>
-							{#if !gridReadonly}
-								<label class="check">
-									<input type="checkbox" bind:checked={ref.readonly} />
-									<span>Display only</span>
-								</label>
-							{/if}
-						</div>
-						<span class="row-actions">
-							<span
-								class="reorder"
-								class:disabled={refIndex === 0}
-								onclick={() => moveItem(entities, refIndex, -1)}
-							>
-								<Icon name="keyboard_arrow_up" size={20} />
-							</span>
-							<span
-								class="reorder"
-								class:disabled={refIndex === entities.length - 1}
-								onclick={() => moveItem(entities, refIndex, 1)}
-							>
-								<Icon name="keyboard_arrow_down" size={20} />
-							</span>
-							<span class="remove" onclick={() => entities.splice(refIndex, 1)}>
-								<Icon name="delete" size={20} />
-							</span>
-						</span>
-					</div>
-				{/each}
-				<div
-					class="add-filter"
-					onclick={() =>
-						entities.push({ entity: '', name: '', icon: '', display: '', readonly: false })}
+				<button
+					type="button"
+					class="entities-section-toggle"
+					aria-expanded={entitiesOpen}
+					onclick={() => (entitiesOpen = !entitiesOpen)}
 				>
-					<Icon name="add" size={18} />
-					<span>Add entity</span>
-				</div>
+					<span class="group-label">ENTITIES</span>
+					<span class="entities-count">{entities.length}</span>
+					<Icon name={entitiesOpen ? 'expand_less' : 'expand_more'} size={19} />
+				</button>
+				{#if entitiesOpen}
+					<div class="entity-editors">
+						{#each entities as ref, refIndex (refIndex)}
+							<div class="filter-row entity-editor-row">
+								<div class="entity-row-header">
+									<button
+										type="button"
+										class="entity-row-toggle"
+										aria-expanded={expandedEntityRows.includes(refIndex)}
+										onclick={() => toggleEntityRow(refIndex)}
+									>
+										<Icon
+											name={expandedEntityRows.includes(refIndex) ? 'expand_more' : 'chevron_right'}
+											size={19}
+										/>
+										<span class="entity-row-copy">
+											<strong>{ref.name?.trim() || ref.entity.trim() || 'New entity'}</strong>
+											{#if ref.name?.trim() && ref.entity.trim()}<small>{ref.entity}</small>{/if}
+										</span>
+									</button>
+									<span class="entity-row-actions">
+										<button
+											type="button"
+											class="reorder"
+											disabled={refIndex === 0}
+											aria-label="Move entity up"
+											onclick={() => moveEntityRow(refIndex, -1)}
+										>
+											<Icon name="keyboard_arrow_up" size={20} />
+										</button>
+										<button
+											type="button"
+											class="reorder"
+											disabled={refIndex === entities.length - 1}
+											aria-label="Move entity down"
+											onclick={() => moveEntityRow(refIndex, 1)}
+										>
+											<Icon name="keyboard_arrow_down" size={20} />
+										</button>
+										<button
+											type="button"
+											class="remove"
+											aria-label="Remove entity"
+											onclick={() => removeEntityRow(refIndex)}
+										>
+											<Icon name="delete" size={20} />
+										</button>
+									</span>
+								</div>
+								{#if expandedEntityRows.includes(refIndex)}
+									<div class="filter-fields entity-row-fields">
+										<EntityField label="Entity" bind:value={ref.entity} />
+										<TextField label="Name (optional)" bind:value={ref.name} />
+										<IconField label="Icon (optional)" bind:value={ref.icon} />
+										<SelectField
+											label="Display"
+											bind:value={ref.display}
+											options={[
+												{ value: '', label: 'Card style' },
+												{ value: 'tile', label: 'Tile' },
+												{ value: 'stat', label: 'Stat box' }
+											]}
+										/>
+										{#if !gridReadonly}
+											<label class="check">
+												<input type="checkbox" bind:checked={ref.readonly} />
+												<span>Display only</span>
+											</label>
+										{/if}
+									</div>
+								{/if}
+							</div>
+						{/each}
+						<div class="add-filter" onclick={addEntityRow}>
+							<Icon name="add" size={18} />
+							<span>Add entity</span>
+						</div>
+					</div>
+				{/if}
 			{/if}
 
 			{#if type === 'scenes'}
@@ -766,9 +850,27 @@
 		</div>
 
 		<aside class="preview-pane">
-			<div class="group-label first">LIVE PREVIEW</div>
-			<div class="preview" style="pointer-events: none">
-				<CardRenderer card={previewCard} />
+			<div class="preview-heading">
+				<div class="group-label first">LIVE PREVIEW</div>
+				{#if type === 'entities'}
+					<button
+						type="button"
+						class="preview-reorder-toggle"
+						class:active={previewReorder}
+						aria-pressed={previewReorder}
+						onclick={() => (previewReorder = !previewReorder)}
+					>
+						<Icon name="drag_indicator" size={16} />
+						{previewReorder ? 'Finish reorder' : 'Reorder'}
+					</button>
+				{/if}
+			</div>
+			<div class="preview" style:pointer-events={type === 'entities' ? undefined : 'none'}>
+				<CardRenderer
+					card={previewCard}
+					onentitiesreorder={type === 'entities' ? reorderPreviewEntities : undefined}
+					showEntityDragHandles={type === 'entities' && previewReorder}
+				/>
 			</div>
 		</aside>
 	</div>
@@ -894,6 +996,39 @@
 		position: sticky;
 		top: 0;
 		align-self: start;
+	}
+
+	.preview-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin-bottom: 10px;
+	}
+
+	.preview-heading .group-label {
+		margin-bottom: 0;
+	}
+
+	.preview-reorder-toggle {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		padding: 5px 8px;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.04);
+		color: var(--h-text-5);
+		font: inherit;
+		font-size: 11px;
+		cursor: pointer;
+	}
+
+	.preview-reorder-toggle:hover,
+	.preview-reorder-toggle.active {
+		border-color: rgb(var(--h-accent-rgb) / 0.35);
+		background: rgb(var(--h-accent-rgb) / 0.1);
+		color: var(--h-accent-text);
 	}
 
 	.type-gallery {
@@ -1141,6 +1276,122 @@
 		flex: 1;
 	}
 
+	.entities-section-toggle {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: 8px;
+		margin: 18px 0 10px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--h-label);
+		font: inherit;
+		cursor: pointer;
+	}
+
+	.entities-section-toggle .group-label {
+		margin: 0;
+	}
+
+	.entities-count {
+		padding: 2px 6px;
+		border-radius: 999px;
+		background: rgb(var(--h-surface-rgb) / 0.07);
+		color: var(--h-text-6);
+		font-family: var(--h-font-mono);
+		font-size: 10px;
+	}
+
+	.entities-section-toggle > :global(.mi) {
+		margin-left: auto;
+	}
+
+	.entity-editors {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.filter-row.entity-editor-row {
+		display: block;
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.entity-row-header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-height: 48px;
+		padding: 6px 8px 6px 6px;
+	}
+
+	.entity-row-toggle {
+		display: flex;
+		align-items: center;
+		flex: 1;
+		gap: 7px;
+		min-width: 0;
+		padding: 5px;
+		border: 0;
+		background: none;
+		color: var(--h-icon);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.entity-row-copy {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.entity-row-copy strong,
+	.entity-row-copy small {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.entity-row-copy strong {
+		color: var(--h-text-3);
+		font-size: 13px;
+		font-weight: 550;
+	}
+
+	.entity-row-copy small {
+		color: var(--h-text-6);
+		font-size: 10.5px;
+	}
+
+	.entity-row-actions {
+		display: flex;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.entity-row-actions button {
+		display: flex;
+		padding: 4px;
+		border: 0;
+		background: none;
+	}
+
+	.entity-row-actions button:disabled {
+		opacity: 0.25;
+		cursor: default;
+	}
+
+	.entity-row-actions .remove {
+		margin: 0 0 0 2px;
+	}
+
+	.entity-row-fields {
+		padding: 0 12px 8px 39px;
+		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.05);
+	}
+
 	.remove {
 		color: var(--h-icon);
 		cursor: pointer;
@@ -1151,18 +1402,6 @@
 		color: var(--h-bad-text);
 	}
 
-	.row-actions {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 10px;
-		margin-top: 32px;
-	}
-
-	.row-actions .remove {
-		margin-top: 0;
-	}
-
 	.reorder {
 		color: var(--h-icon);
 		cursor: pointer;
@@ -1171,11 +1410,6 @@
 
 	.reorder:hover {
 		color: var(--h-text-2);
-	}
-
-	.reorder.disabled {
-		opacity: 0.3;
-		pointer-events: none;
 	}
 
 	.check {
