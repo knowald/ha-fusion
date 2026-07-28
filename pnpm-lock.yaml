@@ -41,6 +41,9 @@ importers:
       '@jaames/iro':
         specifier: ^5.5.2
         version: 5.5.2
+      '@material-symbols/metadata':
+        specifier: ^0.45.9
+        version: 0.45.9
       codemirror:
         specifier: ^6.0.2
         version: 6.0.2
@@ -355,6 +358,9 @@ packages:
 
   '@marijn/find-cluster-break@1.0.3':
     resolution: {integrity: sha512-FY+MKLBoTsLNJF/eLWaOsXGdz6uh3Iu1axjPf6TUq92IYumcTcXWHoS747JARLkcdlJ/Waiaxc5wQfFO8jC6NA==}
+
+  '@material-symbols/metadata@0.45.9':
+    resolution: {integrity: sha512-GAuB1tl3ik2BsaSau1hldK9aGCCp2zqsfKnRti2iPd6MJlMBD81XBOTnW7X4p0qfFdAWqkh90JjWcd6G49z2yg==}
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -2142,6 +2148,8 @@ snapshots:
       pbf: 5.1.2
 
   '@marijn/find-cluster-break@1.0.3': {}
+
+  '@material-symbols/metadata@0.45.9': {}
 
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:

@@ -9,15 +9,15 @@
 		placeholder = 'Material Symbols name'
 	}: { label: string; value?: string; placeholder?: string } = $props();
 
-	// curated Material Symbols relevant to home automation, grouped: lights,
+	// shown when no filter is typed - the full set is thousands of icons, so
+	// browsing starts from ones relevant to home automation, grouped: lights,
 	// climate, media, security, covers, rooms, appliances, outdoor, energy, misc
-	const ICON_NAMES = [
+	const SUGGESTED = [
 		'lightbulb',
 		'light_group',
 		'floor_lamp',
 		'table_lamp',
 		'wall_lamp',
-		'chandelier',
 		'emoji_objects',
 		'thermostat',
 		'mode_fan',
@@ -114,10 +114,52 @@
 		'apartment'
 	];
 
+	const PAGE_SIZE = 240;
+
 	let expanded = $state(false);
 	let filter = $state('');
+	let limit = $state(PAGE_SIZE);
+	let allNames = $state<string[]>([]);
 
-	let shown = $derived(ICON_NAMES.filter((name) => name.includes(filter.trim().toLowerCase())));
+	async function loadAllNames() {
+		if (allNames.length) return;
+		const versions = (await import('@material-symbols/metadata/versions.json')).default;
+		allNames = Object.keys(versions);
+	}
+
+	// name matches sorted by how the query lines up: whole name, then start of a
+	// word, then anywhere - so "lock" ranks lock above deadlock_off
+	function search(query: string, names: string[]) {
+		const exact: string[] = [];
+		const prefix: string[] = [];
+		const word: string[] = [];
+		const rest: string[] = [];
+
+		for (const name of names) {
+			const index = name.indexOf(query);
+			if (index === -1) continue;
+			if (name === query) exact.push(name);
+			else if (index === 0) prefix.push(name);
+			else if (name[index - 1] === '_') word.push(name);
+			else rest.push(name);
+		}
+
+		return [...exact, ...prefix, ...word, ...rest];
+	}
+
+	let query = $derived(
+		filter
+			.trim()
+			.toLowerCase()
+			.replace(/[\s-]+/g, '_')
+	);
+	let matches = $derived(query ? search(query, allNames.length ? allNames : SUGGESTED) : SUGGESTED);
+	let shown = $derived(matches.slice(0, limit));
+
+	function toggle() {
+		expanded = !expanded;
+		if (expanded) loadAllNames();
+	}
 
 	function pick(name: string) {
 		value = name;
@@ -132,7 +174,7 @@
 			<Icon name={value.trim() || 'category'} size={20} />
 		</span>
 		<input type="text" bind:value {placeholder} spellcheck="false" />
-		<span class="expand pressable" use:Ripple={PRESS_RIPPLE} onclick={() => (expanded = !expanded)}>
+		<span class="expand pressable" use:Ripple={PRESS_RIPPLE} onclick={toggle}>
 			<Icon name={expanded ? 'expand_less' : 'apps'} size={20} />
 		</span>
 	</div>
@@ -142,7 +184,8 @@
 				class="filter"
 				type="text"
 				bind:value={filter}
-				placeholder="Filter icons"
+				oninput={() => (limit = PAGE_SIZE)}
+				placeholder="Search all icons"
 				spellcheck="false"
 			/>
 			<div class="grid">
@@ -160,6 +203,19 @@
 					<div class="hint">No matching icons</div>
 				{/each}
 			</div>
+			{#if matches.length > shown.length}
+				<button
+					class="more pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => (limit += PAGE_SIZE)}
+				>
+					Show more ({matches.length - shown.length})
+				</button>
+			{:else if !query}
+				<div class="hint">
+					{allNames.length ? `Type to search all ${allNames.length} icons` : 'Loading icon list'}
+				</div>
+			{/if}
 		</div>
 	{/if}
 </div>
@@ -274,6 +330,8 @@
 		border-radius: var(--h-radius-xs);
 		color: var(--h-icon);
 		cursor: pointer;
+		/* a name the loaded font lacks renders as its literal text */
+		overflow: hidden;
 	}
 
 	.cell:hover {
@@ -292,5 +350,24 @@
 		font-size: 12px;
 		color: var(--h-text-6);
 		text-align: center;
+	}
+
+	.more {
+		display: block;
+		width: 100%;
+		margin-top: 6px;
+		padding: 8px;
+		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / 0.04);
+		color: var(--h-text-3);
+		font-family: inherit;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.more:hover {
+		background: rgb(var(--h-surface-rgb) / 0.08);
+		color: var(--h-text-2);
 	}
 </style>
