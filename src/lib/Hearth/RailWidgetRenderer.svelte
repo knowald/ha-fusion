@@ -9,11 +9,15 @@
 	import ProgressWidget from './ProgressWidget.svelte';
 	import StatusWidget from './StatusWidget.svelte';
 	import WeatherCard from './WeatherCard.svelte';
+	import ConfigurationPlaceholder from './ConfigurationPlaceholder.svelte';
+	import { railConfigurationLabel, railWidgetNeedsConfiguration } from './configurationState';
 
 	let { widget }: { widget: RailWidget } = $props();
 </script>
 
-{#if widget.type === 'clock'}
+{#if railWidgetNeedsConfiguration(widget)}
+	<ConfigurationPlaceholder label={railConfigurationLabel(widget)} compact context="widget" />
+{:else if widget.type === 'clock'}
 	<ClockWidget
 		timezone={widget.timezone}
 		hour_format={widget.hour_format}
@@ -30,24 +34,16 @@
 {:else if widget.type === 'progress'}
 	<ProgressWidget {widget} />
 {:else if widget.type === 'calendar'}
-	{#if widget.entities?.length}
-		<CalendarWidget {widget} />
-	{:else}
-		<div class="widget-placeholder">Pick calendar entities in the widget editor</div>
-	{/if}
+	<CalendarWidget {widget} />
 {:else if widget.type === 'status'}
 	<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
 {:else if widget.type === 'entity'}
-	{#if widget.entity}
-		<EntityTile
-			entity={widget.entity}
-			name={widget.name}
-			icon={widget.icon}
-			compact={widget.vertical_padding === 'compact'}
-		/>
-	{:else}
-		<div class="widget-placeholder">Pick an entity in the widget editor</div>
-	{/if}
+	<EntityTile
+		entity={widget.entity!}
+		name={widget.name}
+		icon={widget.icon}
+		compact={widget.vertical_padding === 'compact'}
+	/>
 {:else if widget.type === 'fusion'}
 	<FusionWidget {widget} />
 {:else if widget.type === 'spacer'}
@@ -65,14 +61,5 @@
 		text-transform: uppercase;
 		color: var(--h-text-6);
 		margin: 18px 0 10px;
-	}
-
-	.widget-placeholder {
-		padding: 14px;
-		border-radius: var(--h-radius-sm);
-		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		color: var(--h-text-6);
-		font-size: 13px;
-		text-align: center;
 	}
 </style>

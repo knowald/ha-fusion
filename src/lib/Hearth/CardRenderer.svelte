@@ -10,6 +10,8 @@
 	import ScenesCard from './ScenesCard.svelte';
 	import TemperatureCard from './TemperatureCard.svelte';
 	import VacuumRow from './VacuumRow.svelte';
+	import ConfigurationPlaceholder from './ConfigurationPlaceholder.svelte';
+	import { cardConfigurationLabel, cardNeedsConfiguration } from './configurationState';
 
 	let {
 		card,
@@ -22,7 +24,9 @@
 	} = $props();
 </script>
 
-{#if card.type === 'header'}
+{#if cardNeedsConfiguration(card)}
+	<ConfigurationPlaceholder label={cardConfigurationLabel(card)} />
+{:else if card.type === 'header'}
 	<HeaderCard
 		icon={card.icon}
 		title={card.title ?? ''}
