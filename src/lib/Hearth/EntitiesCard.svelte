@@ -5,6 +5,7 @@
 		domainIcon,
 		findOverviewCard,
 		PRESS_RIPPLE,
+		wildcardEntityIds,
 		type EntityRef,
 		type OverviewCard
 	} from './config';
@@ -26,10 +27,17 @@
 	} = $props();
 
 	const preview = getHearthInteractionMode() === 'preview';
+	let resolvedEntities = $derived.by(() => {
+		const explicitIds = new Set(card.entities.map((ref) => ref.entity));
+		const matched = wildcardEntityIds(card.wildcard, Object.keys($states ?? {}))
+			.filter((entityId) => !explicitIds.has(entityId))
+			.map((entityId) => ({ entity: entityId }));
+		return [...card.entities, ...matched];
+	});
 
 	let summary = $derived(
 		entityGroupSummary(
-			card.entities.map((ref) => ref.entity),
+			resolvedEntities.map((ref) => ref.entity),
 			$states
 		)
 	);
@@ -113,7 +121,7 @@
 	>
 		<div class="summary-copy">
 			<Icon
-				name={card.icon || domainIcon(card.entities[0]?.entity)}
+				name={card.icon || domainIcon(resolvedEntities[0]?.entity)}
 				size={24}
 				color="var(--h-accent-dim-text)"
 			/>
@@ -128,8 +136,8 @@
 	{#if $hearthEditMode && showEntityDragHandles}
 		<div class="collapsed-editor-grid">
 			<EntityGrid
-				entities={card.entities}
-				cardId={card.id}
+				entities={resolvedEntities}
+				cardId={card.wildcard ? undefined : card.id}
 				style={card.style ?? 'tile'}
 				columns={card.columns}
 				compact={card.vertical_padding === 'compact'}
@@ -150,13 +158,13 @@
 					<div class="popover-badge">{summary.badge}</div>
 				{/if}
 			</div>
-			{#if card.entities.length === 0}
-				<div class="placeholder">Add entities in the card editor</div>
+			{#if resolvedEntities.length === 0}
+				<div class="placeholder">Add entities or a wildcard in the card editor</div>
 			{:else}
 				<!-- the popover is ~420px wide, so more than two tracks would squeeze
 				     the tiles to nothing however many the card asks for -->
 				<EntityGrid
-					entities={card.entities}
+					entities={resolvedEntities}
 					style={card.style ?? 'tile'}
 					columns={Math.min(card.columns ?? 2, 2)}
 					compact={card.vertical_padding === 'compact'}
@@ -178,12 +186,12 @@
 				{/if}
 			</div>
 		{/if}
-		{#if card.entities.length === 0 && (!$hearthEditMode || !showEntityDragHandles)}
-			<div class="placeholder">Add entities in the card editor</div>
+		{#if resolvedEntities.length === 0 && (!$hearthEditMode || !showEntityDragHandles)}
+			<div class="placeholder">Add entities or a wildcard in the card editor</div>
 		{:else}
 			<EntityGrid
-				entities={card.entities}
-				cardId={card.id}
+				entities={resolvedEntities}
+				cardId={card.wildcard ? undefined : card.id}
 				style={card.style ?? 'tile'}
 				columns={card.columns}
 				compact={card.vertical_padding === 'compact'}

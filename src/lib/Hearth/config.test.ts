@@ -5,7 +5,8 @@ import {
 	findOverviewItemList,
 	hearthConfigIssues,
 	isStack,
-	normalizeHearthConfig
+	normalizeHearthConfig,
+	wildcardEntityIds
 } from './config';
 
 describe('normalizeHearthConfig', () => {
@@ -142,6 +143,16 @@ describe('normalizeHearthConfig', () => {
 	it('uses the canonical default page icon', () => {
 		const config = normalizeHearthConfig({ rail: [], rooms: [{ id: 'new-page', cards: [[]] }] });
 		expect(config.rooms[0].icon).toBe('meeting_room');
+	});
+
+	it('expands entity wildcards deterministically', () => {
+		expect(
+			wildcardEntityIds('light.kitchen_*', [
+				'light.kitchen_table',
+				'switch.kitchen_fan',
+				'light.kitchen_ceiling'
+			])
+		).toEqual(['light.kitchen_ceiling', 'light.kitchen_table']);
 	});
 });
 

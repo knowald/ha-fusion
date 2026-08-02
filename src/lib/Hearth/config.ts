@@ -170,6 +170,8 @@ type OverviewCardVariant =
 			readonly?: boolean;
 			// default for draggable controls; individual entities may override it
 			slider_updates?: SliderUpdateMode;
+			/** `*` glob expanded against the live Home Assistant entity registry. */
+			wildcard?: string;
 			// collapses the grid into a single summary row; tapping it opens the
 			// entities in a popover anchored to the row, so the layout never shifts
 			collapsed?: boolean;
@@ -247,6 +249,18 @@ export function findOverviewCard(
 ): OverviewCard | undefined {
 	const item = findOverviewItemList(config, id, roomId)?.find((entry) => entry.id === id);
 	return item && !isStack(item) ? item : undefined;
+}
+
+/** Expands the same simple `*` glob used by Fusion's legacy entities object. */
+export function wildcardEntityIds(pattern: string | undefined, entityIds: string[]): string[] {
+	if (!pattern?.trim()) return [];
+	const source = pattern
+		.trim()
+		.split('*')
+		.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+		.join('.*');
+	const regex = new RegExp(`^${source}$`);
+	return entityIds.filter((entityId) => regex.test(entityId)).sort();
 }
 
 /** Card types that take a share of the leftover height unless told otherwise. */
@@ -740,6 +754,7 @@ function normalizeCard(
 					show_count: card.show_count === true ? true : undefined,
 					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined,
 					readonly: card.readonly === true ? true : undefined,
+					wildcard: trimmedOrUndefined(card.wildcard),
 					slider_updates:
 						card.slider_updates === 'release' || card.slider_updates === 'continuous'
 							? card.slider_updates

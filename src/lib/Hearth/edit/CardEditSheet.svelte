@@ -125,6 +125,7 @@
 		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
 	);
 	let gridReadonly = $state(initial?.type === 'entities' ? (initial.readonly ?? false) : false);
+	let gridWildcard = $state(initial?.type === 'entities' ? (initial.wildcard ?? '') : '');
 	let gridSliderUpdates = $state(
 		initial?.type === 'entities' ? (initial.slider_updates ?? 'continuous') : 'continuous'
 	);
@@ -313,6 +314,7 @@
 				show_count: showCount || undefined,
 				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
 				readonly: gridReadonly || undefined,
+				wildcard: gridWildcard.trim() || undefined,
 				slider_updates:
 					gridSliderUpdates === 'release' || gridSliderUpdates === 'continuous'
 						? gridSliderUpdates
@@ -700,6 +702,11 @@
 					<input type="checkbox" bind:checked={gridReadonly} />
 					<span>Display only (no tile ever sends a command)</span>
 				</label>
+				<TextField
+					label="Entity wildcard (optional)"
+					bind:value={gridWildcard}
+					placeholder="light.kitchen_*"
+				/>
 				<label class="check">
 					<input type="checkbox" bind:checked={gridCollapsed} />
 					<span>Collapse into a summary row (details in a popover)</span>
