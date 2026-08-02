@@ -4,8 +4,10 @@
 		canRedo,
 		canUndo,
 		commandFailure,
+		confirmRequestedAction,
 		currentRoom,
 		dismissCommandFailure,
+		dismissConfirmation,
 		editedThemeSlot,
 		editor,
 		enterEditMode,
@@ -14,6 +16,7 @@
 		hearthLoadError,
 		hearthNeedsSetup,
 		openPopovers,
+		requestedConfirmation,
 		redoConfig,
 		saveEdit,
 		saveState,
@@ -258,6 +261,32 @@
 	{#if showSetupWizard}
 		<SetupWizard onclose={() => (showSetupWizard = false)} />
 	{/if}
+	{#if $requestedConfirmation}
+		<div class="confirm-backdrop" role="presentation" onclick={dismissConfirmation}>
+			<div
+				class="confirm-dialog"
+				role="alertdialog"
+				tabindex="-1"
+				aria-modal="true"
+				aria-labelledby="hearth-confirm-title"
+				onclick={(event) => event.stopPropagation()}
+			>
+				<Icon name="warning" size={28} color="var(--h-bad-text)" />
+				<div class="confirm-copy">
+					<strong id="hearth-confirm-title">{$requestedConfirmation.title}</strong>
+					<span>{$requestedConfirmation.message}</span>
+				</div>
+				<div class="confirm-actions">
+					<button type="button" class="confirm-button" onclick={dismissConfirmation}>
+						{$lang('cancel')}
+					</button>
+					<button type="button" class="confirm-button dangerous" onclick={confirmRequestedAction}>
+						{$requestedConfirmation.confirmLabel}
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 	{#if showDisconnected}
 		<div class="connection-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="cloud_off" size={18} />
@@ -444,6 +473,71 @@
 		background-position: center;
 		color: var(--h-text-1);
 		font-family: var(--h-font-ui);
+	}
+
+	.confirm-backdrop {
+		position: absolute;
+		inset: 0;
+		z-index: 90;
+		display: grid;
+		place-items: center;
+		padding: 20px;
+		background: rgba(0, 0, 0, 0.58);
+		backdrop-filter: blur(8px);
+	}
+
+	.confirm-dialog {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 14px;
+		width: min(430px, 100%);
+		padding: 20px;
+		border-radius: var(--h-radius-lg);
+		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
+		border: 1px solid rgb(var(--h-bad-rgb) / 0.48);
+		box-shadow: 0 24px 80px rgba(0, 0, 0, 0.62);
+	}
+
+	.confirm-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.confirm-copy strong {
+		font-size: 18px;
+		color: var(--h-text-1);
+	}
+
+	.confirm-copy span {
+		font-size: 14px;
+		color: var(--h-text-4);
+	}
+
+	.confirm-actions {
+		grid-column: 1 / -1;
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+		margin-top: 6px;
+	}
+
+	.confirm-button {
+		min-height: 44px;
+		padding: 9px 18px;
+		border-radius: var(--h-radius-xs);
+		border: 1px solid rgb(var(--h-line-rgb) / 0.15);
+		background: rgb(var(--h-surface-rgb) / 0.08);
+		color: var(--h-text-2);
+		font: inherit;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.confirm-button.dangerous {
+		border-color: rgb(var(--h-bad-rgb) / 0.55);
+		background: rgb(var(--h-bad-rgb) / 0.16);
+		color: var(--h-bad-text);
 	}
 
 	.layout {

@@ -3,7 +3,13 @@
 	import { states } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import { activateScene, activeSceneIndex, pendingEntities } from './store';
+	import {
+		activateScene,
+		activeSceneIndex,
+		hearthEditMode,
+		pendingEntities,
+		requestConfirmation
+	} from './store';
 	import Icon from './Icon.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'scenes' }> } = $props();
@@ -13,6 +19,17 @@
 
 	function sceneName(ref: { entity: string; name?: string }) {
 		return ref.name || $states?.[ref.entity]?.attributes?.friendly_name || ref.entity;
+	}
+
+	function requestScene(ref: { entity: string; name?: string }) {
+		if ($hearthEditMode) return;
+		const name = sceneName(ref);
+		requestConfirmation({
+			title: `Activate ${name}?`,
+			message: 'Scenes may change several devices at once.',
+			confirmLabel: 'Activate',
+			action: () => activateScene(ref.entity)
+		});
 	}
 </script>
 
@@ -31,7 +48,7 @@
 					class:active
 					class:pending={$pendingEntities[ref.entity] !== undefined}
 					use:Ripple={PRESS_RIPPLE}
-					onclick={() => activateScene(ref.entity)}
+					onclick={() => requestScene(ref)}
 				>
 					<Icon
 						name={ref.icon || 'palette'}

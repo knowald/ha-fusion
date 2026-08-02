@@ -10,6 +10,7 @@
 		hearthEditMode,
 		pendingEntities,
 		popup,
+		requestConfirmation,
 		toggleBlind
 	} from './store';
 	import Icon from './Icon.svelte';
@@ -53,6 +54,27 @@
 
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let interactive = $derived($hearthEditMode || (!readonly && available));
+	let disruptive = $derived(
+		['door', 'garage', 'garage_door', 'gate'].includes(
+			String($states?.[entity]?.attributes?.device_class ?? '')
+		)
+	);
+
+	function handleClick() {
+		if ($hearthEditMode) return onedit?.();
+		if (readonly || !available) return;
+		if (disruptive) {
+			const action = open ? 'Close' : 'Open';
+			requestConfirmation({
+				title: `${action} ${label}?`,
+				message: `This cover controls an access point. Confirm before continuing.`,
+				confirmLabel: action,
+				action: () => toggleBlind(entity)
+			});
+			return;
+		}
+		toggleBlind(entity);
+	}
 </script>
 
 <div
@@ -64,7 +86,7 @@
 	class:pending
 	data-id={entity}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
-	onclick={() => ($hearthEditMode ? onedit?.() : readonly || !available || toggleBlind(entity))}
+	onclick={handleClick}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">

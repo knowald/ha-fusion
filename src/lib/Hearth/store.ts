@@ -155,6 +155,29 @@ export const popup = writable<Popup | null>(null);
 // so they cannot open another layer on top of one
 export const openPopovers = writable(0);
 
+export interface RequestedConfirmation {
+	title: string;
+	message: string;
+	confirmLabel: string;
+	action: () => void;
+}
+
+export const requestedConfirmation = writable<RequestedConfirmation | null>(null);
+
+export function requestConfirmation(request: RequestedConfirmation) {
+	requestedConfirmation.set(request);
+}
+
+export function dismissConfirmation() {
+	requestedConfirmation.set(null);
+}
+
+export function confirmRequestedAction() {
+	const request = get(requestedConfirmation);
+	requestedConfirmation.set(null);
+	request?.action();
+}
+
 export function closePopup() {
 	popup.set(null);
 }

@@ -10,6 +10,7 @@
 		hearthEditMode,
 		pendingEntities,
 		popup,
+		requestConfirmation,
 		toggleEntity
 	} from './store';
 	import { openEntityModal } from './modals';
@@ -61,6 +62,14 @@
 			return;
 		} else if (!available) {
 			return;
+		} else if (domain === 'lock') {
+			const unlocking = stateObj?.state === 'locked';
+			requestConfirmation({
+				title: unlocking ? 'Unlock door?' : 'Lock door?',
+				message: `${unlocking ? 'Unlock' : 'Lock'} ${label}?`,
+				confirmLabel: unlocking ? 'Unlock' : 'Lock',
+				action: () => toggleEntity(entity)
+			});
 		} else if (!toggleEntity(entity)) {
 			openEntityModal(entity, name);
 		}

@@ -6,12 +6,15 @@ import {
 	blindPositionFor,
 	callEntityService,
 	commandFailure,
+	confirmRequestedAction,
 	dismissCommandFailure,
 	entityActive,
 	entityAvailability,
 	entityGroupSummary,
 	lightViewFor,
 	pendingEntities,
+	requestConfirmation,
+	requestedConfirmation,
 	sensorNumber
 } from './store';
 
@@ -50,6 +53,21 @@ describe('Hearth store view helpers', () => {
 		});
 		expect(get(pendingEntities)).toEqual({});
 		dismissCommandFailure();
+	});
+
+	it('requires an explicit confirmation before a disruptive action runs', () => {
+		let calls = 0;
+		requestConfirmation({
+			title: 'Unlock?',
+			message: 'Confirm',
+			confirmLabel: 'Unlock',
+			action: () => calls++
+		});
+		expect(calls).toBe(0);
+		expect(get(requestedConfirmation)?.title).toBe('Unlock?');
+		confirmRequestedAction();
+		expect(calls).toBe(1);
+		expect(get(requestedConfirmation)).toBeNull();
 	});
 
 	it('prefers explicit scene indicators over activation timestamps', () => {
