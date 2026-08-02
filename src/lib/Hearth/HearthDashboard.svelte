@@ -21,7 +21,7 @@
 	} from './store';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { connected, lang, motion, states } from '$lib/Stores';
+	import { connected, editMode as fusionEditMode, lang, motion, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		isNightState,
@@ -44,6 +44,14 @@
 
 	let showSetupWizard = $state(false);
 	let showSearch = $state(false);
+
+	// Fusion embeds still consult the legacy edit-mode store before sending
+	// services. Mirror Hearth's mode while this route is mounted so embedded
+	// objects obey the same safety boundary as native Hearth controls.
+	$effect(() => {
+		fusionEditMode.set($hearthEditMode);
+		return () => fusionEditMode.set(false);
+	});
 
 	// the selected page, or the first one when it was renamed away or deleted
 	let activeRoomId = $derived(

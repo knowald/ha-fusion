@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { OverviewCard } from './config';
+	import { hearthEditMode } from './store';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'fusion' }> } = $props();
 
@@ -23,6 +24,7 @@
 
 <div
 	class="fusion"
+	class:editing={$hearthEditMode}
 	class:sized={card.height}
 	style:height={card.height ? `${card.height}px` : undefined}
 >
@@ -49,6 +51,13 @@
 		font-size: 1rem;
 		border-radius: var(--h-radius-md);
 		overflow: hidden;
+	}
+
+	/* The Hearth edit chip owns interaction while arranging the layout. The
+	   legacy store is mirrored too, but this prevents an embed from opening its
+	   own incompatible editor when the card surface is tapped. */
+	.fusion.editing > :global(*) {
+		pointer-events: none;
 	}
 
 	/* embeds size themselves (the spotify player from the fusion item height,

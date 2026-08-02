@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { connected, connection } from '$lib/Stores';
+import { connected } from '$lib/Stores';
 import { describe, expect, it } from 'vitest';
 import {
 	activeSceneIndex,
@@ -33,7 +33,6 @@ describe('Hearth store view helpers', () => {
 	});
 
 	it('surfaces commands attempted while Home Assistant is disconnected', () => {
-		connection.set(null);
 		connected.set(false);
 		callEntityService('light', 'toggle', 'light.desk');
 		expect(get(commandFailure)).toEqual({
