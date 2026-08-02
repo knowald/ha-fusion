@@ -1,10 +1,17 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
-	import { states } from '$lib/Stores';
+	import { lang, states } from '$lib/Stores';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
-	import { entityOn, hearthEditMode, pendingEntities, popup, toggleEntity } from './store';
+	import {
+		entityAvailability,
+		entityOn,
+		hearthEditMode,
+		pendingEntities,
+		popup,
+		toggleEntity
+	} from './store';
 	import { openEntityModal } from './modals';
 	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';
@@ -32,14 +39,18 @@
 
 	let domain = $derived(entity.split('.')[0]);
 	let stateObj = $derived($states?.[entity]);
+	let availability = $derived(entityAvailability(stateObj));
+	let available = $derived(availability === 'available');
 	let on = $derived(entityOn(entity, stateObj));
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
-	let iconColor = $derived(on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)');
+	let iconColor = $derived(
+		!available ? 'var(--h-bad-text)' : on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)'
+	);
 	let fanSpeed = $derived(
 		domain === 'fan' && on ? Math.round(stateObj?.attributes?.percentage ?? 0) : null
 	);
-	let interactive = $derived($hearthEditMode || !readonly);
+	let interactive = $derived($hearthEditMode || (!readonly && available));
 
 	function handleClick() {
 		if ($hearthEditMode) {
@@ -47,6 +58,8 @@
 		} else if (readonly) {
 			// a readout: no command, and no detail sheet either, since every one of
 			// them offers controls for a controllable domain
+			return;
+		} else if (!available) {
 			return;
 		} else if (!toggleEntity(entity)) {
 			openEntityModal(entity, name);
@@ -63,6 +76,7 @@
 		class="tile"
 		class:compact
 		class:on
+		class:unreachable={!available}
 		class:pending
 		class:pressable={interactive}
 		use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
@@ -72,15 +86,21 @@
 			<Icon name={icon || domainIcon(entity)} size={26} color={iconColor} fill={on} />
 			<div class="text">
 				<div class="name">{label}</div>
-				<div class="state" class:on>
-					<StateLogic entity_id={entity} selected={{ entity_id: entity }} />
+				<div class="state" class:on={on && available}>
+					{#if available}
+						<StateLogic entity_id={entity} selected={{ entity_id: entity }} />
+					{:else if availability === 'missing'}
+						{$lang('hearth_missing_entity')}
+					{:else}
+						{$lang(availability)}
+					{/if}
 					{#if fanSpeed !== null}<span class="speed">· {fanSpeed}%</span>{/if}
 				</div>
 			</div>
 		</div>
 		{#if $hearthEditMode && onedit}
 			<TuneButton icon="edit" onopen={onedit} />
-		{:else if $hearthEditMode || readonly}
+		{:else if $hearthEditMode || readonly || !available}
 			<!-- readout: no way in to a control surface from this tile -->
 		{:else if domain === 'fan'}
 			<!-- hearth's own fan sheet has the speed slider the fusion modal lacks -->
@@ -126,6 +146,15 @@
 	.tile.on {
 		background: rgb(var(--h-accent-rgb) / calc(0.07 * var(--h-accent-scale)));
 		border-color: rgb(var(--h-accent-rgb) / calc(0.28 * var(--h-accent-scale)));
+	}
+
+	.tile.unreachable {
+		border-color: rgb(var(--h-bad-rgb) / 0.45);
+		background: rgb(var(--h-bad-rgb) / 0.07);
+	}
+
+	.tile.unreachable .state {
+		color: var(--h-bad-text);
 	}
 
 	.content {

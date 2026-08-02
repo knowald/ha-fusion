@@ -36,12 +36,22 @@
 	} = $props();
 
 	let view = $derived(lightViewFor(entity, $states, $controlOverrides));
+	let available = $derived(view.availability === 'available');
+	let availabilityText = $derived(
+		view.availability === 'missing'
+			? $lang('hearth_missing_entity')
+			: capitalize($lang(view.availability))
+	);
 	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
-		view.on ? (view.colorCss ?? 'var(--h-accent-icon)') : 'var(--h-icon-dim)'
+		!available
+			? 'var(--h-bad-text)'
+			: view.on
+				? (view.colorCss ?? 'var(--h-accent-icon)')
+				: 'var(--h-icon-dim)'
 	);
 	let pending = $derived($pendingEntities[entity] !== undefined);
-	let interactive = $derived($hearthEditMode || !readonly);
+	let interactive = $derived($hearthEditMode || (!readonly && available));
 </script>
 
 <div
@@ -49,6 +59,7 @@
 	class:compact
 	class:pressable={interactive}
 	class:on={view.on}
+	class:unreachable={!available}
 	class:pending
 	data-id={entity}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
@@ -57,7 +68,7 @@
 		set: (value, commit) => setLightLevel(entity, value, commit),
 		updateMode: sliderUpdates,
 		tap: () => toggleLight(entity),
-		disabled: $hearthEditMode || readonly,
+		disabled: $hearthEditMode || readonly || !available,
 		ignore: '.tune'
 	}}
 >
@@ -66,12 +77,14 @@
 		<Icon name={icon || 'lightbulb'} size={26} color={iconColor} fill={view.on} />
 		<div>
 			<div class="name">{label}</div>
-			<div class="state">{view.on ? `${view.level}%` : capitalize($lang('off'))}</div>
+			<div class="state">
+				{available ? (view.on ? `${view.level}%` : capitalize($lang('off'))) : availabilityText}
+			</div>
 		</div>
 	</div>
 	{#if $hearthEditMode && onedit}
 		<TuneButton icon="edit" onopen={onedit} />
-	{:else if !$hearthEditMode && !readonly}
+	{:else if !$hearthEditMode && !readonly && available}
 		<!-- a readonly tile shows brightness but offers no way to change it -->
 		<TuneButton onopen={() => popup.set({ kind: 'light', entity, name: label, sliderUpdates })} />
 	{/if}
@@ -109,6 +122,15 @@
 		background: rgb(var(--h-accent-rgb) / calc(0.07 * var(--h-accent-scale)));
 		border-color: rgb(var(--h-accent-rgb) / calc(0.28 * var(--h-accent-scale)));
 		box-shadow: 0 8px 30px rgb(var(--h-accent-rgb) / calc(0.1 * var(--h-accent-scale)));
+	}
+
+	.tile.unreachable {
+		border-color: rgb(var(--h-bad-rgb) / 0.45);
+		background: rgb(var(--h-bad-rgb) / 0.07);
+	}
+
+	.tile.unreachable .state {
+		color: var(--h-bad-text);
 	}
 
 	.fill {

@@ -6,6 +6,7 @@
 	import {
 		blindPositionFor,
 		controlOverrides,
+		entityAvailability,
 		hearthEditMode,
 		pendingEntities,
 		popup,
@@ -34,18 +35,24 @@
 	} = $props();
 
 	let position = $derived(blindPositionFor(entity, $states, $controlOverrides));
+	let availability = $derived(entityAvailability($states?.[entity]));
+	let available = $derived(availability === 'available');
 	let open = $derived(position > 0);
 	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let stateText = $derived(
-		position === 100
-			? capitalize($lang('open'))
-			: position === 0
-				? capitalize($lang('closed'))
-				: `${position}% open`
+		!available
+			? availability === 'missing'
+				? $lang('hearth_missing_entity')
+				: capitalize($lang(availability))
+			: position === 100
+				? capitalize($lang('open'))
+				: position === 0
+					? capitalize($lang('closed'))
+					: `${position}% open`
 	);
 
 	let pending = $derived($pendingEntities[entity] !== undefined);
-	let interactive = $derived($hearthEditMode || !readonly);
+	let interactive = $derived($hearthEditMode || (!readonly && available));
 </script>
 
 <div
@@ -53,17 +60,18 @@
 	class:compact
 	class:pressable={interactive}
 	class:open
+	class:unreachable={!available}
 	class:pending
 	data-id={entity}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
-	onclick={() => ($hearthEditMode ? onedit?.() : readonly || toggleBlind(entity))}
+	onclick={() => ($hearthEditMode ? onedit?.() : readonly || !available || toggleBlind(entity))}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">
 		<Icon
 			name={icon || 'blinds'}
 			size={26}
-			color={open ? 'var(--h-cool-light)' : 'var(--h-icon-dim)'}
+			color={!available ? 'var(--h-bad-text)' : open ? 'var(--h-cool-light)' : 'var(--h-icon-dim)'}
 		/>
 		<div>
 			<div class="name">{label}</div>
@@ -72,7 +80,7 @@
 	</div>
 	{#if $hearthEditMode && onedit}
 		<TuneButton icon="edit" onopen={onedit} />
-	{:else if !$hearthEditMode && !readonly}
+	{:else if !$hearthEditMode && !readonly && available}
 		<!-- a readonly tile shows position but offers no way to change it -->
 		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label, sliderUpdates })} />
 	{/if}
@@ -108,6 +116,15 @@
 
 	.tile.open {
 		border-color: rgb(var(--h-cool-rgb) / calc(0.22 * var(--h-accent-scale)));
+	}
+
+	.tile.unreachable {
+		border-color: rgb(var(--h-bad-rgb) / 0.45);
+		background: rgb(var(--h-bad-rgb) / 0.07);
+	}
+
+	.tile.unreachable .state {
+		color: var(--h-bad-text);
 	}
 
 	.fill {

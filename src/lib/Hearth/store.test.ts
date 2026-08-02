@@ -1,7 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { activeSceneIndex, blindPositionFor, entityGroupSummary, sensorNumber } from './store';
+import {
+	activeSceneIndex,
+	blindPositionFor,
+	entityAvailability,
+	entityGroupSummary,
+	lightViewFor,
+	sensorNumber
+} from './store';
 
 describe('Hearth store view helpers', () => {
+	it('distinguishes missing, unknown, unavailable and available entities', () => {
+		expect(entityAvailability(undefined)).toBe('missing');
+		expect(entityAvailability({ state: 'unknown' } as any)).toBe('unknown');
+		expect(entityAvailability({ state: 'unavailable' } as any)).toBe('unavailable');
+		expect(entityAvailability({ state: 'off' } as any)).toBe('available');
+	});
+
+	it('does not let an optimistic light override hide lost availability', () => {
+		expect(
+			lightViewFor(
+				'light.desk',
+				{ 'light.desk': { state: 'unavailable', attributes: {} } } as any,
+				{ 'level:light.desk': 80 }
+			)
+		).toMatchObject({ availability: 'unavailable', on: false, level: 0 });
+	});
+
 	it('prefers explicit scene indicators over activation timestamps', () => {
 		const scenes = [
 			{ entity: 'scene.old', active_entity: 'input_boolean.mode' },

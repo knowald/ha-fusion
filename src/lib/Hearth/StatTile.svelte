@@ -1,17 +1,20 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
-	import { sensorNumber } from './store';
+	import { lang, states } from '$lib/Stores';
+	import { entityAvailability, sensorNumber } from './store';
 
 	let { entity, name = undefined }: { entity: string; name?: string } = $props();
 
 	let stateObj = $derived($states?.[entity]);
+	let availability = $derived(entityAvailability(stateObj));
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
 	let value = $derived(sensorNumber(stateObj?.state));
 	let unit = $derived(stateObj?.attributes?.unit_of_measurement);
 	let display = $derived(
 		value === null
-			? !stateObj || stateObj.state === 'unavailable' || stateObj.state === 'unknown'
-				? '-'
+			? availability !== 'available'
+				? availability === 'missing'
+					? $lang('hearth_missing_entity')
+					: $lang(availability)
 				: stateObj.state
 			: value % 1 === 0
 				? String(value)

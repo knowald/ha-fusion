@@ -177,6 +177,7 @@
 	"hearth_import": "Import from Home Assistant",
 	"hearth_import_intro": "Builds a page per Home Assistant area with Lighting and Devices cards. The first page, rail and theme are kept; other pages are replaced.",
 	"hearth_loading_registries": "Loading registries...",
+	"hearth_missing_entity": "Missing entity",
 	"hearth_leave_by": "leave by",
 	"hearth_no_areas": "No areas with lights, covers or devices found",
 	"hearth_no_matches": "No matches",

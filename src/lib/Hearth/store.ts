@@ -264,9 +264,24 @@ function clamp(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(max, value));
 }
 
+export type EntityAvailability = 'available' | 'unavailable' | 'unknown' | 'missing';
+
+/** The shared reachability vocabulary for every Hearth entity surface. */
+export function entityAvailability(entity: HassEntity | undefined): EntityAvailability {
+	if (!entity) return 'missing';
+	if (entity.state === 'unavailable') return 'unavailable';
+	if (entity.state === 'unknown') return 'unknown';
+	return 'available';
+}
+
+export function entityAvailable(entity: HassEntity | undefined): boolean {
+	return entityAvailability(entity) === 'available';
+}
+
 /* lights */
 
 export interface LightView {
+	availability: EntityAvailability;
 	on: boolean;
 	level: number;
 	colorCss: string | null;
@@ -282,9 +297,11 @@ export function lightViewFor(
 	$overrides: Record<string, number>
 ): LightView {
 	const entity = $states?.[entityId];
+	const availability = entityAvailability(entity);
+	const available = availability === 'available';
 	const attributes = entity?.attributes ?? {};
-	const actualOn = entity?.state === 'on';
-	const levelOverride = $overrides[`level:${entityId}`];
+	const actualOn = available && entity?.state === 'on';
+	const levelOverride = available ? $overrides[`level:${entityId}`] : undefined;
 	const on = levelOverride !== undefined ? levelOverride > 0 : actualOn;
 	const level = levelOverride ?? (actualOn ? Math.round((attributes.brightness ?? 255) / 2.55) : 0);
 
@@ -303,6 +320,7 @@ export function lightViewFor(
 	const inColorMode = actualOn && attributes.color_mode !== 'color_temp' && Array.isArray(rgb);
 
 	return {
+		availability,
 		on,
 		level,
 		colorCss: inColorMode ? `rgb(${rgb.join(',')})` : null,
@@ -313,11 +331,13 @@ export function lightViewFor(
 }
 
 export function toggleLight(entityId: string) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	markPending(entityId);
 	service('light', 'toggle', { entity_id: entityId });
 }
 
 export function setLightLevel(entityId: string, value: number, commit = true) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	const level = clamp(Math.max(1, value), 1, 100);
 	setOverride(`level:${entityId}`, level);
 	if (!commit) return;
@@ -327,6 +347,7 @@ export function setLightLevel(entityId: string, value: number, commit = true) {
 }
 
 export function setLightTemp(entityId: string, pct: number, commit = true) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	setOverride(`temp:${entityId}`, clamp(pct, 0, 100));
 	if (!commit) return;
 	const attributes = get(states)?.[entityId]?.attributes ?? {};
@@ -339,6 +360,7 @@ export function setLightTemp(entityId: string, pct: number, commit = true) {
 }
 
 export function setLightColor(entityId: string, hex: string) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	markPending(entityId);
 	service('light', 'turn_on', { entity_id: entityId, rgb_color: hexToRgb(hex) });
 }
@@ -365,12 +387,14 @@ export function blindPositionFor(
 }
 
 export function toggleBlind(entityId: string) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	const open = blindPositionFor(entityId, get(states), get(controlOverrides)) > 0;
 	markPending(entityId);
 	service('cover', open ? 'close_cover' : 'open_cover', { entity_id: entityId });
 }
 
 export function setBlindPosition(entityId: string, position: number, commit = true) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
 	const target = clamp(position, 0, 100);
 	setOverride(`blind:${entityId}`, target);
 	if (!commit) return;
@@ -402,6 +426,7 @@ export function toggleDevice(entityId: string) {
  */
 export function toggleEntity(entityId: string): boolean {
 	const entity = get(states)?.[entityId];
+	if (!entityAvailable(entity)) return false;
 	const togglable = entity && getTogglableService(entity);
 	if (!togglable) return false;
 	const [domain, name] = togglable.split('.');
