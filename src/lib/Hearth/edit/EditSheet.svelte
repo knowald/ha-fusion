@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
+	import { lang } from '$lib/Stores';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
 
@@ -51,47 +52,64 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="overlay" onclick={onclose}>
-	<div class="sheet" class:wide onclick={(event) => event.stopPropagation()}>
+<div
+	class="overlay"
+	role="presentation"
+	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+>
+	<div class="sheet" class:wide role="dialog" aria-modal="true" aria-label={title}>
 		<div class="header">
 			<div class="title">{title}</div>
 			{#if onmoveup || onmovedown}
 				<div class="move-actions">
 					{#if onmoveup}
-						<span class="icon-button" title="Move up" onclick={onmoveup}>
+						<button type="button" class="icon-button" title="Move up" onclick={onmoveup}>
 							<Icon name="arrow_upward" size={20} />
-						</span>
+						</button>
 					{/if}
 					{#if onmovedown}
-						<span class="icon-button" title="Move down" onclick={onmovedown}>
+						<button type="button" class="icon-button" title="Move down" onclick={onmovedown}>
 							<Icon name="arrow_downward" size={20} />
-						</span>
+						</button>
 					{/if}
 				</div>
 			{/if}
-			<div
+			<button
+				type="button"
 				class="button primary pressable"
-				class:disabled={doneDisabled}
+				disabled={doneDisabled}
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => !doneDisabled && ondone()}
 			>
-				Done
-			</div>
-			<span class="icon-button" onclick={onclose}><Icon name="close" size={24} /></span>
+				{$lang('done')}
+			</button>
+			<button
+				type="button"
+				class="icon-button"
+				aria-label={$lang('hearth_close')}
+				onclick={onclose}
+			>
+				<Icon name="close" size={24} />
+			</button>
 		</div>
 		<div class="body">
 			{@render children()}
 		</div>
 		{#if onremove}
 			<div class="footer">
-				<div
+				<button
+					type="button"
 					class="button danger pressable"
 					class:confirm={confirmRemove}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={handleRemove}
 				>
-					{confirmRemove ? `${removeLabel} - are you sure?` : removeLabel}
-				</div>
+					{confirmRemove
+						? `${removeLabel} — ${$lang('hearth_are_you_sure')}`
+						: removeLabel === 'Remove'
+							? $lang('remove')
+							: removeLabel}
+				</button>
 			</div>
 		{/if}
 	</div>
@@ -158,6 +176,9 @@
 		padding: 8px;
 		border-radius: var(--h-radius-xs);
 		transition: transform 120ms ease;
+		border: 0;
+		background: none;
+		font: inherit;
 	}
 
 	.icon-button:active {
@@ -223,6 +244,7 @@
 		cursor: pointer;
 		user-select: none;
 		-webkit-user-select: none;
+		font-family: inherit;
 	}
 
 	.button.primary {
@@ -230,7 +252,7 @@
 		color: var(--h-on-accent);
 	}
 
-	.button.primary.disabled {
+	.button.primary:disabled {
 		opacity: 0.4;
 		cursor: default;
 	}

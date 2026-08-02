@@ -30,8 +30,10 @@
 	$translation = data?.translations ?? {};
 	// svelte-ignore state_referenced_locally
 	$selectedLanguage = data?.configuration?.locale || 'en';
+	if (browser) document.documentElement.lang = $selectedLanguage;
 
 	// motion:false in configuration.yaml disables transitions app-wide
+	// svelte-ignore state_referenced_locally
 	if (data?.configuration?.motion === false) motion.set(0);
 
 	let isConnecting = false;

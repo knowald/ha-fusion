@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import { sortable } from '$lib/Actions/sortable';
+	import { lang } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
 	import type { HearthRoom } from './config';
 	import { currentRoom, editor, hearthConfig, hearthEditMode, updateConfig } from './store';
@@ -8,7 +9,7 @@
 </script>
 
 <div class="divider"></div>
-<div class="rooms-label">PAGES</div>
+<div class="rooms-label">{$lang('hearth_pages')}</div>
 
 <div
 	class="room-list"
@@ -24,7 +25,8 @@
 	}}
 >
 	{#each $hearthConfig.rooms as room (room.id)}
-		<div
+		<button
+			type="button"
 			class="nav-item pressable"
 			data-id={room.id}
 			class:active={$currentRoom === room.id}
@@ -33,17 +35,18 @@
 		>
 			<Icon name={room.icon} size={21} />
 			<span class="nav-name">{room.name}</span>
-		</div>
+		</button>
 	{/each}
 	{#if $hearthEditMode}
-		<div
+		<button
+			type="button"
 			class="nav-item add pressable"
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => editor.set({ kind: 'room', id: null })}
 		>
 			<Icon name="add" size={21} />
-			<span class="nav-name">Add page</span>
-		</div>
+			<span class="nav-name">{$lang('hearth_add_page')}</span>
+		</button>
 	{/if}
 </div>
 
@@ -71,6 +74,10 @@
 		cursor: pointer;
 		border: 1px solid transparent;
 		color: var(--h-text-4);
+		width: 100%;
+		background: none;
+		font: inherit;
+		text-align: left;
 	}
 
 	.nav-item.active {

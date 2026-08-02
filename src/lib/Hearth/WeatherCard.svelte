@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { connection, states } from '$lib/Stores';
+	import { connection, lang, selectedLanguage, states } from '$lib/Stores';
 	import Icon from './Icon.svelte';
 
 	let { entity: weatherEntity }: { entity?: string } = $props();
@@ -22,24 +22,6 @@
 		exceptional: 'warning'
 	};
 
-	const conditionLabels: Record<string, string> = {
-		'clear-night': 'Clear night',
-		cloudy: 'Cloudy',
-		fog: 'Fog',
-		hail: 'Hail',
-		lightning: 'Lightning',
-		'lightning-rainy': 'Thunderstorm',
-		partlycloudy: 'Partly cloudy',
-		pouring: 'Pouring',
-		rainy: 'Rainy',
-		snowy: 'Snowy',
-		'snowy-rainy': 'Sleet',
-		sunny: 'Sunny',
-		windy: 'Windy',
-		'windy-variant': 'Windy',
-		exceptional: 'Exceptional'
-	};
-
 	interface ForecastDay {
 		day: string;
 		temp: string;
@@ -50,8 +32,10 @@
 	let temperature = $derived(entity?.attributes?.temperature);
 	let apparent = $derived(entity?.attributes?.apparent_temperature);
 	let sub = $derived(
-		(conditionLabels[condition] ?? '') +
-			(typeof apparent === 'number' ? ` · feels ${Math.round(apparent)}°` : '')
+		(condition ? $lang(`weather_${condition.replaceAll('-', '_')}`) : '') +
+			(typeof apparent === 'number'
+				? ` · ${$lang('apparent_temperature')} ${Intl.NumberFormat($selectedLanguage).format(Math.round(apparent))}°`
+				: '')
 	);
 
 	let forecast = $state<ForecastDay[]>([]);
@@ -59,6 +43,7 @@
 	$effect(() => {
 		const conn = $connection;
 		const entityId = weatherEntity;
+		const locale = $selectedLanguage;
 		forecast = [];
 		if (!conn || !entityId) return;
 
@@ -69,7 +54,7 @@
 				(message: { forecast?: { datetime: string; temperature: number }[] }) => {
 					forecast = (message?.forecast ?? []).slice(1, 4).map((day) => ({
 						day: new Date(day.datetime)
-							.toLocaleDateString('en-US', { weekday: 'short' })
+							.toLocaleDateString(locale, { weekday: 'short' })
 							.toUpperCase(),
 						temp: `${Math.round(day.temperature)}°`
 					}));
@@ -103,7 +88,11 @@
 		fill
 	/>
 	<div>
-		<div class="temp">{typeof temperature === 'number' ? Math.round(temperature) : '-'}°</div>
+		<div class="temp">
+			{typeof temperature === 'number'
+				? Intl.NumberFormat($selectedLanguage).format(Math.round(temperature))
+				: '-'}°
+		</div>
 		<div class="sub">{sub}</div>
 	</div>
 	<div class="forecast">

@@ -31,6 +31,9 @@ jobs:
       - name: Type check
         run: pnpm check
 
+      - name: Hearth accessibility check
+        run: pnpm check:hearth-a11y
+
       - name: Test
         run: pnpm test
 

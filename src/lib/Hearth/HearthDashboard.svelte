@@ -19,7 +19,7 @@
 	} from './store';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { connected, motion, states } from '$lib/Stores';
+	import { connected, lang, motion, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		isNightState,
@@ -251,14 +251,14 @@
 	{#if showDisconnected}
 		<div class="connection-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="cloud_off" size={18} />
-			Connection lost. Reconnecting...
+			{$lang('hearth_connection_lost')}
 		</div>
 	{/if}
 	{#if $hearthLoadError}
 		<div class="load-error" role="alert">
 			<Icon name="error" size={20} />
 			<div>
-				<strong>Hearth configuration is unreadable</strong>
+				<strong>{$lang('hearth_config_unreadable')}</strong>
 				<span>{$hearthLoadError}</span>
 				<span>Editing is disabled to protect the existing file.</span>
 			</div>
@@ -267,7 +267,7 @@
 	{#if $saveState === 'saved'}
 		<div class="save-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="check_circle" size={18} />
-			Saved
+			{$lang('saved')}
 		</div>
 	{/if}
 	{#if overflowBy > 0}
@@ -279,41 +279,82 @@
 	{#if $hearthEditMode}
 		<div class="edit-bar">
 			{#if $saveState === 'conflict'}
-				<span class="save-error">Config changed elsewhere</span>
-				<div
+				<span class="save-error">{$lang('hearth_config_changed')}</span>
+				<button
+					type="button"
 					class="bar-button pressable"
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => location.reload()}
 				>
-					Reload
-				</div>
+					{$lang('hearth_reload')}
+				</button>
 			{:else if $saveState === 'error'}
-				<span class="save-error">Save failed</span>
+				<span class="save-error">{$lang('hearth_save_failed')}</span>
 			{/if}
-			<span class="bar-icon pressable" onclick={() => (showSetupWizard = true)}>
+			<button
+				type="button"
+				class="bar-icon pressable"
+				aria-label={$lang('hearth_setup')}
+				onclick={() => (showSetupWizard = true)}
+			>
 				<Icon name="auto_awesome" size={20} />
-			</span>
-			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'settings' })}>
+			</button>
+			<button
+				type="button"
+				class="bar-icon pressable"
+				aria-label={$lang('settings')}
+				onclick={() => editor.set({ kind: 'settings' })}
+			>
 				<Icon name="settings" size={20} />
-			</span>
-			<span class="bar-icon pressable" onclick={() => editor.set({ kind: 'theme' })}>
+			</button>
+			<button
+				type="button"
+				class="bar-icon pressable"
+				aria-label={$lang('theme')}
+				onclick={() => editor.set({ kind: 'theme' })}
+			>
 				<Icon name="palette" size={20} />
-			</span>
-			<span class="bar-icon" class:disabled={!$canUndo} onclick={undoConfig}>
+			</button>
+			<button
+				type="button"
+				class="bar-icon"
+				disabled={!$canUndo}
+				aria-label={$lang('undo')}
+				onclick={undoConfig}
+			>
 				<Icon name="undo" size={20} />
-			</span>
-			<span class="bar-icon" class:disabled={!$canRedo} onclick={redoConfig}>
+			</button>
+			<button
+				type="button"
+				class="bar-icon"
+				disabled={!$canRedo}
+				aria-label={$lang('hearth_redo')}
+				onclick={redoConfig}
+			>
 				<Icon name="redo" size={20} />
-			</span>
-			<div class="bar-button pressable" use:Ripple={PRESS_RIPPLE} onclick={cancelEdit}>Cancel</div>
-			<div class="bar-button primary pressable" use:Ripple={PRESS_RIPPLE} onclick={handleSave}>
-				Save
-			</div>
+			</button>
+			<button
+				type="button"
+				class="bar-button pressable"
+				use:Ripple={PRESS_RIPPLE}
+				onclick={cancelEdit}>{$lang('cancel')}</button
+			>
+			<button
+				type="button"
+				class="bar-button primary pressable"
+				use:Ripple={PRESS_RIPPLE}
+				onclick={handleSave}>{$lang('save')}</button
+			>
 		</div>
 	{:else if !hideEditToggle && !$hearthLoadError}
-		<div class="edit-toggle pressable" onclick={enterEditMode}>
+		<button
+			type="button"
+			class="edit-toggle pressable"
+			aria-label={$lang('hearth_edit_configuration')}
+			onclick={enterEditMode}
+		>
 			<Icon name="edit" size={18} />
-		</div>
+		</button>
 	{/if}
 </section>
 
@@ -453,6 +494,9 @@
 		color: var(--h-text-6);
 		cursor: pointer;
 		opacity: 0.6;
+		border: 0;
+		background: none;
+		font: inherit;
 	}
 
 	.edit-toggle:hover {
@@ -579,9 +623,12 @@
 		color: var(--h-text-3);
 		cursor: pointer;
 		padding: 4px;
+		border: 0;
+		background: none;
+		font: inherit;
 	}
 
-	.bar-icon.disabled {
+	.bar-icon:disabled {
 		color: var(--h-icon-dim);
 		cursor: default;
 	}
@@ -597,6 +644,7 @@
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		user-select: none;
 		-webkit-user-select: none;
+		font-family: inherit;
 	}
 
 	.bar-button.primary {

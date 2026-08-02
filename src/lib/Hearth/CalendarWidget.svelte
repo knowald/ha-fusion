@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { connection, states } from '$lib/Stores';
+	import { connection, lang, selectedLanguage, states } from '$lib/Stores';
 	import { PRESS_RIPPLE, type RailWidget } from './config';
 	import { hearthEditMode, sensorNumber } from './store';
 	import { openEntityModal } from './modals';
@@ -27,7 +27,7 @@
 		if (Number.isNaN(start.getTime())) return null;
 
 		return {
-			title: event?.summary ?? 'Busy',
+			title: event?.summary ?? $lang('hearth_busy'),
 			start,
 			allDay:
 				typeof rawStart === 'string'
@@ -82,21 +82,23 @@
 	});
 
 	function clockTime(date: Date) {
-		return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		return date.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' });
 	}
 
 	let timeLine = $derived.by(() => {
 		if (!next) return '';
 		const sameDay = next.start.toDateString() === new Date().toDateString();
-		const day = sameDay ? '' : `${next.start.toLocaleDateString('en-US', { weekday: 'short' })} `;
-		if (next.allDay) return `${day}all day`.trim();
+		const day = sameDay
+			? ''
+			: `${next.start.toLocaleDateString($selectedLanguage, { weekday: 'short' })} `;
+		if (next.allDay) return `${day}${$lang('hearth_all_day')}`.trim();
 		let line = `${day}${clockTime(next.start)}`;
 		const travelMinutes = widget.travel_entity
 			? sensorNumber($states?.[widget.travel_entity]?.state)
 			: null;
 		if (travelMinutes !== null) {
 			const leave = new Date(next.start.getTime() - travelMinutes * 60_000);
-			line += ` · leave by ${clockTime(leave)}`;
+			line += ` · ${$lang('hearth_leave_by')} ${clockTime(leave)}`;
 		}
 		return line;
 	});
@@ -111,14 +113,20 @@
 	<div class="row" class:inactive={!next}>
 		<Icon name="event" size={20} color="var(--h-icon)" />
 		<div class="body">
-			<div class="title">{next?.title ?? 'No upcoming events'}</div>
+			<div class="title">{next?.title ?? $lang('hearth_no_upcoming_events')}</div>
 			{#if timeLine}
 				<div class="time">{timeLine}</div>
 			{/if}
 		</div>
-		<span class="chevron pressable" use:Ripple={PRESS_RIPPLE} onclick={openCalendar}>
+		<button
+			type="button"
+			class="chevron pressable"
+			aria-label={$lang('calendar')}
+			use:Ripple={PRESS_RIPPLE}
+			onclick={openCalendar}
+		>
 			<Icon name="chevron_right" size={20} color="var(--h-icon)" />
-		</span>
+		</button>
 	</div>
 {/if}
 
@@ -165,5 +173,7 @@
 		padding: 4px;
 		border-radius: 50%;
 		cursor: pointer;
+		border: 0;
+		background: none;
 	}
 </style>

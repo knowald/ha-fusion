@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { connection, states } from '$lib/Stores';
+	import { connection, lang, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
@@ -104,24 +104,36 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="overlay" onclick={onclose}>
-	<div class="panel" onclick={(event) => event.stopPropagation()}>
+<div
+	class="overlay"
+	role="presentation"
+	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+>
+	<div class="panel" role="dialog" aria-modal="true" aria-label={$lang('hearth_import')}>
 		<div class="header">
-			<span class="title">Import from Home Assistant</span>
-			<span class="icon-button" onclick={onclose}><Icon name="close" size={22} /></span>
+			<span class="title">{$lang('hearth_import')}</span>
+			<button
+				type="button"
+				class="icon-button"
+				aria-label={$lang('hearth_close')}
+				onclick={onclose}
+			>
+				<Icon name="close" size={22} />
+			</button>
 		</div>
 		<p class="intro">
-			Builds a page per Home Assistant area, each with a Lighting and a Devices card. The first
-			page, the rail and the theme are kept; the other pages are replaced.
+			{$lang('hearth_import_intro')}
 		</p>
 		{#if status === 'disconnected'}
-			<div class="hint">Not connected to Home Assistant</div>
+			<div class="hint">{$lang('hearth_not_connected')}</div>
 		{:else if status === 'loading'}
-			<div class="hint">Loading registries...</div>
+			<div class="hint">{$lang('hearth_loading_registries')}</div>
 		{:else if status === 'error'}
 			<div class="hint">
 				<span class="error">{errorMessage}</span>
-				<div class="bar-button pressable" use:Ripple={PRESS_RIPPLE} onclick={load}>Retry</div>
+				<button type="button" class="bar-button pressable" use:Ripple={PRESS_RIPPLE} onclick={load}
+					>{$lang('hearth_retry')}</button
+				>
 			</div>
 		{:else if proposal}
 			<div class="list">
@@ -135,21 +147,24 @@
 						</span>
 					</label>
 				{:else}
-					<div class="hint">No areas with lights, covers or devices found</div>
+					<div class="hint">{$lang('hearth_no_areas')}</div>
 				{/each}
 			</div>
 		{/if}
 		<div class="footer">
-			<div class="bar-button pressable" use:Ripple={PRESS_RIPPLE} onclick={onclose}>Cancel</div>
+			<button type="button" class="bar-button pressable" use:Ripple={PRESS_RIPPLE} onclick={onclose}
+				>{$lang('cancel')}</button
+			>
 			{#if status === 'ready'}
-				<div
+				<button
+					type="button"
 					class="bar-button primary pressable"
-					class:disabled={!includedCount}
+					disabled={!includedCount}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={apply}
 				>
-					Apply
-				</div>
+					{$lang('hearth_apply')}
+				</button>
 			{/if}
 		</div>
 	</div>
@@ -197,6 +212,9 @@
 		display: flex;
 		color: var(--h-icon);
 		cursor: pointer;
+		border: 0;
+		background: none;
+		padding: 0;
 	}
 
 	.icon-button:hover {
@@ -296,6 +314,7 @@
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		user-select: none;
 		-webkit-user-select: none;
+		font-family: inherit;
 	}
 
 	.bar-button.primary {
@@ -304,7 +323,7 @@
 		color: var(--h-on-accent);
 	}
 
-	.bar-button.disabled {
+	.bar-button:disabled {
 		opacity: 0.5;
 		pointer-events: none;
 	}

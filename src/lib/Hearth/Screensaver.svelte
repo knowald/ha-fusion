@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { motion } from '$lib/Stores';
+	import { lang, motion, selectedLanguage } from '$lib/Stores';
 
 	let { minutes = 10 }: { minutes?: number } = $props();
 
@@ -47,9 +47,11 @@
 		return () => clearInterval(clockTimer);
 	});
 
-	let time = $derived(now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+	let time = $derived(
+		now.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' })
+	);
 	let date = $derived(
-		now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+		now.toLocaleDateString($selectedLanguage, { weekday: 'long', month: 'long', day: 'numeric' })
 	);
 </script>
 
@@ -58,6 +60,8 @@
 		class="screensaver"
 		bind:this={overlay}
 		tabindex="-1"
+		role="button"
+		aria-label={$lang('hearth_dismiss_screensaver')}
 		in:fade={{ duration: $motion ? 1200 : 0, easing: cubicOut }}
 		out:fade={{ duration: $motion ? 150 : 0 }}
 		onpointerdown={dismiss}

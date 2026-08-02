@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
+	import { lang, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import { currentRoom, hearthConfig } from './store';
@@ -12,7 +12,7 @@
 
 	let query = $state('');
 	let activeIndex = $state(0);
-	let rowEls: (HTMLDivElement | undefined)[] = [];
+	let rowEls: (HTMLButtonElement | undefined)[] = [];
 
 	type Result =
 		| { kind: 'room'; id: string; name: string; icon: string }
@@ -113,24 +113,38 @@
 	this overlay first regardless of what else is listening on the window -->
 <svelte:window onkeydowncapture={handleKeydown} />
 
-<div class="overlay" onclick={onclose}>
-	<div class="panel" onclick={(event) => event.stopPropagation()}>
+<div
+	class="overlay"
+	role="presentation"
+	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+>
+	<div class="panel" role="dialog" aria-modal="true" aria-label={$lang('search')}>
 		<div class="search">
 			<Icon name="search" size={20} />
 			<input
 				type="text"
 				bind:value={query}
-				placeholder="Search rooms and entities"
+				placeholder={$lang('hearth_search_placeholder')}
+				aria-label={$lang('hearth_search_placeholder')}
 				spellcheck="false"
 				use:focusOnMount
 			/>
-			<span class="icon-button" onclick={onclose}><Icon name="close" size={22} /></span>
+			<button
+				type="button"
+				class="icon-button"
+				aria-label={$lang('hearth_close')}
+				onclick={onclose}
+			>
+				<Icon name="close" size={22} />
+			</button>
 		</div>
 		<div class="list">
 			{#each results as result, index (result.kind === 'room' ? `room:${result.id}` : `entity:${result.entityId}`)}
-				<div
+				<button
+					type="button"
 					class="row pressable"
 					class:active={index === activeIndex}
+					aria-current={index === activeIndex ? 'true' : undefined}
 					use:Ripple={PRESS_RIPPLE}
 					bind:this={rowEls[index]}
 					onmouseenter={() => (activeIndex = index)}
@@ -149,9 +163,11 @@
 					{#if result.kind === 'entity'}
 						<span class="row-state">{result.state}</span>
 					{/if}
-				</div>
+				</button>
 			{:else}
-				<div class="hint">{query.trim() ? 'No matches' : 'Type to search rooms and entities'}</div>
+				<div class="hint">
+					{query.trim() ? $lang('hearth_no_matches') : $lang('hearth_search_hint')}
+				</div>
 			{/each}
 		</div>
 	</div>
@@ -221,6 +237,9 @@
 		display: flex;
 		color: var(--h-icon);
 		cursor: pointer;
+		border: 0;
+		background: none;
+		padding: 0;
 	}
 
 	.icon-button:hover {
@@ -241,6 +260,11 @@
 		padding: 9px 10px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
+		width: 100%;
+		border: 0;
+		background: none;
+		font: inherit;
+		text-align: left;
 	}
 
 	.row:hover,

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { lang, selectedLanguage } from '$lib/Stores';
 
 	let { city }: { city?: string } = $props();
 
@@ -10,12 +11,20 @@
 		return () => clearInterval(timer);
 	});
 
-	let time = $derived(now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+	let time = $derived(
+		now.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' })
+	);
 	let date = $derived(
-		now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+		now.toLocaleDateString($selectedLanguage, { weekday: 'long', month: 'long', day: 'numeric' })
 	);
 	let greeting = $derived(
-		now.getHours() < 12 ? 'Good morning' : now.getHours() < 18 ? 'Good afternoon' : 'Good evening'
+		$lang(
+			now.getHours() < 12
+				? 'hearth_good_morning'
+				: now.getHours() < 18
+					? 'hearth_good_afternoon'
+					: 'hearth_good_evening'
+		)
 	);
 </script>
 
