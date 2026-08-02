@@ -87,10 +87,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		padding: 16px;
 	}
 
 	.sheet {
-		width: 440px;
+		box-sizing: border-box;
+		width: min(440px, 100%);
+		max-height: calc(100dvh - 32px);
+		overflow-y: auto;
+		overscroll-behavior: contain;
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);

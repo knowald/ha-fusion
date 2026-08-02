@@ -286,7 +286,8 @@
 
 	.overview.clip .column {
 		min-height: 0;
-		overflow: hidden;
+		overflow-y: auto;
+		scrollbar-width: thin;
 	}
 
 	@media (max-width: 1200px) {
@@ -340,13 +341,13 @@
 
 	/* the card absorbs the slack, its tiles do not: rows keep their natural
 	   height and the leftover sits below them (an entity grid draws no
-	   background, so that space is invisible). Too little room clips instead. */
+	   background, so that space is invisible). Too little room scrolls. */
 	.card-slot.stretch :global(.grid) {
 		flex: 1;
 		min-height: 0;
 		grid-auto-rows: minmax(44px, min-content);
 		align-content: start;
-		overflow: hidden;
+		overflow-y: auto;
 	}
 
 	.card-slot.stretch :global(.grid) > :global(*) {

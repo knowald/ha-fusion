@@ -577,10 +577,10 @@
 		display: none;
 	}
 
-	/* a page that fills the screen never scrolls: its stretching cards absorb
-	   the leftover height and the rest is clipped at the bottom edge */
+	/* Filling cards absorb leftover height, but unexpected runtime overflow
+	   remains scrollable instead of making controls unreachable. */
 	.main.fill {
-		overflow: hidden;
+		overflow-y: auto;
 	}
 
 	/* keep scrolled content clear of the floating save bar */
@@ -607,6 +607,10 @@
 		   the rail follows it instead of consuming the entire first viewport. */
 		.main {
 			order: 1;
+		}
+
+		.main.fill {
+			overflow-y: visible;
 		}
 
 		.rail-scroll {
