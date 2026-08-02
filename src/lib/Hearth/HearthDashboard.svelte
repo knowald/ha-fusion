@@ -10,6 +10,7 @@
 		hearthConfig,
 		hearthEditMode,
 		hearthLoadError,
+		hearthNeedsSetup,
 		openPopovers,
 		redoConfig,
 		saveEdit,
@@ -107,6 +108,7 @@
 
 	onMount(() => {
 		const params = new URLSearchParams(location.search);
+		if ($hearthNeedsSetup && !$hearthLoadError) showSetupWizard = true;
 
 		const presetId = params.get('theme');
 		presetOverride = THEME_PRESETS.find((preset) => preset.id === presetId);

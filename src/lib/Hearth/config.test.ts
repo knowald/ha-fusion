@@ -1,7 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { hearthConfigIssues, isStack, normalizeHearthConfig } from './config';
+import {
+	DEFAULT_HEARTH_CONFIG,
+	hearthConfigIssues,
+	isStack,
+	normalizeHearthConfig
+} from './config';
 
 describe('normalizeHearthConfig', () => {
+	it('uses a generic, entity-free first-run fallback', () => {
+		expect(DEFAULT_HEARTH_CONFIG).toMatchObject({
+			rail: [
+				{ id: 'clock', type: 'clock' },
+				{ id: 'nav', type: 'nav' },
+				{ id: 'spacer', type: 'spacer' }
+			],
+			rooms: [{ id: 'home', cards: [[]] }]
+		});
+		expect(JSON.stringify(DEFAULT_HEARTH_CONFIG)).not.toMatch(/(?:light|sensor|weather|vacuum)\./);
+	});
+
 	it('repairs globally duplicated IDs without dropping valid items', () => {
 		const config = normalizeHearthConfig({
 			rail: [

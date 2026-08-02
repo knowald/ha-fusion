@@ -4,7 +4,7 @@
 	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
 	import { buildProposal, fetchRegistry, type HearthProposal } from './registry';
-	import { updateConfig } from './store';
+	import { hearthNeedsSetup, updateConfig } from './store';
 
 	let { onclose }: { onclose: () => void } = $props();
 
@@ -33,6 +33,13 @@
 	}
 
 	load();
+
+	// First-run discovery can mount before the Home Assistant socket connects.
+	// Resume automatically once it becomes available instead of leaving the
+	// user on a dead-end disconnected message.
+	$effect(() => {
+		if ($connection && status === 'disconnected') load();
+	});
 
 	function count(value: number, noun: string) {
 		return `${value} ${noun}${value === 1 ? '' : 's'}`;
@@ -83,6 +90,7 @@
 				})
 			];
 		});
+		hearthNeedsSetup.set(false);
 		onclose();
 	}
 

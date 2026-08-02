@@ -352,7 +352,7 @@
 				</div>
 
 				{#if type === 'clock'}
-					<TextField label="City" bind:value={city} placeholder="Wrocław" />
+					<TextField label="City" bind:value={city} placeholder="City name" />
 				{/if}
 
 				{#if type === 'weather'}

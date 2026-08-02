@@ -28,6 +28,7 @@ export async function load({ request }): Promise<{
 	configuration: Configuration;
 	hearth: unknown;
 	hearthError: string | null;
+	hearthNeedsSetup: boolean;
 	hearthRevision: number;
 	translations: Translations;
 }> {
@@ -37,6 +38,9 @@ export async function load({ request }): Promise<{
 	let hearthError: string | null = null;
 	try {
 		hearth = await loadYaml('./data/hearth.yaml');
+		if (hearth !== undefined && (!hearth || typeof hearth !== 'object' || Array.isArray(hearth))) {
+			hearthError = 'Hearth configuration must contain a YAML mapping';
+		}
 	} catch (error) {
 		hearthError =
 			error instanceof Error
@@ -46,6 +50,12 @@ export async function load({ request }): Promise<{
 
 	const rawRevision = (hearth as Record<string, unknown> | undefined)?.revision;
 	const hearthRevision = typeof rawRevision === 'number' ? rawRevision : 0;
+	const hearthKeys = hearthError
+		? []
+		: Object.keys((hearth as Record<string, unknown> | undefined) ?? {}).filter(
+				(key) => key !== 'revision'
+			);
+	const hearthNeedsSetup = !hearthError && (hearth === undefined || hearthKeys.length === 0);
 
 	configuration.hassUrl =
 		process.env.HASS_URL || request.headers.get('X-Proxy-Target') || undefined;
@@ -63,6 +73,7 @@ export async function load({ request }): Promise<{
 		configuration,
 		hearth,
 		hearthError,
+		hearthNeedsSetup,
 		hearthRevision,
 		translations: locale ? { ...locale, _default: en } : en
 	};

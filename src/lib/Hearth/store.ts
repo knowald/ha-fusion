@@ -14,6 +14,11 @@ export const hearthConfig = writable<HearthConfig>(structuredClone(DEFAULT_HEART
 // stays locked so fallback rendering can never overwrite that source.
 export const hearthLoadError = writable<string | null>(null);
 
+// True only when the server found no usable source document. The dashboard
+// can offer discovery automatically without confusing parse/I/O failures with
+// a first run.
+export const hearthNeedsSetup = writable(false);
+
 // server-managed save counter for conflict detection between tabs
 export const hearthRevision = writable(0);
 
