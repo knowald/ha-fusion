@@ -1,10 +1,16 @@
+import { get } from 'svelte/store';
+import { connected, connection } from '$lib/Stores';
 import { describe, expect, it } from 'vitest';
 import {
 	activeSceneIndex,
 	blindPositionFor,
+	callEntityService,
+	commandFailure,
+	dismissCommandFailure,
 	entityAvailability,
 	entityGroupSummary,
 	lightViewFor,
+	pendingEntities,
 	sensorNumber
 } from './store';
 
@@ -24,6 +30,18 @@ describe('Hearth store view helpers', () => {
 				{ 'level:light.desk': 80 }
 			)
 		).toMatchObject({ availability: 'unavailable', on: false, level: 0 });
+	});
+
+	it('surfaces commands attempted while Home Assistant is disconnected', () => {
+		connection.set(null);
+		connected.set(false);
+		callEntityService('light', 'toggle', 'light.desk');
+		expect(get(commandFailure)).toEqual({
+			entityId: 'light.desk',
+			detail: 'Not connected to Home Assistant'
+		});
+		expect(get(pendingEntities)).toEqual({});
+		dismissCommandFailure();
 	});
 
 	it('prefers explicit scene indicators over activation timestamps', () => {

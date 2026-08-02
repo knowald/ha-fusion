@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { base } from '$app/paths';
 import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
-import { connection, states } from '$lib/Stores';
+import { connected, connection, states } from '$lib/Stores';
 import type { SliderUpdateMode } from '$lib/Types';
 import { getTogglableService } from '$lib/Utils';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig, type SceneRef } from './config';
@@ -209,6 +209,28 @@ function throttled(key: string, fn: () => void, interval = 200) {
 export const pendingEntities = writable<Record<string, true>>({});
 const pendingTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
+export interface CommandFailure {
+	entityId: string | null;
+	detail: string;
+}
+
+/** Latest failed device command, rendered by the dashboard as an alert. */
+export const commandFailure = writable<CommandFailure | null>(null);
+let commandFailureTimer: ReturnType<typeof setTimeout>;
+
+export function dismissCommandFailure() {
+	clearTimeout(commandFailureTimer);
+	commandFailure.set(null);
+}
+
+function reportCommandFailure(entityId: string | null, error: unknown) {
+	if (entityId) clearPending(entityId);
+	const detail = error instanceof Error ? error.message : String(error);
+	commandFailure.set({ entityId, detail });
+	clearTimeout(commandFailureTimer);
+	commandFailureTimer = setTimeout(() => commandFailure.set(null), 8000);
+}
+
 function clearPending(entityId: string) {
 	clearTimeout(pendingTimers[entityId]);
 	pendingEntities.update((current) => {
@@ -245,9 +267,18 @@ states.subscribe(($states) => {
 function service(domain: string, name: string, data: Record<string, unknown>) {
 	// edit mode arranges layout; taps there must never fire real device commands
 	if (get(hearthEditMode)) return;
+	const entityId = typeof data.entity_id === 'string' ? data.entity_id : null;
 	const conn = get(connection);
-	if (!conn) return;
-	callService(conn, domain, name, data).catch((error) => console.error(error));
+	// Socket keeps the connection object across reconnects, so connected is the
+	// authoritative guard during a dropped websocket.
+	if (!conn || !get(connected)) {
+		reportCommandFailure(entityId, new Error('Not connected to Home Assistant'));
+		return;
+	}
+	callService(conn, domain, name, data).catch((error) => {
+		console.error(error);
+		reportCommandFailure(entityId, error);
+	});
 }
 
 export function callEntityService(

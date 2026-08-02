@@ -166,6 +166,7 @@
 	"hearth_are_you_sure": "are you sure?",
 	"hearth_busy": "Busy",
 	"hearth_close": "Close",
+	"hearth_command_failed": "Command failed",
 	"hearth_config_changed": "Configuration changed elsewhere",
 	"hearth_config_unreadable": "Hearth configuration is unreadable",
 	"hearth_connection_lost": "Connection lost. Reconnecting...",
