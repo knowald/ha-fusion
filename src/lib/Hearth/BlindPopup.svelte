@@ -4,7 +4,14 @@
 	import { getSupport } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from './config';
-	import { blindPositionFor, callEntityService, controlOverrides, setBlindPosition } from './store';
+	import {
+		blindPositionFor,
+		blindTiltFor,
+		callEntityService,
+		controlOverrides,
+		setBlindPosition,
+		setBlindTiltPosition
+	} from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
 	let {
@@ -24,25 +31,10 @@
 		})
 	);
 
-	// mirrors setBlindPosition's optimistic override, but scoped to this
-	// popup since tilt has no dedicated entry in the shared blind store
-	let tiltOverride: number | undefined = $state(undefined);
-	let tiltOverrideTimer: ReturnType<typeof setTimeout> | undefined;
-
-	let tiltPosition = $derived(
-		tiltOverride ?? Math.max(0, Math.min(100, Math.round(attributes?.current_tilt_position ?? 0)))
-	);
+	let tiltPosition = $derived(blindTiltFor(entity, $states, $controlOverrides));
 
 	function callCoverService(service: string, data: Record<string, unknown> = {}) {
 		callEntityService('cover', service, entity, data);
-	}
-
-	function setTiltPosition(value: number, commit = true) {
-		const target = Math.max(0, Math.min(100, Math.round(value)));
-		clearTimeout(tiltOverrideTimer);
-		tiltOverride = target;
-		tiltOverrideTimer = setTimeout(() => (tiltOverride = undefined), 2000);
-		if (commit) callCoverService('set_cover_tilt_position', { tilt_position: target });
 	}
 </script>
 
@@ -88,7 +80,7 @@
 		value={tiltPosition}
 		variant="blue"
 		updateMode={sliderUpdates}
-		onchange={setTiltPosition}
+		onchange={(value, commit) => setBlindTiltPosition(entity, value, commit)}
 	/>
 {/if}
 

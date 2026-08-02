@@ -4,6 +4,8 @@
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
 	import {
+		controlOverrides,
+		controlValueFor,
 		hearthEditMode,
 		pendingEntities,
 		setClimateHvacMode,
@@ -47,15 +49,11 @@
 	});
 
 	// rapid taps step from the optimistic value, not the last HA-confirmed one
-	let localTarget = $state<number | null>(null);
-	let localTargetTimer: ReturnType<typeof setTimeout> | undefined;
-
-	$effect(() => {
-		void target;
-		localTarget = null;
-	});
-
-	let displayTarget = $derived(localTarget ?? target);
+	let displayTarget = $derived(
+		card.entity && target !== null
+			? controlValueFor(`climate:${card.entity}`, target, $controlOverrides)
+			: target
+	);
 
 	function stepTarget(direction: number) {
 		if (!card.entity || displayTarget === null) return;
@@ -64,9 +62,6 @@
 		// steps like 0.5 accumulate float noise, snap to one decimal
 		const next = Math.round((displayTarget + direction * step) * 10) / 10;
 		const clamped = Math.max(min, Math.min(max, next));
-		localTarget = clamped;
-		clearTimeout(localTargetTimer);
-		localTargetTimer = setTimeout(() => (localTarget = null), 5000);
 		setClimateTemperature(card.entity, clamped);
 	}
 </script>

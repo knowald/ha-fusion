@@ -3,22 +3,25 @@
 	import { states } from '$lib/Stores';
 	import { horizontalDrag } from './drag';
 	import type { OverviewCard } from './config';
-	import { pendingEntities, popup, seekMedia, toggleMediaPlayback } from './store';
+	import {
+		controlOverrides,
+		controlValueFor,
+		pendingEntities,
+		popup,
+		seekMedia,
+		setControlOverride,
+		toggleMediaPlayback
+	} from './store';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'media' }> } = $props();
 
 	let now = $state(Date.now());
-	let scrub = $state<number | null>(null);
-	let scrubTimer: ReturnType<typeof setTimeout>;
 
 	onMount(() => {
 		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => {
-			clearInterval(timer);
-			clearTimeout(scrubTimer);
-		};
+		return () => clearInterval(timer);
 	});
 
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
@@ -38,7 +41,16 @@
 		);
 	});
 
-	let progressPercent = $derived(Math.round((scrub ?? (duration ? position / duration : 0)) * 100));
+	let progressFraction = $derived(
+		card.entity
+			? controlValueFor(
+					`seek:${card.entity}`,
+					duration ? position / duration : 0,
+					$controlOverrides
+				)
+			: 0
+	);
+	let progressPercent = $derived(Math.round(progressFraction * 100));
 
 	function formatTime(seconds: number) {
 		const whole = Math.max(0, Math.round(seconds));
@@ -49,9 +61,6 @@
 
 	function endScrub(value: number) {
 		if (card.entity) seekMedia(card.entity, value / 100);
-		// hold the scrub position until the seek is reflected in the entity
-		clearTimeout(scrubTimer);
-		scrubTimer = setTimeout(() => (scrub = null), 1500);
 	}
 </script>
 
@@ -98,14 +107,17 @@
 		</div>
 		<div
 			class="progress"
-			use:horizontalDrag={{ set: (value) => (scrub = value / 100), end: endScrub }}
+			use:horizontalDrag={{
+				set: (value) => card.entity && setControlOverride(`seek:${card.entity}`, value / 100, 1500),
+				end: endScrub
+			}}
 		>
 			<div class="progress-track"></div>
 			<div class="progress-fill" style:width="{progressPercent}%"></div>
 			<div class="progress-thumb" style:left="calc({progressPercent}% - 6px)"></div>
 		</div>
 		<div class="times">
-			<span>{formatTime((scrub ?? (duration ? position / duration : 0)) * duration)}</span>
+			<span>{formatTime(progressFraction * duration)}</span>
 			<span>{formatTime(duration)}</span>
 		</div>
 	</div>

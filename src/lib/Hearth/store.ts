@@ -168,7 +168,7 @@ export function closePopup() {
 export const controlOverrides = writable<Record<string, number>>({});
 const overrideTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
-function setOverride(key: string, value: number, ttl = 2000) {
+export function setControlOverride(key: string, value: number, ttl = 2000) {
 	clearTimeout(overrideTimers[key]);
 	controlOverrides.update((current) => ({ ...current, [key]: value }));
 	overrideTimers[key] = setTimeout(() => {
@@ -178,6 +178,14 @@ function setOverride(key: string, value: number, ttl = 2000) {
 			return next;
 		});
 	}, ttl);
+}
+
+export function controlValueFor(
+	key: string,
+	actual: number,
+	$overrides: Record<string, number>
+): number {
+	return $overrides[key] ?? actual;
 }
 
 // trailing-edge throttle per key so drags emit at most one service call per
@@ -370,7 +378,7 @@ export function toggleLight(entityId: string) {
 export function setLightLevel(entityId: string, value: number, commit = true) {
 	if (!entityAvailable(get(states)?.[entityId])) return;
 	const level = clamp(Math.max(1, value), 1, 100);
-	setOverride(`level:${entityId}`, level);
+	setControlOverride(`level:${entityId}`, level);
 	if (!commit) return;
 	throttled(`level:${entityId}`, () =>
 		service('light', 'turn_on', { entity_id: entityId, brightness_pct: level })
@@ -379,7 +387,7 @@ export function setLightLevel(entityId: string, value: number, commit = true) {
 
 export function setLightTemp(entityId: string, pct: number, commit = true) {
 	if (!entityAvailable(get(states)?.[entityId])) return;
-	setOverride(`temp:${entityId}`, clamp(pct, 0, 100));
+	setControlOverride(`temp:${entityId}`, clamp(pct, 0, 100));
 	if (!commit) return;
 	const attributes = get(states)?.[entityId]?.attributes ?? {};
 	const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
@@ -427,11 +435,36 @@ export function toggleBlind(entityId: string) {
 export function setBlindPosition(entityId: string, position: number, commit = true) {
 	if (!entityAvailable(get(states)?.[entityId])) return;
 	const target = clamp(position, 0, 100);
-	setOverride(`blind:${entityId}`, target);
+	setControlOverride(`blind:${entityId}`, target);
 	if (!commit) return;
 	throttled(
 		`blind:${entityId}`,
 		() => service('cover', 'set_cover_position', { entity_id: entityId, position: target }),
+		400
+	);
+}
+
+export function blindTiltFor(
+	entityId: string,
+	$states: HassEntities | undefined,
+	$overrides: Record<string, number>
+): number {
+	const actual = Math.round($states?.[entityId]?.attributes?.current_tilt_position ?? 0);
+	return clamp(controlValueFor(`tilt:${entityId}`, actual, $overrides), 0, 100);
+}
+
+export function setBlindTiltPosition(entityId: string, position: number, commit = true) {
+	if (!entityAvailable(get(states)?.[entityId])) return;
+	const target = clamp(Math.round(position), 0, 100);
+	setControlOverride(`tilt:${entityId}`, target);
+	if (!commit) return;
+	throttled(
+		`tilt:${entityId}`,
+		() =>
+			service('cover', 'set_cover_tilt_position', {
+				entity_id: entityId,
+				tilt_position: target
+			}),
 		400
 	);
 }
@@ -490,6 +523,7 @@ export function toggleMediaPlayback(entity: string) {
 export function seekMedia(entity: string, fraction: number) {
 	const duration = get(states)?.[entity]?.attributes?.media_duration;
 	if (!duration) return;
+	setControlOverride(`seek:${entity}`, clamp(fraction, 0, 1), 1500);
 	service('media_player', 'media_seek', {
 		entity_id: entity,
 		seek_position: clamp(fraction, 0, 1) * duration
@@ -531,7 +565,7 @@ export function mediaVolumeFor(
 
 export function setMediaVolume(entityId: string, pct: number, commit = true) {
 	const target = clamp(pct, 0, 100);
-	setOverride(`media:${entityId}`, target);
+	setControlOverride(`media:${entityId}`, target);
 	if (!commit) return;
 	throttled(
 		`media:${entityId}`,
@@ -544,6 +578,7 @@ export function setMediaVolume(entityId: string, pct: number, commit = true) {
 /* climate */
 
 export function setClimateTemperature(entity: string, temperature: number) {
+	setControlOverride(`climate:${entity}`, temperature, 5000);
 	markPending(entity);
 	service('climate', 'set_temperature', { entity_id: entity, temperature });
 }

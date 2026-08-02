@@ -13,10 +13,12 @@
 		callEntityService,
 		closePopup,
 		controlOverrides,
+		controlValueFor,
 		cycleMediaRepeat,
 		mediaVolumeFor,
 		pendingEntities,
 		seekMedia,
+		setControlOverride,
 		setMediaShuffle,
 		setMediaVolume,
 		skipMediaTrack,
@@ -38,15 +40,10 @@
 	};
 
 	let now = $state(Date.now());
-	let scrub = $state<number | null>(null);
-	let scrubTimer: ReturnType<typeof setTimeout>;
 
 	onMount(() => {
 		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => {
-			clearInterval(timer);
-			clearTimeout(scrubTimer);
-		};
+		return () => clearInterval(timer);
 	});
 
 	let player = $derived($states?.[entity]);
@@ -79,7 +76,9 @@
 		);
 	});
 
-	let progressFraction = $derived(scrub ?? (duration ? position / duration : 0));
+	let progressFraction = $derived(
+		controlValueFor(`seek:${entity}`, duration ? position / duration : 0, $controlOverrides)
+	);
 	let progressPercent = $derived(Math.round(progressFraction * 100));
 
 	function formatTime(seconds: number) {
@@ -91,9 +90,6 @@
 
 	function endScrub(value: number) {
 		seekMedia(entity, value / 100);
-		// hold the scrub position until the seek is reflected in the entity
-		clearTimeout(scrubTimer);
-		scrubTimer = setTimeout(() => (scrub = null), 1500);
 	}
 
 	/* right panel */
@@ -167,7 +163,10 @@
 				</div>
 				<div
 					class="progress"
-					use:horizontalDrag={{ set: (value) => (scrub = value / 100), end: endScrub }}
+					use:horizontalDrag={{
+						set: (value) => setControlOverride(`seek:${entity}`, value / 100, 1500),
+						end: endScrub
+					}}
 				>
 					<div class="progress-track"></div>
 					<div class="progress-fill" style:width="{progressPercent}%"></div>
