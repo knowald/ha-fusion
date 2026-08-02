@@ -602,6 +602,16 @@
 			overflow-y: visible;
 			min-height: auto;
 		}
+
+		/* On short wall tablets the active page is the primary glance surface;
+		   the rail follows it instead of consuming the entire first viewport. */
+		.main {
+			order: 1;
+		}
+
+		.rail-scroll {
+			order: 2;
+		}
 	}
 
 	.edit-toggle {
