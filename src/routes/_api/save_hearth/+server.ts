@@ -108,7 +108,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			error(500, `Cannot save unreadable Hearth configuration: ${message}`);
 		}
 
-		if (isRevisionedShape && body.revision !== revision) {
+		if (isRevisionedShape && body.force !== true && body.revision !== revision) {
 			return { conflict: true as const, revision };
 		}
 

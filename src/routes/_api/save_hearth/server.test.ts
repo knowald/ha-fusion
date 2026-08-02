@@ -25,12 +25,12 @@ vi.mock('fs/promises', () => ({
 
 import { POST } from './+server';
 
-function request(revision: number, name: string) {
+function request(revision: number, name: string, force = false) {
 	return POST({
 		request: new Request('http://localhost/_api/save_hearth', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ revision, config: { rail: [], rooms: [], name } })
+			body: JSON.stringify({ revision, config: { rail: [], rooms: [], name }, force })
 		})
 	} as any) as Promise<Response>;
 }
@@ -51,5 +51,13 @@ describe('Hearth save endpoint', () => {
 		disk.data = 'rooms: [unterminated';
 		await expect(request(0, 'replacement')).rejects.toMatchObject({ status: 500 });
 		expect(disk.data).toBe('rooms: [unterminated');
+	});
+
+	it('allows an explicit forced save after a revision conflict', async () => {
+		expect((await request(0, 'first')).status).toBe(200);
+		expect((await request(0, 'stale')).status).toBe(409);
+		expect((await request(1, 'replacement', true)).status).toBe(200);
+		expect(disk.data).toContain('name: replacement');
+		expect(disk.data).toContain('revision: 2');
 	});
 });

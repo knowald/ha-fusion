@@ -105,7 +105,7 @@ export const saveState = writable<'idle' | 'saved' | 'conflict' | 'error'>('idle
 let savedToastTimer: ReturnType<typeof setTimeout>;
 
 /** Returns false on a revision conflict (another tab saved first). */
-export async function saveEdit(): Promise<boolean> {
+export async function saveEdit(force = false): Promise<boolean> {
 	const loadError = get(hearthLoadError);
 	if (loadError) {
 		saveState.set('error');
@@ -114,9 +114,11 @@ export async function saveEdit(): Promise<boolean> {
 	const response = await fetch(`${base}/_api/save_hearth`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig) })
+		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig), force })
 	});
 	if (response.status === 409) {
+		const body = await response.json().catch(() => undefined);
+		if (typeof body?.revision === 'number') hearthRevision.set(body.revision);
 		saveState.set('conflict');
 		return false;
 	}

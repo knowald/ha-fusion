@@ -16,6 +16,7 @@
 		hearthLoadError,
 		hearthNeedsSetup,
 		openPopovers,
+		requestConfirmation,
 		requestedConfirmation,
 		redoConfig,
 		saveEdit,
@@ -100,14 +101,44 @@
 		if (activeRoomId && activeRoomId !== $currentRoom) currentRoom.set(activeRoomId);
 	});
 
-	async function handleSave() {
+	async function handleSave(force = false) {
 		$saveState = 'idle';
 		try {
-			await saveEdit();
+			await saveEdit(force);
 		} catch (error) {
 			console.error(error);
 			$saveState = 'error';
 		}
+	}
+
+	async function copySessionEdits() {
+		const text = JSON.stringify($hearthConfig, null, 2);
+		try {
+			if (navigator.clipboard) {
+				await navigator.clipboard.writeText(text);
+			} else {
+				const area = document.createElement('textarea');
+				area.value = text;
+				area.style.position = 'fixed';
+				area.style.opacity = '0';
+				document.body.append(area);
+				area.select();
+				document.execCommand('copy');
+				area.remove();
+			}
+		} catch (error) {
+			console.error(error);
+			$saveState = 'error';
+		}
+	}
+
+	function confirmOverwrite() {
+		requestConfirmation({
+			title: 'Overwrite newer Hearth configuration?',
+			message: 'This replaces the version saved by the other session with your current edits.',
+			confirmLabel: 'Overwrite',
+			action: () => void handleSave(true)
+		});
 	}
 
 	// display-only theme override via ?theme=<preset id>: the matched preset
@@ -346,6 +377,22 @@
 					type="button"
 					class="bar-button pressable"
 					use:Ripple={PRESS_RIPPLE}
+					onclick={copySessionEdits}
+				>
+					Copy edits
+				</button>
+				<button
+					type="button"
+					class="bar-button dangerous pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={confirmOverwrite}
+				>
+					Overwrite
+				</button>
+				<button
+					type="button"
+					class="bar-button pressable"
+					use:Ripple={PRESS_RIPPLE}
 					onclick={() => location.reload()}
 				>
 					{$lang('hearth_reload')}
@@ -405,7 +452,7 @@
 				type="button"
 				class="bar-button primary pressable"
 				use:Ripple={PRESS_RIPPLE}
-				onclick={handleSave}>{$lang('save')}</button
+				onclick={() => handleSave()}>{$lang('save')}</button
 			>
 		</div>
 	{:else if !hideEditToggle && !$hearthLoadError}
@@ -836,5 +883,10 @@
 		background: linear-gradient(135deg, var(--h-accent-deep), var(--h-accent-bright));
 		border: none;
 		color: var(--h-on-accent);
+	}
+
+	.bar-button.dangerous {
+		color: var(--h-bad-text);
+		border-color: rgb(var(--h-bad-rgb) / 0.35);
 	}
 </style>
