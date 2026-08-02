@@ -16,7 +16,7 @@
 	const initial = id ? config.rooms.find((entry) => entry.id === id) : undefined;
 
 	let name = $state(initial?.name ?? '');
-	let icon = $state(initial?.icon ?? 'weekend');
+	let icon = $state(initial?.icon ?? 'meeting_room');
 	let summary = $state(initial?.summary ?? '');
 	let tempEntity = $state(initial?.temp_entity ?? '');
 	let humidityEntity = $state(initial?.humidity_entity ?? '');
@@ -39,7 +39,7 @@
 				const room = next.rooms.find((entry) => entry.id === id);
 				if (!room) return;
 				room.name = name.trim();
-				room.icon = icon.trim() || 'weekend';
+				room.icon = icon.trim() || 'meeting_room';
 				room.summary = summary.trim() || undefined;
 				room.temp_entity = tempEntity.trim() || undefined;
 				room.humidity_entity = humidityEntity.trim() || undefined;
@@ -56,7 +56,7 @@
 						next.rooms.map((entry) => entry.id)
 					),
 					name: name.trim(),
-					icon: icon.trim() || 'weekend',
+					icon: icon.trim() || 'meeting_room',
 					summary: summary.trim() || undefined,
 					temp_entity: tempEntity.trim() || undefined,
 					humidity_entity: humidityEntity.trim() || undefined,
@@ -101,7 +101,7 @@
 	onmovedown={id ? () => move(1) : undefined}
 >
 	<TextField label="Name" bind:value={name} placeholder="Living Room" />
-	<IconField label="Icon" bind:value={icon} placeholder="weekend" />
+	<IconField label="Icon" bind:value={icon} placeholder="meeting_room" />
 	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
 	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
 	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />

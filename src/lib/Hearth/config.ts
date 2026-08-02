@@ -307,7 +307,7 @@ export const RAIL_WIDGET_TYPES = [
 	{
 		value: 'nav',
 		label: 'Page navigation',
-		name: 'Room navigation',
+		name: 'Page navigation',
 		sub: 'room links',
 		icon: 'home'
 	},

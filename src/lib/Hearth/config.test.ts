@@ -138,6 +138,11 @@ describe('normalizeHearthConfig', () => {
 		expect(list?.map((item) => item.id)).toEqual(['target']);
 		expect(findOverviewCard(config, 'target', 'home')).toMatchObject({ title: 'Target' });
 	});
+
+	it('uses the canonical default page icon', () => {
+		const config = normalizeHearthConfig({ rail: [], rooms: [{ id: 'new-page', cards: [[]] }] });
+		expect(config.rooms[0].icon).toBe('meeting_room');
+	});
 });
 
 describe('hearthConfigIssues', () => {
