@@ -15,7 +15,7 @@
 	import { onDndReceive } from './drag';
 	import { provideHearthInteractionMode } from './interaction';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
-	import AddTile from './AddTile.svelte';
+	import AddControl from './AddControl.svelte';
 	import CardRenderer from './CardRenderer.svelte';
 	import EditChip from './EditChip.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
@@ -234,7 +234,7 @@
 								})}
 							{/each}
 							{#if $hearthEditMode}
-								<AddTile
+								<AddControl
 									label="Add card"
 									onadd={() =>
 										editor.set({
@@ -253,11 +253,11 @@
 				{/if}
 			{/each}
 			{#if $hearthEditMode}
-				<AddTile
+				<AddControl
 					label="Add card"
 					onadd={() => editor.set({ kind: 'card', column: columnIndex, id: null, roomId })}
 				/>
-				<AddTile label="Add stack" onadd={() => addStack(columnIndex)} />
+				<AddControl label="Add stack" onadd={() => addStack(columnIndex)} />
 			{/if}
 		</div>
 	{/each}

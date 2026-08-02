@@ -2,7 +2,7 @@
 	import { sortable } from '$lib/Actions/sortable';
 	import { slugify, uniqueId, type RailWidget } from './config';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
-	import AddTile from './AddTile.svelte';
+	import AddControl from './AddControl.svelte';
 	import EditChip from './EditChip.svelte';
 	import RailWidgetRenderer from './RailWidgetRenderer.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
@@ -63,7 +63,7 @@
 		</VisibilityGate>
 	{/each}
 	{#if $hearthEditMode}
-		<AddTile label="Add widget" onadd={() => editor.set({ kind: 'railWidget', index: null })} />
+		<AddControl label="Add widget" onadd={() => editor.set({ kind: 'railWidget', index: null })} />
 	{/if}
 </div>
 

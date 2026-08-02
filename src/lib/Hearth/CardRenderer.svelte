@@ -9,7 +9,7 @@
 	import MediaCard from './MediaCard.svelte';
 	import ScenesCard from './ScenesCard.svelte';
 	import TemperatureCard from './TemperatureCard.svelte';
-	import VacuumRow from './VacuumRow.svelte';
+	import VacuumCard from './VacuumCard.svelte';
 	import ConfigurationPlaceholder from './ConfigurationPlaceholder.svelte';
 	import { cardConfigurationLabel, cardNeedsConfiguration } from './configurationState';
 
@@ -39,7 +39,7 @@
 {:else if card.type === 'media'}
 	<MediaCard {card} />
 {:else if card.type === 'vacuum'}
-	<VacuumRow {card} />
+	<VacuumCard {card} />
 {:else if card.type === 'entities'}
 	<EntitiesCard {card} {onentitiesreorder} {showEntityDragHandles} />
 {:else if card.type === 'camera'}

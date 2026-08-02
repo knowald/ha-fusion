@@ -8,7 +8,7 @@
 	import NavWidget from './NavWidget.svelte';
 	import ProgressWidget from './ProgressWidget.svelte';
 	import StatusWidget from './StatusWidget.svelte';
-	import WeatherCard from './WeatherCard.svelte';
+	import WeatherWidget from './WeatherWidget.svelte';
 	import ConfigurationPlaceholder from './ConfigurationPlaceholder.svelte';
 	import { railConfigurationLabel, railWidgetNeedsConfiguration } from './configurationState';
 
@@ -24,7 +24,7 @@
 		show_seconds={widget.show_seconds}
 	/>
 {:else if widget.type === 'weather'}
-	<WeatherCard entity={widget.entity} />
+	<WeatherWidget entity={widget.entity} />
 {:else if widget.type === 'nav'}
 	<NavWidget />
 {:else if widget.type === 'label'}
