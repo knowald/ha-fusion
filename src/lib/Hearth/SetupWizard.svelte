@@ -12,8 +12,12 @@
 	let errorMessage = $state('');
 	let proposal = $state<HearthProposal | null>(null);
 	let included = $state<Record<string, boolean>>({});
+	let includeGlanceables = $state(true);
 
 	let includedCount = $derived(proposal?.rooms.filter((room) => included[room.id]).length ?? 0);
+	let glanceableCount = $derived(
+		proposal?.glanceables.filter((widget) => widget.type !== 'label').length ?? 0
+	);
 
 	async function load() {
 		if (!$connection) {
@@ -25,6 +29,7 @@
 			const snapshot = await fetchRegistry();
 			proposal = buildProposal(snapshot, $states ?? {});
 			included = Object.fromEntries(proposal.rooms.map((room) => [room.id, true]));
+			includeGlanceables = proposal.glanceables.length > 0;
 			status = 'ready';
 		} catch (error) {
 			errorMessage = error instanceof Error ? error.message : String(error);
@@ -69,6 +74,14 @@
 		const plain = $state.snapshot(proposal) as HearthProposal;
 		const rooms = plain.rooms.filter((room) => included[room.id]);
 		updateConfig((config) => {
+			if (includeGlanceables) {
+				const takenWidgetIds = config.rail.map((widget) => widget.id);
+				for (const widget of plain.glanceables) {
+					const id = uniqueId(widget.id, takenWidgetIds);
+					takenWidgetIds.push(id);
+					config.rail.push({ ...widget, id });
+				}
+			}
 			// the first page (Home) is kept as it is; imported areas replace the rest
 			const kept = config.rooms.slice(0, 1);
 			// an area named like the kept page would otherwise duplicate its id, and
@@ -136,6 +149,16 @@
 				>
 			</div>
 		{:else if proposal}
+			{#if proposal.glanceables.length}
+				<label class="row glanceables">
+					<input type="checkbox" bind:checked={includeGlanceables} />
+					<span class="row-icon"><Icon name="today" size={20} /></span>
+					<span class="row-text">
+						<span class="row-name">Today glanceables</span>
+						<span class="row-summary">{count(glanceableCount, 'suggestion')}</span>
+					</span>
+				</label>
+			{/if}
 			<div class="list">
 				{#each proposal.rooms as room (room.id)}
 					<label class="row">
@@ -159,7 +182,7 @@
 				<button
 					type="button"
 					class="bar-button primary pressable"
-					disabled={!includedCount}
+					disabled={!includedCount && !(includeGlanceables && glanceableCount)}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={apply}
 				>

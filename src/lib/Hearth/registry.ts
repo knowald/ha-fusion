@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import type { HassEntities } from 'home-assistant-js-websocket';
 import { connection } from '$lib/Stores';
-import { slugify, uniqueId, type EntityRef, type HearthRoom } from './config';
+import { slugify, uniqueId, type EntityRef, type HearthRoom, type RailWidget } from './config';
 
 export interface RegistryArea {
 	area_id: string;
@@ -31,6 +31,40 @@ export interface RegistrySnapshot {
 
 export interface HearthProposal {
 	rooms: HearthRoom[];
+	glanceables: RailWidget[];
+}
+
+function suggestGlanceables(currentStates: HassEntities): RailWidget[] {
+	const entries = Object.entries(currentStates ?? {});
+	const energy = entries.find(
+		([entityId, entity]) =>
+			entityId.startsWith('sensor.') &&
+			(entity.attributes?.device_class === 'energy' ||
+				String(entity.attributes?.unit_of_measurement ?? '').toLowerCase() === 'kwh')
+	)?.[0];
+	const calendars = entries
+		.filter(([entityId]) => entityId.startsWith('calendar.'))
+		.slice(0, 3)
+		.map(([entityId]) => entityId);
+	const appliance = entries.find(([entityId, entity]) => {
+		const haystack = `${entityId} ${entity.attributes?.friendly_name ?? ''}`.toLowerCase();
+		return /(dishwasher|washing_machine|washer|laundry)/.test(haystack);
+	});
+
+	const widgets: RailWidget[] = [];
+	if (energy) widgets.push({ id: 'today-energy', type: 'energy', entity: energy });
+	if (appliance) {
+		widgets.push({
+			id: 'today-appliance',
+			type: 'progress',
+			name: String(appliance[1].attributes?.friendly_name ?? 'Appliance'),
+			status_entity: appliance[0]
+		});
+	}
+	if (calendars.length) {
+		widgets.push({ id: 'today-calendar', type: 'calendar', entities: calendars });
+	}
+	return widgets.length ? [{ id: 'today-label', type: 'label', text: 'TODAY' }, ...widgets] : [];
 }
 
 export async function fetchRegistry(): Promise<RegistrySnapshot> {
@@ -195,5 +229,5 @@ export function buildProposal(
 		});
 	}
 
-	return { rooms };
+	return { rooms, glanceables: suggestGlanceables(currentStates) };
 }
