@@ -3,7 +3,13 @@
 	import { states } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import { entityActive, hearthEditMode, pendingEntities, toggleVacuum } from './store';
+	import {
+		controlOverrides,
+		entityActiveFor,
+		hearthEditMode,
+		pendingEntities,
+		toggleVacuum
+	} from './store';
 	import AnchoredPopover from './AnchoredPopover.svelte';
 	import Icon from './Icon.svelte';
 	import { getHearthInteractionMode } from './interaction';
@@ -24,7 +30,9 @@
 	};
 
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
-	let running = $derived(card.entity ? entityActive(card.entity, entity) : false);
+	let running = $derived(
+		card.entity ? entityActiveFor(card.entity, entity, $controlOverrides) : false
+	);
 	let status = $derived(statusLabels[entity?.state ?? ''] ?? 'Unavailable');
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
 	let row = $state<HTMLElement | undefined>();

@@ -9,6 +9,7 @@ import {
 	confirmRequestedAction,
 	dismissCommandFailure,
 	entityActive,
+	entityActiveFor,
 	entityAvailability,
 	entityGroupSummary,
 	lightViewFor,
@@ -42,6 +43,20 @@ describe('Hearth store view helpers', () => {
 				{ 'level:light.desk': 80 }
 			)
 		).toMatchObject({ availability: 'unavailable', on: false, level: 0 });
+	});
+
+	it('renders discrete active-state overrides without lying about unavailable entities', () => {
+		expect(
+			entityActiveFor('switch.desk', { state: 'off' } as any, { 'active:switch.desk': 1 })
+		).toBe(true);
+		expect(
+			entityActiveFor('switch.desk', { state: 'unavailable' } as any, { 'active:switch.desk': 1 })
+		).toBe(false);
+		expect(
+			lightViewFor('light.desk', { 'light.desk': { state: 'off', attributes: {} } } as any, {
+				'active:light.desk': 1
+			})
+		).toMatchObject({ on: true });
 	});
 
 	it('surfaces commands attempted while Home Assistant is disconnected', () => {

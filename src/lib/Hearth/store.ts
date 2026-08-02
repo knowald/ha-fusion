@@ -203,6 +203,20 @@ export function setControlOverride(key: string, value: number, ttl = 2000) {
 	}, ttl);
 }
 
+function clearControlOverridesForEntity(entityId: string) {
+	controlOverrides.update((current) => {
+		const next = Object.fromEntries(
+			Object.entries(current).filter(([key]) => !key.endsWith(`:${entityId}`))
+		);
+		return Object.keys(next).length === Object.keys(current).length ? current : next;
+	});
+	for (const key of Object.keys(overrideTimers)) {
+		if (!key.endsWith(`:${entityId}`)) continue;
+		clearTimeout(overrideTimers[key]);
+		delete overrideTimers[key];
+	}
+}
+
 export function controlValueFor(
 	key: string,
 	actual: number,
@@ -255,7 +269,10 @@ export function dismissCommandFailure() {
 }
 
 function reportCommandFailure(entityId: string | null, error: unknown) {
-	if (entityId) clearPending(entityId);
+	if (entityId) {
+		clearPending(entityId);
+		clearControlOverridesForEntity(entityId);
+	}
 	const detail = error instanceof Error ? error.message : String(error);
 	commandFailure.set({ entityId, detail });
 	clearTimeout(commandFailureTimer);
@@ -289,6 +306,7 @@ states.subscribe(($states) => {
 			const previous = previousStates?.[entityId];
 			if (previous && $states[entityId] && previous !== $states[entityId]) {
 				clearPending(entityId);
+				clearControlOverridesForEntity(entityId);
 			}
 		}
 	}
@@ -363,8 +381,14 @@ export function lightViewFor(
 	const available = availability === 'available';
 	const attributes = entity?.attributes ?? {};
 	const actualOn = available && entity?.state === 'on';
+	const onOverride = available ? $overrides[`active:${entityId}`] : undefined;
 	const levelOverride = available ? $overrides[`level:${entityId}`] : undefined;
-	const on = levelOverride !== undefined ? levelOverride > 0 : actualOn;
+	const on =
+		onOverride !== undefined
+			? onOverride > 0
+			: levelOverride !== undefined
+				? levelOverride > 0
+				: actualOn;
 	const level = levelOverride ?? (actualOn ? Math.round((attributes.brightness ?? 255) / 2.55) : 0);
 
 	const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
@@ -393,7 +417,9 @@ export function lightViewFor(
 }
 
 export function toggleLight(entityId: string) {
-	if (!entityAvailable(get(states)?.[entityId])) return;
+	const entity = get(states)?.[entityId];
+	if (!entityAvailable(entity)) return;
+	setControlOverride(`active:${entityId}`, entity.state === 'on' ? 0 : 1);
 	markPending(entityId);
 	service('light', 'toggle', { entity_id: entityId });
 }
@@ -451,6 +477,7 @@ export function blindPositionFor(
 export function toggleBlind(entityId: string) {
 	if (!entityAvailable(get(states)?.[entityId])) return;
 	const open = blindPositionFor(entityId, get(states), get(controlOverrides)) > 0;
+	setControlOverride(`blind:${entityId}`, open ? 0 : 100);
 	markPending(entityId);
 	service('cover', open ? 'close_cover' : 'open_cover', { entity_id: entityId });
 }
@@ -507,7 +534,19 @@ export function entityActive(entityId: string, entity: HassEntity | undefined) {
 	return entity.state === 'on';
 }
 
+export function entityActiveFor(
+	entityId: string,
+	entity: HassEntity | undefined,
+	$overrides: Record<string, number>
+): boolean {
+	const override = entityAvailable(entity) ? $overrides[`active:${entityId}`] : undefined;
+	return override === undefined ? entityActive(entityId, entity) : override > 0;
+}
+
 export function toggleDevice(entityId: string) {
+	const entity = get(states)?.[entityId];
+	if (!entityAvailable(entity)) return;
+	setControlOverride(`active:${entityId}`, entityActive(entityId, entity) ? 0 : 1);
 	markPending(entityId);
 	service('homeassistant', 'toggle', { entity_id: entityId });
 }
@@ -522,6 +561,7 @@ export function toggleEntity(entityId: string): boolean {
 	const togglable = entity && getTogglableService(entity);
 	if (!togglable) return false;
 	const [domain, name] = togglable.split('.');
+	setControlOverride(`active:${entityId}`, entityActive(entityId, entity) ? 0 : 1);
 	markPending(entityId);
 	service(domain, name, { entity_id: entityId });
 	return true;
@@ -748,6 +788,7 @@ export function entityGroupSummary(
 export function toggleVacuum(entity: string) {
 	markPending(entity);
 	const state = get(states)?.[entity]?.state;
+	setControlOverride(`active:${entity}`, state === 'cleaning' || state === 'returning' ? 0 : 1);
 	if (state === 'cleaning' || state === 'returning') {
 		service('vacuum', 'return_to_base', { entity_id: entity });
 	} else {

@@ -5,8 +5,9 @@
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import {
+		controlOverrides,
+		entityActiveFor,
 		entityAvailability,
-		entityActive,
 		hearthEditMode,
 		pendingEntities,
 		popup,
@@ -42,7 +43,7 @@
 	let stateObj = $derived($states?.[entity]);
 	let availability = $derived(entityAvailability(stateObj));
 	let available = $derived(availability === 'available');
-	let on = $derived(entityActive(entity, stateObj));
+	let on = $derived(entityActiveFor(entity, stateObj, $controlOverrides));
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
