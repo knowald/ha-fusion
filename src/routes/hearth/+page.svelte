@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
 	import { onDestroy, onMount } from 'svelte';
 	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
@@ -84,7 +85,7 @@
 
 <svelte:head>
 	<title>Hearth</title>
-	<link rel="manifest" href="/hearth.webmanifest" />
+	<link rel="manifest" href="{base}/hearth.webmanifest" />
 	<meta name="theme-color" content="#16110c" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />

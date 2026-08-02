@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { get } from 'svelte/store';
 	import {
 		deriveAccent,
@@ -122,7 +123,7 @@
 		themesLoading = true;
 		themesError = '';
 		try {
-			const response = await fetch('/_api/hearth_themes');
+			const response = await fetch(`${base}/_api/hearth_themes`);
 			if (!response.ok) throw new Error(`load failed: ${response.status}`);
 			savedThemes = await response.json();
 		} catch (err: any) {
@@ -142,7 +143,7 @@
 		saving = true;
 		themesError = '';
 		try {
-			const response = await fetch('/_api/hearth_themes', {
+			const response = await fetch(`${base}/_api/hearth_themes`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name, theme })
@@ -166,7 +167,7 @@
 		if (!confirm(`Delete theme "${saved.name}"?`)) return;
 		themesError = '';
 		try {
-			const response = await fetch('/_api/hearth_themes', {
+			const response = await fetch(`${base}/_api/hearth_themes`, {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ id: saved.id })

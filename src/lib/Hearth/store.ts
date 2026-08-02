@@ -1,4 +1,5 @@
 import { get, writable } from 'svelte/store';
+import { base } from '$app/paths';
 import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
 import { connection, states } from '$lib/Stores';
 import type { SliderUpdateMode } from '$lib/Types';
@@ -105,7 +106,7 @@ export async function saveEdit(): Promise<boolean> {
 		saveState.set('error');
 		throw new Error(`Cannot save an unreadable Hearth configuration: ${loadError}`);
 	}
-	const response = await fetch('/_api/save_hearth', {
+	const response = await fetch(`${base}/_api/save_hearth`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig) })
