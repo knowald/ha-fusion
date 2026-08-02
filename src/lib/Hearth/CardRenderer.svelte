@@ -5,6 +5,7 @@
 	import EntitiesCard from './EntitiesCard.svelte';
 	import FusionCard from './FusionCard.svelte';
 	import HeaderCard from './HeaderCard.svelte';
+	import ImageCard from './ImageCard.svelte';
 	import MediaCard from './MediaCard.svelte';
 	import ScenesCard from './ScenesCard.svelte';
 	import TemperatureCard from './TemperatureCard.svelte';
@@ -39,6 +40,8 @@
 	<EntitiesCard {card} {onentitiesreorder} {showEntityDragHandles} />
 {:else if card.type === 'camera'}
 	<CameraCard {card} />
+{:else if card.type === 'image'}
+	<ImageCard {card} />
 {:else if card.type === 'climate'}
 	<ClimateCard {card} />
 {:else if card.type === 'scenes'}

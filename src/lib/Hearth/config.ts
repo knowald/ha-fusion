@@ -161,6 +161,8 @@ type OverviewCardVariant =
 			entities: EntityRef[];
 	  }
 	| { id: string; type: 'camera'; entity?: string; title?: string; stream?: boolean }
+	// integration-provided still images, including native Roborock floor maps
+	| { id: string; type: 'image'; entity?: string; title?: string }
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	// `bar` renders the persistent scene row: equal-width tiles, active one lit
 	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
@@ -257,6 +259,7 @@ export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }
 	{ value: 'media', label: 'Media player' },
 	{ value: 'vacuum', label: 'Vacuum' },
 	{ value: 'camera', label: 'Camera' },
+	{ value: 'image', label: 'Image' },
 	{ value: 'climate', label: 'Climate (thermostat)' },
 	{ value: 'scenes', label: 'Scenes (chips or bar)' },
 	{ value: 'fusion', label: 'Fusion object (template, picture elements, ...)' }
@@ -1065,6 +1068,7 @@ const DOMAIN_ICONS: Record<string, string> = {
 	fan: 'mode_fan',
 	lock: 'lock',
 	camera: 'videocam',
+	image: 'image',
 	vacuum: 'robot_2',
 	scene: 'palette',
 	script: 'description',
