@@ -1,14 +1,13 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { connection, lang, selectedLanguage, states } from '$lib/Stores';
+	import { connected, connection, lang, selectedLanguage, states } from '$lib/Stores';
 	import { PRESS_RIPPLE, type RailWidget } from './config';
+	import { startDataRefresh } from './refresh';
 	import { hearthEditMode, sensorNumber } from './store';
 	import { openEntityModal } from './modals';
 	import Icon from './Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'calendar' }> } = $props();
-
-	const REFRESH_MS = 5 * 60 * 1000;
 
 	interface NextEvent {
 		title: string;
@@ -37,48 +36,39 @@
 	}
 
 	let next = $state<NextEvent | null>(null);
+	$effect(() => {
+		void widget.entities;
+		void widget.lookahead_hours;
+		next = null;
+	});
 
 	$effect(() => {
 		const conn = $connection;
 		const entities = widget.entities ?? [];
 		const lookaheadHours = widget.lookahead_hours ?? 24;
-		next = null;
-		if (!conn || !entities.length) return;
-
-		let cancelled = false;
+		if (!$connected || !conn || !entities.length) return;
 
 		async function fetchNext() {
-			try {
-				const result: any = await conn?.sendMessagePromise({
-					type: 'call_service',
-					domain: 'calendar',
-					service: 'get_events',
-					target: { entity_id: entities },
-					service_data: {
-						start_date_time: new Date().toISOString(),
-						end_date_time: new Date(Date.now() + lookaheadHours * 3600 * 1000).toISOString()
-					},
-					return_response: true
-				});
-				if (cancelled) return;
-				const events: NextEvent[] = Object.values(result?.response ?? {})
-					.flatMap((calendar: any) => calendar?.events ?? [])
-					.map(parseEvent)
-					.filter((event): event is NextEvent => event !== null)
-					.sort((a, b) => a.start.getTime() - b.start.getTime());
-				next = events[0] ?? null;
-			} catch {
-				// calendar.get_events unsupported or entity gone, row stays hidden
-				if (!cancelled) next = null;
-			}
+			const result: any = await conn.sendMessagePromise({
+				type: 'call_service',
+				domain: 'calendar',
+				service: 'get_events',
+				target: { entity_id: entities },
+				service_data: {
+					start_date_time: new Date().toISOString(),
+					end_date_time: new Date(Date.now() + lookaheadHours * 3600 * 1000).toISOString()
+				},
+				return_response: true
+			});
+			const events: NextEvent[] = Object.values(result?.response ?? {})
+				.flatMap((calendar: any) => calendar?.events ?? [])
+				.map(parseEvent)
+				.filter((event): event is NextEvent => event !== null)
+				.sort((a, b) => a.start.getTime() - b.start.getTime());
+			return events[0] ?? null;
 		}
 
-		fetchNext();
-		const timer = setInterval(fetchNext, REFRESH_MS);
-		return () => {
-			cancelled = true;
-			clearInterval(timer);
-		};
+		return startDataRefresh(fetchNext, (value) => (next = value));
 	});
 
 	function clockTime(date: Date) {

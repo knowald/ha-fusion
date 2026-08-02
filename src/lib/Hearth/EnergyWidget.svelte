@@ -1,60 +1,49 @@
 <script lang="ts">
-	import { connection, states } from '$lib/Stores';
+	import { connected, connection, states } from '$lib/Stores';
 	import type { RailWidget } from './config';
+	import { startDataRefresh } from './refresh';
 	import { sensorNumber } from './store';
 	import Icon from './Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'energy' }> } = $props();
 
 	const BAR_COUNT = 8;
-	const REFRESH_MS = 5 * 60 * 1000;
-
 	// kWh per hour for today, oldest first; null until the first fetch lands
 	let hours = $state<number[] | null>(null);
+	$effect(() => {
+		void widget.entity;
+		hours = null;
+	});
 
 	$effect(() => {
 		const conn = $connection;
 		const entityId = widget.entity;
-		hours = null;
-		if (!conn || !entityId) return;
-
-		let cancelled = false;
+		if (!$connected || !conn || !entityId) return;
 
 		async function fetchToday() {
 			const now = new Date();
 			const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-			try {
-				const result: any = await conn?.sendMessagePromise({
-					type: 'recorder/statistics_during_period',
-					start_time: start.toISOString(),
-					end_time: new Date().toISOString(),
-					statistic_ids: [entityId],
-					period: 'hour'
-				});
-				if (cancelled) return;
-				const rows: { change?: number; sum?: number }[] = result?.[entityId!] ?? [];
-				// energy statistics carry per-period change; fall back to sum deltas
-				let previousSum: number | undefined;
-				hours = rows.map((row) => {
-					let value = row.change;
-					if (typeof value !== 'number' && typeof row.sum === 'number') {
-						value = previousSum === undefined ? 0 : row.sum - previousSum;
-					}
-					if (typeof row.sum === 'number') previousSum = row.sum;
-					return Math.max(0, value ?? 0);
-				});
-			} catch {
-				// no recorder statistics for this id, card shows just the header
-				if (!cancelled) hours = [];
-			}
+			const result: any = await conn.sendMessagePromise({
+				type: 'recorder/statistics_during_period',
+				start_time: start.toISOString(),
+				end_time: new Date().toISOString(),
+				statistic_ids: [entityId],
+				period: 'hour'
+			});
+			const rows: { change?: number; sum?: number }[] = result?.[entityId!] ?? [];
+			// energy statistics carry per-period change; fall back to sum deltas
+			let previousSum: number | undefined;
+			return rows.map((row) => {
+				let value = row.change;
+				if (typeof value !== 'number' && typeof row.sum === 'number') {
+					value = previousSum === undefined ? 0 : row.sum - previousSum;
+				}
+				if (typeof row.sum === 'number') previousSum = row.sum;
+				return Math.max(0, value ?? 0);
+			});
 		}
 
-		fetchToday();
-		const timer = setInterval(fetchToday, REFRESH_MS);
-		return () => {
-			cancelled = true;
-			clearInterval(timer);
-		};
+		return startDataRefresh(fetchToday, (value) => (hours = value));
 	});
 
 	let total = $derived(hours ? hours.reduce((sum, value) => sum + value, 0) : null);
