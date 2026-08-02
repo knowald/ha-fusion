@@ -180,8 +180,9 @@
 	}
 
 	.state {
-		font-size: 13px;
-		color: var(--h-text-6);
+		font-size: 15px;
+		font-weight: 550;
+		color: var(--h-text-3);
 	}
 
 	.state.open {
