@@ -65,7 +65,15 @@ export type VisibilityCondition =
 	{ entity: string; state?: string; state_not?: string } | { media: string };
 
 type RailWidgetVariant =
-	| { id: string; type: 'clock'; city?: string }
+	| {
+			id: string;
+			type: 'clock';
+			/** @deprecated Legacy display-only field. Use timezone. */
+			city?: string;
+			timezone?: string;
+			hour_format?: 'auto' | '12' | '24';
+			show_seconds?: boolean;
+	  }
 	| { id: string; type: 'weather'; entity?: string }
 	| { id: string; type: 'nav' }
 	| { id: string; type: 'spacer' }

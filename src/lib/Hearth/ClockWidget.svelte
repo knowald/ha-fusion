@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { lang, selectedLanguage } from '$lib/Stores';
+	import { clockTimeOptions, hourInTimeZone, validTimeZone, type ClockHourFormat } from './clock';
 
-	let { city }: { city?: string } = $props();
+	let {
+		timezone,
+		hour_format = 'auto',
+		show_seconds = false
+	}: { timezone?: string; hour_format?: ClockHourFormat; show_seconds?: boolean } = $props();
 
 	let now = $state(new Date());
 
@@ -11,17 +16,27 @@
 		return () => clearInterval(timer);
 	});
 
+	let activeTimezone = $derived(validTimeZone(timezone));
 	let time = $derived(
-		now.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' })
+		now.toLocaleTimeString(
+			$selectedLanguage,
+			clockTimeOptions(activeTimezone, hour_format, show_seconds)
+		)
 	);
 	let date = $derived(
-		now.toLocaleDateString($selectedLanguage, { weekday: 'long', month: 'long', day: 'numeric' })
+		now.toLocaleDateString($selectedLanguage, {
+			weekday: 'long',
+			month: 'long',
+			day: 'numeric',
+			...(activeTimezone ? { timeZone: activeTimezone } : {})
+		})
 	);
+	let hour = $derived(hourInTimeZone(now, $selectedLanguage, activeTimezone));
 	let greeting = $derived(
 		$lang(
-			now.getHours() < 12
+			hour < 12
 				? 'hearth_good_morning'
-				: now.getHours() < 18
+				: hour < 18
 					? 'hearth_good_afternoon'
 					: 'hearth_good_evening'
 		)
@@ -31,7 +46,7 @@
 <div>
 	<div class="clock">{time}</div>
 	<div class="date">{date}</div>
-	<div class="greeting">{greeting}{city ? `, ${city}` : ''}</div>
+	<div class="greeting">{greeting}</div>
 </div>
 
 <style>

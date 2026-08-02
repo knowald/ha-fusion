@@ -14,7 +14,11 @@
 </script>
 
 {#if widget.type === 'clock'}
-	<ClockWidget city={widget.city} />
+	<ClockWidget
+		timezone={widget.timezone}
+		hour_format={widget.hour_format}
+		show_seconds={widget.show_seconds}
+	/>
 {:else if widget.type === 'weather'}
 	<WeatherCard entity={widget.entity} />
 {:else if widget.type === 'nav'}

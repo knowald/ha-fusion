@@ -21,6 +21,7 @@
 	import TextField from './TextField.svelte';
 	import VisibilityField from './VisibilityField.svelte';
 	import YamlField from './YamlField.svelte';
+	import { validTimeZone, type ClockHourFormat } from '../clock';
 
 	let { index }: { index: number | null } = $props();
 
@@ -29,7 +30,13 @@
 	const initial = index !== null ? get(hearthConfig).rail[index] : undefined;
 
 	let type = $state<RailWidget['type']>(initial?.type ?? 'status');
-	let city = $state(initial?.type === 'clock' ? (initial.city ?? '') : '');
+	let timezone = $state(
+		initial?.type === 'clock' ? (initial.timezone ?? validTimeZone(initial.city) ?? '') : ''
+	);
+	let hourFormat = $state<ClockHourFormat>(
+		initial?.type === 'clock' ? (initial.hour_format ?? 'auto') : 'auto'
+	);
+	let showSeconds = $state(initial?.type === 'clock' ? (initial.show_seconds ?? false) : false);
 	let entity = $state(
 		initial &&
 			(initial.type === 'weather' ||
@@ -114,6 +121,7 @@
 	});
 
 	let alwaysVisible = $derived(!hideMobile && visibility.length === 0);
+	let timezoneValid = $derived(!timezone.trim() || !!validTimeZone(timezone));
 
 	function withoutType(config: Record<string, any>) {
 		const options = { ...config };
@@ -163,7 +171,15 @@
 		const hide_mobile = hideMobile || undefined;
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
 		if (type === 'clock') {
-			return { id, type, city: city.trim() || undefined, hide_mobile, visibility: visibilityValue };
+			return {
+				id,
+				type,
+				timezone: validTimeZone(timezone),
+				hour_format: hourFormat === 'auto' ? undefined : hourFormat,
+				show_seconds: showSeconds || undefined,
+				hide_mobile,
+				visibility: visibilityValue
+			};
 		}
 		if (type === 'weather') {
 			return {
@@ -275,7 +291,9 @@
 	}
 
 	let previewWidget = $derived.by(() => buildWidget('preview'));
-	let doneDisabled = $derived(type === 'fusion' && advancedOpen && !advancedValid);
+	let doneDisabled = $derived(
+		(type === 'fusion' && advancedOpen && !advancedValid) || (type === 'clock' && !timezoneValid)
+	);
 
 	function done() {
 		updateConfig((config) => {
@@ -359,7 +377,22 @@
 				</div>
 
 				{#if type === 'clock'}
-					<TextField label="City" bind:value={city} placeholder="City name" />
+					<TextField label="Time zone" bind:value={timezone} placeholder="Europe/Warsaw" />
+					{#if !timezoneValid}<div class="field-error">
+							Use an IANA time zone such as Europe/Warsaw.
+						</div>{/if}
+					<SelectField
+						label="Hour format"
+						bind:value={hourFormat}
+						options={[
+							{ value: 'auto', label: 'Locale default' },
+							{ value: '12', label: '12 hour' },
+							{ value: '24', label: '24 hour' }
+						]}
+					/>
+					<label class="check"
+						><input type="checkbox" bind:checked={showSeconds} /> Show seconds</label
+					>
 				{/if}
 
 				{#if type === 'weather'}
@@ -795,6 +828,22 @@
 		font-size: 12px;
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
+	}
+
+	.field-error {
+		font-size: 12px;
+		color: var(--h-bad-text);
+		margin: -8px 0 14px;
+	}
+
+	.check {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		min-height: 44px;
+		font-size: 13px;
+		color: var(--h-text-4);
+		cursor: pointer;
 	}
 
 	.button {
