@@ -33,7 +33,7 @@
 		/* solid, not a color-mix: older tablet webviews drop the whole
 		   declaration and the chip becomes invisible over the card */
 		background: var(--h-sheet-0);
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.35);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.35 * var(--h-accent-scale)));
 		color: var(--h-text-2);
 	}
 

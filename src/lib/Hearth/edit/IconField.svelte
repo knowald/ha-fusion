@@ -242,12 +242,12 @@
 		gap: 8px;
 		padding: 0 6px 0 12px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 	}
 
 	.input-row:focus-within {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	.preview {
@@ -293,15 +293,15 @@
 		margin-top: 8px;
 		padding: 10px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
-		background: rgb(var(--h-surface-rgb) / 0.04);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 	}
 
 	.filter {
 		width: 100%;
 		padding: 8px 11px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: inherit;
@@ -310,7 +310,7 @@
 	}
 
 	.filter:focus {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	.grid {
@@ -335,12 +335,12 @@
 	}
 
 	.cell:hover {
-		background: rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.08 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 	}
 
 	.cell.selected {
-		background: rgb(var(--h-accent-rgb) / 0.2);
+		background: rgb(var(--h-accent-rgb) / calc(0.2 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 	}
 
@@ -357,9 +357,9 @@
 		width: 100%;
 		margin-top: 6px;
 		padding: 8px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.04);
+		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 		color: var(--h-text-3);
 		font-family: inherit;
 		font-size: 12px;
@@ -367,7 +367,7 @@
 	}
 
 	.more:hover {
-		background: rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.08 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 	}
 </style>

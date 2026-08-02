@@ -326,7 +326,7 @@
 		border-radius: var(--h-radius-xl);
 		position: relative;
 		overflow: hidden;
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
 		color: #f3ebe1;
 	}
@@ -635,7 +635,7 @@
 		left: 0;
 		height: 4px;
 		border-radius: 2px;
-		background: rgb(var(--h-accent-rgb) / 0.75);
+		background: rgb(var(--h-accent-rgb) / calc(0.75 * var(--h-accent-scale)));
 	}
 
 	.volume-thumb {

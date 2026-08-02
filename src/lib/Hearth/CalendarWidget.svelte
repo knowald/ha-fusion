@@ -129,8 +129,9 @@
 		gap: 12px;
 		padding: 10px 10px 10px 14px;
 		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-surface-rgb) / 0.045);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 		margin-bottom: 8px;
 	}
 

@@ -167,7 +167,7 @@
 		display: flex;
 		flex-direction: column;
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 20px 22px;
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
@@ -220,7 +220,7 @@
 	}
 
 	.row:hover {
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
 
 	.row input {
@@ -284,8 +284,8 @@
 		font-weight: 600;
 		cursor: pointer;
 		color: var(--h-text-3);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		user-select: none;
 		-webkit-user-select: none;
 	}

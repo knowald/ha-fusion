@@ -117,8 +117,9 @@
 		min-height: 240px;
 		border-radius: var(--h-radius-lg);
 		overflow: hidden;
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 		position: relative;
 		flex: 1;
 	}
@@ -184,7 +185,7 @@
 
 	.artist {
 		font-size: 13px;
-		color: var(--h-text-3);
+		color: rgba(255, 255, 255, 0.72);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -238,7 +239,7 @@
 		justify-content: space-between;
 		margin-top: 6px;
 		font-size: 11px;
-		color: var(--h-text-3);
+		color: rgba(255, 255, 255, 0.72);
 		font-family: var(--h-font-mono);
 	}
 </style>

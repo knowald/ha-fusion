@@ -78,7 +78,7 @@
 	.widget.spacer-visible {
 		flex: 1;
 		min-height: 40px;
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-sm);
 		margin: 6px 0;
 	}

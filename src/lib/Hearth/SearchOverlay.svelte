@@ -178,7 +178,7 @@
 		display: flex;
 		flex-direction: column;
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 20px 22px;
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
@@ -190,7 +190,7 @@
 		gap: 10px;
 		padding: 0 13px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-icon);
 		margin-bottom: 12px;
@@ -198,7 +198,7 @@
 	}
 
 	.search:focus-within {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	.search input {
@@ -245,7 +245,7 @@
 
 	.row:hover,
 	.row.active {
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
 
 	.row-icon {

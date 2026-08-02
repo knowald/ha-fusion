@@ -48,7 +48,7 @@
 		width: 100%;
 		padding: 11px 13px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: var(--h-font-mono);
@@ -60,7 +60,7 @@
 	}
 
 	textarea:focus {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	textarea::placeholder {

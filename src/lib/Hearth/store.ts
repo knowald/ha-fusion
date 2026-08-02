@@ -67,6 +67,9 @@ export type Editor =
 
 export const editor = writable<Editor | null>(null);
 
+// The dashboard previews this slot while the theme editor is open.
+export const editedThemeSlot = writable<'day' | 'night'>('day');
+
 let editSnapshot: HearthConfig | null = null;
 
 export function enterEditMode() {

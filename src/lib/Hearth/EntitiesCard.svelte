@@ -237,16 +237,17 @@
 		gap: 12px;
 		padding: 16px 17px;
 		border-radius: var(--h-radius-md);
-		background: rgb(var(--h-surface-rgb) / 0.045);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		cursor: pointer;
 		user-select: none;
 		-webkit-user-select: none;
 	}
 
 	.summary-row.open {
-		background: rgb(var(--h-accent-rgb) / 0.12);
-		border-color: rgb(var(--h-accent-rgb) / 0.3);
+		background: rgb(var(--h-accent-rgb) / calc(0.12 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.3 * var(--h-accent-scale)));
 	}
 
 	.summary-copy {
@@ -294,19 +295,19 @@
 	.popover-badge {
 		padding: 6px 11px;
 		border-radius: 999px;
-		background: rgb(var(--h-accent-rgb) / 0.13);
+		background: rgb(var(--h-accent-rgb) / calc(0.13 * var(--h-accent-scale)));
 		font-family: var(--h-font-mono);
 		font-size: 10.5px;
 		letter-spacing: 0.8px;
 		text-transform: uppercase;
-		color: var(--h-accent-bright);
+		color: var(--h-accent-icon);
 		white-space: nowrap;
 	}
 
 	.placeholder {
 		padding: 22px;
 		border-radius: var(--h-radius-md);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		text-align: center;

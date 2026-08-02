@@ -118,7 +118,7 @@
 	.placeholder {
 		padding: 14px;
 		border-radius: var(--h-radius-sm);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 13px;
 		text-align: center;

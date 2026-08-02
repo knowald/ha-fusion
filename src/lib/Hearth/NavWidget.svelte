@@ -50,7 +50,7 @@
 <style>
 	.divider {
 		height: 1px;
-		background: rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		margin: 24px 0;
 	}
 
@@ -74,13 +74,13 @@
 	}
 
 	.nav-item.active {
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border-color: rgb(var(--h-accent-rgb) / 0.22);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.22 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 	}
 
 	.nav-item.add {
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 	}
 

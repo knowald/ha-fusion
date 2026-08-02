@@ -132,8 +132,9 @@
 	.card {
 		padding: 20px;
 		border-radius: var(--h-radius-lg);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 	}
 
 	.header {
@@ -207,7 +208,7 @@
 		width: 34px;
 		height: 34px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.08 * var(--h-fill-scale)));
 		color: var(--h-text-3);
 		cursor: pointer;
 		user-select: none;
@@ -238,8 +239,8 @@
 		width: 40px;
 		height: 36px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 		color: var(--h-icon-dim);
 		cursor: pointer;
 		user-select: none;
@@ -247,16 +248,16 @@
 	}
 
 	.mode.active {
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border-color: rgb(var(--h-accent-rgb) / 0.32);
-		color: var(--h-accent-bright);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.32 * var(--h-accent-scale)));
+		color: var(--h-accent-icon);
 	}
 
 	.placeholder {
 		margin-top: 16px;
 		padding: 22px;
 		border-radius: var(--h-radius-md);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		text-align: center;

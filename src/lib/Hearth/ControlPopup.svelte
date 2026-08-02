@@ -92,7 +92,7 @@
 	.sheet {
 		width: 440px;
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 28px;
 		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
@@ -108,7 +108,7 @@
 		width: 48px;
 		height: 48px;
 		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-accent-rgb) / 0.14);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -137,7 +137,7 @@
 		position: relative;
 		transition: background 0.2s;
 		flex: none;
-		background: rgb(var(--h-surface-rgb) / 0.12);
+		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
 	}
 
 	.switch.on {

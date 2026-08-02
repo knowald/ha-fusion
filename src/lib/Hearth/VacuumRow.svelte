@@ -76,12 +76,12 @@
 		cursor: pointer;
 		font-size: 14px;
 		font-weight: 600;
-		background: rgb(var(--h-accent-rgb) / 0.16);
+		background: rgb(var(--h-accent-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 	}
 
 	.action.running {
-		background: rgb(var(--h-bad-rgb) / 0.16);
+		background: rgb(var(--h-bad-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-bad-text);
 	}
 </style>

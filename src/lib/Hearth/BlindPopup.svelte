@@ -130,8 +130,8 @@
 		text-align: center;
 		padding: 15px;
 		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		font-size: 15px;
 		font-weight: 600;
 		color: var(--h-text-3);

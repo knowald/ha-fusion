@@ -84,7 +84,7 @@
 
 	.grid.editing.empty {
 		min-height: 62px;
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		border-radius: var(--h-radius-md);
 	}
 
@@ -113,7 +113,7 @@
 		z-index: 6;
 		display: flex;
 		padding: 5px;
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.35);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.35 * var(--h-accent-scale)));
 		border-radius: 8px;
 		background: var(--h-sheet-0);
 		color: var(--h-text-2);

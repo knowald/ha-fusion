@@ -116,7 +116,7 @@
 		display: flex;
 		flex-direction: column;
 		background: radial-gradient(680px 440px at 25% -10%, var(--h-sheet-0), var(--h-sheet-1) 60%);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xl);
 		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
 		overflow: hidden;
@@ -131,7 +131,7 @@
 		align-items: center;
 		gap: 10px;
 		padding: 22px 28px 18px;
-		border-bottom: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 		flex: none;
 	}
 
@@ -148,7 +148,7 @@
 		align-items: center;
 		padding: 2px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.05);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 	}
 
 	.icon-button {
@@ -210,7 +210,7 @@
 		display: flex;
 		align-items: center;
 		padding: 14px 28px 18px;
-		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 		flex: none;
 	}
 
@@ -236,7 +236,7 @@
 	}
 
 	.button.danger {
-		background: rgb(var(--h-bad-rgb) / 0.16);
+		background: rgb(var(--h-bad-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-bad-text);
 	}
 

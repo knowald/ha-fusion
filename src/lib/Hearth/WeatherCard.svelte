@@ -124,8 +124,9 @@
 		margin-top: 26px;
 		padding: 16px 18px;
 		border-radius: var(--h-radius-card);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 	}
 
 	.temp {

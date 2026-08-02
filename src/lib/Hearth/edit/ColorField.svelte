@@ -31,7 +31,7 @@
 		width: 30px;
 		height: 30px;
 		padding: 0;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		border-radius: 9px;
 		background: none;
 		cursor: pointer;

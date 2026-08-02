@@ -7,14 +7,16 @@
 		deriveCool,
 		deriveRadii,
 		deriveText,
+		isLightTheme,
 		RADIUS_SCALES,
 		THEME_DEFAULTS,
 		THEME_PRESETS,
 		type HearthTheme
 	} from '../config';
-	import { editor, hearthConfig, updateConfig } from '../store';
+	import { editedThemeSlot, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import ColorField from './ColorField.svelte';
+	import EntityField from './EntityField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 	import Icon from '../Icon.svelte';
@@ -25,7 +27,18 @@
 		theme: HearthTheme;
 	}
 
-	let theme = $derived($hearthConfig.theme ?? {});
+	let slot = $derived($editedThemeSlot);
+
+	function slotTheme(
+		config: { theme?: HearthTheme; theme_night?: HearthTheme },
+		target: 'day' | 'night' = slot
+	): HearthTheme {
+		return (target === 'night' ? config.theme_night : config.theme) ?? {};
+	}
+
+	let theme = $derived(slotTheme($hearthConfig));
+	let light = $derived(isLightTheme(theme));
+	let nightEnabled = $derived(Boolean($hearthConfig.theme_night));
 
 	function unwrapUrl(value?: string): string {
 		if (!value || value === 'none') return '';
@@ -33,18 +46,28 @@
 		return match ? match[1].replace(/^['"]|['"]$/g, '') : value;
 	}
 
-	let backgroundImageUrl = $state(unwrapUrl(get(hearthConfig).theme?.background_image));
+	let backgroundImageUrl = $state(unwrapUrl(slotTheme(get(hearthConfig)).background_image));
+
+	/** Night is stored as a full theme, so its first edit starts from day. */
+	function writeTheme(next: (current: HearthTheme) => HearthTheme | undefined) {
+		updateConfig((config) => {
+			if (slot === 'night') {
+				config.theme_night = next(config.theme_night ?? { ...config.theme });
+			} else {
+				config.theme = next(config.theme ?? {});
+			}
+		});
+	}
 
 	// applied on Done rather than per keystroke to keep the undo stack sane
 	function applyBackgroundImage() {
 		const url = backgroundImageUrl.trim();
 		if (url === unwrapUrl(theme.background_image)) return;
-		updateConfig((config) => {
-			if (url) {
-				config.theme = { ...config.theme, background_image: `url(${url})` };
-			} else if (config.theme) {
-				delete config.theme.background_image;
-			}
+		writeTheme((current) => {
+			if (url) return { ...current, background_image: `url(${url})` };
+			const next = { ...current };
+			delete next.background_image;
+			return next;
 		});
 	}
 
@@ -53,16 +76,40 @@
 	}
 
 	function patchTheme(patch: HearthTheme) {
-		updateConfig((config) => {
-			config.theme = { ...config.theme, ...patch };
-		});
+		writeTheme((current) => ({ ...current, ...patch }));
 	}
 
 	function applyPreset(preset: HearthTheme | null) {
+		writeTheme(() =>
+			preset ? { ...preset } : slot === 'night' ? { ...THEME_DEFAULTS } : undefined
+		);
+		backgroundImageUrl = preset ? unwrapUrl(preset.background_image) : '';
+	}
+
+	function selectSlot(next: 'day' | 'night') {
+		if (next === slot) return;
+		editedThemeSlot.set(next);
+		backgroundImageUrl = unwrapUrl(slotTheme(get(hearthConfig), next).background_image);
+	}
+
+	let switchEntity = $state(get(hearthConfig).day_night?.entity ?? '');
+	let nightState = $state(get(hearthConfig).day_night?.night_state ?? '');
+
+	function applySwitch() {
+		const entity = switchEntity.trim();
+		const state = nightState.trim();
+		const current = get(hearthConfig).day_night;
+		if (entity === (current?.entity ?? '') && state === (current?.night_state ?? '')) return;
 		updateConfig((config) => {
-			config.theme = preset ? { ...preset } : undefined;
+			config.day_night = entity ? { entity, ...(state ? { night_state: state } : {}) } : undefined;
 		});
-		backgroundImageUrl = '';
+	}
+
+	function disableNightTheme() {
+		updateConfig((config) => {
+			config.theme_night = undefined;
+		});
+		selectSlot('day');
 	}
 
 	let savedThemes = $state<SavedTheme[]>([]);
@@ -111,9 +158,7 @@
 	}
 
 	function applySavedTheme(saved: SavedTheme) {
-		updateConfig((config) => {
-			config.theme = { ...saved.theme };
-		});
+		writeTheme(() => ({ ...saved.theme }));
 		backgroundImageUrl = unwrapUrl(saved.theme.background_image);
 	}
 
@@ -147,16 +192,53 @@
 	});
 
 	function close() {
+		editedThemeSlot.set('day');
 		editor.set(null);
 	}
 
 	function done() {
 		applyBackgroundImage();
+		applySwitch();
 		close();
 	}
 </script>
 
 <EditSheet title="Theme" onclose={close} ondone={done}>
+	<div class="slots">
+		<div class="slot pressable" class:active={slot === 'day'} onclick={() => selectSlot('day')}>
+			<Icon name="light_mode" size={18} />
+			<span>Day</span>
+		</div>
+		<div class="slot pressable" class:active={slot === 'night'} onclick={() => selectSlot('night')}>
+			<Icon name="dark_mode" size={18} />
+			<span>Night</span>
+			{#if !nightEnabled}<span class="slot-note">off</span>{/if}
+		</div>
+	</div>
+
+	<div class="hint">
+		{#if slot === 'night'}
+			{#if nightEnabled}
+				Shown while the switch entity reads night. This tab previews the night theme.
+			{:else}
+				Night theme is off. Its first change starts from a copy of the day theme.
+			{/if}
+		{:else}
+			The default theme, also used after dark until a night theme is configured.
+		{/if}
+	</div>
+
+	<div class="group-label">DAY / NIGHT SWITCH</div>
+	<EntityField label="Switch entity" bind:value={switchEntity} />
+	<TextField label="Night states" bind:value={nightState} placeholder="below_horizon" />
+	<div class="hint">
+		Comma-separated. When empty, below_horizon, night, dark, on and true count as night.
+	</div>
+
+	{#if nightEnabled}
+		<div class="reset pressable" onclick={disableNightTheme}>Turn off the night theme</div>
+	{/if}
+
 	<div class="group-label">PRESETS</div>
 	<div class="presets">
 		{#each THEME_PRESETS as preset (preset.id)}
@@ -230,12 +312,12 @@
 		<ColorField
 			label="Accent"
 			value={knob('accent')}
-			onchange={(value) => patchTheme(deriveAccent(value))}
+			onchange={(value) => patchTheme(deriveAccent(value, light))}
 		/>
 		<ColorField
 			label="Cool accent"
 			value={knob('cool')}
-			onchange={(value) => patchTheme(deriveCool(value))}
+			onchange={(value) => patchTheme(deriveCool(value, light))}
 		/>
 		<ColorField
 			label="Background top"
@@ -250,7 +332,7 @@
 		<ColorField
 			label="Text"
 			value={knob('text_1')}
-			onchange={(value) => patchTheme(deriveText(value, knob('background_outer')))}
+			onchange={(value) => patchTheme(deriveText(value, knob('background_outer'), light))}
 		/>
 		<ColorField
 			label="Good"
@@ -260,7 +342,7 @@
 		<ColorField
 			label="Alert"
 			value={knob('bad')}
-			onchange={(value) => patchTheme(deriveBad(value))}
+			onchange={(value) => patchTheme(deriveBad(value, light))}
 		/>
 		<ColorField
 			label="Media"
@@ -286,13 +368,49 @@
 	/>
 
 	<div class="hint">
-		Pickers set sensible derived shades automatically. All 44 knobs are tunable individually in
-		data/hearth.yaml under theme:.
+		Pickers set sensible derived shades automatically. Theme knobs are tunable in data/hearth.yaml,
+		under theme: for day and theme_night: for night.
 	</div>
-	<div class="reset pressable" onclick={() => applyPreset(null)}>Reset to default theme</div>
+	<div class="reset pressable" onclick={() => applyPreset(null)}>
+		Reset the {slot} theme to defaults
+	</div>
 </EditSheet>
 
 <style>
+	.slots {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+
+	.slot {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		padding: 11px 12px;
+		border-radius: var(--h-radius-xs);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
+		font-size: 14px;
+		color: var(--h-text-4);
+		cursor: pointer;
+	}
+
+	.slot.active {
+		background: rgb(var(--h-accent-rgb) / calc(0.16 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
+		color: var(--h-accent-text);
+	}
+
+	.slot-note {
+		font-family: var(--h-font-mono);
+		font-size: 11px;
+		letter-spacing: 1px;
+		color: var(--h-text-6);
+	}
+
 	.group-label {
 		font-family: var(--h-font-mono);
 		font-size: 11px;
@@ -314,8 +432,8 @@
 		gap: 10px;
 		padding: 9px 12px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		font-size: 14px;
 		color: var(--h-text-3);
 		cursor: pointer;
@@ -325,7 +443,7 @@
 		width: 22px;
 		height: 22px;
 		border-radius: 7px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.2);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.2 * var(--h-line-scale)));
 		flex: none;
 	}
 
@@ -346,7 +464,7 @@
 		text-align: center;
 		padding: 12px;
 		border-radius: var(--h-radius-xs);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-5);
 		font-size: 14px;
 		cursor: pointer;
@@ -366,7 +484,7 @@
 		flex: 1;
 		padding: 11px 13px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: inherit;
@@ -376,7 +494,7 @@
 	}
 
 	.save-row input:focus {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	.save-row input::placeholder {
@@ -387,7 +505,7 @@
 		flex: none;
 		padding: 0 16px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-accent-rgb) / 0.16);
+		background: rgb(var(--h-accent-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 		font-size: 14px;
 		font-weight: 600;
@@ -414,8 +532,8 @@
 		gap: 10px;
 		padding: 9px 12px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		font-size: 14px;
 		color: var(--h-text-3);
 		cursor: pointer;
@@ -430,7 +548,7 @@
 		width: 14px;
 		height: 14px;
 		border-radius: 50%;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.25);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.25 * var(--h-line-scale)));
 		margin-left: -5px;
 	}
 

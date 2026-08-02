@@ -32,7 +32,7 @@
 	let on = $derived(entityOn(entity, stateObj));
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
-	let iconColor = $derived(on ? 'var(--h-accent-bright)' : 'var(--h-icon-dim)');
+	let iconColor = $derived(on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)');
 	let fanSpeed = $derived(
 		domain === 'fan' && on ? Math.round(stateObj?.attributes?.percentage ?? 0) : null
 	);
@@ -102,8 +102,9 @@
 		touch-action: pan-y;
 		user-select: none;
 		-webkit-user-select: none;
-		background: rgb(var(--h-surface-rgb) / 0.045);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.tile.pressable {
@@ -120,8 +121,8 @@
 	}
 
 	.tile.on {
-		background: rgb(var(--h-accent-rgb) / 0.07);
-		border-color: rgb(var(--h-accent-rgb) / 0.28);
+		background: rgb(var(--h-accent-rgb) / calc(0.07 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.28 * var(--h-accent-scale)));
 	}
 
 	.content {

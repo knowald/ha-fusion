@@ -136,7 +136,7 @@
 		padding: 16px;
 		border-radius: var(--h-radius-card);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.13);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
 		box-shadow: 0 26px 60px rgb(0 0 0 / 0.6);
 	}
 
@@ -165,8 +165,8 @@
 		width: 14px;
 		height: 14px;
 		background: var(--h-sheet-0);
-		border-left: 1px solid rgb(var(--h-surface-rgb) / 0.13);
-		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.13);
+		border-left: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
+		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
 		transform: rotate(45deg);
 	}
 

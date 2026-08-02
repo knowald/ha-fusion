@@ -4,6 +4,7 @@
 		canRedo,
 		canUndo,
 		currentRoom,
+		editedThemeSlot,
 		editor,
 		enterEditMode,
 		hearthConfig,
@@ -16,9 +17,10 @@
 	} from './store';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { connected, motion } from '$lib/Stores';
+	import { connected, motion, states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import {
+		isNightState,
 		PRESS_RIPPLE,
 		THEME_BRIDGE_CSS,
 		THEME_DEFAULTS,
@@ -141,9 +143,39 @@
 		return () => clearTimeout(timer);
 	});
 
-	let activeTheme = $derived(
-		presetOverride ? (presetOverride.theme ?? undefined) : $hearthConfig.theme
+	// While editing, preview the selected slot. At runtime the configured HA
+	// entity decides whether the full day or night theme is active.
+	let night = $derived(
+		$hearthEditMode && $editor?.kind === 'theme'
+			? $editedThemeSlot === 'night'
+			: isNightState(
+					$states?.[$hearthConfig.day_night?.entity ?? '']?.state,
+					$hearthConfig.day_night
+				)
 	);
+
+	let storedTheme = $derived(
+		night ? ($hearthConfig.theme_night ?? $hearthConfig.theme) : $hearthConfig.theme
+	);
+
+	let activeTheme = $derived(presetOverride ? (presetOverride.theme ?? undefined) : storedTheme);
+
+	// CSS custom properties do not transition by themselves. Briefly blanket
+	// the rendered tree when the switch changes, then release component styles.
+	let lastNight: boolean | undefined;
+
+	$effect(() => {
+		const switched = lastNight !== undefined && lastNight !== night;
+		lastNight = night;
+		if (!switched || !$motion) return;
+		const root = document.documentElement;
+		root.classList.add('theme-fade');
+		const timer = setTimeout(() => root.classList.remove('theme-fade'), 700);
+		return () => {
+			clearTimeout(timer);
+			root.classList.remove('theme-fade');
+		};
+	});
 
 	// tokens live on :root (not .frame) so modals portaled outside the frame
 	// resolve them too; base first, user theme overrides second
@@ -283,7 +315,7 @@
 
 	.frame :global(.pressable:active) {
 		transform: scale(0.96);
-		filter: drop-shadow(0 0 9px rgb(var(--h-accent-rgb) / 0.45));
+		filter: drop-shadow(0 0 9px rgb(var(--h-accent-rgb) / calc(0.45 * var(--h-accent-scale))));
 		transition:
 			transform 120ms ease,
 			filter 60ms ease;
@@ -297,13 +329,22 @@
 	@keyframes -global-hearth-pending {
 		0%,
 		100% {
-			filter: drop-shadow(0 0 0 rgb(var(--h-accent-rgb) / 0));
+			filter: drop-shadow(0 0 0 rgb(var(--h-accent-rgb) / calc(0 * var(--h-accent-scale))));
 			opacity: 1;
 		}
 		50% {
-			filter: drop-shadow(0 0 10px rgb(var(--h-accent-rgb) / 0.55));
+			filter: drop-shadow(0 0 10px rgb(var(--h-accent-rgb) / calc(0.55 * var(--h-accent-scale))));
 			opacity: 0.88;
 		}
+	}
+
+	:global(html.theme-fade),
+	:global(html.theme-fade *) {
+		transition:
+			background-color 600ms ease,
+			border-color 600ms ease,
+			box-shadow 600ms ease,
+			color 600ms ease !important;
 	}
 
 	.frame {
@@ -404,7 +445,7 @@
 	.edit-toggle:hover {
 		opacity: 1;
 		color: var(--h-text-3);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
 
 	.edit-bar {
@@ -419,7 +460,7 @@
 		padding: 10px 12px;
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 	}
 
@@ -435,7 +476,7 @@
 		padding: 10px 16px;
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-bad-text);
 		font-size: 14px;
 		font-weight: 600;
@@ -454,7 +495,7 @@
 		padding: 10px 16px;
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-good-text);
 		font-size: 14px;
 		font-weight: 600;
@@ -473,7 +514,7 @@
 		padding: 10px 16px;
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.18);
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 		font-size: 14px;
 		font-weight: 600;
@@ -505,8 +546,8 @@
 		font-weight: 600;
 		cursor: pointer;
 		color: var(--h-text-3);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		user-select: none;
 		-webkit-user-select: none;
 	}

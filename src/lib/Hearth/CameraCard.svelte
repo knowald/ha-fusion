@@ -35,13 +35,13 @@
 	.camera {
 		border-radius: var(--h-radius-md);
 		overflow: hidden;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.placeholder {
 		padding: 22px;
 		border-radius: var(--h-radius-md);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		text-align: center;

@@ -147,8 +147,8 @@
 		text-align: center;
 		padding: 12px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		font-size: 14px;
 		color: var(--h-text-3);
 		cursor: pointer;
@@ -185,7 +185,7 @@
 	}
 
 	.tab.active {
-		background: rgb(var(--h-accent-rgb) / 0.2);
+		background: rgb(var(--h-accent-rgb) / calc(0.2 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 		font-weight: 600;
 	}
@@ -254,15 +254,15 @@
 	.effect-chip {
 		padding: 8px 14px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		font-size: 13px;
 		color: var(--h-text-3);
 		cursor: pointer;
 	}
 
 	.effect-chip.active {
-		background: rgb(var(--h-accent-rgb) / 0.2);
+		background: rgb(var(--h-accent-rgb) / calc(0.2 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
 		font-weight: 600;
 		border-color: transparent;

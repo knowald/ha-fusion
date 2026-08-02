@@ -36,7 +36,7 @@
 					<Icon
 						name={ref.icon || 'palette'}
 						size={bar ? 24 : 18}
-						color={active ? 'var(--h-accent-bright)' : undefined}
+						color={active ? 'var(--h-accent-icon)' : undefined}
 						fill={active}
 					/>
 					<span class="scene-name">{sceneName(ref)}</span>
@@ -71,8 +71,9 @@
 		gap: 9px;
 		padding: 11px 16px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		color: var(--h-icon);
 		cursor: pointer;
 		user-select: none;
@@ -80,8 +81,8 @@
 	}
 
 	.scene.active {
-		background: rgb(var(--h-accent-rgb) / 0.13);
-		border-color: rgb(var(--h-accent-rgb) / 0.34);
+		background: rgb(var(--h-accent-rgb) / calc(0.13 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.34 * var(--h-accent-scale)));
 	}
 
 	.scene-name {
@@ -143,7 +144,7 @@
 	.placeholder {
 		padding: 22px;
 		border-radius: var(--h-radius-md);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		text-align: center;

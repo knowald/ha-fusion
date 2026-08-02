@@ -583,7 +583,7 @@
 		display: flex;
 		flex-direction: column;
 		background: radial-gradient(600px 400px at 25% -10%, var(--h-sheet-0), var(--h-sheet-1) 60%);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xl);
 		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
 		overflow: hidden;
@@ -623,13 +623,13 @@
 		display: flex;
 		flex: 1;
 		min-height: 0;
-		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.gallery {
 		width: 248px;
 		flex: none;
-		border-right: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border-right: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 		padding: 18px 14px;
 		display: flex;
 		flex-direction: column;
@@ -644,7 +644,7 @@
 		gap: 9px;
 		padding: 9px 12px;
 		border-radius: 11px;
-		background: rgb(var(--h-surface-rgb) / 0.05);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		color: var(--h-text-6);
 		margin-bottom: 8px;
 	}
@@ -696,13 +696,13 @@
 	}
 
 	.kind.selected {
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border-color: rgb(var(--h-accent-rgb) / 0.3);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.3 * var(--h-accent-scale)));
 	}
 
 	.kind.selected .kind-icon,
 	.kind.selected .kind-name {
-		color: var(--h-accent-bright);
+		color: var(--h-accent-icon);
 	}
 
 	.kind.selected .kind-name {
@@ -726,7 +726,7 @@
 	.preview-well {
 		border-radius: var(--h-radius-md);
 		background: var(--h-inset);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 		padding: 22px;
 		margin-bottom: 16px;
 	}
@@ -766,7 +766,7 @@
 		gap: 7px;
 		padding: 8px 13px;
 		border-radius: 20px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		font-size: 13px;
 		color: var(--h-text-4);
 		cursor: pointer;
@@ -775,9 +775,9 @@
 	}
 
 	.chip.active {
-		background: rgb(var(--h-accent-rgb) / 0.12);
-		border-color: rgb(var(--h-accent-rgb) / 0.25);
-		color: var(--h-accent-bright);
+		background: rgb(var(--h-accent-rgb) / calc(0.12 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.25 * var(--h-accent-scale)));
+		color: var(--h-accent-icon);
 	}
 
 	.advanced-toggle {
@@ -826,7 +826,7 @@
 
 	.button.danger {
 		display: inline-block;
-		background: rgb(var(--h-bad-rgb) / 0.16);
+		background: rgb(var(--h-bad-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-bad-text);
 		margin-top: 8px;
 	}
@@ -844,7 +844,7 @@
 		.gallery {
 			width: 100%;
 			border-right: none;
-			border-bottom: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+			border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 			overflow-y: visible;
 		}
 

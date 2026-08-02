@@ -321,7 +321,7 @@
 
 	/* every group is one editable, movable unit - show its bounds while editing */
 	.card-slot.editing {
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		border-radius: var(--h-radius-md);
 		padding: 12px;
 	}
@@ -375,7 +375,7 @@
 	}
 
 	.stack-slot.editing {
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		border-radius: var(--h-radius-md);
 		padding: 12px;
 	}

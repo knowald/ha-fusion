@@ -89,8 +89,9 @@
 		touch-action: pan-y;
 		user-select: none;
 		-webkit-user-select: none;
-		background: rgb(var(--h-surface-rgb) / 0.045);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.tile.pressable {
@@ -103,7 +104,7 @@
 	}
 
 	.tile.open {
-		border-color: rgb(var(--h-cool-rgb) / 0.22);
+		border-color: rgb(var(--h-cool-rgb) / calc(0.22 * var(--h-accent-scale)));
 	}
 
 	.fill {
@@ -113,8 +114,8 @@
 		bottom: 0;
 		background: linear-gradient(
 			90deg,
-			rgb(var(--h-cool-rgb) / 0.24),
-			rgb(var(--h-cool-rgb) / 0.07)
+			rgb(var(--h-cool-rgb) / calc(0.24 * var(--h-accent-scale))),
+			rgb(var(--h-cool-rgb) / calc(0.07 * var(--h-accent-scale)))
 		);
 	}
 

@@ -430,7 +430,7 @@
 
 	.rows {
 		border-radius: var(--h-radius-sm);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		background: var(--h-track);
 		overflow: hidden;
 	}
@@ -444,7 +444,7 @@
 	}
 
 	.row + .row {
-		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.06);
+		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.row-main {
@@ -476,7 +476,7 @@
 	}
 
 	.row.action:hover {
-		background: rgb(var(--h-surface-rgb) / 0.04);
+		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 	}
 
 	.row.action.danger .row-label {
@@ -484,7 +484,7 @@
 	}
 
 	.row.action.danger:hover {
-		background: rgb(var(--h-bad-rgb) / 0.08);
+		background: rgb(var(--h-bad-rgb) / calc(0.08 * var(--h-accent-scale)));
 	}
 
 	.select-wrap {
@@ -503,9 +503,9 @@
 
 	select {
 		appearance: none;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font-family: inherit;
 		font-size: 14px;
@@ -515,7 +515,7 @@
 	}
 
 	select:focus {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	option {
@@ -539,8 +539,8 @@
 		text-align: right;
 		padding: 8px 10px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font-family: inherit;
 		font-size: 14px;
@@ -551,8 +551,8 @@
 		width: min(240px, 45%);
 		padding: 8px 12px;
 		border-radius: var(--h-radius-xs);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font-family: inherit;
 		font-size: 14px;
@@ -561,7 +561,7 @@
 
 	.unit-input input:focus,
 	.inline-text:focus {
-		border-color: rgb(var(--h-accent-rgb) / 0.4);
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	.switch {
@@ -572,7 +572,7 @@
 		position: relative;
 		transition: background 0.2s;
 		flex: none;
-		background: rgb(var(--h-surface-rgb) / 0.12);
+		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
 	}
 
 	.switch.on {

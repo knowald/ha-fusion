@@ -24,7 +24,8 @@
 		gap: 10px;
 		padding: 14px 16px;
 		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-surface-rgb) / 0.04);
+		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
 	}
 
 	.pill-text {

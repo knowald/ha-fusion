@@ -81,8 +81,8 @@
 		width: 64px;
 		height: 64px;
 		border-radius: var(--h-radius-md);
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border: 1px solid rgb(var(--h-accent-rgb) / 0.22);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
+		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.22 * var(--h-accent-scale)));
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -115,8 +115,9 @@
 		height: 64px;
 		padding: 0 18px;
 		border-radius: var(--h-radius-sm);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

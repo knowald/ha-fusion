@@ -20,7 +20,7 @@
 		padding: 15px 16px;
 		min-height: 58px;
 		border-radius: var(--h-radius-md);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		cursor: pointer;
@@ -30,6 +30,6 @@
 
 	.add:hover {
 		color: var(--h-text-4);
-		border-color: rgb(var(--h-surface-rgb) / 0.25);
+		border-color: rgb(var(--h-line-rgb) / calc(0.25 * var(--h-line-scale)));
 	}
 </style>
