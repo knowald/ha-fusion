@@ -74,6 +74,7 @@ export type Editor =
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' }
 	| { kind: 'settings' }
+	| { kind: 'appSettings' }
 	| { kind: 'code' };
 
 export const editor = writable<Editor | null>(null);

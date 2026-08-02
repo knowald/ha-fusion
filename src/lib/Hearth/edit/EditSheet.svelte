@@ -15,7 +15,8 @@
 		removeLabel = 'Remove',
 		onmoveup,
 		onmovedown,
-		wide = false
+		wide = false,
+		split = false
 	}: {
 		title: string;
 		children: Snippet;
@@ -27,6 +28,7 @@
 		onmoveup?: () => void;
 		onmovedown?: () => void;
 		wide?: boolean;
+		split?: boolean;
 	} = $props();
 
 	let confirmRemove = $state(false);
@@ -92,7 +94,7 @@
 				<Icon name="close" size={24} />
 			</button>
 		</div>
-		<div class="body">
+		<div class="body" class:split>
 			{@render children()}
 		</div>
 		{#if onremove}
@@ -199,6 +201,16 @@
 		overflow-y: auto;
 		scrollbar-gutter: stable;
 		padding: 22px 28px 28px;
+	}
+
+	.body.split {
+		display: flex;
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.body.split > :global(*) {
+		width: 100%;
 	}
 
 	/* Structural content keeps the full workspace width; ordinary form fields

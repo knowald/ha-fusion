@@ -7,6 +7,7 @@
 	import SettingsEditSheet from './SettingsEditSheet.svelte';
 	import StackEditSheet from './StackEditSheet.svelte';
 	import ThemeEditSheet from './ThemeEditSheet.svelte';
+	import AppSettingsEditSheet from './AppSettingsEditSheet.svelte';
 </script>
 
 {#if $editor}
@@ -27,6 +28,8 @@
 			<RailWidgetEditSheet index={$editor.index} />
 		{:else if $editor.kind === 'settings'}
 			<SettingsEditSheet />
+		{:else if $editor.kind === 'appSettings'}
+			<AppSettingsEditSheet />
 		{:else if $editor.kind === 'code'}
 			<CodeEditSheet />
 		{:else}

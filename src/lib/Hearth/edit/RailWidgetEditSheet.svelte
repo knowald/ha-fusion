@@ -22,6 +22,7 @@
 	import VisibilityField from './VisibilityField.svelte';
 	import YamlField from './YamlField.svelte';
 	import { validTimeZone, type ClockHourFormat } from '../clock';
+	import EditSheet from './EditSheet.svelte';
 
 	let { index }: { index: number | null } = $props();
 
@@ -107,8 +108,6 @@
 	let search = $state('');
 	// svelte-ignore state_referenced_locally
 	let conditionsOpen = $state(visibility.length > 0);
-	let confirmRemove = $state(false);
-	let confirmTimer: ReturnType<typeof setTimeout>;
 
 	const yamlPlaceholder = 'entity_id: sensor.average_temperature\nname: Home';
 
@@ -158,13 +157,6 @@
 
 	function close() {
 		editor.set(null);
-	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			close();
-		}
 	}
 
 	function buildKnownWidget(id: string): RailWidget {
@@ -314,12 +306,6 @@
 	}
 
 	function remove() {
-		clearTimeout(confirmTimer);
-		if (!confirmRemove) {
-			confirmRemove = true;
-			confirmTimer = setTimeout(() => (confirmRemove = false), 4000);
-			return;
-		}
 		updateConfig((config) => {
 			if (index !== null) config.rail.splice(index, 1);
 		});
@@ -327,330 +313,256 @@
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
-<div class="overlay" onclick={close}>
-	<div class="sheet" onclick={(event) => event.stopPropagation()}>
-		<div class="header">
-			<div class="title">{index !== null ? 'Edit widget' : 'Add widget'}</div>
-			<div
-				class="button primary pressable"
-				class:disabled={doneDisabled}
-				use:Ripple={PRESS_RIPPLE}
-				onclick={() => !doneDisabled && done()}
-			>
-				{index !== null ? 'Save' : 'Add'}
-			</div>
-			<span class="icon-button" onclick={close}><Icon name="close" size={22} /></span>
-		</div>
-		<div class="body">
-			<div class="gallery">
-				<label class="search">
-					<Icon name="search" size={17} />
-					<input type="text" bind:value={search} placeholder="Search widgets" spellcheck="false" />
-				</label>
-				{#each filteredGallery as kind (kind.value)}
-					<div
-						class="kind pressable"
-						class:selected={type === kind.value}
-						use:Ripple={PRESS_RIPPLE}
-						use:scrollSelectedIntoView={type === kind.value}
-						onclick={() => (type = kind.value)}
-					>
-						<span class="kind-icon"><Icon name={kind.icon} size={20} /></span>
-						<div>
-							<div class="kind-name">{kind.name}</div>
-							<div class="kind-sub">{kind.sub}</div>
-						</div>
+<EditSheet
+	title={index !== null ? 'Edit widget' : 'Add widget'}
+	onclose={close}
+	ondone={done}
+	{doneDisabled}
+	onremove={index !== null ? remove : undefined}
+	wide
+	split
+>
+	<div class="rail-editor">
+		<div class="gallery">
+			<label class="search">
+				<Icon name="search" size={17} />
+				<input type="text" bind:value={search} placeholder="Search widgets" spellcheck="false" />
+			</label>
+			{#each filteredGallery as kind (kind.value)}
+				<div
+					class="kind pressable"
+					class:selected={type === kind.value}
+					use:Ripple={PRESS_RIPPLE}
+					use:scrollSelectedIntoView={type === kind.value}
+					onclick={() => (type = kind.value)}
+				>
+					<span class="kind-icon"><Icon name={kind.icon} size={20} /></span>
+					<div>
+						<div class="kind-name">{kind.name}</div>
+						<div class="kind-sub">{kind.sub}</div>
 					</div>
-				{:else}
-					<div class="no-results">No widgets match</div>
-				{/each}
-			</div>
-			<div class="config">
-				<div class="preview-well" style="pointer-events: none">
-					{#if type === 'spacer'}
-						<div class="preview-note">Flexible gap - pushes the widgets around it apart</div>
-					{:else}
-						<RailWidgetRenderer widget={previewWidget} />
-					{/if}
 				</div>
-
-				{#if type === 'clock'}
-					<TextField label="Time zone" bind:value={timezone} placeholder="Europe/Warsaw" />
-					{#if !timezoneValid}<div class="field-error">
-							Use an IANA time zone such as Europe/Warsaw.
-						</div>{/if}
-					<SelectField
-						label="Hour format"
-						bind:value={hourFormat}
-						options={[
-							{ value: 'auto', label: 'Locale default' },
-							{ value: '12', label: '12 hour' },
-							{ value: '24', label: '24 hour' }
-						]}
-					/>
-					<label class="check"
-						><input type="checkbox" bind:checked={showSeconds} /> Show seconds</label
-					>
+			{:else}
+				<div class="no-results">No widgets match</div>
+			{/each}
+		</div>
+		<div class="config">
+			<div class="preview-well" style="pointer-events: none">
+				{#if type === 'spacer'}
+					<div class="preview-note">Flexible gap - pushes the widgets around it apart</div>
+				{:else}
+					<RailWidgetRenderer widget={previewWidget} />
 				{/if}
+			</div>
 
-				{#if type === 'weather'}
-					<EntityField label="Weather entity" bind:value={entity} domains={['weather']} />
-				{/if}
+			{#if type === 'clock'}
+				<TextField label="Time zone" bind:value={timezone} placeholder="Europe/Warsaw" />
+				{#if !timezoneValid}<div class="field-error">
+						Use an IANA time zone such as Europe/Warsaw.
+					</div>{/if}
+				<SelectField
+					label="Hour format"
+					bind:value={hourFormat}
+					options={[
+						{ value: 'auto', label: 'Locale default' },
+						{ value: '12', label: '12 hour' },
+						{ value: '24', label: '24 hour' }
+					]}
+				/>
+				<label class="check"
+					><input type="checkbox" bind:checked={showSeconds} /> Show seconds</label
+				>
+			{/if}
 
-				{#if type === 'label'}
-					<TextField label="Text" bind:value={text} placeholder="TODAY" />
-				{/if}
+			{#if type === 'weather'}
+				<EntityField label="Weather entity" bind:value={entity} domains={['weather']} />
+			{/if}
 
-				{#if type === 'energy'}
-					<EntityField
-						label="Energy sensor (today total or increasing)"
-						bind:value={entity}
-						domains={['sensor']}
-					/>
-					<TextField label="Price per kWh (optional)" bind:value={price} placeholder="0.72" />
-					<EntityField
-						label="Price entity (optional, overrides static price)"
-						bind:value={priceEntity}
-						domains={['sensor', 'input_number']}
-					/>
-					<TextField label="Currency label (optional)" bind:value={currency} placeholder="zł" />
-				{/if}
+			{#if type === 'label'}
+				<TextField label="Text" bind:value={text} placeholder="TODAY" />
+			{/if}
 
-				{#if type === 'progress'}
-					<div class="row">
-						<div class="grow">
-							<TextField label="Name" bind:value={name} placeholder="Washer" />
-						</div>
-						<div class="icon-column">
-							<IconField label="Icon" bind:value={icon} placeholder="local_laundry_service" />
-						</div>
+			{#if type === 'energy'}
+				<EntityField
+					label="Energy sensor (today total or increasing)"
+					bind:value={entity}
+					domains={['sensor']}
+				/>
+				<TextField label="Price per kWh (optional)" bind:value={price} placeholder="0.72" />
+				<EntityField
+					label="Price entity (optional, overrides static price)"
+					bind:value={priceEntity}
+					domains={['sensor', 'input_number']}
+				/>
+				<TextField label="Currency label (optional)" bind:value={currency} placeholder="zł" />
+			{/if}
+
+			{#if type === 'progress'}
+				<div class="row">
+					<div class="grow">
+						<TextField label="Name" bind:value={name} placeholder="Washer" />
 					</div>
-					<EntityField label="Status entity" bind:value={statusEntity} />
-					<EntityField label="Progress entity (0-100, optional)" bind:value={progressEntity} />
-					<TextField
-						label="Progress unit (optional, shows the value with this suffix)"
-						bind:value={progressUnit}
-						placeholder="%"
-					/>
-					<EntityField
-						label="Remaining time entity (minutes or timestamp, optional)"
-						bind:value={remainingEntity}
-					/>
-					<TextField
-						label="Active states (comma separated, optional)"
-						bind:value={activeStates}
-						placeholder="running, rinse, spin"
-					/>
-					<TextField
-						label="Completed states (comma separated)"
-						bind:value={completedStates}
-						placeholder="complete, completed, finished, done"
-					/>
-					<SelectField
-						label="After completion"
-						bind:value={completionDelay}
-						options={[
-							{ value: '0', label: 'Hide immediately' },
-							{ value: '5', label: 'Hide after 5 minutes' },
-							{ value: '15', label: 'Hide after 15 minutes' },
-							{ value: '30', label: 'Hide after 30 minutes' },
-							{ value: '60', label: 'Hide after 1 hour' },
-							{ value: '-1', label: 'Keep until tapped' }
-						]}
+					<div class="icon-column">
+						<IconField label="Icon" bind:value={icon} placeholder="local_laundry_service" />
+					</div>
+				</div>
+				<EntityField label="Status entity" bind:value={statusEntity} />
+				<EntityField label="Progress entity (0-100, optional)" bind:value={progressEntity} />
+				<TextField
+					label="Progress unit (optional, shows the value with this suffix)"
+					bind:value={progressUnit}
+					placeholder="%"
+				/>
+				<EntityField
+					label="Remaining time entity (minutes or timestamp, optional)"
+					bind:value={remainingEntity}
+				/>
+				<TextField
+					label="Active states (comma separated, optional)"
+					bind:value={activeStates}
+					placeholder="running, rinse, spin"
+				/>
+				<TextField
+					label="Completed states (comma separated)"
+					bind:value={completedStates}
+					placeholder="complete, completed, finished, done"
+				/>
+				<SelectField
+					label="After completion"
+					bind:value={completionDelay}
+					options={[
+						{ value: '0', label: 'Hide immediately' },
+						{ value: '5', label: 'Hide after 5 minutes' },
+						{ value: '15', label: 'Hide after 15 minutes' },
+						{ value: '30', label: 'Hide after 30 minutes' },
+						{ value: '60', label: 'Hide after 1 hour' },
+						{ value: '-1', label: 'Keep until tapped' }
+					]}
+				/>
+				<div class="hint">
+					Completed rows can be tapped to dismiss early. Without an explicit active-state list,
+					common idle states (idle, off, standby, docked, ...) hide the row.
+				</div>
+			{/if}
+
+			{#if type === 'calendar'}
+				<TextField
+					label="Calendar entities (comma separated)"
+					bind:value={calendarEntities}
+					placeholder="calendar.family, calendar.work"
+				/>
+				<EntityField
+					label="Travel time entity (minutes, optional)"
+					bind:value={travelEntity}
+					domains={['sensor']}
+				/>
+				<TextField
+					label="Look-ahead hours (default 24)"
+					bind:value={lookaheadHours}
+					placeholder="24"
+				/>
+			{/if}
+
+			{#if type === 'status'}
+				<div class="row">
+					<div class="grow">
+						<TextField label="Text" bind:value={text} placeholder="All systems nominal" />
+					</div>
+					<div class="icon-column">
+						<IconField label="Icon" bind:value={icon} placeholder="eco" />
+					</div>
+				</div>
+				<EntityField label="Entity (optional, appends its state)" bind:value={entity} />
+			{/if}
+
+			{#if type === 'entity'}
+				<EntityField label="Entity" bind:value={entity} />
+				<div class="row">
+					<div class="grow">
+						<TextField label="Name (optional)" bind:value={name} />
+					</div>
+					<div class="icon-column">
+						<IconField label="Icon (optional)" bind:value={icon} />
+					</div>
+				</div>
+				<SelectField
+					label="Vertical padding"
+					bind:value={entityVerticalPadding}
+					options={[
+						{ value: '', label: 'Standard' },
+						{ value: 'compact', label: 'Compact' }
+					]}
+				/>
+			{/if}
+
+			{#if type === 'fusion'}
+				<SelectField
+					label="Widget type"
+					bind:value={fusionType}
+					options={FUSION_WIDGET_TYPES}
+					onchange={() => advancedOpen && resetAdvancedYaml()}
+				/>
+				<FusionFields type={fusionType} bind:options={fusionOptions} />
+				<TextField label="Height in px (optional)" bind:value={height} placeholder="120" />
+				<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+					<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+					<span>Advanced (YAML)</span>
+				</div>
+				{#if advancedOpen}
+					<YamlField
+						label="Other options (YAML)"
+						bind:value={() => advancedYaml, setAdvancedYaml}
+						placeholder={yamlPlaceholder}
 					/>
 					<div class="hint">
-						Completed rows can be tapped to dismiss early. Without an explicit active-state list,
-						common idle states (idle, off, standby, docked, ...) hide the row.
+						Options match the original ha-fusion sidebar config for the chosen type, e.g. entity_id,
+						name, period.
 					</div>
 				{/if}
+			{/if}
 
-				{#if type === 'calendar'}
-					<TextField
-						label="Calendar entities (comma separated)"
-						bind:value={calendarEntities}
-						placeholder="calendar.family, calendar.work"
-					/>
-					<EntityField
-						label="Travel time entity (minutes, optional)"
-						bind:value={travelEntity}
-						domains={['sensor']}
-					/>
-					<TextField
-						label="Look-ahead hours (default 24)"
-						bind:value={lookaheadHours}
-						placeholder="24"
-					/>
-				{/if}
-
-				{#if type === 'status'}
-					<div class="row">
-						<div class="grow">
-							<TextField label="Text" bind:value={text} placeholder="All systems nominal" />
-						</div>
-						<div class="icon-column">
-							<IconField label="Icon" bind:value={icon} placeholder="eco" />
-						</div>
-					</div>
-					<EntityField label="Entity (optional, appends its state)" bind:value={entity} />
-				{/if}
-
-				{#if type === 'entity'}
-					<EntityField label="Entity" bind:value={entity} />
-					<div class="row">
-						<div class="grow">
-							<TextField label="Name (optional)" bind:value={name} />
-						</div>
-						<div class="icon-column">
-							<IconField label="Icon (optional)" bind:value={icon} />
-						</div>
-					</div>
-					<SelectField
-						label="Vertical padding"
-						bind:value={entityVerticalPadding}
-						options={[
-							{ value: '', label: 'Standard' },
-							{ value: 'compact', label: 'Compact' }
-						]}
-					/>
-				{/if}
-
-				{#if type === 'fusion'}
-					<SelectField
-						label="Widget type"
-						bind:value={fusionType}
-						options={FUSION_WIDGET_TYPES}
-						onchange={() => advancedOpen && resetAdvancedYaml()}
-					/>
-					<FusionFields type={fusionType} bind:options={fusionOptions} />
-					<TextField label="Height in px (optional)" bind:value={height} placeholder="120" />
-					<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
-						<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
-						<span>Advanced (YAML)</span>
-					</div>
-					{#if advancedOpen}
-						<YamlField
-							label="Other options (YAML)"
-							bind:value={() => advancedYaml, setAdvancedYaml}
-							placeholder={yamlPlaceholder}
-						/>
-						<div class="hint">
-							Options match the original ha-fusion sidebar config for the chosen type, e.g.
-							entity_id, name, period.
-						</div>
-					{/if}
-				{/if}
-
-				<div class="chips">
-					<span
-						class="chip pressable"
-						class:active={alwaysVisible}
-						use:Ripple={PRESS_RIPPLE}
-						onclick={setAlwaysVisible}
-					>
-						<Icon name="visibility" size={16} />
-						Always visible
-					</span>
-					<span
-						class="chip pressable"
-						class:active={hideMobile}
-						use:Ripple={PRESS_RIPPLE}
-						onclick={() => (hideMobile = !hideMobile)}
-					>
-						<Icon name="smartphone" size={16} />
-						Hide on mobile
-					</span>
-					<span
-						class="chip pressable"
-						class:active={visibility.length > 0 || conditionsOpen}
-						use:Ripple={PRESS_RIPPLE}
-						onclick={() => (conditionsOpen = !conditionsOpen)}
-					>
-						<Icon name="rule" size={16} />
-						Conditions{visibility.length ? ` (${visibility.length})` : ''}
-					</span>
-				</div>
-
-				{#if conditionsOpen}
-					<VisibilityField bind:value={visibility} />
-				{/if}
-
-				{#if index !== null}
-					<div
-						class="button danger pressable"
-						class:confirm={confirmRemove}
-						use:Ripple={PRESS_RIPPLE}
-						onclick={remove}
-					>
-						{confirmRemove ? 'Remove - are you sure?' : 'Remove'}
-					</div>
-				{/if}
+			<div class="chips">
+				<span
+					class="chip pressable"
+					class:active={alwaysVisible}
+					use:Ripple={PRESS_RIPPLE}
+					onclick={setAlwaysVisible}
+				>
+					<Icon name="visibility" size={16} />
+					Always visible
+				</span>
+				<span
+					class="chip pressable"
+					class:active={hideMobile}
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => (hideMobile = !hideMobile)}
+				>
+					<Icon name="smartphone" size={16} />
+					Hide on mobile
+				</span>
+				<span
+					class="chip pressable"
+					class:active={visibility.length > 0 || conditionsOpen}
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => (conditionsOpen = !conditionsOpen)}
+				>
+					<Icon name="rule" size={16} />
+					Conditions{visibility.length ? ` (${visibility.length})` : ''}
+				</span>
 			</div>
+
+			{#if conditionsOpen}
+				<VisibilityField bind:value={visibility} />
+			{/if}
 		</div>
 	</div>
-</div>
+</EditSheet>
 
 <style>
-	.overlay {
-		position: absolute;
-		inset: 0;
-		z-index: 60;
-		background: var(--h-overlay);
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.sheet {
-		width: min(720px, calc(100vw - 32px));
-		height: min(680px, calc(100vh - 48px));
-		display: flex;
-		flex-direction: column;
-		background: radial-gradient(600px 400px at 25% -10%, var(--h-sheet-0), var(--h-sheet-1) 60%);
-		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		border-radius: var(--h-radius-xl);
-		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
-		overflow: hidden;
-	}
-
-	.header {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 22px 28px 18px;
-	}
-
-	.title {
-		flex: 1;
-		font-size: 22px;
-		font-weight: 600;
-		letter-spacing: -0.3px;
-		color: var(--h-text-1);
-	}
-
-	.icon-button {
-		color: var(--h-icon);
-		cursor: pointer;
-		padding: 8px;
-		transition: transform 120ms ease;
-	}
-
-	.icon-button:active {
-		transform: scale(0.9);
-	}
-
-	.icon-button:hover {
-		color: var(--h-text-3);
-	}
-
-	.body {
+	.rail-editor {
 		display: flex;
 		flex: 1;
 		min-height: 0;
-		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 	}
 
 	.gallery {
@@ -846,40 +758,8 @@
 		cursor: pointer;
 	}
 
-	.button {
-		border: 1px solid transparent;
-		padding: 9px 22px;
-		border-radius: var(--h-radius-xs);
-		font-size: 14px;
-		font-weight: 600;
-		cursor: pointer;
-		user-select: none;
-		-webkit-user-select: none;
-	}
-
-	.button.primary {
-		background: linear-gradient(135deg, var(--h-accent-bright), var(--h-accent-deep));
-		color: var(--h-on-accent);
-	}
-
-	.button.primary.disabled {
-		opacity: 0.4;
-		cursor: default;
-	}
-
-	.button.danger {
-		display: inline-block;
-		background: rgb(var(--h-bad-rgb) / calc(0.16 * var(--h-accent-scale)));
-		color: var(--h-bad-text);
-		margin-top: 8px;
-	}
-
-	.button.danger.confirm {
-		border-color: var(--h-bad-text);
-	}
-
 	@media (max-width: 700px) {
-		.body {
+		.rail-editor {
 			flex-direction: column;
 			overflow-y: auto;
 		}
