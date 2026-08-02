@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { connection } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
@@ -10,7 +11,8 @@
 		current = $bindable(),
 		debounce = $bindable(),
 		timeout = $bindable(),
-		rangeValue = $bindable()
+		rangeValue = $bindable(),
+		updateMode = 'continuous'
 	}: {
 		entity: HassEntity;
 		brightness: number;
@@ -18,6 +20,7 @@
 		debounce: boolean;
 		timeout: ReturnType<typeof setTimeout> | undefined;
 		rangeValue: number;
+		updateMode?: SliderUpdateMode;
 	} = $props();
 
 	const SEND_INTERVAL = 250;
@@ -103,9 +106,10 @@
 		value={rangeValue}
 		min={0}
 		max={255}
+		{updateMode}
 		oninput={(event) => {
 			current = Math.round(event / 2.55);
-			handleChange(Math.round(event));
+			if (updateMode !== 'release') handleChange(Math.round(event));
 		}}
 		onchange={(event) => {
 			flush(Math.round(event));

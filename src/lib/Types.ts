@@ -1,6 +1,8 @@
 import type Konva from 'konva';
 import type { ShapeConfig } from 'konva/lib/Shape';
 
+export type SliderUpdateMode = 'continuous' | 'release';
+
 // configuration.yaml
 
 export interface Configuration {
@@ -96,6 +98,7 @@ export interface ButtonItem {
 	state: any;
 	displayOnly?: boolean;
 	slide_brightness?: boolean;
+	slider_updates?: SliderUpdateMode;
 	template?: {
 		[key: string]: {
 			set_state?: string;

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { motion } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
 	let {
@@ -8,7 +9,8 @@
 		max,
 		step = undefined,
 		onchange = undefined,
-		oninput = undefined
+		oninput = undefined,
+		updateMode = undefined
 	}: {
 		value: number;
 		min: number;
@@ -16,7 +18,12 @@
 		step?: number | undefined;
 		onchange?: ((value: number) => void) | undefined;
 		oninput?: ((value: number) => void) | undefined;
+		/** When set to release, guarantees onchange fires only after pointerup. */
+		updateMode?: SliderUpdateMode;
 	} = $props();
+
+	let pointerActive = false;
+	let ignoreChange = false;
 
 	// value in range 0 to 1
 	let normalized = $derived((value - min) / (max - min));
@@ -33,8 +40,28 @@
 	 * Dispatches value on input end
 	 */
 	function handleChange(event: { currentTarget: HTMLInputElement }) {
+		// Some touch browsers emit change events during a range gesture. When
+		// release mode is selected, pointerup below is the sole commit point.
+		if (updateMode === 'release') {
+			if (pointerActive) return;
+			if (ignoreChange) {
+				ignoreChange = false;
+				return;
+			}
+		}
 		const val = event.currentTarget.value;
 		onchange?.(Number(val));
+	}
+
+	function handlePointerUp() {
+		if (!pointerActive) return;
+		if (updateMode === 'release') {
+			onchange?.(Number(value));
+			// Suppress a native change event if this browser emits it after pointerup.
+			ignoreChange = true;
+			queueMicrotask(() => (ignoreChange = false));
+		}
+		pointerActive = false;
 	}
 </script>
 
@@ -47,6 +74,9 @@
 		{min}
 		{max}
 		bind:value
+		onpointerdown={() => (pointerActive = true)}
+		onpointerup={handlePointerUp}
+		onpointercancel={() => (pointerActive = false)}
 		oninput={() => {
 			oninput?.(value);
 		}}

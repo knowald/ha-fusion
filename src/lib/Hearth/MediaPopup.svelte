@@ -284,7 +284,9 @@
 					<Icon name="volume_up" size={16} />
 					<div
 						class="volume-bar"
-						use:horizontalDrag={{ set: (value) => setMediaVolume(entity, value) }}
+						use:horizontalDrag={{
+							set: (value, commit) => setMediaVolume(entity, value, commit)
+						}}
 					>
 						<div class="volume-track"></div>
 						<div class="volume-fill" style:width="{volume}%"></div>

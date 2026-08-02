@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { sortable } from '$lib/Actions/sortable';
 	import type { EntityRef } from './config';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { onDndReceive } from './drag';
 	import { hearthEditMode } from './store';
 	import EntityTile from './EntityTile.svelte';
@@ -14,6 +15,7 @@
 		columns = undefined,
 		compact = false,
 		readonly = false,
+		sliderUpdates = 'continuous',
 		minTileWidth = 190,
 		showDragHandles = true,
 		onreorder = undefined,
@@ -27,6 +29,7 @@
 		compact?: boolean;
 		/** card-wide default; an entity's own `readonly` wins */
 		readonly?: boolean;
+		sliderUpdates?: SliderUpdateMode;
 		minTileWidth?: number;
 		showDragHandles?: boolean;
 		onreorder?: (entities: EntityRef[]) => void;
@@ -68,6 +71,7 @@
 					name={ref.name}
 					icon={ref.icon}
 					readonly={ref.readonly ?? readonly}
+					sliderUpdates={ref.slider_updates ?? sliderUpdates}
 					{compact}
 				/>
 			{/if}

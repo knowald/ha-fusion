@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { states } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { getSupport } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from './config';
 	import { blindPositionFor, callEntityService, controlOverrides, setBlindPosition } from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
-	let { entity }: { entity: string } = $props();
+	let {
+		entity,
+		sliderUpdates = 'continuous'
+	}: { entity: string; sliderUpdates?: SliderUpdateMode } = $props();
 
 	let attributes = $derived($states?.[entity]?.attributes);
 
@@ -33,12 +37,12 @@
 		callEntityService('cover', service, entity, data);
 	}
 
-	function setTiltPosition(value: number) {
+	function setTiltPosition(value: number, commit = true) {
 		const target = Math.max(0, Math.min(100, Math.round(value)));
 		clearTimeout(tiltOverrideTimer);
 		tiltOverride = target;
 		tiltOverrideTimer = setTimeout(() => (tiltOverride = undefined), 2000);
-		callCoverService('set_cover_tilt_position', { tilt_position: target });
+		if (commit) callCoverService('set_cover_tilt_position', { tilt_position: target });
 	}
 </script>
 
@@ -47,7 +51,8 @@
 	icon="blinds"
 	value={blindPositionFor(entity, $states, $controlOverrides)}
 	variant="blue"
-	onchange={(value) => setBlindPosition(entity, value)}
+	updateMode={sliderUpdates}
+	onchange={(value, commit) => setBlindPosition(entity, value, commit)}
 />
 
 <div class="buttons">
@@ -82,6 +87,7 @@
 		icon="tune"
 		value={tiltPosition}
 		variant="blue"
+		updateMode={sliderUpdates}
 		onchange={setTiltPosition}
 	/>
 {/if}

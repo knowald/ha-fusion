@@ -65,9 +65,9 @@
 				</div>
 
 				{#if $popup.kind === 'light'}
-					<LightPopup entity={$popup.entity} />
+					<LightPopup entity={$popup.entity} sliderUpdates={$popup.sliderUpdates} />
 				{:else if $popup.kind === 'blind'}
-					<BlindPopup entity={$popup.entity} />
+					<BlindPopup entity={$popup.entity} sliderUpdates={$popup.sliderUpdates} />
 				{:else}
 					<FanPopup entity={$popup.entity} />
 				{/if}

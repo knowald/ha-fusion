@@ -152,6 +152,7 @@
 				columns={card.columns}
 				compact={card.vertical_padding === 'compact'}
 				readonly={card.readonly}
+				sliderUpdates={card.slider_updates}
 				showDragHandles={showEntityDragHandles}
 				onreorder={reorderEntities}
 				onreceive={receiveEntity}
@@ -178,6 +179,7 @@
 					columns={Math.min(card.columns ?? 2, 2)}
 					compact={card.vertical_padding === 'compact'}
 					readonly={card.readonly}
+					sliderUpdates={card.slider_updates}
 					showDragHandles={showEntityDragHandles}
 				/>
 			{/if}
@@ -204,6 +206,7 @@
 				columns={card.columns}
 				compact={card.vertical_padding === 'compact'}
 				readonly={card.readonly}
+				sliderUpdates={card.slider_updates}
 				showDragHandles={showEntityDragHandles}
 				onreorder={reorderEntities}
 				onreceive={receiveEntity}

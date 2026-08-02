@@ -1,3 +1,5 @@
+import type { SliderUpdateMode } from '$lib/Types';
+
 /**
  * A dashboard page. Home is one of these too - it has no special layout, no
  * special storage and no special editing path.
@@ -28,6 +30,8 @@ export interface EntityRef {
 	// display-only tile, for entities whose integration exposes no working
 	// toggle (a PlayStation media_player, a read-only sensor)
 	readonly?: boolean;
+	// overrides the containing entities card's slider update behavior
+	slider_updates?: SliderUpdateMode;
 }
 
 export interface SceneRef extends EntityRef {
@@ -143,6 +147,8 @@ type OverviewCardVariant =
 			// every tile is a readout unless the entity overrides it; see
 			// EntityRef.readonly
 			readonly?: boolean;
+			// default for draggable controls; individual entities may override it
+			slider_updates?: SliderUpdateMode;
 			// collapses the grid into a single summary row; tapping it opens the
 			// entities in a popover anchored to the row, so the layout never shifts
 			collapsed?: boolean;
@@ -625,7 +631,11 @@ function normalizeEntityRef(raw: any): EntityRef {
 		display: raw?.display === 'stat' || raw?.display === 'tile' ? raw.display : undefined,
 		// kept as a tri-state: an explicit false opts one entity out of a
 		// card-wide `readonly`
-		readonly: typeof raw?.readonly === 'boolean' ? raw.readonly : undefined
+		readonly: typeof raw?.readonly === 'boolean' ? raw.readonly : undefined,
+		slider_updates:
+			raw?.slider_updates === 'release' || raw?.slider_updates === 'continuous'
+				? raw.slider_updates
+				: undefined
 	};
 }
 
@@ -665,6 +675,10 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 					show_count: card.show_count === true ? true : undefined,
 					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined,
 					readonly: card.readonly === true ? true : undefined,
+					slider_updates:
+						card.slider_updates === 'release' || card.slider_updates === 'continuous'
+							? card.slider_updates
+							: undefined,
 					collapsed: card.collapsed === true ? true : undefined,
 					icon: trimmedOrUndefined(card.icon),
 					summary: trimmedOrUndefined(card.summary),

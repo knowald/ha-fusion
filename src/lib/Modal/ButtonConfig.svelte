@@ -39,6 +39,7 @@
 	// so the Yes/No selection matches how the button actually behaves
 	let displayOnly = $state(sel?.displayOnly ?? isDisplayOnlyDomain(sel?.entity_id));
 	let slideBrightness = $state(sel?.slide_brightness !== false);
+	let sliderUpdates = $state(sel?.slider_updates === 'release' ? 'release' : 'continuous');
 
 	let options = $derived($entityList(''));
 
@@ -72,6 +73,7 @@
 
 	let suggestDisplayOnly = $derived(isDisplayOnlyDomain(entity_id));
 	let isLightEntity = $derived(getDomain(entity_id) === 'light');
+	let isCoverEntity = $derived(getDomain(entity_id) === 'cover');
 	let isVacuumEntity = $derived(getDomain(entity_id) === 'vacuum');
 
 	let hideBattery = $state(sel?.hide_battery || false);
@@ -442,6 +444,33 @@
 					use:Ripple={$ripple}
 				>
 					{$lang('no')}
+				</button>
+			</div>
+		{/if}
+
+		{#if (isLightEntity || isCoverEntity) && !displayOnly}
+			<h2>{$lang('slider_updates')}</h2>
+			<p>{$lang('slider_updates_description')}</p>
+			<div class="button-container">
+				<button
+					class:selected={sliderUpdates === 'continuous'}
+					onclick={() => {
+						sliderUpdates = 'continuous';
+						set('slider_updates', 'continuous');
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('slider_updates_continuous')}
+				</button>
+				<button
+					class:selected={sliderUpdates === 'release'}
+					onclick={() => {
+						sliderUpdates = 'release';
+						set('slider_updates', 'release');
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('slider_updates_release')}
 				</button>
 			</div>
 		{/if}

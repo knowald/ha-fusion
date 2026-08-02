@@ -1,6 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
 import { connection, states } from '$lib/Stores';
+import type { SliderUpdateMode } from '$lib/Types';
 import { getTogglableService } from '$lib/Utils';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig, type SceneRef } from './config';
 
@@ -126,7 +127,12 @@ export async function saveEdit(): Promise<boolean> {
 
 export const currentRoom = writable<string>('home');
 
-export type Popup = { kind: 'light' | 'blind' | 'fan' | 'media'; entity: string; name: string };
+export type Popup = {
+	kind: 'light' | 'blind' | 'fan' | 'media';
+	entity: string;
+	name: string;
+	sliderUpdates?: SliderUpdateMode;
+};
 
 export const popup = writable<Popup | null>(null);
 
@@ -296,16 +302,18 @@ export function toggleLight(entityId: string) {
 	service('light', 'toggle', { entity_id: entityId });
 }
 
-export function setLightLevel(entityId: string, value: number) {
+export function setLightLevel(entityId: string, value: number, commit = true) {
 	const level = clamp(Math.max(1, value), 1, 100);
 	setOverride(`level:${entityId}`, level);
+	if (!commit) return;
 	throttled(`level:${entityId}`, () =>
 		service('light', 'turn_on', { entity_id: entityId, brightness_pct: level })
 	);
 }
 
-export function setLightTemp(entityId: string, pct: number) {
+export function setLightTemp(entityId: string, pct: number, commit = true) {
 	setOverride(`temp:${entityId}`, clamp(pct, 0, 100));
+	if (!commit) return;
 	const attributes = get(states)?.[entityId]?.attributes ?? {};
 	const minKelvin = attributes.min_color_temp_kelvin ?? 2700;
 	const maxKelvin = attributes.max_color_temp_kelvin ?? 6500;
@@ -347,9 +355,10 @@ export function toggleBlind(entityId: string) {
 	service('cover', open ? 'close_cover' : 'open_cover', { entity_id: entityId });
 }
 
-export function setBlindPosition(entityId: string, position: number) {
+export function setBlindPosition(entityId: string, position: number, commit = true) {
 	const target = clamp(position, 0, 100);
 	setOverride(`blind:${entityId}`, target);
+	if (!commit) return;
 	throttled(
 		`blind:${entityId}`,
 		() => service('cover', 'set_cover_position', { entity_id: entityId, position: target }),
@@ -444,9 +453,10 @@ export function mediaVolumeFor(
 	return typeof level === 'number' ? Math.round(level * 100) : 0;
 }
 
-export function setMediaVolume(entityId: string, pct: number) {
+export function setMediaVolume(entityId: string, pct: number, commit = true) {
 	const target = clamp(pct, 0, 100);
 	setOverride(`media:${entityId}`, target);
+	if (!commit) return;
 	throttled(
 		`media:${entityId}`,
 		() =>

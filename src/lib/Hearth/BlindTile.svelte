@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import { lang, states } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import {
 		blindPositionFor,
@@ -19,6 +20,7 @@
 		icon = undefined,
 		compact = false,
 		readonly = false,
+		sliderUpdates = 'continuous',
 		onedit = undefined
 	}: {
 		entity: string;
@@ -27,6 +29,7 @@
 		compact?: boolean;
 		/** display only: taps never send a command */
 		readonly?: boolean;
+		sliderUpdates?: SliderUpdateMode;
 		onedit?: () => void;
 	} = $props();
 
@@ -71,7 +74,7 @@
 		<TuneButton icon="edit" onopen={onedit} />
 	{:else if !$hearthEditMode && !readonly}
 		<!-- a readonly tile shows position but offers no way to change it -->
-		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label })} />
+		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label, sliderUpdates })} />
 	{/if}
 </div>
 

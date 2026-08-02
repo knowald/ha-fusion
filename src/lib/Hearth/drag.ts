@@ -1,9 +1,12 @@
 import type { Action } from 'svelte/action';
+import type { SliderUpdateMode } from '$lib/Types';
 
 interface DragOptions {
-	set: (value: number) => void;
+	/** Updates the preview. `commit` says whether device state should also be sent. */
+	set: (value: number, commit: boolean) => void;
 	tap?: () => void;
 	end?: (value: number) => void;
+	updateMode?: SliderUpdateMode;
 	/** Skip gesture handling entirely (used in edit mode so SortableJS gets the pointer) */
 	disabled?: boolean;
 	/**
@@ -44,7 +47,9 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 	function handleMove(event: PointerEvent) {
 		if (!tracking) return;
 		if (Math.abs(event.clientX - tracking.startX) > 4) tracking.moved = true;
-		if (tracking.moved) current.set(Math.round(fraction(event) * 100));
+		if (tracking.moved) {
+			current.set(Math.round(fraction(event) * 100), current.updateMode !== 'release');
+		}
 	}
 
 	function handleUp(event: PointerEvent) {
@@ -53,7 +58,9 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 			current.tap();
 		} else if (tracking.moved) {
 			const value = Math.round(fraction(event) * 100);
-			current.set(value);
+			// Always commit the final value. In release mode this is the gesture's
+			// only service call; in continuous mode it guarantees the exact endpoint.
+			current.set(value, true);
 			current.end?.(value);
 		}
 		tracking = null;

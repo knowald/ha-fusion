@@ -206,7 +206,15 @@
 					{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(current / 100)}
 				</span>
 			</h2>
-			<LightSlider {entity} {debounce} {timeout} {brightness} bind:rangeValue bind:current />
+			<LightSlider
+				{entity}
+				{debounce}
+				{timeout}
+				{brightness}
+				updateMode={sel?.slider_updates}
+				bind:rangeValue
+				bind:current
+			/>
 		{/if}
 
 		<!-- COLOR -->
@@ -266,7 +274,13 @@
 					{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(whiteCurrent / 100)}
 				</span>
 			</h2>
-			<WhiteSlider {entity} attribute="rgbw_color" index={3} bind:current={whiteCurrent} />
+			<WhiteSlider
+				{entity}
+				attribute="rgbw_color"
+				index={3}
+				updateMode={sel?.slider_updates}
+				bind:current={whiteCurrent}
+			/>
 		{:else if colorModes?.includes('rgbww')}
 			<h2>
 				{$lang('cold_white')}
@@ -276,7 +290,13 @@
 					)}
 				</span>
 			</h2>
-			<WhiteSlider {entity} attribute="rgbww_color" index={3} bind:current={coldWhiteCurrent} />
+			<WhiteSlider
+				{entity}
+				attribute="rgbww_color"
+				index={3}
+				updateMode={sel?.slider_updates}
+				bind:current={coldWhiteCurrent}
+			/>
 
 			<h2>
 				{$lang('warm_white')}
@@ -286,7 +306,13 @@
 					)}
 				</span>
 			</h2>
-			<WhiteSlider {entity} attribute="rgbww_color" index={4} bind:current={warmWhiteCurrent} />
+			<WhiteSlider
+				{entity}
+				attribute="rgbww_color"
+				index={4}
+				updateMode={sel?.slider_updates}
+				bind:current={warmWhiteCurrent}
+			/>
 		{/if}
 
 		<ConfigButtons />

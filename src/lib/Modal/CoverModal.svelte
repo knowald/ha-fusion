@@ -83,6 +83,12 @@
 					bind:value={attributes.current_position}
 					min={0}
 					max={100}
+					updateMode={selected?.slider_updates ?? 'continuous'}
+					oninput={(event) => {
+						if (selected?.slider_updates !== 'release') {
+							handleChange('set_cover_position', 'position', Math.round(event));
+						}
+					}}
 					onchange={(event) => {
 						request = undefined;
 						handleChange('set_cover_position', 'position', Math.round(event));
@@ -154,6 +160,12 @@
 					bind:value={attributes.current_tilt_position}
 					min={0}
 					max={100}
+					updateMode={selected?.slider_updates ?? 'continuous'}
+					oninput={(event) => {
+						if (selected?.slider_updates !== 'release') {
+							handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event));
+						}
+					}}
 					onchange={(event) => {
 						request = undefined;
 						handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event));

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { horizontalDrag } from './drag';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -7,18 +8,20 @@
 		icon,
 		value,
 		variant,
+		updateMode = 'continuous',
 		onchange
 	}: {
 		label: string;
 		icon: string;
 		value: number;
 		variant: 'amber' | 'blue';
-		onchange: (value: number) => void;
+		updateMode?: SliderUpdateMode;
+		onchange: (value: number, commit?: boolean) => void;
 	} = $props();
 </script>
 
 <div class="label">{label}</div>
-<div class="bar" use:horizontalDrag={{ set: onchange }}>
+<div class="bar" use:horizontalDrag={{ set: (next, commit) => onchange(next, commit), updateMode }}>
 	<div class="fill {variant}" style:width="{value}%"></div>
 	<div class="readout">
 		<Icon name={icon} size={24} color="var(--h-text-1)" />

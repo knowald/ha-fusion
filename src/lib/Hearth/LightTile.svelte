@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import { lang, states } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import { horizontalDrag } from './drag';
 	import Icon from './Icon.svelte';
@@ -21,6 +22,7 @@
 		icon = undefined,
 		compact = false,
 		readonly = false,
+		sliderUpdates = 'continuous',
 		onedit = undefined
 	}: {
 		entity: string;
@@ -29,13 +31,14 @@
 		compact?: boolean;
 		/** display only: neither the tap nor the brightness drag sends a command */
 		readonly?: boolean;
+		sliderUpdates?: SliderUpdateMode;
 		onedit?: () => void;
 	} = $props();
 
 	let view = $derived(lightViewFor(entity, $states, $controlOverrides));
 	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
-		view.on ? (view.colorCss ?? 'var(--h-accent-bright)') : 'var(--h-icon-dim)'
+		view.on ? (view.colorCss ?? 'var(--h-accent-icon)') : 'var(--h-icon-dim)'
 	);
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let interactive = $derived($hearthEditMode || !readonly);
@@ -51,7 +54,8 @@
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 	onclick={() => $hearthEditMode && onedit?.()}
 	use:horizontalDrag={{
-		set: (value) => setLightLevel(entity, value),
+		set: (value, commit) => setLightLevel(entity, value, commit),
+		updateMode: sliderUpdates,
 		tap: () => toggleLight(entity),
 		disabled: $hearthEditMode || readonly,
 		ignore: '.tune'
@@ -69,7 +73,7 @@
 		<TuneButton icon="edit" onopen={onedit} />
 	{:else if !$hearthEditMode && !readonly}
 		<!-- a readonly tile shows brightness but offers no way to change it -->
-		<TuneButton onopen={() => popup.set({ kind: 'light', entity, name: label })} />
+		<TuneButton onopen={() => popup.set({ kind: 'light', entity, name: label, sliderUpdates })} />
 	{/if}
 </div>
 

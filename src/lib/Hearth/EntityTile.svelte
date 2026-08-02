@@ -2,6 +2,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { states } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import { entityOn, hearthEditMode, pendingEntities, popup, toggleEntity } from './store';
 	import { openEntityModal } from './modals';
@@ -16,6 +17,7 @@
 		icon = undefined,
 		compact = false,
 		readonly = false,
+		sliderUpdates = 'continuous',
 		onedit = undefined
 	}: {
 		entity: string;
@@ -24,6 +26,7 @@
 		compact?: boolean;
 		/** display only: taps never send a command */
 		readonly?: boolean;
+		sliderUpdates?: SliderUpdateMode;
 		onedit?: () => void;
 	} = $props();
 
@@ -52,9 +55,9 @@
 </script>
 
 {#if domain === 'light'}
-	<LightTile {entity} {name} {icon} {compact} {readonly} {onedit} />
+	<LightTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {onedit} />
 {:else if domain === 'cover'}
-	<BlindTile {entity} {name} {icon} {compact} {readonly} {onedit} />
+	<BlindTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {onedit} />
 {:else}
 	<div
 		class="tile"

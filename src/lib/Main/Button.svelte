@@ -617,11 +617,13 @@
 		slideBrightness = Math.round(newBrightness);
 		targetBrightness = slideBrightness;
 
-		// Debounced service call
-		if (debounceTimeout) clearTimeout(debounceTimeout);
-		debounceTimeout = setTimeout(() => {
-			setBrightness(slideBrightness);
-		}, 100);
+		if (sel?.slider_updates !== 'release') {
+			// Debounced service call while retaining immediate local feedback.
+			if (debounceTimeout) clearTimeout(debounceTimeout);
+			debounceTimeout = setTimeout(() => {
+				setBrightness(slideBrightness);
+			}, 100);
+		}
 	}
 
 	function handleSlideEnd() {
@@ -635,11 +637,10 @@
 
 		if (!isSliding) return;
 
-		// Final service call if needed
-		if (debounceTimeout) {
-			clearTimeout(debounceTimeout);
-			setBrightness(slideBrightness);
-		}
+		// Always commit the exact final value. In release mode this is the only call.
+		if (debounceTimeout) clearTimeout(debounceTimeout);
+		debounceTimeout = null;
+		setBrightness(slideBrightness);
 
 		// Clear slider visualization after a short delay
 		setTimeout(() => {

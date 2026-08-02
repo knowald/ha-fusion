@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { states } from '$lib/Stores';
+	import type { SliderUpdateMode } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE, SWATCH_COLORS } from './config';
 	import { horizontalDrag } from './drag';
@@ -14,7 +15,10 @@
 	} from './store';
 	import PopupSlider from './PopupSlider.svelte';
 
-	let { entity }: { entity: string } = $props();
+	let {
+		entity,
+		sliderUpdates = 'continuous'
+	}: { entity: string; sliderUpdates?: SliderUpdateMode } = $props();
 
 	let view = $derived(lightViewFor(entity, $states, $controlOverrides));
 	// tab choice is local UI state; the light's actual mode is the default
@@ -61,7 +65,8 @@
 	icon="light_mode"
 	value={view.on ? view.level : 0}
 	variant="amber"
-	onchange={(value) => setLightLevel(entity, value)}
+	updateMode={sliderUpdates}
+	onchange={(value, commit) => setLightLevel(entity, value, commit)}
 />
 
 <div class="presets">
@@ -96,7 +101,13 @@
 </div>
 
 {#if mode === 'temp'}
-	<div class="temp-bar" use:horizontalDrag={{ set: (value) => setLightTemp(entity, value) }}>
+	<div
+		class="temp-bar"
+		use:horizontalDrag={{
+			set: (value, commit) => setLightTemp(entity, value, commit),
+			updateMode: sliderUpdates
+		}}
+	>
 		<div class="temp-thumb" style:left="calc({view.tempPct}% - 9px)"></div>
 	</div>
 	<div class="temp-labels">
