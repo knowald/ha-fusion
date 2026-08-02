@@ -17,8 +17,8 @@
 		{:else if $editor.kind === 'card'}
 			<CardEditSheet
 				roomId={$editor.roomId}
+				id={$editor.id}
 				column={$editor.column}
-				index={$editor.index}
 				stackId={$editor.stackId}
 			/>
 		{:else if $editor.kind === 'stack'}

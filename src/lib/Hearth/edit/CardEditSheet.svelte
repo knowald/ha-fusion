@@ -6,6 +6,8 @@
 	import {
 		ensureRoomCardColumns,
 		FUSION_OBJECT_TYPES,
+		findOverviewCard,
+		findOverviewItemList,
 		isStack,
 		moveItem,
 		normalizeVisibility,
@@ -37,10 +39,10 @@
 
 	let {
 		roomId,
+		id,
 		column,
-		index,
 		stackId
-	}: { roomId: string; column: number; index: number | null; stackId?: string } = $props();
+	}: { roomId: string; id: string | null; column?: number; stackId?: string } = $props();
 
 	// `column` indexes into the page's card columns; they are initialized on
 	// first write via ensureRoomCardColumns in done()
@@ -49,23 +51,20 @@
 	}
 
 	function stackCards(config: HearthConfig, targetStackId: string): OverviewCard[] | undefined {
+		if (column === undefined) return undefined;
 		const target = containerColumns(config)?.[column]?.find((item) => item.id === targetStackId);
 		return target && isStack(target) ? target.cards : undefined;
 	}
 
-	// with stackId the sheet edits that stack's children instead of the
-	// column itself. The column branch is cast to OverviewCard[] - EditChip
-	// only opens this sheet for a leaf-card slot, never a stack's slot
-	// (stacks have their own edit sheet), so an indexed slot reached this way
-	// is never a stack.
-	function cardList(config: HearthConfig): OverviewCard[] | undefined {
+	function insertionList(config: HearthConfig): OverviewCard[] | undefined {
+		if (column === undefined) return undefined;
 		if (stackId !== undefined) return stackCards(config, stackId);
 		return containerColumns(config)?.[column] as OverviewCard[] | undefined;
 	}
 
 	// initial value only - the sheet is remounted per editor target via {#key}
 	// svelte-ignore state_referenced_locally
-	const initial = index !== null ? cardList(get(hearthConfig))?.[index] : undefined;
+	const initial = id !== null ? findOverviewCard(get(hearthConfig), id, roomId) : undefined;
 
 	// display widened to string so the per-entity select can hold '' for
 	// "follow the card style"; narrowed back to the union in buildCard
@@ -501,11 +500,13 @@
 		updateConfig((config) => {
 			const room = config.rooms.find((entry) => entry.id === roomId);
 			if (room) ensureRoomCardColumns(room);
-			const cards = cardList(config);
-			if (!cards) return;
-			if (index !== null) {
-				cards[index] = buildCard(cards[index].id);
+			if (id !== null) {
+				const cards = findOverviewItemList(config, id, roomId);
+				const targetIndex = cards?.findIndex((card) => card.id === id) ?? -1;
+				if (cards && targetIndex >= 0) cards[targetIndex] = buildCard(id);
 			} else {
+				const cards = insertionList(config);
+				if (!cards) return;
 				cards.push(buildCard(uniqueId(slugify(type), takenCardIds(config))));
 			}
 		});
@@ -514,7 +515,10 @@
 
 	function remove() {
 		updateConfig((config) => {
-			if (index !== null) cardList(config)?.splice(index, 1);
+			if (id === null) return;
+			const cards = findOverviewItemList(config, id, roomId);
+			const targetIndex = cards?.findIndex((card) => card.id === id) ?? -1;
+			if (cards && targetIndex >= 0) cards.splice(targetIndex, 1);
 		});
 		close();
 	}
@@ -530,11 +534,11 @@
 </script>
 
 <EditSheet
-	title={index !== null ? 'Edit card' : 'Add card'}
+	title={id !== null ? 'Edit card' : 'Add card'}
 	onclose={close}
 	ondone={done}
 	doneDisabled={type === 'fusion' && advancedOpen && !advancedValid}
-	onremove={index !== null ? remove : undefined}
+	onremove={id !== null ? remove : undefined}
 	wide
 >
 	<div class="card-editor-layout">

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DEFAULT_HEARTH_CONFIG,
+	findOverviewCard,
+	findOverviewItemList,
 	hearthConfigIssues,
 	isStack,
 	normalizeHearthConfig
@@ -110,6 +112,31 @@ describe('normalizeHearthConfig', () => {
 		expect(config.rooms[0].x_room).toBe('kept');
 		expect(config.rooms[0].cards[0][0].x_stack).toBe(42);
 		expect(config.rooms[0].cards[0][0].cards[0].x_card).toBe(true);
+	});
+
+	it('resolves cards by id after their position changes', () => {
+		const config = normalizeHearthConfig({
+			rail: [],
+			rooms: [
+				{
+					id: 'home',
+					cards: [
+						[{ id: 'first', type: 'header' }],
+						[
+							{
+								id: 'stack',
+								kind: 'stack',
+								cards: [{ id: 'target', type: 'header', title: 'Target' }]
+							}
+						]
+					]
+				}
+			]
+		});
+
+		const list = findOverviewItemList(config, 'target', 'home');
+		expect(list?.map((item) => item.id)).toEqual(['target']);
+		expect(findOverviewCard(config, 'target', 'home')).toMatchObject({ title: 'Target' });
 	});
 });
 

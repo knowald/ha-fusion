@@ -3,10 +3,9 @@
 	import { states } from '$lib/Stores';
 	import {
 		domainIcon,
-		isStack,
+		findOverviewCard,
 		PRESS_RIPPLE,
 		type EntityRef,
-		type HearthConfig,
 		type OverviewCard
 	} from './config';
 	import { getHearthInteractionMode } from './interaction';
@@ -58,26 +57,9 @@
 		if ($hearthEditMode && !preview) popoverOpen = false;
 	});
 
-	function findCard(
-		config: HearthConfig,
-		cardId: string
-	): Extract<OverviewCard, { type: 'entities' }> | undefined {
-		for (const room of config.rooms) {
-			for (const column of room.cards) {
-				for (const item of column) {
-					if (!isStack(item)) {
-						if (item.id === cardId && item.type === 'entities') return item;
-						continue;
-					}
-					const child = item.cards.find(
-						(entry): entry is Extract<OverviewCard, { type: 'entities' }> =>
-							entry.id === cardId && entry.type === 'entities'
-					);
-					if (child) return child;
-				}
-			}
-		}
-		return undefined;
+	function findEntitiesCard(config: Parameters<typeof findOverviewCard>[0], cardId: string) {
+		const target = findOverviewCard(config, cardId);
+		return target?.type === 'entities' ? target : undefined;
 	}
 
 	function reorderEntities(entities: EntityRef[]) {
@@ -86,7 +68,7 @@
 			return;
 		}
 		updateConfig((config) => {
-			const target = findCard(config, card.id);
+			const target = findEntitiesCard(config, card.id);
 			if (target) target.entities = entities.filter(Boolean);
 		});
 	}
@@ -102,8 +84,8 @@
 		if (typeof sourceId !== 'string' || !Number.isInteger(sourceIndex)) return;
 
 		updateConfig((config) => {
-			const source = findCard(config, sourceId);
-			const target = findCard(config, card.id);
+			const source = findEntitiesCard(config, sourceId);
+			const target = findEntitiesCard(config, card.id);
 			if (!source || !target || source === target || sourceIndex < 0) return;
 			const [entity] = source.entities.splice(sourceIndex, 1);
 			if (!entity) return;

@@ -222,6 +222,33 @@ export function isStack(item: OverviewItem): item is OverviewStack {
 	return 'kind' in item && item.kind === 'stack';
 }
 
+/** Mutable list containing an id-addressed card or stack. */
+export function findOverviewItemList(
+	config: HearthConfig,
+	id: string,
+	roomId?: string
+): OverviewItem[] | undefined {
+	for (const room of config.rooms) {
+		if (roomId && room.id !== roomId) continue;
+		for (const column of room.cards) {
+			if (column.some((item) => item.id === id)) return column;
+			for (const item of column) {
+				if (isStack(item) && item.cards.some((card) => card.id === id)) return item.cards;
+			}
+		}
+	}
+	return undefined;
+}
+
+export function findOverviewCard(
+	config: HearthConfig,
+	id: string,
+	roomId?: string
+): OverviewCard | undefined {
+	const item = findOverviewItemList(config, id, roomId)?.find((entry) => entry.id === id);
+	return item && !isStack(item) ? item : undefined;
+}
+
 /** Card types that take a share of the leftover height unless told otherwise. */
 const FILL_BY_DEFAULT = ['media', 'temperature'];
 

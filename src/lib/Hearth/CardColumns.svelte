@@ -2,6 +2,7 @@
 	import { sortable } from '$lib/Actions/sortable';
 	import {
 		cloneOverviewItem,
+		findOverviewItemList,
 		fillWeight,
 		isStack,
 		takenCardIds,
@@ -63,25 +64,13 @@
 		});
 	}
 
-	// searches top-level columns, then each column's stacks' children - never
-	// recurses further since stacks cannot themselves contain a stack
-	function locateList(config: HearthConfig, id: string): OverviewItem[] | undefined {
-		for (const column of locate(config)) {
-			if (column.some((item) => item.id === id)) return column;
-			for (const item of column) {
-				if (isStack(item) && item.cards.some((card) => card.id === id)) return item.cards;
-			}
-		}
-		return undefined;
-	}
-
 	// a card or stack dropped from another column/stack: move it in one
 	// config update; the source's onEnd then finds nothing to remove and
 	// no-ops. Alt-drop duplicates instead: the source keeps its item and the
 	// target gets a clone with a fresh id.
 	function receiveCard(column: number, id: string, newIndex: number, alt: boolean) {
 		updateConfig((config) => {
-			const sourceList = locateList(config, id);
+			const sourceList = findOverviewItemList(config, id, roomId);
 			if (!sourceList) return;
 			const index = sourceList.findIndex((item) => item.id === id);
 			if (index < 0) return;
@@ -113,7 +102,7 @@
 				(item): item is OverviewStack => isStack(item) && item.id === stackId
 			);
 			if (!stack) return;
-			const sourceList = locateList(config, id);
+			const sourceList = findOverviewItemList(config, id, roomId);
 			if (!sourceList) return;
 			const index = sourceList.findIndex((item) => item.id === id);
 			if (index < 0) return;
@@ -152,10 +141,7 @@
 	});
 </script>
 
-{#snippet cardSlot(
-	card: OverviewCard,
-	target: { kind: 'card'; roomId: string; column: number; index: number; stackId?: string }
-)}
+{#snippet cardSlot(card: OverviewCard, target: { kind: 'card'; roomId: string; id: string })}
 	<VisibilityGate conditions={card.visibility}>
 		{#snippet children(visible)}
 			{#if $hearthEditMode || visible}
@@ -240,13 +226,11 @@
 									detail.alt ?? false
 								)}
 						>
-							{#each item.cards as card, cardIndex (card.id)}
+							{#each item.cards as card (card.id)}
 								{@render cardSlot(card, {
 									kind: 'card',
-									column: columnIndex,
-									index: cardIndex,
 									roomId,
-									stackId: item.id
+									id: card.id
 								})}
 							{/each}
 							{#if $hearthEditMode}
@@ -256,7 +240,7 @@
 										editor.set({
 											kind: 'card',
 											column: columnIndex,
-											index: null,
+											id: null,
 											roomId,
 											stackId: item.id
 										})}
@@ -265,13 +249,13 @@
 						</div>
 					</div>
 				{:else}
-					{@render cardSlot(item, { kind: 'card', column: columnIndex, index, roomId })}
+					{@render cardSlot(item, { kind: 'card', id: item.id, roomId })}
 				{/if}
 			{/each}
 			{#if $hearthEditMode}
 				<AddTile
 					label="Add card"
-					onadd={() => editor.set({ kind: 'card', column: columnIndex, index: null, roomId })}
+					onadd={() => editor.set({ kind: 'card', column: columnIndex, id: null, roomId })}
 				/>
 				<AddTile label="Add stack" onadd={() => addStack(columnIndex)} />
 			{/if}

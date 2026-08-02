@@ -67,9 +67,9 @@ export const hearthEditMode = writable(false);
 
 export type Editor =
 	| { kind: 'room'; id: string | null }
-	// column indexes into the page's card columns; with stackId the target list
-	// is that stack's cards array within the column instead
-	| { kind: 'card'; roomId: string; column: number; index: number | null; stackId?: string }
+	// Existing cards are addressed by their globally unique id. Column/stack
+	// identify only the insertion destination for a new card.
+	| { kind: 'card'; roomId: string; id: string | null; column?: number; stackId?: string }
 	| { kind: 'stack'; roomId: string; column: number; index: number }
 	| { kind: 'railWidget'; index: number | null }
 	| { kind: 'theme' }
