@@ -9,6 +9,10 @@ import { DEFAULT_HEARTH_CONFIG, type HearthConfig, type SceneRef } from './confi
 
 export const hearthConfig = writable<HearthConfig>(structuredClone(DEFAULT_HEARTH_CONFIG));
 
+// Non-null when the source file exists but could not be parsed/read. Editing
+// stays locked so fallback rendering can never overwrite that source.
+export const hearthLoadError = writable<string | null>(null);
+
 // server-managed save counter for conflict detection between tabs
 export const hearthRevision = writable(0);
 
@@ -96,6 +100,11 @@ let savedToastTimer: ReturnType<typeof setTimeout>;
 
 /** Returns false on a revision conflict (another tab saved first). */
 export async function saveEdit(): Promise<boolean> {
+	const loadError = get(hearthLoadError);
+	if (loadError) {
+		saveState.set('error');
+		throw new Error(`Cannot save an unreadable Hearth configuration: ${loadError}`);
+	}
 	const response = await fetch('/_api/save_hearth', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },

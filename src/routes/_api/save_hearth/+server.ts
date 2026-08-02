@@ -33,9 +33,11 @@ async function currentRevision(): Promise<number> {
 		const parsed = data.trim() ? (yaml.load(data) as Record<string, unknown>) : undefined;
 		const revision = parsed?.revision;
 		return typeof revision === 'number' && Number.isInteger(revision) ? revision : 0;
-	} catch {
-		// missing or unreadable file counts as a fresh start
-		return 0;
+	} catch (error) {
+		// Only absence is a fresh start. Malformed YAML and I/O failures must
+		// abort the save rather than allowing fallback revision 0 to overwrite it.
+		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return 0;
+		throw error;
 	}
 }
 
@@ -98,7 +100,13 @@ export const POST: RequestHandler = async ({ request }) => {
 		// directly, which skips the conflict check
 		const isRevisionedShape = 'config' in body;
 		const config = isRevisionedShape ? body.config : body;
-		const revision = await currentRevision();
+		let revision: number;
+		try {
+			revision = await currentRevision();
+		} catch (readError) {
+			const message = readError instanceof Error ? readError.message : 'unknown read error';
+			error(500, `Cannot save unreadable Hearth configuration: ${message}`);
+		}
 
 		if (isRevisionedShape && body.revision !== revision) {
 			return { conflict: true as const, revision };

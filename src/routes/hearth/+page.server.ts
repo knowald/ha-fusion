@@ -10,9 +10,9 @@ async function loadYaml(file: string) {
 	try {
 		const data = await readFile(file, 'utf8');
 		return data.trim() ? yaml.load(data) : undefined;
-	} catch {
-		// missing file is fine
-		return undefined;
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return undefined;
+		throw error;
 	}
 }
 
@@ -27,13 +27,22 @@ async function loadJson(file: string) {
 export async function load({ request }): Promise<{
 	configuration: Configuration;
 	hearth: unknown;
+	hearthError: string | null;
 	hearthRevision: number;
 	translations: Translations;
 }> {
-	const [configuration = {}, hearth] = await Promise.all([
-		loadYaml('./data/configuration.yaml') as Promise<Configuration | undefined>,
-		loadYaml('./data/hearth.yaml')
-	]);
+	const configuration =
+		((await loadYaml('./data/configuration.yaml')) as Configuration | undefined) ?? {};
+	let hearth: unknown;
+	let hearthError: string | null = null;
+	try {
+		hearth = await loadYaml('./data/hearth.yaml');
+	} catch (error) {
+		hearthError =
+			error instanceof Error
+				? `Hearth configuration could not be loaded: ${error.message}`
+				: 'Hearth configuration could not be loaded';
+	}
 
 	const rawRevision = (hearth as Record<string, unknown> | undefined)?.revision;
 	const hearthRevision = typeof rawRevision === 'number' ? rawRevision : 0;
@@ -53,6 +62,7 @@ export async function load({ request }): Promise<{
 	return {
 		configuration,
 		hearth,
+		hearthError,
 		hearthRevision,
 		translations: locale ? { ...locale, _default: en } : en
 	};

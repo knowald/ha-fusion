@@ -9,6 +9,7 @@
 		enterEditMode,
 		hearthConfig,
 		hearthEditMode,
+		hearthLoadError,
 		openPopovers,
 		redoConfig,
 		saveEdit,
@@ -251,6 +252,16 @@
 			Connection lost. Reconnecting...
 		</div>
 	{/if}
+	{#if $hearthLoadError}
+		<div class="load-error" role="alert">
+			<Icon name="error" size={20} />
+			<div>
+				<strong>Hearth configuration is unreadable</strong>
+				<span>{$hearthLoadError}</span>
+				<span>Editing is disabled to protect the existing file.</span>
+			</div>
+		</div>
+	{/if}
 	{#if $saveState === 'saved'}
 		<div class="save-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="check_circle" size={18} />
@@ -297,7 +308,7 @@
 				Save
 			</div>
 		</div>
-	{:else if !hideEditToggle}
+	{:else if !hideEditToggle && !$hearthLoadError}
 		<div class="edit-toggle pressable" onclick={enterEditMode}>
 			<Icon name="edit" size={18} />
 		</div>
@@ -481,6 +492,40 @@
 		font-size: 14px;
 		font-weight: 600;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	}
+
+	.load-error {
+		position: absolute;
+		top: calc(18px + var(--h-pad-y));
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 42;
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		width: min(620px, calc(100vw - 32px));
+		padding: 14px 16px;
+		border-radius: var(--h-radius-md);
+		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
+		border: 1px solid rgb(var(--h-bad-rgb) / 0.5);
+		color: var(--h-bad-text);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	}
+
+	.load-error div {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+
+	.load-error strong {
+		font-size: 14px;
+	}
+
+	.load-error span {
+		font-size: 12px;
+		overflow-wrap: anywhere;
 	}
 
 	.save-toast {
