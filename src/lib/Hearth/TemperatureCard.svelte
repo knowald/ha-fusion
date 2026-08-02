@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connected, connection, states } from '$lib/Stores';
 	import type { OverviewCard } from './config';
-	import { startDataRefresh } from './refresh';
+	import { cachedData, startDataRefresh } from './refresh';
 	import { sensorNumber } from './store';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'temperature' }> } = $props();
@@ -21,29 +21,30 @@
 		if (!$connected || !conn || !entityId) return;
 
 		return startDataRefresh(
-			async () => {
-				const result: any = await conn.sendMessagePromise({
-					type: 'recorder/statistics_during_period',
-					start_time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-					end_time: new Date().toISOString(),
-					statistic_ids: [entityId],
-					period: 'hour'
-				});
-				const values: number[] = (result?.[entityId] ?? [])
-					.map((item: { mean?: number; state?: number }) => item.mean ?? item.state)
-					.filter((entry: unknown): entry is number => typeof entry === 'number');
-				if (values.length < 2) return null;
-				const min = Math.min(...values);
-				const max = Math.max(...values);
-				const span = max - min || 1;
-				return values
-					.map((entry, index) => {
-						const x = (index / (values.length - 1)) * 300;
-						const y = 65 - ((entry - min) / span) * 57;
-						return `${Math.round(x)},${Math.round(y)}`;
-					})
-					.join(' ');
-			},
+			() =>
+				cachedData(`temperature-history:${entityId}`, async () => {
+					const result: any = await conn.sendMessagePromise({
+						type: 'recorder/statistics_during_period',
+						start_time: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+						end_time: new Date().toISOString(),
+						statistic_ids: [entityId],
+						period: 'hour'
+					});
+					const values: number[] = (result?.[entityId] ?? [])
+						.map((item: { mean?: number; state?: number }) => item.mean ?? item.state)
+						.filter((entry: unknown): entry is number => typeof entry === 'number');
+					if (values.length < 2) return null;
+					const min = Math.min(...values);
+					const max = Math.max(...values);
+					const span = max - min || 1;
+					return values
+						.map((entry, index) => {
+							const x = (index / (values.length - 1)) * 300;
+							const y = 65 - ((entry - min) / span) * 57;
+							return `${Math.round(x)},${Math.round(y)}`;
+						})
+						.join(' ');
+				}),
 			(value) => (points = value)
 		);
 	});

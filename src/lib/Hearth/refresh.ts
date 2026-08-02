@@ -1,5 +1,20 @@
 export const HEARTH_REFRESH_MS = 5 * 60 * 1000;
 
+const dataCache = new Map<string, { expires: number; value: unknown }>();
+
+/** Short-lived cross-mount cache for expensive recorder queries. */
+export async function cachedData<T>(key: string, load: () => Promise<T>, ttl = 60_000): Promise<T> {
+	const now = Date.now();
+	for (const [cacheKey, entry] of dataCache) {
+		if (entry.expires <= now) dataCache.delete(cacheKey);
+	}
+	const cached = dataCache.get(key);
+	if (cached) return cached.value as T;
+	const value = await load();
+	dataCache.set(key, { expires: Date.now() + ttl, value });
+	return value;
+}
+
 /**
  * Shared polling lifetime for Hearth's request/response surfaces. It loads
  * immediately, avoids overlapping requests, retains the last good value on a
