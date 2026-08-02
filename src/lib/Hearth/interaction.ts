@@ -15,3 +15,10 @@ export function getHearthInteractionMode(): HearthInteractionMode {
 	const source = getContext<HearthInteractionSource | undefined>(INTERACTION_MODE);
 	return typeof source === 'function' ? source() : (source ?? 'runtime');
 }
+
+/** Adds native-button Enter/Space behavior to composite controls. */
+export function activateOnKeyboard(event: KeyboardEvent, action: () => void) {
+	if (event.key !== 'Enter' && event.key !== ' ') return;
+	event.preventDefault();
+	action();
+}

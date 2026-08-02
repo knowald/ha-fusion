@@ -6,6 +6,9 @@
 	import EditChip from './EditChip.svelte';
 	import RailWidgetRenderer from './RailWidgetRenderer.svelte';
 	import VisibilityGate from './VisibilityGate.svelte';
+	import Icon from './Icon.svelte';
+
+	let { onsearch }: { onsearch: () => void } = $props();
 </script>
 
 <div
@@ -31,6 +34,12 @@
 			})
 	}}
 >
+	{#if !$hearthEditMode}
+		<button type="button" class="search-button pressable" onclick={onsearch}>
+			<Icon name="search" size={20} />
+			<span>Search pages and entities</span>
+		</button>
+	{/if}
 	{#each $hearthConfig.rail as widget, index (widget.id)}
 		<VisibilityGate conditions={widget.visibility}>
 			{#snippet children(visible)}
@@ -85,6 +94,23 @@
 
 	.widget.visibility-dimmed {
 		opacity: 0.45;
+	}
+
+	.search-button {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+		min-height: 44px;
+		margin-bottom: 10px;
+		padding: 10px 14px;
+		border: 1px solid rgb(var(--h-line-rgb) / 0.1);
+		border-radius: var(--h-radius-sm);
+		background: rgb(var(--h-surface-rgb) / 0.05);
+		color: var(--h-text-4);
+		font: inherit;
+		font-size: 14px;
+		cursor: pointer;
 	}
 
 	@media (max-width: 900px) {

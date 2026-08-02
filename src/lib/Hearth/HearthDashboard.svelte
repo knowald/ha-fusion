@@ -244,7 +244,7 @@
 <section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
 	<div class="layout" class:editing={$hearthEditMode}>
 		<div class="rail-scroll">
-			<Rail />
+			<Rail onsearch={() => (showSearch = true)} />
 		</div>
 		<main class="main" class:fill={activeRoom?.fill_screen} bind:this={mainElement}>
 			<RoomDetail roomId={activeRoomId} fillScreen={activeRoom?.fill_screen ?? false} />
@@ -262,14 +262,17 @@
 		<SetupWizard onclose={() => (showSetupWizard = false)} />
 	{/if}
 	{#if $requestedConfirmation}
-		<div class="confirm-backdrop" role="presentation" onclick={dismissConfirmation}>
+		<div
+			class="confirm-backdrop"
+			role="presentation"
+			onclick={(event) => event.target === event.currentTarget && dismissConfirmation()}
+		>
 			<div
 				class="confirm-dialog"
 				role="alertdialog"
 				tabindex="-1"
 				aria-modal="true"
 				aria-labelledby="hearth-confirm-title"
-				onclick={(event) => event.stopPropagation()}
 			>
 				<Icon name="warning" size={28} color="var(--h-bad-text)" />
 				<div class="confirm-copy">

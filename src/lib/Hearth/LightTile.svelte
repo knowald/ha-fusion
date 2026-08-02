@@ -4,6 +4,7 @@
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import { horizontalDrag } from './drag';
+	import { activateOnKeyboard } from './interaction';
 	import Icon from './Icon.svelte';
 	import {
 		controlOverrides,
@@ -62,8 +63,13 @@
 	class:unreachable={!available}
 	class:pending
 	data-id={entity}
+	role="button"
+	tabindex={interactive ? 0 : -1}
+	aria-pressed={view.on}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 	onclick={() => $hearthEditMode && onedit?.()}
+	onkeydown={(event) =>
+		activateOnKeyboard(event, () => ($hearthEditMode ? onedit?.() : toggleLight(entity)))}
 	use:horizontalDrag={{
 		set: (value, commit) => setLightLevel(entity, value, commit),
 		updateMode: sliderUpdates,

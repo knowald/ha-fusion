@@ -43,7 +43,8 @@
 		<div class="scenes" class:bar>
 			{#each card.scenes as ref, index (index)}
 				{@const active = index === activeIndex}
-				<div
+				<button
+					type="button"
 					class="scene pressable"
 					class:active
 					class:pending={$pendingEntities[ref.entity] !== undefined}
@@ -60,7 +61,7 @@
 					{#if bar && (active || ref.caption)}
 						<span class="scene-caption">{active ? 'active' : ref.caption}</span>
 					{/if}
-				</div>
+				</button>
 			{/each}
 		</div>
 	{/if}
@@ -95,6 +96,7 @@
 		cursor: pointer;
 		user-select: none;
 		-webkit-user-select: none;
+		font: inherit;
 	}
 
 	.scene.active {

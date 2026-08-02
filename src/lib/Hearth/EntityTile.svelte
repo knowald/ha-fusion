@@ -19,6 +19,7 @@
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';
 	import TuneButton from './TuneButton.svelte';
+	import { activateOnKeyboard } from './interaction';
 
 	let {
 		entity,
@@ -89,8 +90,12 @@
 		class:unreachable={!available}
 		class:pending
 		class:pressable={interactive}
+		role="button"
+		tabindex={interactive ? 0 : -1}
+		aria-pressed={on}
 		use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 		onclick={handleClick}
+		onkeydown={(event) => activateOnKeyboard(event, handleClick)}
 	>
 		<div class="content">
 			<Icon name={icon || domainIcon(entity)} size={26} color={iconColor} fill={on} />

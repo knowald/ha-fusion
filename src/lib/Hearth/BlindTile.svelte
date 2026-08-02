@@ -15,6 +15,7 @@
 	} from './store';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
+	import { activateOnKeyboard } from './interaction';
 
 	let {
 		entity,
@@ -85,8 +86,12 @@
 	class:unreachable={!available}
 	class:pending
 	data-id={entity}
+	role="button"
+	tabindex={interactive ? 0 : -1}
+	aria-pressed={open}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 	onclick={handleClick}
+	onkeydown={(event) => activateOnKeyboard(event, handleClick)}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">

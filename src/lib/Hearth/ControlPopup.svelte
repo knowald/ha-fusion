@@ -50,18 +50,21 @@
 					</div>
 					{#if $popup.kind === 'light'}
 						{@const entity = $popup.entity}
-						<div
+						<button
+							type="button"
 							class="switch pressable"
 							class:on={lightViewFor(entity, $states, $controlOverrides).on}
+							aria-label="Toggle light"
+							aria-pressed={lightViewFor(entity, $states, $controlOverrides).on}
 							class:pending={$pendingEntities[entity] !== undefined}
 							onclick={() => toggleLight(entity)}
 						>
 							<div class="knob"></div>
-						</div>
+						</button>
 					{/if}
-					<span class="close pressable" onclick={closePopup}>
+					<button type="button" class="close pressable" aria-label="Close" onclick={closePopup}>
 						<Icon name="close" size={26} />
-					</span>
+					</button>
 				</div>
 
 				{#if $popup.kind === 'light'}
@@ -143,6 +146,8 @@
 		transition: background 0.2s;
 		flex: none;
 		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
+		border: 0;
+		padding: 0;
 	}
 
 	.switch.on {
@@ -166,6 +171,14 @@
 	}
 
 	.close {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		padding: 0;
+		border: 0;
+		background: transparent;
 		color: var(--h-icon);
 		cursor: pointer;
 	}

@@ -158,7 +158,7 @@
 					</span>
 					<span class="row-text">
 						<span class="row-name">{result.name}</span>
-						<span class="row-id">{result.kind === 'room' ? 'Room' : result.entityId}</span>
+						<span class="row-id">{result.kind === 'room' ? 'Page' : result.entityId}</span>
 					</span>
 					{#if result.kind === 'entity'}
 						<span class="row-state">{result.state}</span>
