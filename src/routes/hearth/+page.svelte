@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
 	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
 	import { normalizeHearthConfig } from '$lib/Hearth/config';
@@ -71,23 +71,6 @@
 	}
 
 	onDestroy(() => clearInterval(retryInterval));
-
-	onMount(async () => {
-		/**
-		 * Unregister service worker because it
-		 * interferes with MJPEG camera streams
-		 */
-		if ('serviceWorker' in navigator) {
-			try {
-				const registrations = await navigator.serviceWorker.getRegistrations();
-				for (const registration of registrations) {
-					await registration.unregister();
-				}
-			} catch (error) {
-				console.error('Error during service worker unregistration:', error);
-			}
-		}
-	});
 </script>
 
 <svelte:head>
