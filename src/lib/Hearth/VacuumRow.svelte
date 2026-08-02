@@ -3,10 +3,16 @@
 	import { states } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import { pendingEntities, toggleVacuum } from './store';
+	import { hearthEditMode, pendingEntities, toggleVacuum } from './store';
+	import AnchoredPopover from './AnchoredPopover.svelte';
 	import Icon from './Icon.svelte';
+	import { getHearthInteractionMode } from './interaction';
+	import VacuumPopover from './VacuumPopover.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'vacuum' }> } = $props();
+
+	const interactionMode = getHearthInteractionMode();
+	const preview = interactionMode === 'preview';
 
 	const statusLabels: Record<string, string> = {
 		docked: 'Docked',
@@ -21,9 +27,35 @@
 	let running = $derived(entity?.state === 'cleaning' || entity?.state === 'returning');
 	let status = $derived(statusLabels[entity?.state ?? ''] ?? 'Unavailable');
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
+	let row = $state<HTMLElement | undefined>();
+	let popoverOpen = $state(false);
+
+	function openPopup() {
+		if (!card.entity || ($hearthEditMode && !preview)) return;
+		popoverOpen = !popoverOpen;
+	}
+
+	$effect(() => {
+		if ($hearthEditMode && !preview) popoverOpen = false;
+	});
 </script>
 
-<div class="row">
+<div
+	class="row"
+	class:openable={Boolean(card.entity) && (!$hearthEditMode || preview)}
+	class:open={popoverOpen}
+	bind:this={row}
+	role="button"
+	tabindex="0"
+	aria-expanded={popoverOpen}
+	onclick={openPopup}
+	onkeydown={(event) => {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			openPopup();
+		}
+	}}
+>
 	<Icon name="robot_2" size={28} color="var(--h-text-4)" />
 	<div class="info">
 		<div class="name">{entity?.attributes?.friendly_name ?? 'Vacuum'}</div>
@@ -34,12 +66,26 @@
 		class:running
 		class:pending
 		use:Ripple={PRESS_RIPPLE}
-		onclick={() => card.entity && toggleVacuum(card.entity)}
+		onclick={(event) => {
+			event.stopPropagation();
+			if (card.entity && !preview) toggleVacuum(card.entity);
+		}}
 	>
 		<Icon name={running ? 'stop' : 'play_arrow'} size={18} />
 		{running ? 'Stop' : 'Clean'}
 	</div>
 </div>
+
+{#if popoverOpen && row && card.entity}
+	<AnchoredPopover anchor={row} onclose={() => (popoverOpen = false)}>
+		<VacuumPopover
+			entity={card.entity}
+			modes={card.modes ?? []}
+			batteryEntity={card.battery_entity}
+			binEntity={card.bin_entity}
+		/>
+	</AnchoredPopover>
+{/if}
 
 <style>
 	.row {
@@ -48,8 +94,18 @@
 		gap: 14px;
 		padding: 16px 18px;
 		border-radius: var(--h-radius-card);
-		background: rgb(var(--h-surface-rgb) / 0.05);
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		box-shadow: var(--h-card-shadow);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
+	}
+
+	.row.openable {
+		cursor: pointer;
+	}
+
+	.row.open {
+		border-color: rgb(var(--h-accent-rgb) / calc(0.28 * var(--h-accent-scale)));
+		background: rgb(var(--h-accent-rgb) / calc(0.08 * var(--h-accent-scale)));
 	}
 
 	.info {

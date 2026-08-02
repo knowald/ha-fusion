@@ -629,6 +629,13 @@ export function toggleVacuum(entity: string) {
 	}
 }
 
+export function vacuumCommand(
+	entity: string,
+	command: 'start' | 'pause' | 'stop' | 'clean_spot' | 'locate' | 'return_to_base'
+) {
+	callEntityService('vacuum', command, entity);
+}
+
 /* sensors */
 
 export function sensorNumber(state: string | undefined): number | null {

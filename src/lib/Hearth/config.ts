@@ -45,6 +45,17 @@ export interface SceneRef extends EntityRef {
 	active_state?: string;
 }
 
+export interface VacuumModeRef extends EntityRef {
+	// what the mode covers, so a one-tap run is safe to commit to without
+	// opening the vacuum app first
+	detail?: string;
+	// expected run time, shown next to the detail
+	duration?: string;
+	// tags the mode as the recommended one. It stays the same size and costs
+	// the same single tap as the rest; the tag is the only difference
+	default?: boolean;
+}
+
 /**
  * Per-item visibility condition, mirroring the original's section conditions
  * but trimmed to the two cases Hearth's builder exposes. All conditions on an
@@ -132,7 +143,17 @@ type OverviewCardVariant =
 			height?: number;
 	  }
 	| { id: string; type: 'media'; entity?: string; height?: number }
-	| { id: string; type: 'vacuum'; entity?: string }
+	// battery_entity and bin_entity add readings to the popover status line for
+	// integrations that expose them as separate entities; battery falls back to
+	// the vacuum's own battery_level attribute
+	| {
+			id: string;
+			type: 'vacuum';
+			entity?: string;
+			modes?: VacuumModeRef[];
+			battery_entity?: string;
+			bin_entity?: string;
+	  }
 	// the general-purpose grid: any mix of domains, tiles adapt per domain
 	// (lights dim on drag, covers show position). `stat` renders big sensor
 	// readouts instead of tiles; `columns` fixes the column count.
@@ -378,7 +399,47 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 						]
 					},
 					{ id: 'media', type: 'media', entity: 'media_player.spotify_kevin_nowald' },
-					{ id: 'vacuum', type: 'vacuum', entity: 'vacuum.roborock_qrevo_curv' }
+					{
+						id: 'vacuum',
+						type: 'vacuum',
+						entity: 'vacuum.roborock_qrevo_curv',
+						modes: [
+							{
+								entity: 'button.roborock_qrevo_curv_normal_cleaning',
+								name: 'Normal',
+								icon: 'cleaning_services',
+								detail: 'Whole flat',
+								default: true
+							},
+							{
+								entity: 'button.roborock_qrevo_curv_afterwork',
+								name: 'Afterwork',
+								icon: 'weekend'
+							},
+							{
+								entity: 'button.roborock_qrevo_curv_worktime',
+								name: 'Worktime',
+								icon: 'schedule'
+							},
+							{
+								entity: 'button.roborock_qrevo_curv_kitchen_cleaning',
+								name: 'Kitchen',
+								icon: 'countertops',
+								detail: 'Kitchen only'
+							},
+							{
+								entity: 'button.roborock_qrevo_curv_cat_cleaning',
+								name: 'Cat hair',
+								icon: 'pets'
+							},
+							{
+								entity: 'button.roborock_qrevo_curv_deep_cleaning',
+								name: 'Deep clean',
+								icon: 'auto_awesome',
+								detail: 'Whole flat, 2 passes'
+							}
+						]
+					}
 				]
 			]
 		},
@@ -662,6 +723,17 @@ function normalizeSceneRef(raw: any): SceneRef {
 	};
 }
 
+function normalizeVacuumModeRef(raw: any): VacuumModeRef {
+	// YAML resolves `duration: 48` to a number, which is still a usable caption
+	const duration = typeof raw?.duration === 'number' ? String(raw.duration) : raw?.duration;
+	return {
+		...normalizeEntityRef(raw),
+		detail: trimmedOrUndefined(raw?.detail),
+		duration: trimmedOrUndefined(duration),
+		default: raw?.default === true ? true : undefined
+	};
+}
+
 function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistries): OverviewCard {
 	const card = migrateLegacyCard(raw, registries);
 	return {
@@ -695,6 +767,13 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 			? {
 					style: card.style === 'bar' ? 'bar' : undefined,
 					scenes: (Array.isArray(card.scenes) ? card.scenes : []).map(normalizeSceneRef)
+				}
+			: {}),
+		...(card.type === 'vacuum'
+			? {
+					modes: (Array.isArray(card.modes) ? card.modes : []).map(normalizeVacuumModeRef),
+					battery_entity: trimmedOrUndefined(card.battery_entity),
+					bin_entity: trimmedOrUndefined(card.bin_entity)
 				}
 			: {}),
 		fill: normalizeFill(card.fill),
