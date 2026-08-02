@@ -26,7 +26,7 @@ interface DragOptions {
  */
 export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) => {
 	let current = options;
-	let tracking: { moved: boolean; startX: number } | null = null;
+	let tracking: { moved: boolean; pointerId: number; startX: number } | null = null;
 
 	function fraction(event: PointerEvent) {
 		const rect = node.getBoundingClientRect();
@@ -41,11 +41,11 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 		} catch {
 			// pointer capture is best-effort
 		}
-		tracking = { moved: false, startX: event.clientX };
+		tracking = { moved: false, pointerId: event.pointerId, startX: event.clientX };
 	}
 
 	function handleMove(event: PointerEvent) {
-		if (!tracking) return;
+		if (!tracking || event.pointerId !== tracking.pointerId) return;
 		if (Math.abs(event.clientX - tracking.startX) > 4) tracking.moved = true;
 		if (tracking.moved) {
 			current.set(Math.round(fraction(event) * 100), current.updateMode !== 'release');
@@ -53,7 +53,7 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 	}
 
 	function handleUp(event: PointerEvent) {
-		if (!tracking) return;
+		if (!tracking || event.pointerId !== tracking.pointerId) return;
 		if (!tracking.moved && current.tap) {
 			current.tap();
 		} else if (tracking.moved) {
@@ -63,12 +63,29 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 			current.set(value, true);
 			current.end?.(value);
 		}
+		finishTracking(event.pointerId);
+	}
+
+	function finishTracking(pointerId: number) {
 		tracking = null;
+		try {
+			node.releasePointerCapture(pointerId);
+		} catch {
+			// capture may already have been released by the browser
+		}
+	}
+
+	function handleCancel(event: PointerEvent) {
+		if (!tracking || event.pointerId !== tracking.pointerId) return;
+		// Cancellation means the browser handed the gesture to scrolling or
+		// navigation. Clean up without turning that interruption into a command.
+		finishTracking(event.pointerId);
 	}
 
 	node.addEventListener('pointerdown', handleDown);
 	node.addEventListener('pointermove', handleMove);
 	node.addEventListener('pointerup', handleUp);
+	node.addEventListener('pointercancel', handleCancel);
 
 	return {
 		update(next) {
@@ -78,6 +95,8 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 			node.removeEventListener('pointerdown', handleDown);
 			node.removeEventListener('pointermove', handleMove);
 			node.removeEventListener('pointerup', handleUp);
+			node.removeEventListener('pointercancel', handleCancel);
+			if (tracking) finishTracking(tracking.pointerId);
 		}
 	};
 };

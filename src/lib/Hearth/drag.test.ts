@@ -3,6 +3,7 @@ import { horizontalDrag, onDndReceive } from './drag';
 
 class TestNode extends EventTarget {
 	setPointerCapture = vi.fn();
+	releasePointerCapture = vi.fn();
 	getBoundingClientRect() {
 		return { left: 10, width: 200 } as DOMRect;
 	}
@@ -47,6 +48,22 @@ describe('horizontalDrag', () => {
 		node.dispatchEvent(pointer('pointerup', 24));
 		expect(firstTap).not.toHaveBeenCalled();
 		expect(secondTap).toHaveBeenCalledOnce();
+	});
+
+	it('cleans up a cancelled gesture without committing or tapping', () => {
+		const node = new TestNode();
+		const set = vi.fn();
+		const tap = vi.fn();
+		const action = horizontalDrag(node as unknown as HTMLElement, { set, tap });
+
+		node.dispatchEvent(pointer('pointerdown', 20));
+		node.dispatchEvent(pointer('pointercancel', 25));
+		node.dispatchEvent(pointer('pointerup', 210));
+
+		expect(set).not.toHaveBeenCalled();
+		expect(tap).not.toHaveBeenCalled();
+		expect(node.releasePointerCapture).toHaveBeenCalledWith(1);
+		action?.destroy?.();
 	});
 });
 
