@@ -286,6 +286,110 @@ export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }
 	{ value: 'fusion', label: 'Fusion object (template, picture elements, ...)' }
 ];
 
+const VALID_CARD_TYPES = new Set<string>(OVERVIEW_CARD_TYPES.map(({ value }) => value));
+const VALID_RAIL_WIDGET_TYPES = new Set<string>(RAIL_WIDGET_TYPES.map(({ value }) => value));
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+/**
+ * Reports structural problems that normalization would otherwise have to
+ * discard or repair. The visual YAML editor uses this before Apply so a typo
+ * cannot silently remove a card, widget or entity reference.
+ */
+export function hearthConfigIssues(raw: unknown): string[] {
+	if (!isRecord(raw)) return ['Configuration must be a YAML mapping'];
+
+	const issues: string[] = [];
+	const widgetIds = new Map<string, string>();
+	const itemIds = new Map<string, string>();
+	const checkId = (value: unknown, path: string, seen: Map<string, string>) => {
+		if (typeof value !== 'string' || !value.trim()) {
+			issues.push(`${path}.id must be a non-empty string`);
+			return;
+		}
+		const previous = seen.get(value);
+		if (previous) issues.push(`${path}.id duplicates ${previous}`);
+		else seen.set(value, `${path}.id`);
+	};
+	const checkRefs = (value: unknown, path: string) => {
+		if (!Array.isArray(value)) {
+			issues.push(`${path} must be a list`);
+			return;
+		}
+		value.forEach((entry, index) => {
+			if (!isRecord(entry) || typeof entry.entity !== 'string' || !entry.entity.trim()) {
+				issues.push(`${path}[${index}].entity must be a non-empty string`);
+			}
+		});
+	};
+	const checkCard = (value: unknown, path: string, allowStack: boolean) => {
+		if (!isRecord(value)) {
+			issues.push(`${path} must be a card mapping`);
+			return;
+		}
+		checkId(value.id, path, itemIds);
+		if (value.kind === 'stack') {
+			if (!allowStack) issues.push(`${path}: nested stacks are not supported`);
+			if (!Array.isArray(value.cards)) issues.push(`${path}.cards must be a list`);
+			else value.cards.forEach((card, index) => checkCard(card, `${path}.cards[${index}]`, false));
+			return;
+		}
+		if (typeof value.type !== 'string' || !VALID_CARD_TYPES.has(value.type)) {
+			issues.push(`${path}.type is not a supported card type`);
+			return;
+		}
+		if (value.type === 'entities') checkRefs(value.entities, `${path}.entities`);
+		if (value.type === 'scenes') checkRefs(value.scenes, `${path}.scenes`);
+		if (value.type === 'vacuum' && value.modes !== undefined) {
+			checkRefs(value.modes, `${path}.modes`);
+		}
+	};
+
+	if (!Array.isArray(raw.rail)) issues.push('rail must be a list');
+	else {
+		raw.rail.forEach((widget, index) => {
+			const path = `rail[${index}]`;
+			if (!isRecord(widget)) {
+				issues.push(`${path} must be a widget mapping`);
+				return;
+			}
+			checkId(widget.id, path, widgetIds);
+			if (typeof widget.type !== 'string' || !VALID_RAIL_WIDGET_TYPES.has(widget.type)) {
+				issues.push(`${path}.type is not a supported widget type`);
+			}
+		});
+	}
+
+	if (!Array.isArray(raw.rooms)) issues.push('rooms must be a list');
+	else {
+		const roomIds = new Map<string, string>();
+		raw.rooms.forEach((room, roomIndex) => {
+			const path = `rooms[${roomIndex}]`;
+			if (!isRecord(room)) {
+				issues.push(`${path} must be a page mapping`);
+				return;
+			}
+			checkId(room.id, path, roomIds);
+			if (!Array.isArray(room.cards)) {
+				issues.push(`${path}.cards must be a list of columns`);
+				return;
+			}
+			room.cards.forEach((column, columnIndex) => {
+				const columnPath = `${path}.cards[${columnIndex}]`;
+				if (!Array.isArray(column)) {
+					issues.push(`${columnPath} must be a card list`);
+					return;
+				}
+				column.forEach((card, cardIndex) => checkCard(card, `${columnPath}[${cardIndex}]`, true));
+			});
+		});
+	}
+
+	return issues;
+}
+
 /** Original main object types embeddable through the fusion card. */
 export const FUSION_OBJECT_TYPES: { value: string; label: string }[] = [
 	{ value: 'button', label: 'Button' },
@@ -689,9 +793,15 @@ function normalizeHeight(raw: unknown): number | undefined {
 	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 40 ? Math.round(raw) : undefined;
 }
 
-function normalizeEntityRef(raw: any): EntityRef {
+function normalizeEntityRef(raw: any): EntityRef | null {
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+	const entity = trimmedOrUndefined(raw.entity);
+	if (!entity) return null;
 	return {
 		...raw,
+		entity,
+		name: trimmedOrUndefined(raw.name),
+		icon: trimmedOrUndefined(raw.icon),
 		display: raw?.display === 'stat' || raw?.display === 'tile' ? raw.display : undefined,
 		// kept as a tri-state: an explicit false opts one entity out of a
 		// card-wide `readonly`
@@ -704,10 +814,12 @@ function normalizeEntityRef(raw: any): EntityRef {
 }
 
 function trimmedOrUndefined(value: unknown): string | undefined {
-	return typeof value === 'string' && value.trim() ? value : undefined;
+	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
-function normalizeSceneRef(raw: any): SceneRef {
+function normalizeSceneRef(raw: any): SceneRef | null {
+	const entity = normalizeEntityRef(raw);
+	if (!entity) return null;
 	// YAML resolves `active_state: on` to a boolean and `active_state: 22` to a
 	// number; both are legal HA states once stringified
 	const activeState =
@@ -715,7 +827,7 @@ function normalizeSceneRef(raw: any): SceneRef {
 			? String(raw.active_state)
 			: raw?.active_state;
 	return {
-		...normalizeEntityRef(raw),
+		...entity,
 		caption: trimmedOrUndefined(raw?.caption),
 		active_entity: trimmedOrUndefined(raw?.active_entity),
 		// an empty state is meaningless, but a whitespace one is a legal HA state
@@ -723,25 +835,41 @@ function normalizeSceneRef(raw: any): SceneRef {
 	};
 }
 
-function normalizeVacuumModeRef(raw: any): VacuumModeRef {
+function normalizeVacuumModeRef(raw: any): VacuumModeRef | null {
+	const entity = normalizeEntityRef(raw);
+	if (!entity) return null;
 	// YAML resolves `duration: 48` to a number, which is still a usable caption
 	const duration = typeof raw?.duration === 'number' ? String(raw.duration) : raw?.duration;
 	return {
-		...normalizeEntityRef(raw),
+		...entity,
 		detail: trimmedOrUndefined(raw?.detail),
 		duration: trimmedOrUndefined(duration),
 		default: raw?.default === true ? true : undefined
 	};
 }
 
-function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistries): OverviewCard {
+function reserveId(raw: unknown, fallback: string, taken: string[]): string {
+	const id = uniqueId(trimmedOrUndefined(raw) ?? fallback, taken);
+	taken.push(id);
+	return id;
+}
+
+function normalizeCard(
+	raw: any,
+	fallbackId: string,
+	registries: LegacyRegistries,
+	taken: string[]
+): OverviewCard {
 	const card = migrateLegacyCard(raw, registries);
+	const id = reserveId(card.id, fallbackId, taken);
 	return {
 		...card,
-		id: card.id ?? fallbackId,
+		id,
 		...(card.type === 'entities'
 			? {
-					entities: (Array.isArray(card.entities) ? card.entities : []).map(normalizeEntityRef),
+					entities: (Array.isArray(card.entities) ? card.entities : [])
+						.map(normalizeEntityRef)
+						.filter((ref: EntityRef | null): ref is EntityRef => ref !== null),
 					style: card.style === 'stat' ? 'stat' : undefined,
 					columns:
 						typeof card.columns === 'number' && card.columns >= 1
@@ -766,12 +894,16 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 		...(card.type === 'scenes'
 			? {
 					style: card.style === 'bar' ? 'bar' : undefined,
-					scenes: (Array.isArray(card.scenes) ? card.scenes : []).map(normalizeSceneRef)
+					scenes: (Array.isArray(card.scenes) ? card.scenes : [])
+						.map(normalizeSceneRef)
+						.filter((ref: SceneRef | null): ref is SceneRef => ref !== null)
 				}
 			: {}),
 		...(card.type === 'vacuum'
 			? {
-					modes: (Array.isArray(card.modes) ? card.modes : []).map(normalizeVacuumModeRef),
+					modes: (Array.isArray(card.modes) ? card.modes : [])
+						.map(normalizeVacuumModeRef)
+						.filter((ref: VacuumModeRef | null): ref is VacuumModeRef => ref !== null),
 					battery_entity: trimmedOrUndefined(card.battery_entity),
 					bin_entity: trimmedOrUndefined(card.bin_entity)
 				}
@@ -781,15 +913,29 @@ function normalizeCard(raw: any, fallbackId: string, registries: LegacyRegistrie
 	};
 }
 
-function normalizeStack(raw: any, fallbackId: string, registries: LegacyRegistries): OverviewStack {
-	const id = raw.id ?? fallbackId;
+function normalizeStack(
+	raw: any,
+	fallbackId: string,
+	registries: LegacyRegistries,
+	taken: string[]
+): OverviewStack {
+	const id = reserveId(raw.id, fallbackId, taken);
 	const direction: OverviewStack['direction'] =
 		raw.direction === 'vertical' ? 'vertical' : 'horizontal';
 	const title = typeof raw.title === 'string' ? raw.title.trim() : '';
 	const cards = (Array.isArray(raw.cards) ? raw.cards : [])
 		// children may be any non-stack card - nesting stops here
-		.filter((child: any) => child?.kind !== 'stack')
-		.map((child: any, index: number) => normalizeCard(child, `${id}-card-${index}`, registries));
+		.filter(
+			(child: any) =>
+				child &&
+				typeof child === 'object' &&
+				!Array.isArray(child) &&
+				child.kind !== 'stack' &&
+				VALID_CARD_TYPES.has(child.type)
+		)
+		.map((child: any, index: number) =>
+			normalizeCard(child, `${id}-card-${index}`, registries, taken)
+		);
 	return {
 		id,
 		kind: 'stack',
@@ -803,11 +949,12 @@ function normalizeStack(raw: any, fallbackId: string, registries: LegacyRegistri
 function normalizeOverviewItem(
 	raw: any,
 	fallbackId: string,
-	registries: LegacyRegistries
+	registries: LegacyRegistries,
+	taken: string[]
 ): OverviewItem {
 	return raw?.kind === 'stack'
-		? normalizeStack(raw, fallbackId, registries)
-		: normalizeCard(raw, fallbackId, registries);
+		? normalizeStack(raw, fallbackId, registries, taken)
+		: normalizeCard(raw, fallbackId, registries, taken);
 }
 
 /**
@@ -839,7 +986,8 @@ function normalizeRoomCards(
 	room: any,
 	roomId: string,
 	columns: number | undefined,
-	registries: LegacyRegistries
+	registries: LegacyRegistries,
+	taken: string[]
 ): OverviewItem[][] {
 	const raw = Array.isArray(room.cards) ? room.cards : [];
 	// a list of cards rather than a list of columns: everything in one column.
@@ -854,9 +1002,15 @@ function normalizeRoomCards(
 		column
 			// blank YAML entries and scalars are not cards; dropping them keeps the
 			// surrounding column intact instead of throwing on the way in
-			.filter((item: any) => item && typeof item === 'object' && !Array.isArray(item))
+			.filter(
+				(item: any) =>
+					item &&
+					typeof item === 'object' &&
+					!Array.isArray(item) &&
+					(item.kind === 'stack' || VALID_CARD_TYPES.has(migrateLegacyCard(item, registries)?.type))
+			)
 			.map((item: any, index: number) =>
-				normalizeOverviewItem(item, `card-${roomId}-${columnIndex}-${index}`, registries)
+				normalizeOverviewItem(item, `card-${roomId}-${columnIndex}-${index}`, registries, taken)
 			)
 	);
 	return columns !== undefined && cards.length !== columns
@@ -892,7 +1046,8 @@ function migrateRoomGrids(
 	room: any,
 	roomId: string,
 	columns: OverviewItem[][],
-	registries: LegacyRegistries
+	registries: LegacyRegistries,
+	taken: string[]
 ): OverviewItem[][] {
 	// a half-migrated config (v3 cards kept alongside the v2 grid fields) must
 	// not gain a second copy of either card
@@ -914,14 +1069,14 @@ function migrateRoomGrids(
 
 	const next = columns.length ? columns : [[]];
 	const lightingCard: OverviewCard = {
-		id: `${roomId}-lighting`,
+		id: lighting.length ? reserveId(`${roomId}-lighting`, `${roomId}-lighting`, taken) : '',
 		type: 'entities',
 		title: 'Lighting',
 		show_count: true,
 		entities: lighting
 	};
 	const devicesCard: OverviewCard = {
-		id: `${roomId}-devices`,
+		id: devices.length ? reserveId(`${roomId}-devices`, `${roomId}-devices`, taken) : '',
 		type: 'entities',
 		title: 'Devices',
 		entities: devices
@@ -950,7 +1105,8 @@ function normalizeRoom(
 	raw: any,
 	index: number,
 	registries: LegacyRegistries,
-	taken: string[]
+	taken: string[],
+	takenItems: string[]
 ): HearthRoom {
 	const id = uniqueId(trimmedOrUndefined(raw?.id) ?? `page-${index + 1}`, taken);
 	taken.push(id);
@@ -968,7 +1124,13 @@ function normalizeRoom(
 		hide_header: raw?.hide_header === true ? true : undefined,
 		fill_screen: raw?.fill_screen === true ? true : undefined,
 		columns,
-		cards: migrateRoomGrids(raw, id, normalizeRoomCards(raw, id, columns, registries), registries)
+		cards: migrateRoomGrids(
+			raw,
+			id,
+			normalizeRoomCards(raw, id, columns, registries, takenItems),
+			registries,
+			takenItems
+		)
 	};
 }
 
@@ -990,8 +1152,9 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	};
 
 	const takenRoomIds: string[] = [];
+	const takenItemIds: string[] = [];
 	const rooms: HearthRoom[] = (Array.isArray(config.rooms) ? config.rooms : []).map(
-		(room: any, index: number) => normalizeRoom(room, index, registries, takenRoomIds)
+		(room: any, index: number) => normalizeRoom(room, index, registries, takenRoomIds, takenItemIds)
 	);
 
 	// v2 stored the home page separately in `overview`; it becomes the first
@@ -1013,7 +1176,8 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 				},
 				0,
 				registries,
-				takenRoomIds
+				takenRoomIds,
+				takenItemIds
 			)
 		);
 	}
@@ -1081,14 +1245,14 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 				}
 			: defaults.day_night;
 
-	return {
-		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
-		theme_night:
-			config.theme_night && typeof config.theme_night === 'object' ? config.theme_night : undefined,
-		day_night: dayNight,
-		rail: rail.map((widget, index) => ({
+	const takenWidgetIds: string[] = [];
+	const normalizedRail = rail
+		.filter(
+			(widget) => widget && typeof widget === 'object' && VALID_RAIL_WIDGET_TYPES.has(widget.type)
+		)
+		.map((widget, index) => ({
 			...widget,
-			id: widget.id ?? `widget-${index}`,
+			id: reserveId(widget.id, `widget-${index}`, takenWidgetIds),
 			...(widget.type === 'calendar'
 				? {
 						entities: (Array.isArray(widget.entities) ? widget.entities : []).filter(
@@ -1125,7 +1289,14 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			...(widget.type === 'fusion' ? { height: normalizeHeight(widget.height) } : {}),
 			hide_mobile: widget.hide_mobile === true ? true : undefined,
 			visibility: normalizeVisibility(widget.visibility)
-		})),
+		}));
+
+	return {
+		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
+		theme_night:
+			config.theme_night && typeof config.theme_night === 'object' ? config.theme_night : undefined,
+		day_night: dayNight,
+		rail: normalizedRail,
 		rooms,
 		screensaver_minutes:
 			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,

@@ -2,7 +2,7 @@
 	import { autocompleteList } from '$lib/Stores';
 	import * as parser from 'js-yaml';
 	import { editor, hearthConfig, updateConfig } from '../store';
-	import { normalizeHearthConfig } from '../config';
+	import { hearthConfigIssues, normalizeHearthConfig } from '../config';
 	import EditSheet from './EditSheet.svelte';
 
 	// snapshot at open time - the editor owns the draft until Apply/discard,
@@ -18,7 +18,8 @@
 			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
 				return 'Configuration must be a YAML mapping';
 			}
-			return null;
+			const issues = hearthConfigIssues(parsed);
+			return issues.length ? issues.slice(0, 5).join('; ') : null;
 		} catch (parseError) {
 			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML';
 		}
