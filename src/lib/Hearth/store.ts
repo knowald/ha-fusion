@@ -195,6 +195,7 @@ export function setControlOverride(key: string, value: number, ttl = 2000) {
 	clearTimeout(overrideTimers[key]);
 	controlOverrides.update((current) => ({ ...current, [key]: value }));
 	overrideTimers[key] = setTimeout(() => {
+		delete overrideTimers[key];
 		controlOverrides.update((current) => {
 			const next = { ...current };
 			delete next[key];
@@ -227,20 +228,28 @@ export function controlValueFor(
 
 // trailing-edge throttle per key so drags emit at most one service call per
 // interval but the final value is always sent
-const throttleState: Record<string, { last: number; timer?: ReturnType<typeof setTimeout> }> = {};
+const throttleState: Record<
+	string,
+	{ last: number; timer?: ReturnType<typeof setTimeout>; cleanup?: ReturnType<typeof setTimeout> }
+> = {};
 
 function throttled(key: string, fn: () => void, interval = 200) {
 	const entry = (throttleState[key] ??= { last: 0 });
 	clearTimeout(entry.timer);
-	const elapsed = Date.now() - entry.last;
-	if (elapsed >= interval) {
+	clearTimeout(entry.cleanup);
+	const run = () => {
+		entry.timer = undefined;
 		entry.last = Date.now();
 		fn();
+		entry.cleanup = setTimeout(() => {
+			if (throttleState[key] === entry && !entry.timer) delete throttleState[key];
+		}, interval);
+	};
+	const elapsed = Date.now() - entry.last;
+	if (elapsed >= interval) {
+		run();
 	} else {
-		entry.timer = setTimeout(() => {
-			entry.last = Date.now();
-			fn();
-		}, interval - elapsed);
+		entry.timer = setTimeout(run, interval - elapsed);
 	}
 }
 
@@ -281,6 +290,8 @@ function reportCommandFailure(entityId: string | null, error: unknown) {
 
 function clearPending(entityId: string) {
 	clearTimeout(pendingTimers[entityId]);
+	delete pendingTimers[entityId];
+	delete pendingBaselines[entityId];
 	pendingEntities.update((current) => {
 		if (!(entityId in current)) return current;
 		const next = { ...current };
@@ -294,23 +305,23 @@ function markPending(entityId: string, ttl = 5000) {
 	if (get(hearthEditMode)) return;
 	clearTimeout(pendingTimers[entityId]);
 	pendingEntities.update((current) => ({ ...current, [entityId]: true }));
+	pendingBaselines[entityId] = get(states)?.[entityId];
 	pendingTimers[entityId] = setTimeout(() => clearPending(entityId), ttl);
 }
 
 // subscribeEntities replaces an entity's object only when it changed, so an
 // identity check per pending entity detects the confirming update
-let previousStates: HassEntities | undefined;
+const pendingBaselines: Record<string, HassEntity | undefined> = {};
 states.subscribe(($states) => {
 	if ($states) {
 		for (const entityId of Object.keys(get(pendingEntities))) {
-			const previous = previousStates?.[entityId];
+			const previous = pendingBaselines[entityId];
 			if (previous && $states[entityId] && previous !== $states[entityId]) {
 				clearPending(entityId);
 				clearControlOverridesForEntity(entityId);
 			}
 		}
 	}
-	previousStates = $states;
 });
 
 function service(domain: string, name: string, data: Record<string, unknown>) {

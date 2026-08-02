@@ -51,6 +51,13 @@ const options = {
 
 let tokenPromptOpen = false;
 
+function trackSubscription(subscription: Promise<unknown>, channel: string) {
+	void subscription.catch((error) => {
+		console.error(`Home Assistant ${channel} subscription failed`, error);
+		connected.set(false);
+	});
+}
+
 export async function authentication(configuration: Configuration) {
 	if (!configuration?.hassUrl) {
 		connected.set(false);
@@ -106,19 +113,13 @@ export async function authentication(configuration: Configuration) {
 		connected.set(true);
 
 		// states
-		subscribeEntities(conn, (hassEntities) => {
-			states.set(hassEntities);
-		});
+		subscribeEntities(conn, (hassEntities) => states.set(hassEntities));
 
 		// config
-		subscribeConfig(conn, (hassConfig) => {
-			config.set(hassConfig);
-		});
+		subscribeConfig(conn, (hassConfig) => config.set(hassConfig));
 
 		// services
-		subscribeServices(conn, (hassServices) => {
-			services.set(hassServices);
-		});
+		subscribeServices(conn, (hassServices) => services.set(hassServices));
 
 		// events
 		conn.addEventListener('ready', () => {
@@ -142,61 +143,67 @@ export async function authentication(configuration: Configuration) {
 		}
 
 		// custom events
-		conn?.subscribeMessage(
-			(message: any) => {
-				const trigger = message?.variables?.trigger?.event?.data?.event;
+		trackSubscription(
+			conn.subscribeMessage(
+				(message: any) => {
+					const trigger = message?.variables?.trigger?.event?.data?.event;
 
-				// close_popup
-				if (trigger === 'close_popup') {
-					event.set('close_popup');
-					closeModal();
-				}
+					// close_popup
+					if (trigger === 'close_popup') {
+						event.set('close_popup');
+						closeModal();
+					}
 
-				// refresh
-				else if (trigger === 'refresh') {
-					sessionStorage.setItem('event', 'refresh');
-					location.reload();
+					// refresh
+					else if (trigger === 'refresh') {
+						sessionStorage.setItem('event', 'refresh');
+						location.reload();
+					}
+				},
+				{
+					type: 'subscribe_trigger',
+					trigger: {
+						platform: 'event',
+						event_type: 'HA_FUSION'
+					}
 				}
-			},
-			{
-				type: 'subscribe_trigger',
-				trigger: {
-					platform: 'event',
-					event_type: 'HA_FUSION'
-				}
-			}
+			),
+			'HA_FUSION events'
 		);
 
 		// notifications
-		conn?.subscribeMessage(
-			(data: {
-				type: 'added' | 'removed' | 'current' | 'updated';
-				notifications: Record<string, PersistentNotification>;
-			}) => {
-				// initial
-				if (data?.type === 'current') {
-					persistentNotifications.set(data?.notifications);
+		trackSubscription(
+			conn.subscribeMessage(
+				(data: {
+					type: 'added' | 'removed' | 'current' | 'updated';
+					notifications: Record<string, PersistentNotification>;
+				}) => {
+					// initial
+					if (data?.type === 'current') {
+						persistentNotifications.set(data?.notifications);
 
-					// update
-				} else if (data?.type === 'added' || data?.type === 'updated') {
-					persistentNotifications.update((notifications) => ({
-						...notifications,
-						...data?.notifications
-					}));
+						// update
+					} else if (data?.type === 'added' || data?.type === 'updated') {
+						persistentNotifications.update((notifications) => ({
+							...notifications,
+							...data?.notifications
+						}));
 
-					// remove
-				} else if (data?.type === 'removed') {
-					persistentNotifications.update((notifications) => {
-						Object.keys(data?.notifications).forEach((notificationId) => {
-							delete notifications[notificationId];
+						// remove
+					} else if (data?.type === 'removed') {
+						persistentNotifications.update((notifications) => {
+							Object.keys(data?.notifications).forEach((notificationId) => {
+								delete notifications[notificationId];
+							});
+							return { ...notifications };
 						});
-						return { ...notifications };
-					});
+					}
+				},
+				{
+					type: 'persistent_notification/subscribe'
 				}
-			},
-			{
-				type: 'persistent_notification/subscribe'
-			}
+			),
+			'persistent notifications'
 		);
 	} catch (_error) {
 		handleError(_error);

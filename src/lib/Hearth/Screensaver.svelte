@@ -10,12 +10,21 @@
 	let overlay: HTMLElement | undefined = $state();
 
 	let lastActivity = Date.now();
+	let idleTimer: ReturnType<typeof setTimeout>;
+
+	function scheduleIdle() {
+		clearTimeout(idleTimer);
+		if (active) return;
+		const remaining = Math.max(0, minutes * 60_000 - (Date.now() - lastActivity));
+		idleTimer = setTimeout(() => (active = true), remaining);
+	}
 
 	// pointermove fires continuously, so cap timestamp writes to one per second
 	function recordActivity() {
 		const stamp = Date.now();
 		if (stamp - lastActivity < 1000) return;
 		lastActivity = stamp;
+		scheduleIdle();
 	}
 
 	function dismiss(event: Event) {
@@ -24,17 +33,16 @@
 		event.stopPropagation();
 		lastActivity = Date.now();
 		active = false;
+		scheduleIdle();
 	}
 
 	$effect(() => {
 		const events = ['pointerdown', 'pointermove', 'keydown', 'touchstart'] as const;
 		for (const name of events) window.addEventListener(name, recordActivity, { passive: true });
-		const idleTimer = setInterval(() => {
-			if (!active && Date.now() - lastActivity >= minutes * 60_000) active = true;
-		}, 1000);
+		scheduleIdle();
 		return () => {
 			for (const name of events) window.removeEventListener(name, recordActivity);
-			clearInterval(idleTimer);
+			clearTimeout(idleTimer);
 		};
 	});
 

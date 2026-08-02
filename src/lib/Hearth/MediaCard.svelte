@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { states } from '$lib/Stores';
 	import { horizontalDrag } from './drag';
 	import type { OverviewCard } from './config';
@@ -19,17 +18,19 @@
 
 	let now = $state(Date.now());
 
-	onMount(() => {
-		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => clearInterval(timer);
-	});
-
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
 	let attributes = $derived(entity?.attributes ?? {});
 	let playing = $derived(entity?.state === 'playing');
 	let hasTrack = $derived(playing || entity?.state === 'paused');
 	let duration = $derived(attributes.media_duration ?? 0);
+
+	$effect(() => {
+		if (!playing) return;
+		now = Date.now();
+		const timer = setInterval(() => (now = Date.now()), 1000);
+		return () => clearInterval(timer);
+	});
 
 	// interpolate between websocket updates while playing
 	let position = $derived.by(() => {

@@ -18,6 +18,7 @@
 	const GAP = 10;
 
 	let card = $state<HTMLElement | undefined>();
+	let positionFrame = 0;
 	let placement = $state<{
 		left: number;
 		top: number;
@@ -72,6 +73,14 @@
 		};
 	}
 
+	function schedulePosition() {
+		if (positionFrame) return;
+		positionFrame = requestAnimationFrame(() => {
+			positionFrame = 0;
+			position();
+		});
+	}
+
 	/**
 	 * The card is measured before it is placed, so it stays hidden for the first
 	 * frame rather than flashing at the top-left corner. Both boxes are observed:
@@ -81,11 +90,13 @@
 	$effect(() => {
 		if (!card) return;
 		position();
-		const observer = new ResizeObserver(position);
+		const observer = new ResizeObserver(schedulePosition);
 		observer.observe(card);
 		observer.observe(anchor);
 		openPopovers.update((count) => count + 1);
 		return () => {
+			cancelAnimationFrame(positionFrame);
+			positionFrame = 0;
 			observer.disconnect();
 			openPopovers.update((count) => Math.max(0, count - 1));
 			// the row that opened this is where the user was
@@ -101,7 +112,11 @@
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} onresize={position} onscrollcapture={position} />
+<svelte:window
+	onkeydown={handleKeydown}
+	onresize={schedulePosition}
+	onscrollcapture={schedulePosition}
+/>
 
 <div
 	class="scrim"

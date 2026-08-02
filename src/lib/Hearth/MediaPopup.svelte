@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { states } from '$lib/Stores';
 	import { horizontalDrag } from './drag';
 	import {
@@ -41,17 +40,19 @@
 
 	let now = $state(Date.now());
 
-	onMount(() => {
-		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => clearInterval(timer);
-	});
-
 	let player = $derived($states?.[entity]);
 	let attributes = $derived(player?.attributes ?? {});
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let features = $derived(Number(attributes.supported_features ?? 0));
 	let playing = $derived(player?.state === 'playing');
 	let duration = $derived(attributes.media_duration ?? 0);
+
+	$effect(() => {
+		if (!playing) return;
+		now = Date.now();
+		const timer = setInterval(() => (now = Date.now()), 1000);
+		return () => clearInterval(timer);
+	});
 	let spotify = $derived(hasSpotifyPlus(attributes));
 
 	let appLabel = $derived(
