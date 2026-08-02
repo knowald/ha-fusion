@@ -49,10 +49,12 @@ const options = {
 	}
 };
 
+let tokenPromptOpen = false;
+
 export async function authentication(configuration: Configuration) {
 	if (!configuration?.hassUrl) {
-		console.error('hassUrl is undefined...');
-		return;
+		connected.set(false);
+		throw new Error('Home Assistant URL is not configured');
 	}
 
 	let auth: Auth | undefined;
@@ -65,8 +67,14 @@ export async function authentication(configuration: Configuration) {
 			// companion app and ingress causes issues with auth redirect
 			// open special modal to enter long lived access token
 		} else if (navigator.userAgent.includes('Home Assistant')) {
-			openModal(() => import('$lib/Components/TokenModal.svelte'));
-			return;
+			if (!tokenPromptOpen) {
+				tokenPromptOpen = true;
+				openModal(() => import('$lib/Components/TokenModal.svelte'));
+			}
+			connected.set(false);
+			// This is not a successful authentication: callers must retain their
+			// retry loop until the modal supplies a long-lived token.
+			throw new Error('A long-lived access token is required in the companion app');
 
 			// default auth flow
 		} else {
@@ -90,6 +98,7 @@ export async function authentication(configuration: Configuration) {
 
 		// connection
 		const conn = await createConnection({ auth });
+		tokenPromptOpen = false;
 		connection.set(conn);
 
 		// the lib fires "ready" inside the Connection constructor, before any
