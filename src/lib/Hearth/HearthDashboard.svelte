@@ -451,13 +451,13 @@
 		}
 	}
 
-	:global(html.theme-fade),
-	:global(html.theme-fade *) {
+	/* Theme changes animate only the composited dashboard backdrop. Descendant
+	   tokens switch atomically instead of forcing a four-property repaint of
+	   every node in the tree. */
+	:global(html.theme-fade) .frame {
 		transition:
 			background-color 600ms ease,
-			border-color 600ms ease,
-			box-shadow 600ms ease,
-			color 600ms ease !important;
+			color 600ms ease;
 	}
 
 	.frame {

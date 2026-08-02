@@ -67,8 +67,10 @@
 		onpointerdown={dismiss}
 		onkeydown={dismiss}
 	>
-		<div class="clock">{time}</div>
-		<div class="date">{date}</div>
+		<div class="screensaver-content">
+			<div class="clock">{time}</div>
+			<div class="date">{date}</div>
+		</div>
 	</div>
 {/if}
 
@@ -77,14 +79,19 @@
 		position: fixed;
 		inset: 0;
 		z-index: 100;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		background: var(--h-bg-1);
+		display: grid;
+		place-items: center;
+		background: #030201;
 		font-family: var(--h-font-ui);
 		outline: none;
 		cursor: default;
+	}
+
+	.screensaver-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		animation: screensaver-drift 90s ease-in-out infinite alternate;
 	}
 
 	.clock {
@@ -92,13 +99,34 @@
 		font-weight: 600;
 		line-height: 1;
 		letter-spacing: -4px;
-		color: var(--h-text-6);
+		color: rgb(var(--h-line-rgb) / 0.32);
 	}
 
 	.date {
 		font-size: 20px;
 		margin-top: 18px;
 		letter-spacing: 0.2px;
-		color: var(--h-text-6);
+		color: rgb(var(--h-line-rgb) / 0.24);
+	}
+
+	@keyframes screensaver-drift {
+		0% {
+			transform: translate(-7vw, -5vh);
+		}
+		33% {
+			transform: translate(6vw, -2vh);
+		}
+		66% {
+			transform: translate(-3vw, 6vh);
+		}
+		100% {
+			transform: translate(7vw, 4vh);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.screensaver-content {
+			animation: none;
+		}
 	}
 </style>
