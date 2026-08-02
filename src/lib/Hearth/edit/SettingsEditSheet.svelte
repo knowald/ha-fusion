@@ -7,6 +7,7 @@
 	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import Icon from '../Icon.svelte';
+	import { wakeLockState } from '../wakeLock';
 
 	let screensaver = $derived(String($hearthConfig.screensaver_minutes ?? 0));
 	let keepScreenOn = $derived($hearthConfig.keep_screen_on ?? true);
@@ -238,6 +239,18 @@
 						<div class="knob"></div>
 					</div>
 				</div>
+				{#if keepScreenOn && ($wakeLockState === 'unsupported' || $wakeLockState === 'denied')}
+					<div class="setting-warning" role="alert">
+						<Icon name="warning" size={18} />
+						<span>
+							{#if $wakeLockState === 'unsupported'}
+								Screen wake lock is unavailable. Open Hearth over HTTPS or Home Assistant Ingress.
+							{:else}
+								The browser denied the screen wake lock. Check permissions or battery saver.
+							{/if}
+						</span>
+					</div>
+				{/if}
 				<div class="row">
 					<div class="row-main">
 						<div class="row-label">Side padding</div>
@@ -599,5 +612,17 @@
 		font-size: 12px;
 		color: var(--h-bad-text);
 		margin: 8px 2px 0;
+	}
+
+	.setting-warning {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		padding: 10px 14px;
+		border-top: 1px solid rgb(var(--h-bad-rgb) / 0.22);
+		background: rgb(var(--h-bad-rgb) / 0.06);
+		color: var(--h-bad-text);
+		font-size: 12px;
+		line-height: 1.4;
 	}
 </style>

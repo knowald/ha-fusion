@@ -1,4 +1,8 @@
 import type { Action } from 'svelte/action';
+import { writable } from 'svelte/store';
+
+export type WakeLockState = 'disabled' | 'requesting' | 'active' | 'unsupported' | 'denied';
+export const wakeLockState = writable<WakeLockState>('disabled');
 
 /**
  * Keeps the screen awake via navigator.wakeLock while the parameter is true.
@@ -11,22 +15,37 @@ export const wakeLock: Action<HTMLElement, boolean> = (node, enabled) => {
 	let sentinel: WakeLockSentinel | null = null;
 
 	async function acquire() {
-		if (!wanted || !('wakeLock' in navigator)) return;
+		if (!wanted) {
+			wakeLockState.set('disabled');
+			return;
+		}
+		if (!('wakeLock' in navigator)) {
+			wakeLockState.set('unsupported');
+			return;
+		}
 		if (document.visibilityState !== 'visible') return;
 		if (sentinel && !sentinel.released) return;
+		wakeLockState.set('requesting');
 		try {
 			const lock = await navigator.wakeLock.request('screen');
 			// the parameter may have flipped while the request was in flight
-			if (wanted) sentinel = lock;
-			else lock.release().catch(() => {});
+			if (wanted) {
+				sentinel = lock;
+				wakeLockState.set('active');
+				lock.addEventListener('release', () => {
+					if (sentinel === lock) sentinel = null;
+					if (wanted) wakeLockState.set('requesting');
+				});
+			} else lock.release().catch(() => {});
 		} catch {
-			// denied (battery saver, permission policy) - screen dims as usual
+			wakeLockState.set('denied');
 		}
 	}
 
 	function release() {
 		sentinel?.release().catch(() => {});
 		sentinel = null;
+		if (!wanted) wakeLockState.set('disabled');
 	}
 
 	function handleVisibility() {
