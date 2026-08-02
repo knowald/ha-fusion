@@ -259,32 +259,120 @@ export interface HearthConfig {
 	padding_y?: number;
 }
 
-export const RAIL_WIDGET_TYPES: { value: RailWidget['type']; label: string }[] = [
-	{ value: 'clock', label: 'Clock' },
-	{ value: 'weather', label: 'Weather' },
-	{ value: 'nav', label: 'Page navigation' },
-	{ value: 'spacer', label: 'Spacer' },
-	{ value: 'label', label: 'Section label' },
-	{ value: 'energy', label: 'Energy today' },
-	{ value: 'progress', label: 'Progress (running activity)' },
-	{ value: 'calendar', label: 'Calendar (next event)' },
-	{ value: 'status', label: 'Status pill' },
-	{ value: 'entity', label: 'Entity' },
-	{ value: 'fusion', label: 'Fusion widget (graph, bar, camera, ...)' }
-];
+export interface HearthTypeDescriptor<T extends string> {
+	value: T;
+	label: string;
+	name: string;
+	sub: string;
+	icon: string;
+}
 
-export const OVERVIEW_CARD_TYPES: { value: OverviewCard['type']; label: string }[] = [
-	{ value: 'entities', label: 'Entity grid' },
-	{ value: 'header', label: 'Header' },
-	{ value: 'temperature', label: 'Sensor reading + sparkline' },
-	{ value: 'media', label: 'Media player' },
-	{ value: 'vacuum', label: 'Vacuum' },
-	{ value: 'camera', label: 'Camera' },
-	{ value: 'image', label: 'Image' },
-	{ value: 'climate', label: 'Climate (thermostat)' },
-	{ value: 'scenes', label: 'Scenes (chips or bar)' },
-	{ value: 'fusion', label: 'Fusion object (template, picture elements, ...)' }
-];
+/** Single source of truth for rail validation and the add-widget gallery. */
+export const RAIL_WIDGET_TYPES = [
+	{ value: 'clock', label: 'Clock', name: 'Clock', sub: 'time + date', icon: 'schedule' },
+	{
+		value: 'weather',
+		label: 'Weather',
+		name: 'Weather',
+		sub: 'current + forecast',
+		icon: 'clear_day'
+	},
+	{
+		value: 'nav',
+		label: 'Page navigation',
+		name: 'Room navigation',
+		sub: 'room links',
+		icon: 'home'
+	},
+	{ value: 'spacer', label: 'Spacer', name: 'Spacer', sub: 'flexible gap', icon: 'unfold_more' },
+	{
+		value: 'label',
+		label: 'Section label',
+		name: 'Section label',
+		sub: 'small heading',
+		icon: 'label'
+	},
+	{ value: 'energy', label: 'Energy today', name: 'Energy today', sub: 'kWh + cost', icon: 'bolt' },
+	{
+		value: 'progress',
+		label: 'Progress (running activity)',
+		name: 'Progress',
+		sub: 'running activity',
+		icon: 'progress_activity'
+	},
+	{
+		value: 'calendar',
+		label: 'Calendar (next event)',
+		name: 'Calendar',
+		sub: 'next event',
+		icon: 'event'
+	},
+	{ value: 'status', label: 'Status pill', name: 'Status pill', sub: 'icon + text', icon: 'eco' },
+	{
+		value: 'entity',
+		label: 'Entity',
+		name: 'Entity',
+		sub: 'value from an entity',
+		icon: 'monitoring'
+	},
+	{
+		value: 'fusion',
+		label: 'Fusion widget (graph, bar, camera, ...)',
+		name: 'Fusion widget',
+		sub: 'graphs, cameras, more',
+		icon: 'widgets'
+	}
+] satisfies HearthTypeDescriptor<RailWidget['type']>[];
+
+/** Single source of truth for card validation and the add-card gallery. */
+export const OVERVIEW_CARD_TYPES = [
+	{
+		value: 'entities',
+		label: 'Entity grid',
+		name: 'Entities',
+		sub: 'tiles or readings',
+		icon: 'grid_view'
+	},
+	{
+		value: 'header',
+		label: 'Header',
+		name: 'Header',
+		sub: 'title and room stats',
+		icon: 'view_agenda'
+	},
+	{
+		value: 'temperature',
+		label: 'Sensor reading + sparkline',
+		name: 'Sensor',
+		sub: 'reading and history',
+		icon: 'monitoring'
+	},
+	{ value: 'media', label: 'Media player', name: 'Media', sub: 'now playing', icon: 'music_note' },
+	{ value: 'vacuum', label: 'Vacuum', name: 'Vacuum', sub: 'cleaning control', icon: 'robot_2' },
+	{ value: 'camera', label: 'Camera', name: 'Camera', sub: 'live camera feed', icon: 'videocam' },
+	{ value: 'image', label: 'Image', name: 'Image', sub: 'maps and still images', icon: 'image' },
+	{
+		value: 'climate',
+		label: 'Climate (thermostat)',
+		name: 'Climate',
+		sub: 'thermostat control',
+		icon: 'thermostat'
+	},
+	{
+		value: 'scenes',
+		label: 'Scenes (chips or bar)',
+		name: 'Scenes',
+		sub: 'scene shortcuts',
+		icon: 'palette'
+	},
+	{
+		value: 'fusion',
+		label: 'Fusion object (template, picture elements, ...)',
+		name: 'Fusion',
+		sub: 'legacy objects',
+		icon: 'widgets'
+	}
+] satisfies HearthTypeDescriptor<OverviewCard['type']>[];
 
 const VALID_CARD_TYPES = new Set<string>(OVERVIEW_CARD_TYPES.map(({ value }) => value));
 const VALID_RAIL_WIDGET_TYPES = new Set<string>(RAIL_WIDGET_TYPES.map(({ value }) => value));

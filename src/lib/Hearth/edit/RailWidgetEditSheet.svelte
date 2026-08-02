@@ -5,6 +5,7 @@
 		FUSION_WIDGET_TYPES,
 		normalizeVisibility,
 		PRESS_RIPPLE,
+		RAIL_WIDGET_TYPES,
 		slugify,
 		uniqueId,
 		type RailWidget,
@@ -22,20 +23,6 @@
 	import YamlField from './YamlField.svelte';
 
 	let { index }: { index: number | null } = $props();
-
-	const GALLERY: { value: RailWidget['type']; name: string; sub: string; icon: string }[] = [
-		{ value: 'clock', name: 'Clock', sub: 'time + date', icon: 'schedule' },
-		{ value: 'weather', name: 'Weather', sub: 'current + forecast', icon: 'clear_day' },
-		{ value: 'nav', name: 'Room navigation', sub: 'room links', icon: 'home' },
-		{ value: 'spacer', name: 'Spacer', sub: 'flexible gap', icon: 'unfold_more' },
-		{ value: 'label', name: 'Section label', sub: 'small heading', icon: 'label' },
-		{ value: 'energy', name: 'Energy today', sub: 'kWh + cost', icon: 'bolt' },
-		{ value: 'progress', name: 'Progress', sub: 'running activity', icon: 'progress_activity' },
-		{ value: 'calendar', name: 'Calendar', sub: 'next event', icon: 'event' },
-		{ value: 'status', name: 'Status pill', sub: 'icon + text', icon: 'eco' },
-		{ value: 'entity', name: 'Entity', sub: 'value from an entity', icon: 'monitoring' },
-		{ value: 'fusion', name: 'Fusion widget', sub: 'graphs, cameras, more', icon: 'widgets' }
-	];
 
 	// initial value only - the sheet is remounted per editor target via {#key}
 	// svelte-ignore state_referenced_locally
@@ -120,8 +107,8 @@
 
 	let filteredGallery = $derived.by(() => {
 		const query = search.trim().toLowerCase();
-		if (!query) return GALLERY;
-		return GALLERY.filter(
+		if (!query) return RAIL_WIDGET_TYPES;
+		return RAIL_WIDGET_TYPES.filter(
 			(kind) => kind.name.toLowerCase().includes(query) || kind.sub.toLowerCase().includes(query)
 		);
 	});

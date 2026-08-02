@@ -46,6 +46,11 @@
 	{/if}
 {:else if widget.type === 'fusion'}
 	<FusionWidget {widget} />
+{:else if widget.type === 'spacer'}
+	<!-- Spacer layout is supplied by Rail.svelte. -->
+{:else}
+	{@const _exhaustive: never = widget}
+	{_exhaustive}
 {/if}
 
 <style>

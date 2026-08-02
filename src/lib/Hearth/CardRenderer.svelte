@@ -48,4 +48,7 @@
 	<ScenesCard {card} />
 {:else if card.type === 'fusion'}
 	<FusionCard {card} />
+{:else}
+	{@const _exhaustive: never = card}
+	{_exhaustive}
 {/if}

@@ -9,6 +9,7 @@
 		isStack,
 		moveItem,
 		normalizeVisibility,
+		OVERVIEW_CARD_TYPES,
 		PRESS_RIPPLE,
 		slugify,
 		takenCardIds,
@@ -40,19 +41,6 @@
 		index,
 		stackId
 	}: { roomId: string; column: number; index: number | null; stackId?: string } = $props();
-
-	const CARD_GALLERY: { value: OverviewCard['type']; name: string; sub: string; icon: string }[] = [
-		{ value: 'entities', name: 'Entities', sub: 'tiles or readings', icon: 'grid_view' },
-		{ value: 'header', name: 'Header', sub: 'title and room stats', icon: 'view_agenda' },
-		{ value: 'temperature', name: 'Sensor', sub: 'reading and history', icon: 'monitoring' },
-		{ value: 'media', name: 'Media', sub: 'now playing', icon: 'music_note' },
-		{ value: 'vacuum', name: 'Vacuum', sub: 'cleaning control', icon: 'robot_2' },
-		{ value: 'camera', name: 'Camera', sub: 'live camera feed', icon: 'videocam' },
-		{ value: 'image', name: 'Image', sub: 'maps and still images', icon: 'image' },
-		{ value: 'climate', name: 'Climate', sub: 'thermostat control', icon: 'thermostat' },
-		{ value: 'scenes', name: 'Scenes', sub: 'scene shortcuts', icon: 'palette' },
-		{ value: 'fusion', name: 'Fusion', sub: 'legacy objects', icon: 'widgets' }
-	];
 
 	// `column` indexes into the page's card columns; they are initialized on
 	// first write via ensureRoomCardColumns in done()
@@ -519,7 +507,9 @@
 		close();
 	}
 
-	let currentType = $derived(CARD_GALLERY.find((kind) => kind.value === type) ?? CARD_GALLERY[0]);
+	let currentType = $derived(
+		OVERVIEW_CARD_TYPES.find((kind) => kind.value === type) ?? OVERVIEW_CARD_TYPES[0]
+	);
 
 	function selectType(value: OverviewCard['type']) {
 		type = value;
@@ -973,7 +963,7 @@
 				</div>
 				<p class="popup-intro">Choose how this card presents its content.</p>
 				<div class="type-gallery">
-					{#each CARD_GALLERY as kind (kind.value)}
+					{#each OVERVIEW_CARD_TYPES as kind (kind.value)}
 						<button
 							type="button"
 							class="type-option"
