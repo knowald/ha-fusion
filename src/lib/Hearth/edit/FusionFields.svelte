@@ -5,7 +5,7 @@
 		| { key: string; label: string; control: 'entity'; domains?: string[] }
 		| { key: string; label: string; control: 'text' | 'numeric'; placeholder?: string }
 		| { key: string; label: string; control: 'select'; options: { value: string; label: string }[] }
-		| { key: string; label: string; control: 'check' }
+		| { key: string; label: string; control: 'check' | 'check-false' }
 		| { key: string; label: string; control: 'template' };
 
 	const GRAPH_PERIOD_OPTIONS = [
@@ -77,7 +77,58 @@
 		weather: [{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['weather'] }],
 		weather_forecast: [
 			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['weather'] }
-		]
+		],
+		entities: [
+			{ key: 'name', label: 'Name', control: 'text' },
+			{ key: 'wildcard', label: 'Entity wildcard', control: 'text', placeholder: 'light.kitchen_*' }
+		],
+		conditional_media: [
+			{ key: 'entity_id', label: 'Fallback entity', control: 'entity', domains: ['media_player'] },
+			{ key: 'name', label: 'Name', control: 'text' },
+			{ key: 'icon', label: 'Icon', control: 'text' },
+			{ key: 'timeout', label: 'Paused timeout (seconds)', control: 'numeric', placeholder: '900' },
+			{ key: 'show_timeout', label: 'Show paused timeout', control: 'check' },
+			{ key: 'marquee', label: 'Scroll long titles', control: 'check' }
+		],
+		spotify_player: [
+			{
+				key: 'entity_id',
+				label: 'Spotify media player',
+				control: 'entity',
+				domains: ['media_player']
+			},
+			{ key: 'name', label: 'Name', control: 'text' },
+			{ key: 'icon', label: 'Icon', control: 'text', placeholder: 'mdi:spotify' },
+			{ key: 'color', label: 'Accent color', control: 'text', placeholder: '#1ed760' },
+			{ key: 'show_progress', label: 'Show progress', control: 'check' },
+			{ key: 'default_device', label: 'Default Spotify Connect device', control: 'text' }
+		],
+		spotify_player_large: [
+			{
+				key: 'entity_id',
+				label: 'Spotify media player',
+				control: 'entity',
+				domains: ['media_player']
+			},
+			{ key: 'name', label: 'Name', control: 'text' },
+			{ key: 'icon', label: 'Icon', control: 'text', placeholder: 'mdi:spotify' },
+			{ key: 'color', label: 'Accent color', control: 'text', placeholder: '#1ed760' },
+			{ key: 'show_progress', label: 'Show progress', control: 'check' },
+			{ key: 'default_device', label: 'Default Spotify Connect device', control: 'text' }
+		],
+		divider: [
+			{
+				key: 'mode',
+				label: 'Style',
+				control: 'select',
+				options: [
+					{ value: '', label: 'Divider line' },
+					{ value: 'empty', label: 'Empty space' }
+				]
+			},
+			{ key: 'size', label: 'Empty-space height', control: 'numeric', placeholder: '50' }
+		],
+		notifications: [{ key: 'expand', label: 'Start collapsed', control: 'check-false' }]
 	};
 
 	export function fusionSpecKeys(type: string): string[] {
@@ -159,6 +210,11 @@
 		if (checked) options[key] = true;
 		else delete options[key];
 	}
+
+	function setFalseCheck(key: string, checked: boolean) {
+		if (checked) options[key] = false;
+		else delete options[key];
+	}
 </script>
 
 {#each fields as field (field.key)}
@@ -192,6 +248,15 @@
 				type="checkbox"
 				checked={!!options[field.key]}
 				onchange={(event) => setCheck(field.key, event.currentTarget.checked)}
+			/>
+			<span>{field.label}</span>
+		</label>
+	{:else if field.control === 'check-false'}
+		<label class="check">
+			<input
+				type="checkbox"
+				checked={options[field.key] === false}
+				onchange={(event) => setFalseCheck(field.key, event.currentTarget.checked)}
 			/>
 			<span>{field.label}</span>
 		</label>
