@@ -20,7 +20,7 @@ interface DragOptions {
 }
 
 /**
- * Horizontal drag-to-value with tap detection: movement under 4px counts as a
+ * Horizontal drag-to-value with tap detection: movement up to 10px counts as a
  * tap, anything more sets a 0-100 value from the pointer's position within the
  * element. Apply `touch-action: none` on the element so touch drags work.
  */
@@ -46,7 +46,7 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 
 	function handleMove(event: PointerEvent) {
 		if (!tracking || event.pointerId !== tracking.pointerId) return;
-		if (Math.abs(event.clientX - tracking.startX) > 4) tracking.moved = true;
+		if (Math.abs(event.clientX - tracking.startX) > 10) tracking.moved = true;
 		if (tracking.moved) {
 			current.set(Math.round(fraction(event) * 100), current.updateMode !== 'release');
 		}

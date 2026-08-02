@@ -50,6 +50,18 @@ describe('horizontalDrag', () => {
 		expect(secondTap).toHaveBeenCalledOnce();
 	});
 
+	it('does not turn ordinary ten-pixel tap drift into a value change', () => {
+		const node = new TestNode();
+		const set = vi.fn();
+		const tap = vi.fn();
+		horizontalDrag(node as unknown as HTMLElement, { set, tap });
+		node.dispatchEvent(pointer('pointerdown', 20));
+		node.dispatchEvent(pointer('pointermove', 30));
+		node.dispatchEvent(pointer('pointerup', 30));
+		expect(tap).toHaveBeenCalledOnce();
+		expect(set).not.toHaveBeenCalled();
+	});
+
 	it('cleans up a cancelled gesture without committing or tapping', () => {
 		const node = new TestNode();
 		const set = vi.fn();
