@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
+	import '@fontsource-variable/geist-mono';
+	import '@fontsource-variable/hanken-grotesk';
+	import '@material-symbols/font-400/rounded.css';
 	import { onDestroy } from 'svelte';
 	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
 	import { authentication } from '$lib/Socket';
@@ -79,16 +82,6 @@
 	<title>Hearth</title>
 	<link rel="manifest" href="{base}/hearth.webmanifest" />
 	<meta name="theme-color" content="#16110c" />
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap"
-		rel="stylesheet"
-	/>
-	<link
-		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block"
-		rel="stylesheet"
-	/>
 </svelte:head>
 
 <HearthDashboard />

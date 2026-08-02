@@ -22,6 +22,7 @@
 		word-wrap: normal;
 		direction: ltr;
 		-webkit-font-smoothing: antialiased;
+		font-feature-settings: 'liga';
 		font-variation-settings: 'FILL' 0;
 	}
 
