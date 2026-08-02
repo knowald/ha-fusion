@@ -9,6 +9,7 @@
 		type HearthConfig,
 		type OverviewCard
 	} from './config';
+	import { getHearthInteractionMode } from './interaction';
 	import { entityGroupSummary, hearthEditMode, updateConfig } from './store';
 	import AnchoredPopover from './AnchoredPopover.svelte';
 	import EntityGrid from './EntityGrid.svelte';
@@ -24,6 +25,8 @@
 		onentitiesreorder?: (entities: EntityRef[]) => void;
 		showEntityDragHandles?: boolean;
 	} = $props();
+
+	const preview = getHearthInteractionMode() === 'preview';
 
 	let summary = $derived(
 		entityGroupSummary(
@@ -48,11 +51,11 @@
 
 	// edit mode arranges cards; the row's own tap belongs to the edit chip there
 	function togglePopover() {
-		if (!$hearthEditMode) popoverOpen = !popoverOpen;
+		if (!$hearthEditMode || preview) popoverOpen = !popoverOpen;
 	}
 
 	$effect(() => {
-		if ($hearthEditMode) popoverOpen = false;
+		if ($hearthEditMode && !preview) popoverOpen = false;
 	});
 
 	function findCard(

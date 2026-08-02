@@ -12,6 +12,7 @@
 		type OverviewStack
 	} from './config';
 	import { onDndReceive } from './drag';
+	import { provideHearthInteractionMode } from './interaction';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
 	import AddTile from './AddTile.svelte';
 	import CardRenderer from './CardRenderer.svelte';
@@ -38,6 +39,8 @@
 		// leftover height rather than the page growing a scrollbar
 		clipToHeight?: boolean;
 	} = $props();
+
+	provideHearthInteractionMode(() => ($hearthEditMode ? 'layout-edit' : 'runtime'));
 
 	// Alt-drop duplicate: gives the clone (and, for a stack, every child) a
 	// fresh id the same way the "Add card" flow does.

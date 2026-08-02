@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { motion } from '$lib/Stores';
+	import { getHearthInteractionMode } from './interaction';
 	import { openPopovers } from './store';
 
 	let {
@@ -9,6 +10,8 @@
 		onclose,
 		children
 	}: { anchor: HTMLElement; onclose: () => void; children: Snippet } = $props();
+
+	const elevated = getHearthInteractionMode() === 'preview';
 
 	// distance kept from the viewport edges, and between anchor and card
 	const MARGIN = 14;
@@ -102,6 +105,7 @@
 
 <div
 	class="scrim"
+	class:elevated
 	role="presentation"
 	onclick={onclose}
 	transition:fade={{ duration: $motion ? 120 : 0 }}
@@ -109,6 +113,7 @@
 
 <div
 	class="card"
+	class:elevated
 	class:above={placement?.above}
 	class:tailed={placement?.tailed}
 	bind:this={card}
@@ -176,7 +181,16 @@
 		background: var(--h-sheet-1);
 		border-left: none;
 		border-top: none;
-		border-right: 1px solid rgb(var(--h-surface-rgb) / 0.13);
-		border-bottom: 1px solid rgb(var(--h-surface-rgb) / 0.13);
+		border-right: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
+		border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
+	}
+
+	/* Interactive card previews live inside the editor's z-index layer. */
+	.scrim.elevated {
+		z-index: 70;
+	}
+
+	.card.elevated {
+		z-index: 71;
 	}
 </style>
