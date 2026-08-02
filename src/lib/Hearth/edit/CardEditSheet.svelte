@@ -272,7 +272,7 @@
 		editor.set(null);
 	}
 
-	function buildCard(id: string): OverviewCard {
+	function buildKnownCard(id: string): OverviewCard {
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
 		const heightValue = parseInt(height, 10);
 		const cardHeight = Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined;
@@ -314,7 +314,10 @@
 				show_count: showCount || undefined,
 				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
 				readonly: gridReadonly || undefined,
-				slider_updates: gridSliderUpdates === 'release' ? 'release' : undefined,
+				slider_updates:
+					gridSliderUpdates === 'release' || gridSliderUpdates === 'continuous'
+						? gridSliderUpdates
+						: undefined,
 				collapsed: gridCollapsed || undefined,
 				icon: gridCollapsed ? gridIcon.trim() || undefined : undefined,
 				summary: gridCollapsed ? gridSummary.trim() || undefined : undefined,
@@ -429,6 +432,15 @@
 			};
 		}
 		return { id, type, entity: entity.trim() || undefined, visibility: visibilityValue };
+	}
+
+	function buildCard(id: string): OverviewCard {
+		// Unknown extension keys survive a no-op form edit. Switching type starts
+		// a new schema and intentionally leaves type-specific extensions behind.
+		return {
+			...(initial?.type === type ? initial : {}),
+			...buildKnownCard(id)
+		} as OverviewCard;
 	}
 
 	let previewCard = $derived.by(() => buildCard('preview'));

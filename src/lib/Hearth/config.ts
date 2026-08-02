@@ -772,6 +772,7 @@ function normalizeStack(
 			normalizeCard(child, `${id}-card-${index}`, registries, taken)
 		);
 	return {
+		...raw,
 		id,
 		kind: 'stack',
 		direction,
@@ -950,6 +951,7 @@ function normalizeRoom(
 			? Math.floor(raw.columns)
 			: undefined;
 	return {
+		...raw,
 		id,
 		name: trimmedOrUndefined(raw?.name) ?? id,
 		icon: trimmedOrUndefined(raw?.icon) ?? 'meeting_room',
@@ -1126,7 +1128,35 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 			visibility: normalizeVisibility(widget.visibility)
 		}));
 
+	const extensions = { ...config };
+	for (const key of [
+		'theme',
+		'theme_night',
+		'day_night',
+		'rail',
+		'rooms',
+		'screensaver_minutes',
+		'keep_screen_on',
+		'padding_x',
+		'padding_y',
+		// recognized legacy migration keys are consumed, not extensions
+		'lights',
+		'blinds',
+		'overview',
+		'city',
+		'weather_entity',
+		'average_temperature_entity',
+		'pm25_entity',
+		'humidity_entity',
+		'filters',
+		'media_entity',
+		'vacuum_entity'
+	]) {
+		delete extensions[key];
+	}
+
 	return {
+		...extensions,
 		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
 		theme_night:
 			config.theme_night && typeof config.theme_night === 'object' ? config.theme_night : undefined,

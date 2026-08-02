@@ -159,7 +159,7 @@
 		}
 	}
 
-	function buildWidget(id: string): RailWidget {
+	function buildKnownWidget(id: string): RailWidget {
 		const hide_mobile = hideMobile || undefined;
 		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
 		if (type === 'clock') {
@@ -265,6 +265,13 @@
 			};
 		}
 		return { id, type: type as 'nav' | 'spacer', hide_mobile, visibility: visibilityValue };
+	}
+
+	function buildWidget(id: string): RailWidget {
+		return {
+			...(initial?.type === type ? initial : {}),
+			...buildKnownWidget(id)
+		} as RailWidget;
 	}
 
 	let previewWidget = $derived.by(() => buildWidget('preview'));

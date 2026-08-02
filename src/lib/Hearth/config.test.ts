@@ -83,6 +83,34 @@ describe('normalizeHearthConfig', () => {
 			entities: [{ entity: 'light.desk', name: 'Desk' }]
 		});
 	});
+
+	it('preserves unknown extension keys at every config level', () => {
+		const config = normalizeHearthConfig({
+			x_vendor: { enabled: true },
+			rail: [],
+			rooms: [
+				{
+					id: 'home',
+					x_room: 'kept',
+					cards: [
+						[
+							{
+								id: 'stack',
+								kind: 'stack',
+								x_stack: 42,
+								cards: [{ id: 'header', type: 'header', title: 'Extension', x_card: true }]
+							}
+						]
+					]
+				}
+			]
+		} as any) as any;
+
+		expect(config.x_vendor).toEqual({ enabled: true });
+		expect(config.rooms[0].x_room).toBe('kept');
+		expect(config.rooms[0].cards[0][0].x_stack).toBe(42);
+		expect(config.rooms[0].cards[0][0].cards[0].x_card).toBe(true);
+	});
 });
 
 describe('hearthConfigIssues', () => {
