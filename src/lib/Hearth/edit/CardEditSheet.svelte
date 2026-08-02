@@ -19,13 +19,14 @@
 		type OverviewItem,
 		type VisibilityCondition
 	} from '../config';
-	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
+	import { editor, hearthConfig, updateConfig } from '../store';
 	import { openModal } from '$lib/Modals';
 	import { icons as pictureElementsIcons } from '$lib/Modal/PictureElements/icons';
-	import CardRenderer from '../CardRenderer.svelte';
+	import CardPreview from './CardPreview.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
 	import FusionFields, { applyLeftoverYaml, dumpLeftoverYaml } from './FusionFields.svelte';
+	import FormSection from './FormSection.svelte';
 	import Icon from '../Icon.svelte';
 	import IconField from './IconField.svelte';
 	import TextField from './TextField.svelte';
@@ -47,13 +48,14 @@
 		{ value: 'media', name: 'Media', sub: 'now playing', icon: 'music_note' },
 		{ value: 'vacuum', name: 'Vacuum', sub: 'cleaning control', icon: 'robot_2' },
 		{ value: 'camera', name: 'Camera', sub: 'live camera feed', icon: 'videocam' },
+		{ value: 'image', name: 'Image', sub: 'maps and still images', icon: 'image' },
 		{ value: 'climate', name: 'Climate', sub: 'thermostat control', icon: 'thermostat' },
 		{ value: 'scenes', name: 'Scenes', sub: 'scene shortcuts', icon: 'palette' },
 		{ value: 'fusion', name: 'Fusion', sub: 'legacy objects', icon: 'widgets' }
 	];
 
 	// `column` indexes into the page's card columns; they are initialized on
-	// first write via ensureRoomCardColumns in done()/moveCard
+	// first write via ensureRoomCardColumns in done()
 	function containerColumns(config: HearthConfig): OverviewItem[][] | undefined {
 		return config.rooms.find((entry) => entry.id === roomId)?.cards;
 	}
@@ -85,6 +87,15 @@
 		icon?: string;
 		display?: string;
 		readonly?: boolean;
+		slider_updates?: string;
+	};
+	type EditableVacuumMode = {
+		entity: string;
+		name?: string;
+		icon?: string;
+		detail?: string;
+		duration?: string;
+		default?: boolean;
 	};
 	type EditableSceneRef = {
 		entity: string;
@@ -127,6 +138,9 @@
 		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
 	);
 	let gridReadonly = $state(initial?.type === 'entities' ? (initial.readonly ?? false) : false);
+	let gridSliderUpdates = $state(
+		initial?.type === 'entities' ? (initial.slider_updates ?? 'continuous') : 'continuous'
+	);
 	let gridCollapsed = $state(initial?.type === 'entities' ? (initial.collapsed ?? false) : false);
 	let gridIcon = $state(initial?.type === 'entities' ? (initial.icon ?? '') : '');
 	let gridSummary = $state(initial?.type === 'entities' ? (initial.summary ?? '') : '');
@@ -142,13 +156,29 @@
 					name: ref.name ?? '',
 					icon: ref.icon ?? '',
 					display: ref.display ?? '',
-					readonly: ref.readonly ?? false
+					readonly: ref.readonly ?? false,
+					slider_updates: ref.slider_updates ?? ''
 				}))
 			: []
 	);
 	let entitiesOpen = $state(true);
 	let expandedEntityRows = $state<number[]>([]);
-	let previewReorder = $state(false);
+	let vacuumModes = $state<EditableVacuumMode[]>(
+		initial?.type === 'vacuum'
+			? (initial.modes ?? []).map((ref) => ({
+					entity: ref.entity ?? '',
+					name: ref.name ?? '',
+					icon: ref.icon ?? '',
+					detail: ref.detail ?? '',
+					duration: ref.duration ?? '',
+					default: ref.default ?? false
+				}))
+			: []
+	);
+	let vacuumBatteryEntity = $state(
+		initial?.type === 'vacuum' ? (initial.battery_entity ?? '') : ''
+	);
+	let vacuumBinEntity = $state(initial?.type === 'vacuum' ? (initial.bin_entity ?? '') : '');
 	let sceneStyle = $state<string>(
 		initial?.type === 'scenes' ? (initial.style ?? 'chips') : 'chips'
 	);
@@ -175,6 +205,14 @@
 	let advancedValid = $state(true);
 
 	const yamlPlaceholder = 'entity_id: light.living_room\nname: Living Room';
+
+	// only one mode carries the tag, so checking a row clears the rest
+	function setDefaultMode(index: number, checked: boolean) {
+		vacuumModes = vacuumModes.map((mode, position) => ({
+			...mode,
+			default: checked && position === index
+		}));
+	}
 
 	function withoutType(config: Record<string, any>) {
 		const options = { ...config };
@@ -235,9 +273,11 @@
 				? ['vacuum']
 				: type === 'camera'
 					? ['camera']
-					: type === 'climate'
-						? ['climate']
-						: ['sensor']
+					: type === 'image'
+						? ['image']
+						: type === 'climate'
+							? ['climate']
+							: ['sensor']
 	);
 
 	function close() {
@@ -286,6 +326,7 @@
 				show_count: showCount || undefined,
 				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
 				readonly: gridReadonly || undefined,
+				slider_updates: gridSliderUpdates === 'release' ? 'release' : undefined,
 				collapsed: gridCollapsed || undefined,
 				icon: gridCollapsed ? gridIcon.trim() || undefined : undefined,
 				summary: gridCollapsed ? gridSummary.trim() || undefined : undefined,
@@ -296,7 +337,11 @@
 						name: ref.name?.trim() || undefined,
 						icon: ref.icon?.trim() || undefined,
 						display: ref.display === 'stat' || ref.display === 'tile' ? ref.display : undefined,
-						readonly: ref.readonly || undefined
+						readonly: ref.readonly || undefined,
+						slider_updates:
+							ref.slider_updates === 'continuous' || ref.slider_updates === 'release'
+								? ref.slider_updates
+								: undefined
 					}))
 					.filter((ref) => ref.entity),
 				fill: cardFill,
@@ -310,6 +355,16 @@
 				title: title.trim() || undefined,
 				entity: entity.trim() || undefined,
 				stream: cameraStream || undefined,
+				fill: cardFill,
+				visibility: visibilityValue
+			};
+		}
+		if (type === 'image') {
+			return {
+				id,
+				type,
+				title: title.trim() || undefined,
+				entity: entity.trim() || undefined,
 				fill: cardFill,
 				visibility: visibilityValue
 			};
@@ -364,6 +419,27 @@
 				visibility: visibilityValue
 			};
 		}
+		if (type === 'vacuum') {
+			return {
+				id,
+				type,
+				entity: entity.trim() || undefined,
+				modes: vacuumModes
+					.map((ref) => ({
+						entity: ref.entity.trim(),
+						name: ref.name?.trim() || undefined,
+						icon: ref.icon?.trim() || undefined,
+						detail: ref.detail?.trim() || undefined,
+						duration: ref.duration?.trim() || undefined,
+						default: ref.default || undefined
+					}))
+					.filter((ref) => ref.entity),
+				battery_entity: vacuumBatteryEntity.trim() || undefined,
+				bin_entity: vacuumBinEntity.trim() || undefined,
+				fill: cardFill,
+				visibility: visibilityValue
+			};
+		}
 		return { id, type, entity: entity.trim() || undefined, visibility: visibilityValue };
 	}
 
@@ -382,7 +458,8 @@
 				name: ref.name ?? '',
 				icon: ref.icon ?? '',
 				display: ref.display ?? '',
-				readonly: ref.readonly ?? false
+				readonly: ref.readonly ?? false,
+				slider_updates: ref.slider_updates ?? ''
 			};
 		}
 		entities = next;
@@ -408,7 +485,14 @@
 	}
 
 	function addEntityRow() {
-		entities.push({ entity: '', name: '', icon: '', display: '', readonly: false });
+		entities.push({
+			entity: '',
+			name: '',
+			icon: '',
+			display: '',
+			readonly: false,
+			slider_updates: ''
+		});
 		entitiesOpen = true;
 		expandedEntityRows = [entities.length - 1];
 	}
@@ -435,75 +519,11 @@
 		close();
 	}
 
-	// Placement is deliberately separate from the settings form. Moving a card
-	// is an explicit operation; merely choosing a destination must not mutate the
-	// dashboard or remount this editor.
-	let canMove = $derived(index !== null);
-	let placementOpen = $state(false);
-	// The sheet is keyed by its editor target, so these are intentionally the
-	// initial placement whenever a card editor instance is mounted.
-	// svelte-ignore state_referenced_locally
-	let targetLocation = $state(roomId);
-	// svelte-ignore state_referenced_locally
-	let targetColumn = $state(String(column));
-	let locationOptions = $derived(
-		$hearthConfig.rooms.map((room) => ({ value: room.id, label: room.name }))
-	);
-	let targetColumnCount = $derived.by(() => {
-		const room = $hearthConfig.rooms.find((entry) => entry.id === targetLocation);
-		return Math.max(1, room?.columns ?? room?.cards?.length ?? 1);
-	});
-	let targetColumnOptions = $derived(
-		Array.from({ length: targetColumnCount }, (_, columnIndex) => ({
-			value: String(columnIndex),
-			label: `Column ${columnIndex + 1}`
-		}))
-	);
-	let currentLocationName = $derived(
-		$hearthConfig.rooms.find((room) => room.id === roomId)?.name ?? 'Page'
-	);
 	let currentType = $derived(CARD_GALLERY.find((kind) => kind.value === type) ?? CARD_GALLERY[0]);
-	let samePlacement = $derived(
-		stackId === undefined && roomId === targetLocation && column === Number(targetColumn)
-	);
-
-	function selectTargetLocation(value: string) {
-		targetLocation = value;
-		targetColumn = '0';
-	}
 
 	function selectType(value: OverviewCard['type']) {
 		type = value;
 		typeOpen = false;
-	}
-
-	function moveCard() {
-		if (!canMove || samePlacement || index === null) return;
-		let newIndex = 0;
-		let newColumn = 0;
-		updateConfig((config) => {
-			const sourceCards = cardList(config);
-			if (!sourceCards) return;
-			const targetRoom = config.rooms.find((entry) => entry.id === targetLocation);
-			if (!targetRoom) return;
-			// persist in-progress field edits before the editor.set below remounts
-			// the sheet and discards local state
-			sourceCards[index] = buildCard(sourceCards[index].id);
-			const [card] = sourceCards.splice(index, 1);
-			const destinationColumns = ensureRoomCardColumns(targetRoom);
-			if (destinationColumns.length === 0) destinationColumns.push([]);
-			const destinationColumnIndex = Math.min(
-				Math.max(0, Number(targetColumn) || 0),
-				Math.max(0, destinationColumns.length - 1)
-			);
-			newColumn = destinationColumnIndex;
-			const destination = destinationColumns[destinationColumnIndex];
-			newIndex = destination.length;
-			destination.push(card);
-		});
-		// follow the card, otherwise Done returns to a page it no longer sits on
-		currentRoom.set(targetLocation);
-		editor.set({ kind: 'card', roomId: targetLocation, column: newColumn, index: newIndex });
 	}
 </script>
 
@@ -525,20 +545,9 @@
 					>
 					<Icon name="chevron_right" size={20} />
 				</button>
-				{#if canMove}
-					<button type="button" class="action-button" onclick={() => (placementOpen = true)}>
-						<span class="action-icon"><Icon name="dashboard" size={20} /></span>
-						<span class="action-copy"
-							><small>PLACEMENT</small><strong
-								>{currentLocationName} · {stackId ? 'Stack' : `Column ${column + 1}`}</strong
-							></span
-						>
-						<Icon name="chevron_right" size={20} />
-					</button>
-				{/if}
 			</div>
 
-			{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'climate' || type === 'scenes'}
+			{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'image' || type === 'climate' || type === 'scenes'}
 				<TextField
 					label="Title"
 					bind:value={title}
@@ -567,32 +576,70 @@
 				<TextField label="Unit" bind:value={unit} placeholder="°C" />
 			{/if}
 
-			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'climate'}
+			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'image' || type === 'climate'}
 				<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
 			{/if}
 
-			<SelectField
-				label="Fill leftover height"
-				bind:value={fill}
-				options={[
-					{ value: '', label: 'Default for this card type' },
-					{ value: '0', label: 'No, size to content' },
-					{ value: '1', label: 'Yes, one share' },
-					{ value: '2', label: 'Yes, double share' },
-					{ value: '3', label: 'Yes, triple share' }
-				]}
-			/>
-			<div class="hint">
-				Cards sharing a column split whatever height is left over, in proportion to their shares.
-				Only visible on a page set to fill the screen, or when a column is taller than its cards.
-			</div>
-
-			{#if type === 'temperature' || type === 'media' || type === 'fusion'}
-				<TextField label="Height in px (optional)" bind:value={height} placeholder="240" />
+			{#if type === 'vacuum'}
+				<EntityField
+					label="Battery entity (optional)"
+					bind:value={vacuumBatteryEntity}
+					domains={['sensor']}
+				/>
+				<EntityField
+					label="Dustbin entity (optional)"
+					bind:value={vacuumBinEntity}
+					domains={['sensor']}
+				/>
+				<div class="group-label">CLEANING MODES</div>
 				<div class="hint">
-					{type === 'fusion'
-						? 'Without it the embed keeps its own height.'
-						: 'Without it the card fills the rest of its column.'}
+					Button entities launched from the vacuum popover, in display order. Each runs on a single
+					tap, so give every mode the rooms it covers and how long it takes.
+				</div>
+				{#each vacuumModes as mode, modeIndex (modeIndex)}
+					<div class="filter-row">
+						<div class="filter-fields">
+							<EntityField label="Button entity" bind:value={mode.entity} domains={['button']} />
+							<TextField label="Name (optional)" bind:value={mode.name} />
+							<IconField label="Icon (optional)" bind:value={mode.icon} />
+							<TextField
+								label="Covers (optional)"
+								bind:value={mode.detail}
+								placeholder="Living + Bedroom"
+							/>
+							<TextField
+								label="Duration (optional)"
+								bind:value={mode.duration}
+								placeholder="26 min"
+							/>
+							<label class="check">
+								<input
+									type="checkbox"
+									checked={mode.default ?? false}
+									onchange={(event) => setDefaultMode(modeIndex, event.currentTarget.checked)}
+								/>
+								<span>Recommended mode</span>
+							</label>
+						</div>
+						<span class="remove" onclick={() => vacuumModes.splice(modeIndex, 1)}>
+							<Icon name="delete" size={20} />
+						</span>
+					</div>
+				{/each}
+				<div
+					class="add-filter"
+					onclick={() =>
+						vacuumModes.push({
+							entity: '',
+							name: '',
+							icon: '',
+							detail: '',
+							duration: '',
+							default: false
+						})}
+				>
+					<Icon name="add" size={18} />
+					<span>Add cleaning mode</span>
 				</div>
 			{/if}
 
@@ -629,6 +676,14 @@
 					options={[
 						{ value: '', label: 'Standard' },
 						{ value: 'compact', label: 'Compact' }
+					]}
+				/>
+				<SelectField
+					label="Slider commands"
+					bind:value={gridSliderUpdates}
+					options={[
+						{ value: 'continuous', label: 'While dragging' },
+						{ value: 'release', label: 'On release' }
 					]}
 				/>
 				<label class="check">
@@ -728,6 +783,15 @@
 												{ value: '', label: 'Card style' },
 												{ value: 'tile', label: 'Tile' },
 												{ value: 'stat', label: 'Stat box' }
+											]}
+										/>
+										<SelectField
+											label="Slider commands"
+											bind:value={ref.slider_updates}
+											options={[
+												{ value: '', label: 'Card setting' },
+												{ value: 'continuous', label: 'While dragging' },
+												{ value: 'release', label: 'On release' }
 											]}
 										/>
 										{#if !gridReadonly}
@@ -846,33 +910,40 @@
 				{/if}
 			{/if}
 
-			<VisibilityField bind:value={visibility} />
+			<FormSection title="LAYOUT">
+				<SelectField
+					label="Fill leftover height"
+					bind:value={fill}
+					options={[
+						{ value: '', label: 'Default for this card type' },
+						{ value: '0', label: 'No, size to content' },
+						{ value: '1', label: 'Yes, one share' },
+						{ value: '2', label: 'Yes, double share' },
+						{ value: '3', label: 'Yes, triple share' }
+					]}
+				/>
+				<div class="hint">
+					Cards sharing a column split whatever height is left over, in proportion to their shares.
+					Only visible on a page set to fill the screen, or when a column is taller than its cards.
+				</div>
+
+				{#if type === 'temperature' || type === 'media' || type === 'fusion'}
+					<TextField label="Height in px (optional)" bind:value={height} placeholder="240" />
+					<div class="hint">
+						{type === 'fusion'
+							? 'Without it the embed keeps its own height.'
+							: 'Without it the card fills the rest of its column.'}
+					</div>
+				{/if}
+
+				<VisibilityField bind:value={visibility} />
+			</FormSection>
 		</div>
 
-		<aside class="preview-pane">
-			<div class="preview-heading">
-				<div class="group-label first">LIVE PREVIEW</div>
-				{#if type === 'entities'}
-					<button
-						type="button"
-						class="preview-reorder-toggle"
-						class:active={previewReorder}
-						aria-pressed={previewReorder}
-						onclick={() => (previewReorder = !previewReorder)}
-					>
-						<Icon name="drag_indicator" size={16} />
-						{previewReorder ? 'Finish reorder' : 'Reorder'}
-					</button>
-				{/if}
-			</div>
-			<div class="preview" style:pointer-events={type === 'entities' ? undefined : 'none'}>
-				<CardRenderer
-					card={previewCard}
-					onentitiesreorder={type === 'entities' ? reorderPreviewEntities : undefined}
-					showEntityDragHandles={type === 'entities' && previewReorder}
-				/>
-			</div>
-		</aside>
+		<CardPreview
+			card={previewCard}
+			onentitiesreorder={type === 'entities' ? reorderPreviewEntities : undefined}
+		/>
 	</div>
 
 	{#if typeOpen}
@@ -921,50 +992,6 @@
 			</div>
 		</div>
 	{/if}
-
-	{#if placementOpen}
-		<div class="popup-backdrop" role="presentation" onclick={() => (placementOpen = false)}>
-			<div
-				class="action-popup placement-popup"
-				role="dialog"
-				tabindex="-1"
-				aria-modal="true"
-				aria-label="Move card"
-				onclick={(event) => event.stopPropagation()}
-				onkeydown={(event) => {
-					if (event.key === 'Escape') {
-						event.stopPropagation();
-						placementOpen = false;
-					}
-				}}
-			>
-				<div class="popup-header">
-					<div>
-						<small>STRUCTURE</small>
-						<h3>Move card</h3>
-					</div>
-					<button type="button" aria-label="Close" onclick={() => (placementOpen = false)}
-						><Icon name="close" size={22} /></button
-					>
-				</div>
-				<p class="popup-intro">
-					Currently in {currentLocationName} · {stackId ? 'Stack' : `Column ${column + 1}`}.
-				</p>
-				<div class="placement-controls">
-					<SelectField
-						label="Page"
-						value={targetLocation}
-						options={locationOptions}
-						onchange={selectTargetLocation}
-					/>
-					<SelectField label="Position" bind:value={targetColumn} options={targetColumnOptions} />
-					<button class="move-button" type="button" disabled={samePlacement} onclick={moveCard}
-						><Icon name="drive_file_move" size={18} />Move card</button
-					>
-				</div>
-			</div>
-		</div>
-	{/if}
 </EditSheet>
 
 <style>
@@ -976,10 +1003,6 @@
 		margin: 18px 0 10px;
 	}
 
-	.group-label.first {
-		margin-top: 0;
-	}
-
 	.card-editor-layout {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
@@ -987,48 +1010,8 @@
 		gap: 28px;
 	}
 
-	.card-settings,
-	.preview-pane {
+	.card-settings {
 		min-width: 0;
-	}
-
-	.preview-pane {
-		position: sticky;
-		top: 0;
-		align-self: start;
-	}
-
-	.preview-heading {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 12px;
-		margin-bottom: 10px;
-	}
-
-	.preview-heading .group-label {
-		margin-bottom: 0;
-	}
-
-	.preview-reorder-toggle {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-		padding: 5px 8px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.04);
-		color: var(--h-text-5);
-		font: inherit;
-		font-size: 11px;
-		cursor: pointer;
-	}
-
-	.preview-reorder-toggle:hover,
-	.preview-reorder-toggle.active {
-		border-color: rgb(var(--h-accent-rgb) / 0.35);
-		background: rgb(var(--h-accent-rgb) / 0.1);
-		color: var(--h-accent-text);
 	}
 
 	.type-gallery {
@@ -1051,9 +1034,9 @@
 		gap: 10px;
 		min-width: 0;
 		padding: 10px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.035);
+		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
 		color: var(--h-icon);
 		font: inherit;
 		text-align: left;
@@ -1061,15 +1044,15 @@
 	}
 
 	.action-button:hover {
-		border-color: rgb(var(--h-surface-rgb) / 0.16);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		border-color: rgb(var(--h-line-rgb) / calc(0.16 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
 
 	.action-icon {
 		display: flex;
 		padding: 7px;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
 
 	.action-copy {
@@ -1112,15 +1095,11 @@
 		width: min(620px, 100%);
 		max-height: min(680px, calc(100dvh - 40px));
 		padding: 22px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.1);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-lg);
 		background: var(--h-sheet-0);
 		box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
 		overflow: auto;
-	}
-
-	.action-popup.placement-popup {
-		width: min(520px, 100%);
 	}
 
 	.popup-header {
@@ -1141,7 +1120,7 @@
 		padding: 7px;
 		border: 0;
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.06);
+		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-icon);
 		cursor: pointer;
 	}
@@ -1152,46 +1131,15 @@
 		font-size: 13px;
 	}
 
-	.placement-controls {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		gap: 0 10px;
-		padding: 14px;
-		border-radius: var(--h-radius-sm);
-		background: var(--h-inset);
-	}
-
-	.move-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 7px;
-		grid-column: 1 / -1;
-		padding: 10px 14px;
-		border: 0;
-		border-radius: var(--h-radius-xs);
-		background: var(--h-accent-deep);
-		color: white;
-		font: inherit;
-		font-size: 13px;
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	.move-button:disabled {
-		opacity: 0.4;
-		cursor: default;
-	}
-
 	.type-option {
 		display: flex;
 		align-items: center;
 		gap: 10px;
 		min-width: 0;
 		padding: 11px 12px;
-		border: 1px solid rgb(var(--h-surface-rgb) / 0.08);
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / 0.035);
+		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
 		color: var(--h-text-4);
 		cursor: pointer;
 		user-select: none;
@@ -1199,9 +1147,9 @@
 	}
 
 	.type-option.selected {
-		background: rgb(var(--h-accent-rgb) / 0.14);
-		border-color: rgb(var(--h-accent-rgb) / 0.3);
-		color: var(--h-accent-bright);
+		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-accent-rgb) / calc(0.3 * var(--h-accent-scale)));
+		color: var(--h-accent-icon);
 	}
 
 	.type-icon {
@@ -1228,15 +1176,6 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.preview {
-		background: var(--h-inset);
-		border-radius: var(--h-radius-md);
-		padding: 14px;
-		margin-bottom: 14px;
-		max-height: calc(100dvh - 210px);
-		overflow: auto;
 	}
 
 	.advanced-toggle,
@@ -1297,7 +1236,7 @@
 	.entities-count {
 		padding: 2px 6px;
 		border-radius: 999px;
-		background: rgb(var(--h-surface-rgb) / 0.07);
+		background: rgb(var(--h-surface-rgb) / calc(0.07 * var(--h-fill-scale)));
 		color: var(--h-text-6);
 		font-family: var(--h-font-mono);
 		font-size: 10px;
@@ -1389,7 +1328,7 @@
 
 	.entity-row-fields {
 		padding: 0 12px 8px 39px;
-		border-top: 1px solid rgb(var(--h-surface-rgb) / 0.05);
+		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.05 * var(--h-line-scale)));
 	}
 
 	.remove {
@@ -1435,7 +1374,7 @@
 		gap: 8px;
 		padding: 12px;
 		border-radius: var(--h-radius-xs);
-		border: 1px dashed rgb(var(--h-surface-rgb) / 0.15);
+		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
 		font-size: 14px;
 		cursor: pointer;
@@ -1452,32 +1391,13 @@
 	}
 
 	@media (max-width: 820px) {
-		.card-actions,
-		.placement-controls {
+		.card-actions {
 			grid-template-columns: 1fr;
 		}
 
 		.card-editor-layout {
 			grid-template-columns: 1fr;
 			gap: 18px;
-		}
-
-		.preview-pane {
-			grid-row: 1;
-			z-index: 2;
-			padding: 12px;
-			margin: -12px -12px 0;
-			background: var(--h-sheet-0);
-			border-bottom: 1px solid rgb(var(--h-surface-rgb) / 0.08);
-		}
-
-		.preview-pane .group-label {
-			display: none;
-		}
-
-		.preview {
-			max-height: 30dvh;
-			margin-bottom: 0;
 		}
 	}
 </style>
