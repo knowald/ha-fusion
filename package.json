@@ -8,6 +8,7 @@
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"a11y_autofocus:ignore,a11y_click_events_have_key_events:ignore,a11y_consider_explicit_label:ignore,a11y_no_noninteractive_tabindex:ignore,a11y_no_static_element_interactions:ignore\"",
 		"check:watch": "npm run check -- --watch",
+		"test": "vitest run",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
@@ -36,7 +37,8 @@
 		"svelte-confetti": "^2.3.2",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.63.0",
-		"vite": "^8.1.4"
+		"vite": "^8.1.4",
+		"vitest": "^4.1.10"
 	},
 	"type": "module",
 	"dependencies": {
