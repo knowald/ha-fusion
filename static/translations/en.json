@@ -169,7 +169,7 @@
 	"hearth_command_failed": "Command failed",
 	"hearth_config_changed": "Configuration changed elsewhere",
 	"hearth_config_unreadable": "Hearth configuration is unreadable",
-	"hearth_connection_lost": "Connection lost. Reconnecting...",
+	"hearth_connection_lost": "Home Assistant connection lost. Reconnecting…",
 	"hearth_dismiss_screensaver": "Dismiss screensaver",
 	"hearth_edit_configuration": "Edit Hearth configuration",
 	"hearth_good_afternoon": "Good afternoon",
