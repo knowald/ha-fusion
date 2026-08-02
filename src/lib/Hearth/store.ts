@@ -440,9 +440,14 @@ export function setBlindPosition(entityId: string, position: number, commit = tr
 
 const MEDIA_OFF_STATES = ['off', 'unavailable', 'unknown', 'standby', 'idle'];
 
-export function entityOn(entityId: string, entity: HassEntity | undefined) {
+/** One domain-aware answer to whether an entity is visually active. */
+export function entityActive(entityId: string, entity: HassEntity | undefined) {
 	if (!entity) return false;
-	if (entityId.startsWith('media_player.')) return !MEDIA_OFF_STATES.includes(entity.state);
+	const domain = entityId.split('.')[0];
+	if (domain === 'cover' || domain === 'valve') return OPENING_STATES.includes(entity.state);
+	if (domain === 'lock') return entity.state === 'unlocked';
+	if (domain === 'media_player') return !MEDIA_OFF_STATES.includes(entity.state);
+	if (domain === 'vacuum') return entity.state === 'cleaning' || entity.state === 'returning';
 	return entity.state === 'on';
 }
 
@@ -620,14 +625,6 @@ const SUMMARY_DOMAINS = [
 	'humidifier'
 ];
 
-function groupActive(entityId: string, entity: HassEntity | undefined) {
-	if (!entity) return false;
-	const domain = entityId.split('.')[0];
-	if (domain === 'cover' || domain === 'valve') return OPENING_STATES.includes(entity.state);
-	if (domain === 'lock') return entity.state === 'unlocked';
-	return entityOn(entityId, entity);
-}
-
 /** Active/inactive wording for one entity. */
 function summaryWords(entityId: string, entity: HassEntity | undefined): [string, string] {
 	const domain = entityId.split('.')[0];
@@ -673,7 +670,7 @@ export function entityGroupSummary(
 	)
 		? words[0]
 		: (['on', 'off'] as [string, string]);
-	const active = countable.filter((entityId) => groupActive(entityId, $states?.[entityId])).length;
+	const active = countable.filter((entityId) => entityActive(entityId, $states?.[entityId])).length;
 	const inactive = countable.length - active;
 	const activeLabel = `${active} ${activeWord}`;
 	const parts = [

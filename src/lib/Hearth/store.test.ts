@@ -7,6 +7,7 @@ import {
 	callEntityService,
 	commandFailure,
 	dismissCommandFailure,
+	entityActive,
 	entityAvailability,
 	entityGroupSummary,
 	lightViewFor,
@@ -20,6 +21,14 @@ describe('Hearth store view helpers', () => {
 		expect(entityAvailability({ state: 'unknown' } as any)).toBe('unknown');
 		expect(entityAvailability({ state: 'unavailable' } as any)).toBe('unavailable');
 		expect(entityAvailability({ state: 'off' } as any)).toBe('available');
+	});
+
+	it('uses domain-aware active states consistently', () => {
+		expect(entityActive('lock.front_door', { state: 'unlocked' } as any)).toBe(true);
+		expect(entityActive('valve.garden', { state: 'open' } as any)).toBe(true);
+		expect(entityActive('cover.garage', { state: 'closing' } as any)).toBe(true);
+		expect(entityActive('media_player.kitchen', { state: 'paused' } as any)).toBe(true);
+		expect(entityActive('lock.front_door', { state: 'locked' } as any)).toBe(false);
 	});
 
 	it('does not let an optimistic light override hide lost availability', () => {

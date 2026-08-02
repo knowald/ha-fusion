@@ -6,7 +6,7 @@
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import {
 		entityAvailability,
-		entityOn,
+		entityActive,
 		hearthEditMode,
 		pendingEntities,
 		popup,
@@ -41,7 +41,7 @@
 	let stateObj = $derived($states?.[entity]);
 	let availability = $derived(entityAvailability(stateObj));
 	let available = $derived(availability === 'available');
-	let on = $derived(entityOn(entity, stateObj));
+	let on = $derived(entityActive(entity, stateObj));
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
