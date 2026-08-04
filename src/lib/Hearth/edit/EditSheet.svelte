@@ -9,6 +9,7 @@
 		title,
 		children,
 		onclose,
+		onback,
 		ondone,
 		doneDisabled = false,
 		onremove,
@@ -21,6 +22,7 @@
 		title: string;
 		children: Snippet;
 		onclose: () => void;
+		onback?: () => void;
 		ondone: () => void;
 		doneDisabled?: boolean;
 		onremove?: () => void;
@@ -61,6 +63,11 @@
 >
 	<div class="sheet" class:wide role="dialog" aria-modal="true" aria-label={title}>
 		<div class="header">
+			{#if onback}
+				<button type="button" class="icon-button" aria-label="Back" onclick={onback}>
+					<Icon name="arrow_back" size={24} />
+				</button>
+			{/if}
 			<div class="title">{title}</div>
 			{#if onmoveup || onmovedown}
 				<div class="move-actions">

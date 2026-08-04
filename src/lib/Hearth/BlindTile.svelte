@@ -106,10 +106,13 @@
 		</div>
 	</div>
 	{#if $hearthEditMode && onedit}
-		<TuneButton icon="edit" onopen={onedit} />
+		<TuneButton icon="edit" onopen={onedit} alignEdge />
 	{:else if !$hearthEditMode && !readonly && available}
 		<!-- a readonly tile shows position but offers no way to change it -->
-		<TuneButton onopen={() => popup.set({ kind: 'blind', entity, name: label, sliderUpdates })} />
+		<TuneButton
+			alignEdge
+			onopen={() => popup.set({ kind: 'blind', entity, name: label, sliderUpdates })}
+		/>
 	{/if}
 </div>
 
@@ -185,9 +188,8 @@
 	}
 
 	.state {
-		font-size: 15px;
-		font-weight: 550;
-		color: var(--h-text-3);
+		font-size: 13px;
+		color: var(--h-text-6);
 	}
 
 	.state.open {

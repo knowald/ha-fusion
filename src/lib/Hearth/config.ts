@@ -75,6 +75,7 @@ type RailWidgetVariant =
 			show_seconds?: boolean;
 	  }
 	| { id: string; type: 'weather'; entity?: string }
+	| { id: string; type: 'search' }
 	| { id: string; type: 'nav' }
 	| { id: string; type: 'spacer' }
 	| { id: string; type: 'label'; text?: string }
@@ -302,6 +303,9 @@ export interface HearthConfig {
 	rooms: HearthRoom[];
 	// display options for wall tablets; screensaver off when unset
 	screensaver_minutes?: number;
+	screensaver_drift?: boolean;
+	/** Clock brightness from 10 to 100 percent. */
+	screensaver_brightness?: number;
 	keep_screen_on?: boolean;
 	// extra edge padding in px, for kiosks whose frame covers screen edges
 	padding_x?: number;
@@ -332,6 +336,13 @@ export const RAIL_WIDGET_TYPES = [
 		name: 'Page navigation',
 		sub: 'room links',
 		icon: 'home'
+	},
+	{
+		value: 'search',
+		label: 'Search',
+		name: 'Search',
+		sub: 'pages + entities',
+		icon: 'search'
 	},
 	{ value: 'spacer', label: 'Spacer', name: 'Spacer', sub: 'flexible gap', icon: 'unfold_more' },
 	{
@@ -1186,6 +1197,8 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		'rail',
 		'rooms',
 		'screensaver_minutes',
+		'screensaver_drift',
+		'screensaver_brightness',
 		'keep_screen_on',
 		'padding_x',
 		'padding_y',
@@ -1215,6 +1228,12 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 		rooms,
 		screensaver_minutes:
 			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
+		screensaver_drift: config.screensaver_drift === true ? true : undefined,
+		screensaver_brightness:
+			typeof config.screensaver_brightness === 'number' &&
+			Number.isFinite(config.screensaver_brightness)
+				? Math.min(100, Math.max(10, Math.round(config.screensaver_brightness)))
+				: undefined,
 		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined,
 		padding_x: typeof config.padding_x === 'number' ? config.padding_x : undefined,
 		padding_y: typeof config.padding_y === 'number' ? config.padding_y : undefined

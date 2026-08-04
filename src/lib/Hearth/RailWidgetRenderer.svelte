@@ -7,12 +7,13 @@
 	import FusionWidget from './FusionWidget.svelte';
 	import NavWidget from './NavWidget.svelte';
 	import ProgressWidget from './ProgressWidget.svelte';
+	import SearchWidget from './SearchWidget.svelte';
 	import StatusWidget from './StatusWidget.svelte';
 	import WeatherWidget from './WeatherWidget.svelte';
 	import ConfigurationPlaceholder from './ConfigurationPlaceholder.svelte';
 	import { railConfigurationLabel, railWidgetNeedsConfiguration } from './configurationState';
 
-	let { widget }: { widget: RailWidget } = $props();
+	let { widget, onsearch = () => {} }: { widget: RailWidget; onsearch?: () => void } = $props();
 </script>
 
 {#if railWidgetNeedsConfiguration(widget)}
@@ -25,6 +26,8 @@
 	/>
 {:else if widget.type === 'weather'}
 	<WeatherWidget entity={widget.entity} />
+{:else if widget.type === 'search'}
+	<SearchWidget onclick={onsearch} />
 {:else if widget.type === 'nav'}
 	<NavWidget />
 {:else if widget.type === 'label'}

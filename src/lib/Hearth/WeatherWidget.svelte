@@ -111,6 +111,7 @@
 		align-items: center;
 		gap: 14px;
 		margin-top: 26px;
+		margin-bottom: 8px;
 		padding: 16px 18px;
 		border-radius: var(--h-radius-card);
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));

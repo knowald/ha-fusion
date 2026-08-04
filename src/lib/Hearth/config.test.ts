@@ -22,6 +22,17 @@ describe('normalizeHearthConfig', () => {
 		expect(JSON.stringify(DEFAULT_HEARTH_CONFIG)).not.toMatch(/(?:light|sensor|weather|vacuum)\./);
 	});
 
+	it('normalizes screensaver customization', () => {
+		expect(
+			normalizeHearthConfig({
+				rail: [],
+				rooms: [{ id: 'home', cards: [[]] }],
+				screensaver_drift: true,
+				screensaver_brightness: 150
+			})
+		).toMatchObject({ screensaver_drift: true, screensaver_brightness: 100 });
+	});
+
 	it('repairs globally duplicated IDs without dropping valid items', () => {
 		const config = normalizeHearthConfig({
 			rail: [

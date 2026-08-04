@@ -7,6 +7,8 @@
 	import { wakeLockState } from '../wakeLock';
 
 	let screensaver = $derived(String($hearthConfig.screensaver_minutes ?? 0));
+	let screensaverDrift = $derived($hearthConfig.screensaver_drift ?? false);
+	let screensaverBrightness = $derived(String($hearthConfig.screensaver_brightness ?? 32));
 	let keepScreenOn = $derived($hearthConfig.keep_screen_on ?? true);
 	let paddingX = $derived($hearthConfig.padding_x ?? 0);
 	let paddingY = $derived($hearthConfig.padding_y ?? 0);
@@ -20,11 +22,30 @@
 		{ value: '30', label: 'After 30 minutes' },
 		{ value: '60', label: 'After 1 hour' }
 	];
+	const SCREENSAVER_BRIGHTNESS_OPTIONS = [
+		{ value: '18', label: 'Very dim' },
+		{ value: '32', label: 'Dim' },
+		{ value: '50', label: 'Medium' },
+		{ value: '75', label: 'Bright' }
+	];
 
 	function setScreensaver(value: string) {
 		const minutes = parseInt(value);
 		updateConfig((config) => {
 			config.screensaver_minutes = minutes > 0 ? minutes : undefined;
+		});
+	}
+
+	function setScreensaverDrift(enabled: boolean) {
+		updateConfig((config) => {
+			config.screensaver_drift = enabled ? true : undefined;
+		});
+	}
+
+	function setScreensaverBrightness(value: string) {
+		const brightness = parseInt(value);
+		updateConfig((config) => {
+			config.screensaver_brightness = brightness === 32 ? undefined : brightness;
 		});
 	}
 
@@ -64,6 +85,40 @@
 						<Icon name="expand_more" size={18} />
 					</span>
 				</div>
+				{#if screensaver !== '0'}
+					<div class="row">
+						<div class="row-main">
+							<div class="row-label">Screensaver drift</div>
+							<div class="row-sub">Slowly moves the clock to protect the display</div>
+						</div>
+						<button
+							type="button"
+							class="switch pressable"
+							class:on={screensaverDrift}
+							aria-pressed={screensaverDrift}
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => setScreensaverDrift(!screensaverDrift)}
+						>
+							<span class="knob"></span>
+						</button>
+					</div>
+					<div class="row">
+						<div class="row-main">
+							<div class="row-label">Screensaver brightness</div>
+						</div>
+						<span class="select-wrap">
+							<select
+								value={screensaverBrightness}
+								onchange={(event) => setScreensaverBrightness(event.currentTarget.value)}
+							>
+								{#each SCREENSAVER_BRIGHTNESS_OPTIONS as option (option.value)}
+									<option value={option.value}>{option.label}</option>
+								{/each}
+							</select>
+							<Icon name="expand_more" size={18} />
+						</span>
+					</div>
+				{/if}
 				<div class="row">
 					<div class="row-main">
 						<div class="row-label">Keep screen awake</div>

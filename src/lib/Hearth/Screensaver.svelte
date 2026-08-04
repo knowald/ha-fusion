@@ -2,6 +2,8 @@
 	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { lang, motion, selectedLanguage } from '$lib/Stores';
+	import { hearthConfig } from './store';
+	import { clockTimeOptions, validTimeZone } from './clock';
 
 	let { minutes = 10 }: { minutes?: number } = $props();
 
@@ -55,11 +57,23 @@
 		return () => clearInterval(clockTimer);
 	});
 
+	let configuredClock = $derived($hearthConfig.rail.find((widget) => widget.type === 'clock'));
+	let activeTimezone = $derived(validTimeZone(configuredClock?.timezone));
+	let drift = $derived($hearthConfig.screensaver_drift ?? false);
+	let brightness = $derived($hearthConfig.screensaver_brightness ?? 32);
 	let time = $derived(
-		now.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' })
+		now.toLocaleTimeString(
+			$selectedLanguage,
+			clockTimeOptions(activeTimezone, configuredClock?.hour_format)
+		)
 	);
 	let date = $derived(
-		now.toLocaleDateString($selectedLanguage, { weekday: 'long', month: 'long', day: 'numeric' })
+		now.toLocaleDateString($selectedLanguage, {
+			weekday: 'long',
+			month: 'long',
+			day: 'numeric',
+			...(activeTimezone ? { timeZone: activeTimezone } : {})
+		})
 	);
 </script>
 
@@ -75,7 +89,11 @@
 		onpointerdown={dismiss}
 		onkeydown={dismiss}
 	>
-		<div class="screensaver-content">
+		<div
+			class="screensaver-content"
+			class:drift={drift && Boolean($motion)}
+			style:--screensaver-brightness={String(brightness / 100)}
+		>
 			<div class="clock">{time}</div>
 			<div class="date">{date}</div>
 		</div>
@@ -99,6 +117,9 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.screensaver-content.drift {
 		animation: screensaver-drift 90s ease-in-out infinite alternate;
 	}
 
@@ -107,14 +128,14 @@
 		font-weight: 600;
 		line-height: 1;
 		letter-spacing: -4px;
-		color: rgb(var(--h-line-rgb) / 0.32);
+		color: rgb(var(--h-line-rgb) / var(--screensaver-brightness));
 	}
 
 	.date {
 		font-size: 20px;
 		margin-top: 18px;
 		letter-spacing: 0.2px;
-		color: rgb(var(--h-line-rgb) / 0.24);
+		color: rgb(var(--h-line-rgb) / calc(var(--screensaver-brightness) * 0.75));
 	}
 
 	@keyframes screensaver-drift {
@@ -129,12 +150,6 @@
 		}
 		100% {
 			transform: translate(7vw, 4vh);
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.screensaver-content {
-			animation: none;
 		}
 	}
 </style>

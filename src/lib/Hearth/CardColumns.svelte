@@ -149,7 +149,6 @@
 					class="card-slot"
 					data-id={card.id}
 					data-card-type={card.type}
-					class:editing={$hearthEditMode}
 					class:stretch={fillWeight(card) > 0}
 					style:--card-fill={fillWeight(card)}
 					class:visibility-dimmed={$hearthEditMode && !visible}
@@ -190,7 +189,6 @@
 				{#if isStack(item)}
 					<div
 						class="stack-slot"
-						class:editing={$hearthEditMode}
 						class:stretch={fillWeight(item) > 0}
 						style:--card-fill={fillWeight(item)}
 						data-id={item.id}
@@ -307,13 +305,6 @@
 		position: relative;
 	}
 
-	/* every group is one editable, movable unit - show its bounds while editing */
-	.card-slot.editing {
-		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		border-radius: var(--h-radius-md);
-		padding: 12px;
-	}
-
 	/* a filling slot takes its share of the column's leftover height; the floor
 	   keeps a heavy neighbour from crushing it into an unreadable sliver */
 	.card-slot.stretch,
@@ -360,12 +351,6 @@
 
 	.stack-slot {
 		position: relative;
-	}
-
-	.stack-slot.editing {
-		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		border-radius: var(--h-radius-md);
-		padding: 12px;
 	}
 
 	.group-label {

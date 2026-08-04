@@ -114,14 +114,14 @@
 			</div>
 		</div>
 		{#if $hearthEditMode && onedit}
-			<TuneButton icon="edit" onopen={onedit} />
+			<TuneButton icon="edit" onopen={onedit} alignEdge />
 		{:else if $hearthEditMode || readonly || !available}
 			<!-- readout: no way in to a control surface from this tile -->
 		{:else if domain === 'fan'}
 			<!-- hearth's own fan sheet has the speed slider the fusion modal lacks -->
-			<TuneButton onopen={() => popup.set({ kind: 'fan', entity, name: label })} />
+			<TuneButton alignEdge onopen={() => popup.set({ kind: 'fan', entity, name: label })} />
 		{:else}
-			<TuneButton onopen={() => openEntityModal(entity, name)} />
+			<TuneButton alignEdge onopen={() => openEntityModal(entity, name)} />
 		{/if}
 	</div>
 {/if}
@@ -195,15 +195,14 @@
 	}
 
 	.state {
-		font-size: 15px;
-		font-weight: 550;
-		color: var(--h-text-3);
+		font-size: 13px;
+		color: var(--h-text-6);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.state.on {
-		color: var(--h-accent-text);
+		color: var(--h-accent-dim-text);
 	}
 </style>

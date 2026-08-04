@@ -239,6 +239,7 @@
 		if (
 			!typing &&
 			!$hearthEditMode &&
+			$hearthConfig.rail.some((widget) => widget.type === 'search') &&
 			!showSearch &&
 			!$openPopovers &&
 			event.key === 'f' &&
@@ -273,7 +274,7 @@
 </svelte:head>
 
 <section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
-	<div class="layout" class:editing={$hearthEditMode}>
+	<div class="layout">
 		<div class="rail-scroll">
 			<Rail onsearch={() => (showSearch = true)} />
 		</div>
@@ -631,12 +632,6 @@
 	   remains scrollable instead of making controls unreachable. */
 	.main.fill {
 		overflow-y: auto;
-	}
-
-	/* keep scrolled content clear of the floating save bar */
-	.layout.editing :global(.main > *),
-	.layout.editing .rail-scroll :global(.rail) {
-		padding-bottom: 76px;
 	}
 
 	@media (max-width: 900px) {

@@ -40,6 +40,10 @@
 		editor.set(null);
 	}
 
+	function back() {
+		editor.set({ kind: 'settings' });
+	}
+
 	async function done() {
 		if (saving) return;
 		saving = true;
@@ -106,7 +110,13 @@
 	}
 </script>
 
-<EditSheet title="Application settings" onclose={close} ondone={done} doneDisabled={saving}>
+<EditSheet
+	title="Application settings"
+	onclose={close}
+	onback={back}
+	ondone={done}
+	doneDisabled={saving}
+>
 	<div class="settings">
 		<div class="section-note">Changes are staged until you choose Done.</div>
 		<div class="rows">

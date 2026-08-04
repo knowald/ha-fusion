@@ -272,7 +272,12 @@
 				visibility: visibilityValue
 			};
 		}
-		return { id, type: type as 'nav' | 'spacer', hide_mobile, visibility: visibilityValue };
+		return {
+			id,
+			type: type as 'nav' | 'search' | 'spacer',
+			hide_mobile,
+			visibility: visibilityValue
+		};
 	}
 
 	function buildWidget(id: string): RailWidget {
