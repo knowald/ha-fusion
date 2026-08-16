@@ -81,8 +81,6 @@
 </script>
 
 <div class="card">
-	<!-- named against "Inside temperature" cards, so the two readings never blur -->
-	<div class="kicker">OUTSIDE</div>
 	<div class="row">
 		<Icon
 			name={conditionIcons[condition] ?? 'clear_day'}
@@ -113,31 +111,29 @@
 	.card {
 		margin-top: 26px;
 		margin-bottom: 8px;
-		padding: 14px 18px 16px;
+		padding: 16px 18px;
 		border-radius: var(--h-radius-card);
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		box-shadow: var(--h-card-shadow);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
 	}
 
-	.kicker {
-		font-family: var(--h-font-mono);
-		font-size: 10px;
-		letter-spacing: 2px;
-		color: var(--h-text-6);
-		margin-bottom: 10px;
-	}
-
 	.row {
 		display: flex;
-		flex-wrap: wrap;
 		align-items: center;
 		gap: 14px;
 	}
 
+	/* one row always: the conditions text truncates, the forecast never wraps */
 	.current {
 		min-width: 0;
-		flex: 1 1 120px;
+		flex: 1;
+	}
+
+	.current .sub {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.temp {
