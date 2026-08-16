@@ -24,6 +24,7 @@
 		compact = false,
 		readonly = false,
 		sliderUpdates = 'continuous',
+		showTune = false,
 		onedit = undefined
 	}: {
 		entity: string;
@@ -33,6 +34,8 @@
 		/** display only: neither the tap nor the brightness drag sends a command */
 		readonly?: boolean;
 		sliderUpdates?: SliderUpdateMode;
+		/** restores the controls glyph beside the long-press gesture */
+		showTune?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -46,7 +49,7 @@
 	let label = $derived(name || $states?.[entity]?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
 		!available
-			? 'var(--h-bad-text)'
+			? 'var(--h-icon-dim)'
 			: view.on
 				? (view.colorCss ?? 'var(--h-accent-icon)')
 				: 'var(--h-icon-dim)'
@@ -69,11 +72,18 @@
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 	onclick={() => $hearthEditMode && onedit?.()}
 	onkeydown={(event) =>
-		activateOnKeyboard(event, () => ($hearthEditMode ? onedit?.() : toggleLight(entity)))}
+		activateOnKeyboard(event, () =>
+			$hearthEditMode
+				? onedit?.()
+				: event.shiftKey && available && !readonly
+					? popup.set({ kind: 'light', entity, name: label, sliderUpdates })
+					: toggleLight(entity)
+		)}
 	use:horizontalDrag={{
 		set: (value, commit) => setLightLevel(entity, value, commit),
 		updateMode: sliderUpdates,
 		tap: () => toggleLight(entity),
+		hold: () => popup.set({ kind: 'light', entity, name: label, sliderUpdates }),
 		disabled: $hearthEditMode || readonly || !available,
 		ignore: '.tune'
 	}}
@@ -81,7 +91,7 @@
 	<div class="fill" style:width="{view.on ? view.level : 0}%"></div>
 	<div class="content">
 		<Icon name={icon || 'lightbulb'} size={26} color={iconColor} fill={view.on} />
-		<div>
+		<div class="text">
 			<div class="name">{label}</div>
 			<div class="state">
 				{available ? (view.on ? `${view.level}%` : capitalize($lang('off'))) : availabilityText}
@@ -90,8 +100,7 @@
 	</div>
 	{#if $hearthEditMode && onedit}
 		<TuneButton icon="edit" onopen={onedit} alignEdge />
-	{:else if !$hearthEditMode && !readonly && available}
-		<!-- a readonly tile shows brightness but offers no way to change it -->
+	{:else if showTune && !$hearthEditMode && !readonly && available}
 		<TuneButton
 			alignEdge
 			onopen={() => popup.set({ kind: 'light', entity, name: label, sliderUpdates })}
@@ -133,13 +142,19 @@
 		box-shadow: 0 8px 30px rgb(var(--h-accent-rgb) / calc(0.1 * var(--h-accent-scale)));
 	}
 
+	/* offline is a fact, not an alarm: dashed and muted rather than red */
 	.tile.unreachable {
-		border-color: rgb(var(--h-bad-rgb) / 0.45);
-		background: rgb(var(--h-bad-rgb) / 0.07);
+		border-style: dashed;
+		border-color: rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.015 * var(--h-fill-scale)));
+	}
+
+	.tile.unreachable .name {
+		color: var(--h-text-5);
 	}
 
 	.tile.unreachable .state {
-		color: var(--h-bad-text);
+		color: var(--h-text-6);
 	}
 
 	.fill {
@@ -161,6 +176,12 @@
 		align-items: center;
 		gap: 13px;
 		min-width: 0;
+		flex: 1;
+	}
+
+	.text {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.name {
@@ -179,10 +200,11 @@
 
 	.state {
 		font-size: 13px;
-		color: var(--h-text-6);
+		margin-top: 3px;
+		color: var(--h-text-3);
 	}
 
 	.on .state {
-		color: var(--h-accent-dim-text);
+		color: var(--h-accent-text);
 	}
 </style>

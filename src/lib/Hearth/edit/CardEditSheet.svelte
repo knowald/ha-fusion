@@ -75,6 +75,8 @@
 		display?: string;
 		readonly?: boolean;
 		slider_updates?: string;
+		// YAML-only field with no form control; carried so edits don't drop it
+		verdict?: EntityRef['verdict'];
 	};
 	type EditableVacuumMode = {
 		entity: string;
@@ -98,6 +100,7 @@
 	let title = $state(initial && 'title' in initial ? (initial.title ?? '') : '');
 	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
 	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
+	let climateEntity = $state(initial?.type === 'temperature' ? (initial.climate_entity ?? '') : '');
 	let entity = $state(initial && 'entity' in initial ? (initial.entity ?? '') : '');
 	let cameraStream = $state(initial?.type === 'camera' ? (initial.stream ?? false) : false);
 	let subtitle = $state(initial?.type === 'header' ? (initial.subtitle ?? '') : '');
@@ -120,7 +123,13 @@
 	let gridColumns = $state<string>(
 		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
 	);
-	let showCount = $state(initial?.type === 'entities' ? (initial.show_count ?? false) : false);
+	// mirrors the runtime default (titled sections count unless opted out), so
+	// the checkbox state matches what the dashboard actually renders
+	let showCount = $state(
+		initial?.type === 'entities' ? (initial.show_count ?? Boolean(initial.title)) : true
+	);
+	let groupActions = $state(initial?.type === 'entities' ? initial.group_actions !== false : true);
+	let tuneButtons = $state(initial?.type === 'entities' ? (initial.tune_button ?? false) : false);
 	let gridVerticalPadding = $state(
 		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
 	);
@@ -145,7 +154,8 @@
 					icon: ref.icon ?? '',
 					display: ref.display ?? '',
 					readonly: ref.readonly ?? false,
-					slider_updates: ref.slider_updates ?? ''
+					slider_updates: ref.slider_updates ?? '',
+					verdict: ref.verdict
 				}))
 			: []
 	);
@@ -167,6 +177,16 @@
 		initial?.type === 'vacuum' ? (initial.battery_entity ?? '') : ''
 	);
 	let vacuumBinEntity = $state(initial?.type === 'vacuum' ? (initial.bin_entity ?? '') : '');
+	let vacuumQuickAction = $state(
+		initial?.type === 'vacuum' ? (initial.quick_action ?? false) : false
+	);
+	let sensorVerdict = $state(initial?.type === 'temperature' ? initial.verdict !== false : true);
+	// custom verdict bands have no form fields; a YAML-authored object survives
+	// form edits as long as the verdict stays enabled
+	const initialVerdictBands =
+		initial?.type === 'temperature' && typeof initial.verdict === 'object'
+			? initial.verdict
+			: undefined;
 	let sceneStyle = $state<string>(
 		initial?.type === 'scenes' ? (initial.style ?? 'chips') : 'chips'
 	);
@@ -298,6 +318,8 @@
 				label: label.trim() || undefined,
 				entity: entity.trim() || undefined,
 				unit: unit.trim() || undefined,
+				climate_entity: climateEntity.trim() || undefined,
+				verdict: sensorVerdict ? initialVerdictBands : false,
 				height: cardHeight,
 				fill: cardFill,
 				visibility: visibilityValue
@@ -311,7 +333,11 @@
 				title: title.trim() || undefined,
 				style: gridStyle === 'stat' ? 'stat' : undefined,
 				columns: Number.isFinite(columnCount) && columnCount >= 1 ? columnCount : undefined,
-				show_count: showCount || undefined,
+				// stored only when it differs from the default (titled sections count,
+				// untitled ones do not); explicit false opts a titled section out
+				show_count: showCount === Boolean(title.trim()) ? undefined : showCount,
+				group_actions: groupActions ? undefined : false,
+				tune_button: tuneButtons || undefined,
 				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
 				readonly: gridReadonly || undefined,
 				wildcard: gridWildcard.trim() || undefined,
@@ -333,7 +359,8 @@
 						slider_updates:
 							ref.slider_updates === 'continuous' || ref.slider_updates === 'release'
 								? ref.slider_updates
-								: undefined
+								: undefined,
+						verdict: ref.verdict
 					}))
 					.filter((ref) => ref.entity),
 				fill: cardFill,
@@ -428,6 +455,7 @@
 					.filter((ref) => ref.entity),
 				battery_entity: vacuumBatteryEntity.trim() || undefined,
 				bin_entity: vacuumBinEntity.trim() || undefined,
+				quick_action: vacuumQuickAction || undefined,
 				fill: cardFill,
 				visibility: visibilityValue
 			};
@@ -582,6 +610,20 @@
 				<TextField label="Label" bind:value={label} placeholder="Average home temperature" />
 				<EntityField label="Entity" bind:value={entity} domains={['sensor']} />
 				<TextField label="Unit" bind:value={unit} placeholder="°C" />
+				<EntityField
+					label="Thermostat (optional)"
+					bind:value={climateEntity}
+					domains={['climate']}
+				/>
+				<div class="hint">Adds a target readout with +/- controls and a target line.</div>
+				<label class="check">
+					<input type="checkbox" bind:checked={sensorVerdict} />
+					<span>Verdict pill for air sensors (GOOD / FAIR / POOR)</span>
+				</label>
+				<div class="hint">
+					Judged by device class; custom thresholds go in YAML as verdict: &lbrace; good, fair, max
+					&rbrace;.
+				</div>
 			{/if}
 
 			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'image' || type === 'climate'}
@@ -599,6 +641,10 @@
 					bind:value={vacuumBinEntity}
 					domains={['sensor']}
 				/>
+				<label class="check">
+					<input type="checkbox" bind:checked={vacuumQuickAction} />
+					<span>One-tap Clean/Stop button on the row</span>
+				</label>
 				<div class="group-label">CLEANING MODES</div>
 				<div class="hint">
 					Button entities launched from the vacuum popover, in display order. Each runs on a single
@@ -697,6 +743,14 @@
 				<label class="check">
 					<input type="checkbox" bind:checked={showCount} />
 					<span>Show active count in header</span>
+				</label>
+				<label class="check">
+					<input type="checkbox" bind:checked={groupActions} />
+					<span>Header actions for groups (All off, Open all, Close all)</span>
+				</label>
+				<label class="check">
+					<input type="checkbox" bind:checked={tuneButtons} />
+					<span>Controls glyph on tiles (long-press always works)</span>
 				</label>
 				<label class="check">
 					<input type="checkbox" bind:checked={gridReadonly} />

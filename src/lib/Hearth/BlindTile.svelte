@@ -15,7 +15,7 @@
 	} from './store';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
-	import { activateOnKeyboard } from './interaction';
+	import { activateOnKeyboard, longPress } from './interaction';
 
 	let {
 		entity,
@@ -24,6 +24,7 @@
 		compact = false,
 		readonly = false,
 		sliderUpdates = 'continuous',
+		showTune = false,
 		onedit = undefined
 	}: {
 		entity: string;
@@ -33,6 +34,8 @@
 		/** display only: taps never send a command */
 		readonly?: boolean;
 		sliderUpdates?: SliderUpdateMode;
+		/** restores the controls glyph beside the long-press gesture */
+		showTune?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -46,11 +49,9 @@
 			? availability === 'missing'
 				? $lang('hearth_missing_entity')
 				: capitalize($lang(availability))
-			: position === 100
-				? capitalize($lang('open'))
-				: position === 0
-					? capitalize($lang('closed'))
-					: `${position}% open`
+			: position === 0
+				? capitalize($lang('closed'))
+				: `${capitalize($lang('open'))} · ${position}%`
 	);
 
 	let pending = $derived($pendingEntities[entity] !== undefined);
@@ -90,15 +91,28 @@
 	tabindex={interactive ? 0 : -1}
 	aria-pressed={open}
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
+	use:longPress={{
+		hold: () => popup.set({ kind: 'blind', entity, name: label, sliderUpdates }),
+		disabled: $hearthEditMode || readonly || !available
+	}}
 	onclick={handleClick}
-	onkeydown={(event) => activateOnKeyboard(event, handleClick)}
+	onkeydown={(event) =>
+		activateOnKeyboard(event, () =>
+			event.shiftKey && available && !readonly && !$hearthEditMode
+				? popup.set({ kind: 'blind', entity, name: label, sliderUpdates })
+				: handleClick()
+		)}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">
 		<Icon
 			name={icon || 'blinds'}
 			size={26}
-			color={!available ? 'var(--h-bad-text)' : open ? 'var(--h-cool-light)' : 'var(--h-icon-dim)'}
+			color={!available
+				? 'var(--h-icon-dim)'
+				: open
+					? 'var(--h-accent-dim-text)'
+					: 'var(--h-icon-dim)'}
 		/>
 		<div>
 			<div class="name">{label}</div>
@@ -107,8 +121,7 @@
 	</div>
 	{#if $hearthEditMode && onedit}
 		<TuneButton icon="edit" onopen={onedit} alignEdge />
-	{:else if !$hearthEditMode && !readonly && available}
-		<!-- a readonly tile shows position but offers no way to change it -->
+	{:else if showTune && !$hearthEditMode && !readonly && available}
 		<TuneButton
 			alignEdge
 			onopen={() => popup.set({ kind: 'blind', entity, name: label, sliderUpdates })}
@@ -144,17 +157,25 @@
 		padding-bottom: 9px;
 	}
 
+	/* blinds sit in the warm palette like everything else; only their fill
+	   intensity separates them from lights */
 	.tile.open {
-		border-color: rgb(var(--h-cool-rgb) / calc(0.22 * var(--h-accent-scale)));
+		border-color: rgb(var(--h-line-rgb) / calc(0.09 * var(--h-line-scale)));
 	}
 
+	/* offline is a fact, not an alarm: dashed and muted rather than red */
 	.tile.unreachable {
-		border-color: rgb(var(--h-bad-rgb) / 0.45);
-		background: rgb(var(--h-bad-rgb) / 0.07);
+		border-style: dashed;
+		border-color: rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.015 * var(--h-fill-scale)));
+	}
+
+	.tile.unreachable .name {
+		color: var(--h-text-5);
 	}
 
 	.tile.unreachable .state {
-		color: var(--h-bad-text);
+		color: var(--h-text-6);
 	}
 
 	.fill {
@@ -162,11 +183,7 @@
 		left: 0;
 		top: 0;
 		bottom: 0;
-		background: linear-gradient(
-			90deg,
-			rgb(var(--h-cool-rgb) / calc(0.24 * var(--h-accent-scale))),
-			rgb(var(--h-cool-rgb) / calc(0.07 * var(--h-accent-scale)))
-		);
+		background: rgb(var(--h-accent-rgb) / calc(0.09 * var(--h-accent-scale)));
 	}
 
 	.content {
@@ -189,10 +206,11 @@
 
 	.state {
 		font-size: 13px;
-		color: var(--h-text-6);
+		margin-top: 3px;
+		color: var(--h-text-3);
 	}
 
 	.state.open {
-		color: var(--h-cool-text);
+		color: var(--h-accent-dim-text);
 	}
 </style>

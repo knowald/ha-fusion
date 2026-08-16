@@ -5,6 +5,8 @@ interface DragOptions {
 	/** Updates the preview. `commit` says whether device state should also be sent. */
 	set: (value: number, commit: boolean) => void;
 	tap?: () => void;
+	/** Long-press without movement; suppresses the tap for that gesture. */
+	hold?: () => void;
 	end?: (value: number) => void;
 	updateMode?: SliderUpdateMode;
 	/** Skip gesture handling entirely (used in edit mode so SortableJS gets the pointer) */
@@ -26,7 +28,8 @@ interface DragOptions {
  */
 export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) => {
 	let current = options;
-	let tracking: { moved: boolean; pointerId: number; startX: number } | null = null;
+	let tracking: { moved: boolean; held: boolean; pointerId: number; startX: number } | null = null;
+	let holdTimer: ReturnType<typeof setTimeout> | undefined;
 
 	function fraction(event: PointerEvent) {
 		const rect = node.getBoundingClientRect();
@@ -41,12 +44,22 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 		} catch {
 			// pointer capture is best-effort
 		}
-		tracking = { moved: false, pointerId: event.pointerId, startX: event.clientX };
+		tracking = { moved: false, held: false, pointerId: event.pointerId, startX: event.clientX };
+		if (current.hold) {
+			holdTimer = setTimeout(() => {
+				if (!tracking || tracking.moved) return;
+				tracking.held = true;
+				current.hold?.();
+			}, 500);
+		}
 	}
 
 	function handleMove(event: PointerEvent) {
-		if (!tracking || event.pointerId !== tracking.pointerId) return;
-		if (Math.abs(event.clientX - tracking.startX) > 10) tracking.moved = true;
+		if (!tracking || event.pointerId !== tracking.pointerId || tracking.held) return;
+		if (Math.abs(event.clientX - tracking.startX) > 10) {
+			tracking.moved = true;
+			clearTimeout(holdTimer);
+		}
 		if (tracking.moved) {
 			current.set(Math.round(fraction(event) * 100), current.updateMode !== 'release');
 		}
@@ -54,7 +67,9 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 
 	function handleUp(event: PointerEvent) {
 		if (!tracking || event.pointerId !== tracking.pointerId) return;
-		if (!tracking.moved && current.tap) {
+		if (tracking.held) {
+			// the hold already acted; the release must not toggle on top of it
+		} else if (!tracking.moved && current.tap) {
 			current.tap();
 		} else if (tracking.moved) {
 			const value = Math.round(fraction(event) * 100);
@@ -67,6 +82,7 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 	}
 
 	function finishTracking(pointerId: number) {
+		clearTimeout(holdTimer);
 		tracking = null;
 		try {
 			node.releasePointerCapture(pointerId);

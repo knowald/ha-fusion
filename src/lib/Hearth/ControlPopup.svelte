@@ -14,12 +14,14 @@
 	import Icon from './Icon.svelte';
 	import LightPopup from './LightPopup.svelte';
 	import MediaPopup from './MediaPopup.svelte';
+	import SensorPopup from './SensorPopup.svelte';
 
 	const meta = {
 		light: { icon: 'lightbulb', sub: 'Dimmable light' },
 		blind: { icon: 'blinds', sub: 'Window covering' },
 		fan: { icon: 'mode_fan', sub: 'Ceiling fan' },
-		media: { icon: 'music_note', sub: 'Media player' }
+		media: { icon: 'music_note', sub: 'Media player' },
+		sensor: { icon: 'monitoring', sub: 'Last 24 hours' }
 	};
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -71,6 +73,8 @@
 					<LightPopup entity={$popup.entity} sliderUpdates={$popup.sliderUpdates} />
 				{:else if $popup.kind === 'blind'}
 					<BlindPopup entity={$popup.entity} sliderUpdates={$popup.sliderUpdates} />
+				{:else if $popup.kind === 'sensor'}
+					<SensorPopup entity={$popup.entity} />
 				{:else}
 					<FanPopup entity={$popup.entity} />
 				{/if}

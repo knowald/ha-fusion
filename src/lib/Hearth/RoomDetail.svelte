@@ -54,6 +54,10 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 100%;
+		/* the card columns collapse on the page's real width, not the viewport:
+		   the rail already took its share, so a viewport breakpoint would fold
+		   multi-column pages long before they actually run out of room */
+		container: hearth-page / inline-size;
 	}
 
 	/* fill mode: the page is exactly the screen, so the columns can hand their

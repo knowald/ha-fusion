@@ -81,42 +81,63 @@
 </script>
 
 <div class="card">
-	<Icon
-		name={conditionIcons[condition] ?? 'clear_day'}
-		size={38}
-		color="rgb(var(--h-accent-rgb))"
-		fill
-	/>
-	<div>
-		<div class="temp">
-			{typeof temperature === 'number'
-				? Intl.NumberFormat($selectedLanguage).format(Math.round(temperature))
-				: '-'}°
-		</div>
-		<div class="sub">{sub}</div>
-	</div>
-	<div class="forecast">
-		{#each forecast as day (day.day)}
-			<div>
-				<div class="day">{day.day}</div>
-				<div class="value">{day.temp}</div>
+	<!-- named against "Inside temperature" cards, so the two readings never blur -->
+	<div class="kicker">OUTSIDE</div>
+	<div class="row">
+		<Icon
+			name={conditionIcons[condition] ?? 'clear_day'}
+			size={38}
+			color="rgb(var(--h-accent-rgb))"
+			fill
+		/>
+		<div class="current">
+			<div class="temp">
+				{typeof temperature === 'number'
+					? Intl.NumberFormat($selectedLanguage).format(Math.round(temperature))
+					: '-'}°
 			</div>
-		{/each}
+			<div class="sub">{sub}</div>
+		</div>
+		<div class="forecast">
+			{#each forecast as day (day.day)}
+				<div>
+					<div class="day">{day.day}</div>
+					<div class="value">{day.temp}</div>
+				</div>
+			{/each}
+		</div>
 	</div>
 </div>
 
 <style>
 	.card {
-		display: flex;
-		align-items: center;
-		gap: 14px;
 		margin-top: 26px;
 		margin-bottom: 8px;
-		padding: 16px 18px;
+		padding: 14px 18px 16px;
 		border-radius: var(--h-radius-card);
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		box-shadow: var(--h-card-shadow);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.07 * var(--h-line-scale)));
+	}
+
+	.kicker {
+		font-family: var(--h-font-mono);
+		font-size: 10px;
+		letter-spacing: 2px;
+		color: var(--h-text-6);
+		margin-bottom: 10px;
+	}
+
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 14px;
+	}
+
+	.current {
+		min-width: 0;
+		flex: 1 1 120px;
 	}
 
 	.temp {
@@ -132,6 +153,7 @@
 
 	.forecast {
 		margin-left: auto;
+		flex: 0 0 auto;
 		display: flex;
 		gap: 14px;
 		text-align: center;

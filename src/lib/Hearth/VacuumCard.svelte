@@ -8,6 +8,7 @@
 		entityActiveFor,
 		hearthEditMode,
 		pendingEntities,
+		sensorNumber,
 		toggleVacuum
 	} from './store';
 	import AnchoredPopover from './AnchoredPopover.svelte';
@@ -30,11 +31,23 @@
 	};
 
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
+	let battery = $derived(
+		card.battery_entity
+			? sensorNumber($states?.[card.battery_entity]?.state)
+			: sensorNumber(String(entity?.attributes?.battery_level ?? ''))
+	);
+	let bin = $derived(card.bin_entity ? sensorNumber($states?.[card.bin_entity]?.state) : null);
 	let running = $derived(
 		card.entity ? entityActiveFor(card.entity, entity, $controlOverrides) : false
 	);
-	let status = $derived(statusLabels[entity?.state ?? ''] ?? 'Unavailable');
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
+	let status = $derived(
+		[
+			statusLabels[entity?.state ?? ''] ?? 'Unavailable',
+			...(battery !== null ? [`${Math.round(battery)}%`] : []),
+			...(bin !== null ? [`bin ${Math.round(bin)}%`] : [])
+		].join(' · ')
+	);
 	let row = $state<HTMLElement | undefined>();
 	let popoverOpen = $state(false);
 
@@ -64,24 +77,29 @@
 		}
 	}}
 >
-	<Icon name="robot_2" size={28} color="var(--h-text-4)" />
+	<Icon name="robot_2" size={26} color="var(--h-accent-dim-text)" />
 	<div class="info">
 		<div class="name">{entity?.attributes?.friendly_name ?? 'Vacuum'}</div>
 		<div class="status">{status}</div>
 	</div>
-	<div
-		class="action pressable"
-		class:running
-		class:pending
-		use:Ripple={PRESS_RIPPLE}
-		onclick={(event) => {
-			event.stopPropagation();
-			if (card.entity && !preview) toggleVacuum(card.entity);
-		}}
-	>
-		<Icon name={running ? 'stop' : 'play_arrow'} size={18} />
-		{running ? 'Stop' : 'Clean'}
-	</div>
+	{#if card.quick_action}
+		<button
+			type="button"
+			class="action pressable"
+			class:running
+			class:pending
+			use:Ripple={PRESS_RIPPLE}
+			onclick={(event) => {
+				event.stopPropagation();
+				if (card.entity && !preview) toggleVacuum(card.entity);
+			}}
+			onkeydown={(event) => event.stopPropagation()}
+		>
+			<Icon name={running ? 'stop' : 'play_arrow'} size={18} />
+			{running ? 'Stop' : 'Clean'}
+		</button>
+	{/if}
+	<Icon name="chevron_right" size={21} color="var(--h-icon)" />
 </div>
 
 {#if popoverOpen && row && card.entity}
@@ -135,6 +153,8 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
+		border: 0;
+		font: inherit;
 		padding: 10px 16px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
