@@ -293,9 +293,11 @@
 	}
 
 	/* collapse to one column only when the page itself is too narrow for two
-	   readable ones. Stacked columns then scroll as one page; screen-height
-	   rows would squeeze each column into a fraction of the viewport. */
-	@container hearth-page (max-width: 660px) {
+	   readable ones - two ~265px columns is the floor; tiles inside reflow on
+	   their own well below that. Stacked columns then scroll as one page;
+	   screen-height rows would squeeze each column into a fraction of the
+	   viewport. */
+	@container hearth-page (max-width: 560px) {
 		.overview {
 			grid-template-columns: 1fr;
 		}
