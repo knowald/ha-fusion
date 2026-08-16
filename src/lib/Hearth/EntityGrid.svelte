@@ -17,7 +17,9 @@
 		readonly = false,
 		sliderUpdates = 'continuous',
 		tuneButton = false,
-		minTileWidth = 190,
+		// two tracks must survive a two-column page on a padded tablet: page
+		// columns bottom out around 350px, and 2x160+gap still fits there
+		minTileWidth = 160,
 		showDragHandles = true,
 		onreorder = undefined,
 		onreceive = undefined
