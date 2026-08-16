@@ -310,19 +310,22 @@
 		}
 	}
 
-	/* same collapse for browsers without container queries */
-	@media (max-width: 700px) {
-		.overview {
-			grid-template-columns: 1fr;
-		}
+	/* same collapse for browsers without container queries; the viewport
+	   threshold accounts for the rail, gap and padding around the page */
+	@supports not (container-type: inline-size) {
+		@media (max-width: 1200px) {
+			.overview {
+				grid-template-columns: 1fr;
+			}
 
-		.overview.clip {
-			grid-auto-rows: auto;
-			overflow: visible;
-		}
+			.overview.clip {
+				grid-auto-rows: auto;
+				overflow: visible;
+			}
 
-		.overview.clip .column {
-			overflow-y: visible;
+			.overview.clip .column {
+				overflow-y: visible;
+			}
 		}
 	}
 

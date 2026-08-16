@@ -37,7 +37,7 @@
 		const explicitIds = new Set(card.entities.map((ref) => ref.entity));
 		const matched = wildcardEntityIds(card.wildcard, Object.keys($states ?? {}))
 			.filter((entityId) => !explicitIds.has(entityId))
-			.map((entityId) => ({ entity: entityId }));
+			.map((entityId): EntityRef => ({ entity: entityId }));
 		return [...card.entities, ...matched];
 	});
 
@@ -63,11 +63,13 @@
 	// a blinds section Open all / Close all, instead of an "All" tile in the grid
 	let switchableIds = $derived(
 		resolvedEntities
+			.filter((ref) => ref.readonly !== true)
 			.map((ref) => ref.entity)
 			.filter((entityId) => ['light', 'switch', 'input_boolean'].includes(entityId.split('.')[0]))
 	);
 	let coverIds = $derived(
 		resolvedEntities
+			.filter((ref) => ref.readonly !== true)
 			.map((ref) => ref.entity)
 			.filter((entityId) => entityId.split('.')[0] === 'cover')
 	);

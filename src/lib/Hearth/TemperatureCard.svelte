@@ -2,7 +2,12 @@
 	import { connected, connection, states } from '$lib/Stores';
 	import type { OverviewCard } from './config';
 	import { cachedData, startDataRefresh } from './refresh';
-	import { airQualityVerdict, sensorNumber, setClimateTemperature } from './store';
+	import {
+		airQualityVerdict,
+		controlOverrides,
+		sensorNumber,
+		setClimateTemperature
+	} from './store';
 	import Icon from './Icon.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'temperature' }> } = $props();
@@ -17,7 +22,17 @@
 	);
 
 	let climate = $derived(card.climate_entity ? $states?.[card.climate_entity] : undefined);
-	let target = $derived(sensorNumber(String(climate?.attributes?.temperature ?? '')));
+	// the pending override wins, so repeated +/- presses step from the value
+	// just sent rather than resending the stale state
+	let target = $derived(
+		sensorNumber(
+			String(
+				$controlOverrides[`climate:${card.climate_entity}`] ??
+					climate?.attributes?.temperature ??
+					''
+			)
+		)
+	);
 	let targetStep = $derived(
 		sensorNumber(String(climate?.attributes?.target_temp_step ?? '')) ?? 0.5
 	);

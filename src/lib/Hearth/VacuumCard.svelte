@@ -83,7 +83,8 @@
 		<div class="status">{status}</div>
 	</div>
 	{#if card.quick_action}
-		<div
+		<button
+			type="button"
 			class="action pressable"
 			class:running
 			class:pending
@@ -92,10 +93,11 @@
 				event.stopPropagation();
 				if (card.entity && !preview) toggleVacuum(card.entity);
 			}}
+			onkeydown={(event) => event.stopPropagation()}
 		>
 			<Icon name={running ? 'stop' : 'play_arrow'} size={18} />
 			{running ? 'Stop' : 'Clean'}
-		</div>
+		</button>
 	{/if}
 	<Icon name="chevron_right" size={21} color="var(--h-icon)" />
 </div>
@@ -151,6 +153,8 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
+		border: 0;
+		font: inherit;
 		padding: 10px 16px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;

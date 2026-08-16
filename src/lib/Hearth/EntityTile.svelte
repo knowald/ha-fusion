@@ -154,7 +154,7 @@
 			disabled: $hearthEditMode || readonly || !available
 		}}
 		onclick={handleClick}
-		onkeydown={(event) => activateOnKeyboard(event, handleClick)}
+		onkeydown={(event) => activateOnKeyboard(event, event.shiftKey ? openControls : handleClick)}
 	>
 		<div class="content">
 			<Icon name={icon || domainIcon(entity)} size={26} color={iconColor} fill={on} />

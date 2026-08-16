@@ -464,7 +464,7 @@
 			onclick={enterEditMode}
 		>
 			<Icon name="edit" size={18} />
-			<span>Edit dashboard</span>
+			<span>{$lang('hearth_edit_configuration')}</span>
 		</button>
 	{/if}
 </section>

@@ -103,16 +103,15 @@
 				<div class="artist">{attributes.media_artist ?? ''}</div>
 			</div>
 			{#if hasTrack}
-				<span
+				<button
+					type="button"
 					class="play pressable"
 					class:pending
-					role="button"
-					tabindex="0"
 					aria-label={playing ? 'Pause' : 'Play'}
 					onclick={() => card.entity && toggleMediaPlayback(card.entity)}
 				>
 					<Icon name={playing ? 'pause' : 'play_arrow'} size={26} fill />
-				</span>
+				</button>
 			{/if}
 		</div>
 		<div
@@ -229,6 +228,9 @@
 		width: 52px;
 		height: 52px;
 		flex: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
 		border-radius: 99px;
 		background: rgb(var(--h-surface-rgb));
 		color: var(--h-bg-1);

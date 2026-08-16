@@ -90,7 +90,7 @@
 			color="rgb(var(--h-accent-rgb))"
 			fill
 		/>
-		<div>
+		<div class="current">
 			<div class="temp">
 				{typeof temperature === 'number'
 					? Intl.NumberFormat($selectedLanguage).format(Math.round(temperature))
@@ -130,8 +130,14 @@
 
 	.row {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		gap: 14px;
+	}
+
+	.current {
+		min-width: 0;
+		flex: 1 1 120px;
 	}
 
 	.temp {
@@ -147,6 +153,7 @@
 
 	.forecast {
 		margin-left: auto;
+		flex: 0 0 auto;
 		display: flex;
 		gap: 14px;
 		text-align: center;

@@ -96,7 +96,12 @@
 		disabled: $hearthEditMode || readonly || !available
 	}}
 	onclick={handleClick}
-	onkeydown={(event) => activateOnKeyboard(event, handleClick)}
+	onkeydown={(event) =>
+		activateOnKeyboard(event, () =>
+			event.shiftKey && available && !readonly && !$hearthEditMode
+				? popup.set({ kind: 'blind', entity, name: label, sliderUpdates })
+				: handleClick()
+		)}
 >
 	<div class="fill" style:width="{position}%"></div>
 	<div class="content">

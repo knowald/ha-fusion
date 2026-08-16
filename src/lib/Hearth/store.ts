@@ -547,9 +547,26 @@ export function configEntityIds(config: HearthConfig): string[] {
 	const ids = new Set<string>();
 	const addCard = (card: OverviewCard) => {
 		if ('entity' in card && card.entity) ids.add(card.entity);
-		if (card.type === 'entities') for (const ref of card.entities) ids.add(ref.entity);
-		if (card.type === 'scenes') for (const ref of card.scenes) ids.add(ref.entity);
-		if (card.type === 'vacuum') for (const ref of card.modes ?? []) ids.add(ref.entity);
+		if (card.type === 'entities') {
+			for (const ref of card.entities) ids.add(ref.entity);
+			if (card.summary_entity) ids.add(card.summary_entity);
+		}
+		if (card.type === 'scenes') {
+			for (const ref of card.scenes) {
+				ids.add(ref.entity);
+				if (ref.active_entity) ids.add(ref.active_entity);
+			}
+		}
+		if (card.type === 'vacuum') {
+			for (const ref of card.modes ?? []) ids.add(ref.entity);
+			if (card.battery_entity) ids.add(card.battery_entity);
+			if (card.bin_entity) ids.add(card.bin_entity);
+		}
+		if (card.type === 'header') {
+			if (card.temp_entity) ids.add(card.temp_entity);
+			if (card.humidity_entity) ids.add(card.humidity_entity);
+		}
+		if (card.type === 'temperature' && card.climate_entity) ids.add(card.climate_entity);
 	};
 	for (const room of config.rooms) {
 		for (const column of room.cards ?? []) {

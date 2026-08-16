@@ -75,6 +75,8 @@
 		display?: string;
 		readonly?: boolean;
 		slider_updates?: string;
+		// YAML-only field with no form control; carried so edits don't drop it
+		verdict?: EntityRef['verdict'];
 	};
 	type EditableVacuumMode = {
 		entity: string;
@@ -152,7 +154,8 @@
 					icon: ref.icon ?? '',
 					display: ref.display ?? '',
 					readonly: ref.readonly ?? false,
-					slider_updates: ref.slider_updates ?? ''
+					slider_updates: ref.slider_updates ?? '',
+					verdict: ref.verdict
 				}))
 			: []
 	);
@@ -356,7 +359,8 @@
 						slider_updates:
 							ref.slider_updates === 'continuous' || ref.slider_updates === 'release'
 								? ref.slider_updates
-								: undefined
+								: undefined,
+						verdict: ref.verdict
 					}))
 					.filter((ref) => ref.entity),
 				fill: cardFill,
