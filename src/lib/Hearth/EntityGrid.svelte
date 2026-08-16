@@ -16,6 +16,7 @@
 		compact = false,
 		readonly = false,
 		sliderUpdates = 'continuous',
+		tuneButton = false,
 		minTileWidth = 190,
 		showDragHandles = true,
 		onreorder = undefined,
@@ -30,6 +31,8 @@
 		/** card-wide default; an entity's own `readonly` wins */
 		readonly?: boolean;
 		sliderUpdates?: SliderUpdateMode;
+		/** restores the per-tile controls glyph beside the long-press gesture */
+		tuneButton?: boolean;
 		minTileWidth?: number;
 		showDragHandles?: boolean;
 		onreorder?: (entities: EntityRef[]) => void;
@@ -64,7 +67,7 @@
 				</div>
 			{/if}
 			{#if (ref.display ?? style) === 'stat'}
-				<StatTile entity={ref.entity} name={ref.name} />
+				<StatTile entity={ref.entity} name={ref.name} verdictBands={ref.verdict} />
 			{:else}
 				<EntityTile
 					entity={ref.entity}
@@ -72,6 +75,7 @@
 					icon={ref.icon}
 					readonly={ref.readonly ?? readonly}
 					sliderUpdates={ref.slider_updates ?? sliderUpdates}
+					showTune={tuneButton}
 					{compact}
 				/>
 			{/if}

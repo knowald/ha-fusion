@@ -33,6 +33,53 @@ describe('normalizeHearthConfig', () => {
 		).toMatchObject({ screensaver_drift: true, screensaver_brightness: 100 });
 	});
 
+	it('normalizes customization flags and verdict bands', () => {
+		const config = normalizeHearthConfig({
+			rail: [],
+			rooms: [
+				{
+					id: 'home',
+					cards: [
+						[
+							{
+								id: 'lights',
+								type: 'entities',
+								title: 'Lights',
+								show_count: false,
+								group_actions: false,
+								tune_button: true,
+								entities: [
+									{ entity: 'sensor.co2', verdict: { good: 500, fair: 900 } },
+									{ entity: 'sensor.pm25', verdict: false },
+									{ entity: 'sensor.junk', verdict: { good: 9, fair: 3 } }
+								]
+							},
+							{
+								id: 'temp',
+								type: 'temperature',
+								entity: 'sensor.inside',
+								verdict: false
+							},
+							{ id: 'vac', type: 'vacuum', quick_action: true }
+						]
+					]
+				}
+			]
+		});
+		const [lights, temp, vac] = config.rooms[0].cards[0] as any[];
+		expect(lights).toMatchObject({
+			show_count: false,
+			group_actions: false,
+			tune_button: true
+		});
+		expect(lights.entities[0].verdict).toEqual({ good: 500, fair: 900, max: undefined });
+		expect(lights.entities[1].verdict).toBe(false);
+		// inverted thresholds are unusable and fall back to device-class defaults
+		expect(lights.entities[2].verdict).toBeUndefined();
+		expect(temp.verdict).toBe(false);
+		expect(vac.quick_action).toBe(true);
+	});
+
 	it('repairs globally duplicated IDs without dropping valid items', () => {
 		const config = normalizeHearthConfig({
 			rail: [

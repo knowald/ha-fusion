@@ -21,6 +21,17 @@ export interface HearthRoom {
 	cards: OverviewItem[][];
 }
 
+/**
+ * Ascending comfort thresholds for a numeric sensor: below `good` reads GOOD,
+ * below `fair` reads FAIR, else POOR. `max` scales the banded track and
+ * defaults to 1.5x `fair`.
+ */
+export interface VerdictBands {
+	good: number;
+	fair: number;
+	max?: number;
+}
+
 export interface EntityRef {
 	entity: string;
 	name?: string;
@@ -32,6 +43,9 @@ export interface EntityRef {
 	readonly?: boolean;
 	// overrides the containing entities card's slider update behavior
 	slider_updates?: SliderUpdateMode;
+	// stat readouts judge known air sensors by device_class; false suppresses
+	// that, custom bands extend it to any ascending numeric sensor
+	verdict?: false | VerdictBands;
 }
 
 export interface SceneRef extends EntityRef {
@@ -149,6 +163,11 @@ type OverviewCardVariant =
 			label?: string;
 			entity?: string;
 			unit?: string;
+			// climate entity that turns the card into a thermostat: target readout,
+			// +/- controls and a dashed target line on the history chart
+			climate_entity?: string;
+			// same semantics as EntityRef.verdict, for the card's headline sensor
+			verdict?: false | VerdictBands;
 			height?: number;
 	  }
 	| { id: string; type: 'media'; entity?: string; height?: number }
@@ -162,6 +181,8 @@ type OverviewCardVariant =
 			modes?: VacuumModeRef[];
 			battery_entity?: string;
 			bin_entity?: string;
+			// restores the one-tap Clean/Stop button next to the summary row
+			quick_action?: boolean;
 	  }
 	// the general-purpose grid: any mix of domains, tiles adapt per domain
 	// (lights dim on drag, covers show position). `stat` renders big sensor
@@ -172,7 +193,14 @@ type OverviewCardVariant =
 			title?: string;
 			style?: 'tile' | 'stat';
 			columns?: number;
+			// a titled section counts by default; false opts out
 			show_count?: boolean;
+			// header verbs (All off / Open all / Close all) render automatically
+			// for multi-light and multi-cover grids; false hides them
+			group_actions?: boolean;
+			// restores the per-tile controls glyph for surfaces where the
+			// long-press gesture is unwanted
+			tune_button?: boolean;
 			vertical_padding?: 'compact';
 			// every tile is a readout unless the entity overrides it; see
 			// EntityRef.readonly
@@ -688,6 +716,23 @@ function normalizeHeight(raw: unknown): number | undefined {
 	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 40 ? Math.round(raw) : undefined;
 }
 
+function normalizeVerdict(raw: unknown): false | VerdictBands | undefined {
+	if (raw === false) return false;
+	if (
+		isRecord(raw) &&
+		typeof raw.good === 'number' &&
+		typeof raw.fair === 'number' &&
+		raw.good < raw.fair
+	) {
+		return {
+			good: raw.good,
+			fair: raw.fair,
+			max: typeof raw.max === 'number' && raw.max > raw.fair ? raw.max : undefined
+		};
+	}
+	return undefined;
+}
+
 function normalizeEntityRef(raw: any): EntityRef | null {
 	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
 	const entity = trimmedOrUndefined(raw.entity);
@@ -704,7 +749,8 @@ function normalizeEntityRef(raw: any): EntityRef | null {
 		slider_updates:
 			raw?.slider_updates === 'release' || raw?.slider_updates === 'continuous'
 				? raw.slider_updates
-				: undefined
+				: undefined,
+		verdict: normalizeVerdict(raw?.verdict)
 	};
 }
 
@@ -770,7 +816,10 @@ function normalizeCard(
 						typeof card.columns === 'number' && card.columns >= 1
 							? Math.floor(card.columns)
 							: undefined,
-					show_count: card.show_count === true ? true : undefined,
+					// tri-state: a titled section counts by default, false opts out
+					show_count: typeof card.show_count === 'boolean' ? card.show_count : undefined,
+					group_actions: card.group_actions === false ? false : undefined,
+					tune_button: card.tune_button === true ? true : undefined,
 					vertical_padding: card.vertical_padding === 'compact' ? 'compact' : undefined,
 					readonly: card.readonly === true ? true : undefined,
 					wildcard: trimmedOrUndefined(card.wildcard),
@@ -787,6 +836,12 @@ function normalizeCard(
 		...(card.type === 'temperature' || card.type === 'media' || card.type === 'fusion'
 			? { height: normalizeHeight(card.height) }
 			: {}),
+		...(card.type === 'temperature'
+			? {
+					climate_entity: trimmedOrUndefined(card.climate_entity),
+					verdict: normalizeVerdict(card.verdict)
+				}
+			: {}),
 		...(card.type === 'scenes'
 			? {
 					style: card.style === 'bar' ? 'bar' : undefined,
@@ -801,7 +856,8 @@ function normalizeCard(
 						.map(normalizeVacuumModeRef)
 						.filter((ref: VacuumModeRef | null): ref is VacuumModeRef => ref !== null),
 					battery_entity: trimmedOrUndefined(card.battery_entity),
-					bin_entity: trimmedOrUndefined(card.bin_entity)
+					bin_entity: trimmedOrUndefined(card.bin_entity),
+					quick_action: card.quick_action === true ? true : undefined
 				}
 			: {}),
 		fill: normalizeFill(card.fill),

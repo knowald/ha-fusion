@@ -91,8 +91,14 @@
 	{/if}
 	<div class="controls">
 		<div class="track-row">
-			<Icon name="music_note" size={30} color="var(--h-media)" fill />
 			<div class="track">
+				{#if hasTrack}
+					<div class="kicker">
+						NOW PLAYING{attributes.friendly_name
+							? ` · ${String(attributes.friendly_name).toUpperCase()}`
+							: ''}
+					</div>
+				{/if}
 				<div class="title">{attributes.media_title ?? 'Nothing playing'}</div>
 				<div class="artist">{attributes.media_artist ?? ''}</div>
 			</div>
@@ -100,9 +106,12 @@
 				<span
 					class="play pressable"
 					class:pending
+					role="button"
+					tabindex="0"
+					aria-label={playing ? 'Pause' : 'Play'}
 					onclick={() => card.entity && toggleMediaPlayback(card.entity)}
 				>
-					<Icon name={playing ? 'pause_circle' : 'play_circle'} size={38} fill />
+					<Icon name={playing ? 'pause' : 'play_arrow'} size={26} fill />
 				</span>
 			{/if}
 		</div>
@@ -187,8 +196,19 @@
 		min-width: 0;
 	}
 
+	.kicker {
+		font-family: var(--h-font-mono);
+		font-size: 10px;
+		letter-spacing: 2px;
+		color: var(--h-accent-dim-text);
+		margin-bottom: 7px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 	.title {
-		font-size: 17px;
+		font-size: 20px;
 		font-weight: 600;
 		color: #fff;
 		white-space: nowrap;
@@ -204,8 +224,17 @@
 		text-overflow: ellipsis;
 	}
 
+	/* transport is the card's one guaranteed control: a real 52px target */
 	.play {
-		color: #fff;
+		width: 52px;
+		height: 52px;
+		flex: none;
+		border-radius: 99px;
+		background: rgb(var(--h-surface-rgb));
+		color: var(--h-bg-1);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		cursor: pointer;
 	}
 
@@ -235,7 +264,7 @@
 		left: 0;
 		height: 4px;
 		border-radius: 2px;
-		background: var(--h-media);
+		background: var(--h-accent-deep);
 	}
 
 	.progress-thumb {
@@ -243,8 +272,7 @@
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		background: var(--h-media);
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--h-media) 25%, transparent);
+		background: rgb(var(--h-surface-rgb));
 	}
 
 	.times {

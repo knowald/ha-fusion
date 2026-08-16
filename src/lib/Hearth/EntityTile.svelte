@@ -4,6 +4,7 @@
 	import { lang, states } from '$lib/Stores';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
+	import { getTogglableService } from '$lib/Utils';
 	import {
 		controlOverrides,
 		entityActiveFor,
@@ -12,6 +13,7 @@
 		pendingEntities,
 		popup,
 		requestConfirmation,
+		sensorNumber,
 		toggleEntity
 	} from './store';
 	import { openEntityModal } from './modals';
@@ -19,7 +21,7 @@
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';
 	import TuneButton from './TuneButton.svelte';
-	import { activateOnKeyboard } from './interaction';
+	import { activateOnKeyboard, longPress } from './interaction';
 
 	let {
 		entity,
@@ -28,6 +30,7 @@
 		compact = false,
 		readonly = false,
 		sliderUpdates = 'continuous',
+		showTune = false,
 		onedit = undefined
 	}: {
 		entity: string;
@@ -37,6 +40,8 @@
 		/** display only: taps never send a command */
 		readonly?: boolean;
 		sliderUpdates?: SliderUpdateMode;
+		/** restores the controls glyph beside the long-press gesture */
+		showTune?: boolean;
 		onedit?: () => void;
 	} = $props();
 
@@ -48,12 +53,46 @@
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let label = $derived(name || stateObj?.attributes?.friendly_name || entity);
 	let iconColor = $derived(
-		!available ? 'var(--h-bad-text)' : on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)'
+		!available ? 'var(--h-icon-dim)' : on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)'
 	);
 	let fanSpeed = $derived(
 		domain === 'fan' && on ? Math.round(stateObj?.attributes?.percentage ?? 0) : null
 	);
-	let interactive = $derived($hearthEditMode || (!readonly && available));
+
+	// domains whose fusion modal only echoes the state the tile already shows
+	const BARE_MODAL_DOMAINS = new Set([
+		'air_quality',
+		'date',
+		'time',
+		'event',
+		'image_processing',
+		'mailbox',
+		'sensor',
+		'binary_sensor',
+		'stt',
+		'weather',
+		'schedule',
+		'sun',
+		'person',
+		'zone'
+	]);
+
+	let bareModal = $derived(
+		BARE_MODAL_DOMAINS.has(domain) ||
+			(domain === 'device_tracker' && stateObj?.attributes?.source_type !== 'gps')
+	);
+	// what a tap earns: a command, a history chart, a domain modal - or, for a
+	// readout whose modal would only echo the state, nothing at all
+	let tapSurface = $derived(
+		stateObj && getTogglableService(stateObj)
+			? 'toggle'
+			: bareModal
+				? sensorNumber(stateObj?.state) !== null
+					? 'history'
+					: 'none'
+				: 'modal'
+	);
+	let interactive = $derived($hearthEditMode || (!readonly && available && tapSurface !== 'none'));
 
 	function handleClick() {
 		if ($hearthEditMode) {
@@ -72,16 +111,32 @@
 				confirmLabel: unlocking ? 'Unlock' : 'Lock',
 				action: () => toggleEntity(entity)
 			});
-		} else if (!toggleEntity(entity)) {
+		} else if (tapSurface === 'toggle') {
+			toggleEntity(entity);
+		} else if (tapSurface === 'history') {
+			popup.set({ kind: 'sensor', entity, name: label });
+		} else if (tapSurface === 'modal') {
+			openEntityModal(entity, name);
+		}
+	}
+
+	function openControls() {
+		if ($hearthEditMode || readonly || !available) return;
+		if (domain === 'fan') {
+			// hearth's own fan sheet has the speed slider the fusion modal lacks
+			popup.set({ kind: 'fan', entity, name: label });
+		} else if (tapSurface === 'history') {
+			popup.set({ kind: 'sensor', entity, name: label });
+		} else if (tapSurface !== 'none') {
 			openEntityModal(entity, name);
 		}
 	}
 </script>
 
 {#if domain === 'light'}
-	<LightTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {onedit} />
+	<LightTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {showTune} {onedit} />
 {:else if domain === 'cover'}
-	<BlindTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {onedit} />
+	<BlindTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {showTune} {onedit} />
 {:else}
 	<div
 		class="tile"
@@ -94,6 +149,10 @@
 		tabindex={interactive ? 0 : -1}
 		aria-pressed={on}
 		use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
+		use:longPress={{
+			hold: openControls,
+			disabled: $hearthEditMode || readonly || !available
+		}}
 		onclick={handleClick}
 		onkeydown={(event) => activateOnKeyboard(event, handleClick)}
 	>
@@ -115,13 +174,8 @@
 		</div>
 		{#if $hearthEditMode && onedit}
 			<TuneButton icon="edit" onopen={onedit} alignEdge />
-		{:else if $hearthEditMode || readonly || !available}
-			<!-- readout: no way in to a control surface from this tile -->
-		{:else if domain === 'fan'}
-			<!-- hearth's own fan sheet has the speed slider the fusion modal lacks -->
-			<TuneButton alignEdge onopen={() => popup.set({ kind: 'fan', entity, name: label })} />
-		{:else}
-			<TuneButton alignEdge onopen={() => openEntityModal(entity, name)} />
+		{:else if showTune && !$hearthEditMode && !readonly && available && tapSurface !== 'none'}
+			<TuneButton alignEdge onopen={openControls} />
 		{/if}
 	</div>
 {/if}
@@ -163,13 +217,19 @@
 		border-color: rgb(var(--h-accent-rgb) / calc(0.28 * var(--h-accent-scale)));
 	}
 
+	/* offline is a fact, not an alarm: dashed and muted rather than red */
 	.tile.unreachable {
-		border-color: rgb(var(--h-bad-rgb) / 0.45);
-		background: rgb(var(--h-bad-rgb) / 0.07);
+		border-style: dashed;
+		border-color: rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.015 * var(--h-fill-scale)));
+	}
+
+	.tile.unreachable .name {
+		color: var(--h-text-5);
 	}
 
 	.tile.unreachable .state {
-		color: var(--h-bad-text);
+		color: var(--h-text-6);
 	}
 
 	.content {
@@ -196,13 +256,14 @@
 
 	.state {
 		font-size: 13px;
-		color: var(--h-text-6);
+		margin-top: 3px;
+		color: var(--h-text-3);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.state.on {
-		color: var(--h-accent-dim-text);
+		color: var(--h-accent-text);
 	}
 </style>

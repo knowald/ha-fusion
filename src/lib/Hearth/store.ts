@@ -4,7 +4,14 @@ import { callService, type HassEntities, type HassEntity } from 'home-assistant-
 import { connected, connection, states } from '$lib/Stores';
 import type { SliderUpdateMode } from '$lib/Types';
 import { getTogglableService } from '$lib/Utils';
-import { DEFAULT_HEARTH_CONFIG, type HearthConfig, type SceneRef } from './config';
+import {
+	DEFAULT_HEARTH_CONFIG,
+	isStack,
+	type HearthConfig,
+	type OverviewCard,
+	type SceneRef,
+	type VerdictBands
+} from './config';
 
 /* configuration */
 
@@ -146,7 +153,7 @@ export async function saveEdit(force = false): Promise<boolean> {
 export const currentRoom = writable<string>('home');
 
 export type Popup = {
-	kind: 'light' | 'blind' | 'fan' | 'media';
+	kind: 'light' | 'blind' | 'fan' | 'media' | 'sensor';
 	entity: string;
 	name: string;
 	sliderUpdates?: SliderUpdateMode;
@@ -533,6 +540,94 @@ export function setBlindTiltPosition(entityId: string, position: number, commit 
 	);
 }
 
+/* attention */
+
+/** Every entity id referenced anywhere in the dashboard config. */
+export function configEntityIds(config: HearthConfig): string[] {
+	const ids = new Set<string>();
+	const addCard = (card: OverviewCard) => {
+		if ('entity' in card && card.entity) ids.add(card.entity);
+		if (card.type === 'entities') for (const ref of card.entities) ids.add(ref.entity);
+		if (card.type === 'scenes') for (const ref of card.scenes) ids.add(ref.entity);
+		if (card.type === 'vacuum') for (const ref of card.modes ?? []) ids.add(ref.entity);
+	};
+	for (const room of config.rooms) {
+		for (const column of room.cards ?? []) {
+			for (const item of column) {
+				if (isStack(item)) item.cards.forEach(addCard);
+				else addCard(item);
+			}
+		}
+	}
+	return [...ids];
+}
+
+export interface AttentionItem {
+	entity: string;
+	name: string;
+	detail: string;
+}
+
+function relativeSince(iso: string | undefined): string | null {
+	if (!iso) return null;
+	const minutes = Math.round((Date.now() - Date.parse(iso)) / 60_000);
+	if (!Number.isFinite(minutes) || minutes < 1) return null;
+	if (minutes < 60) return `${minutes} min ago`;
+	const hours = Math.round(minutes / 60);
+	if (hours < 48) return `${hours} h ago`;
+	return `${Math.round(hours / 24)} days ago`;
+}
+
+/**
+ * Unresolved conditions worth a rail line: dashboard entities that are offline.
+ * The empty list is the "all systems nominal" case and renders as nothing.
+ */
+export function attentionItems(
+	config: HearthConfig,
+	$states: HassEntities | undefined
+): AttentionItem[] {
+	if (!$states) return [];
+	return configEntityIds(config)
+		.filter((entityId) => {
+			const entity = $states[entityId];
+			return entity !== undefined && UNAVAILABLE_STATES.includes(entity.state);
+		})
+		.map((entityId) => {
+			const entity = $states[entityId];
+			const since = relativeSince(entity?.last_changed);
+			return {
+				entity: entityId,
+				name: entity?.attributes?.friendly_name ?? entityId,
+				detail: since ? `Last seen ${since}` : 'Offline'
+			};
+		});
+}
+
+/* group actions */
+
+/** Header verb for a lights section: everything listed goes off in one call. */
+export function turnAllOff(entityIds: string[]) {
+	const available = entityIds.filter((entityId) => entityAvailable(get(states)?.[entityId]));
+	if (!available.length) return;
+	for (const entityId of available) {
+		setControlOverride(`active:${entityId}`, 0);
+		setControlOverride(`level:${entityId}`, 0);
+		markPending(entityId);
+	}
+	service('homeassistant', 'turn_off', { entity_id: available });
+}
+
+/** Header verb for a blinds section: every cover to fully open or closed. */
+export function setAllCovers(entityIds: string[], open: boolean) {
+	const available = entityIds.filter((entityId) => entityAvailable(get(states)?.[entityId]));
+	if (!available.length) return;
+	for (const entityId of available) {
+		setControlOverride(`blind:${entityId}`, open ? 100 : 0);
+		markPending(entityId);
+	}
+	service('cover', open ? 'open_cover' : 'close_cover', { entity_id: available });
+}
+
 /* devices */
 
 const MEDIA_OFF_STATES = ['off', 'unavailable', 'unknown', 'standby', 'idle'];
@@ -823,4 +918,65 @@ export function sensorNumber(state: string | undefined): number | null {
 	if (state === undefined) return null;
 	const value = parseFloat(state);
 	return Number.isFinite(value) ? value : null;
+}
+
+export interface AirVerdict {
+	label: 'GOOD' | 'FAIR' | 'POOR';
+	tone: 'good' | 'fair' | 'poor';
+	/** Reading's position on the banded track, 0..1. */
+	fraction: number;
+	/** Band boundaries on the track, 0..1 each. */
+	ticks: number[];
+}
+
+/**
+ * Reads a sensor against WHO/ASHRAE-style comfort bands. Bands are indoor-air
+ * oriented: CO2 in ppm, PM2.5 in ug/m3, humidity in %RH (where the comfortable
+ * range is a window, not a maximum).
+ */
+export function airQualityVerdict(
+	deviceClass: string | undefined,
+	value: number | null,
+	custom?: false | VerdictBands
+): AirVerdict | null {
+	if (value === null || custom === false) return null;
+	const clamp01 = (fraction: number) => Math.min(1, Math.max(0, fraction));
+	if (custom) {
+		const scale = custom.max ?? custom.fair * 1.5;
+		const tone = value < custom.good ? 'good' : value < custom.fair ? 'fair' : 'poor';
+		return {
+			label: tone === 'good' ? 'GOOD' : tone === 'fair' ? 'FAIR' : 'POOR',
+			tone,
+			fraction: clamp01(value / scale),
+			ticks: [custom.good / scale, custom.fair / scale]
+		};
+	}
+	if (deviceClass === 'carbon_dioxide') {
+		const tone = value < 600 ? 'good' : value < 1000 ? 'fair' : 'poor';
+		return {
+			label: tone === 'good' ? 'GOOD' : tone === 'fair' ? 'FAIR' : 'POOR',
+			tone,
+			fraction: clamp01(value / 1500),
+			ticks: [600 / 1500, 1000 / 1500]
+		};
+	}
+	if (deviceClass === 'pm25') {
+		const tone = value < 12 ? 'good' : value < 35 ? 'fair' : 'poor';
+		return {
+			label: tone === 'good' ? 'GOOD' : tone === 'fair' ? 'FAIR' : 'POOR',
+			tone,
+			fraction: clamp01(value / 50),
+			ticks: [12 / 50, 35 / 50]
+		};
+	}
+	if (deviceClass === 'humidity') {
+		const tone = value >= 30 && value <= 60 ? 'good' : value >= 20 && value <= 70 ? 'fair' : 'poor';
+		return {
+			label: tone === 'good' ? 'GOOD' : tone === 'fair' ? 'FAIR' : 'POOR',
+			tone,
+			fraction: clamp01(value / 100),
+			ticks: [0.3, 0.6]
+		};
+	}
+	return null;
 }

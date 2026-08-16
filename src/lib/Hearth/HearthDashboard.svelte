@@ -464,6 +464,7 @@
 			onclick={enterEditMode}
 		>
 			<Icon name="edit" size={18} />
+			<span>Edit dashboard</span>
 		</button>
 	{/if}
 </section>
@@ -600,15 +601,17 @@
 	}
 
 	/* scroll containers clip on both axes, which would crop the tiles' glow -
-	   the padding/negative-margin pair moves the clip edge outward */
+	   the padding/negative-margin pair moves the clip edge outward. The offset
+	   matches the column gap so the widest glow (30px blur) fades out before
+	   the clip edge without either box painting into its neighbour's content. */
 	.rail-scroll {
 		min-height: 0;
 		overflow-y: auto;
 		scrollbar-width: none;
 		display: flex;
 		flex-direction: column;
-		padding: 16px;
-		margin: -16px;
+		padding: 30px;
+		margin: -30px;
 	}
 
 	.rail-scroll::-webkit-scrollbar {
@@ -620,8 +623,8 @@
 		min-height: 0;
 		overflow-y: auto;
 		scrollbar-width: none;
-		padding: 16px;
-		margin: -16px;
+		padding: 30px;
+		margin: -30px;
 	}
 
 	.main::-webkit-scrollbar {
@@ -663,23 +666,24 @@
 		}
 	}
 
+	/* a labeled row at the rail's foot rather than an anonymous floating pencil */
 	.edit-toggle {
 		position: absolute;
-		right: calc(14px + var(--h-pad-x));
+		left: calc(14px + var(--h-pad-x));
 		bottom: calc(14px + var(--h-pad-y));
 		z-index: 30;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		width: 36px;
-		height: 36px;
-		border-radius: var(--h-radius-xs);
-		color: var(--h-text-6);
+		gap: 9px;
+		padding: 11px 15px;
+		border-radius: var(--h-radius-sm);
+		color: var(--h-text-4);
+		font-size: 13.5px;
 		cursor: pointer;
-		opacity: 0.6;
+		opacity: 0.75;
 		border: 0;
-		background: none;
-		font: inherit;
+		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
+		font-family: inherit;
 	}
 
 	.edit-toggle:hover {

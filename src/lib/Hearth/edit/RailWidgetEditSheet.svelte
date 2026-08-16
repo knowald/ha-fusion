@@ -478,6 +478,10 @@
 					</div>
 				</div>
 				<EntityField label="Entity (optional, appends its state)" bind:value={entity} />
+				<div class="hint">
+					Leave text and entity empty to report actual conditions instead: one row per offline
+					dashboard entity, nothing when all is well.
+				</div>
 			{/if}
 
 			{#if type === 'entity'}

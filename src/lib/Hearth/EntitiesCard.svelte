@@ -10,7 +10,13 @@
 		type OverviewCard
 	} from './config';
 	import { getHearthInteractionMode } from './interaction';
-	import { entityGroupSummary, hearthEditMode, updateConfig } from './store';
+	import {
+		entityGroupSummary,
+		hearthEditMode,
+		setAllCovers,
+		turnAllOff,
+		updateConfig
+	} from './store';
 	import AnchoredPopover from './AnchoredPopover.svelte';
 	import EntityGrid from './EntityGrid.svelte';
 	import Icon from './Icon.svelte';
@@ -51,6 +57,22 @@
 						.join(' ')
 						.trim()
 				: summary.text)
+	);
+
+	// groups become verbs on the header line: a lights section offers All off,
+	// a blinds section Open all / Close all, instead of an "All" tile in the grid
+	let switchableIds = $derived(
+		resolvedEntities
+			.map((ref) => ref.entity)
+			.filter((entityId) => ['light', 'switch', 'input_boolean'].includes(entityId.split('.')[0]))
+	);
+	let coverIds = $derived(
+		resolvedEntities
+			.map((ref) => ref.entity)
+			.filter((entityId) => entityId.split('.')[0] === 'cover')
+	);
+	let showGroupActions = $derived(
+		card.group_actions !== false && !card.readonly && !$hearthEditMode && !preview
 	);
 
 	let row = $state<HTMLElement | undefined>();
@@ -143,6 +165,7 @@
 				compact={card.vertical_padding === 'compact'}
 				readonly={card.readonly}
 				sliderUpdates={card.slider_updates}
+				tuneButton={card.tune_button}
 				showDragHandles={showEntityDragHandles}
 				onreorder={reorderEntities}
 				onreceive={receiveEntity}
@@ -170,6 +193,7 @@
 					compact={card.vertical_padding === 'compact'}
 					readonly={card.readonly}
 					sliderUpdates={card.slider_updates}
+					tuneButton={card.tune_button}
 					showDragHandles={showEntityDragHandles}
 				/>
 			{/if}
@@ -180,9 +204,42 @@
 		{#if card.title || card.show_count}
 			<div class="section-header">
 				<div class="section-title">{card.title ?? ''}</div>
-				{#if card.show_count}
+				<!-- a titled section always carries its count; show_count: false opts out -->
+				{#if card.show_count ?? Boolean(card.title)}
 					<!-- same helper as the collapsed row, so both agree on the wording -->
 					<div class="section-hint">{summary.activeLabel}</div>
+				{/if}
+				<div class="section-spacer"></div>
+				{#if showGroupActions && switchableIds.length > 1}
+					<button
+						type="button"
+						class="group-action pressable"
+						use:Ripple={PRESS_RIPPLE}
+						onclick={() => turnAllOff(switchableIds)}
+					>
+						<Icon name="power_settings_new" size={17} />
+						All off
+					</button>
+				{/if}
+				{#if showGroupActions && coverIds.length > 1}
+					<button
+						type="button"
+						class="group-action pressable"
+						use:Ripple={PRESS_RIPPLE}
+						onclick={() => setAllCovers(coverIds, true)}
+					>
+						<Icon name="keyboard_double_arrow_up" size={16} />
+						Open all
+					</button>
+					<button
+						type="button"
+						class="group-action pressable"
+						use:Ripple={PRESS_RIPPLE}
+						onclick={() => setAllCovers(coverIds, false)}
+					>
+						<Icon name="keyboard_double_arrow_down" size={16} />
+						Close all
+					</button>
 				{/if}
 			</div>
 		{/if}
@@ -197,6 +254,7 @@
 				compact={card.vertical_padding === 'compact'}
 				readonly={card.readonly}
 				sliderUpdates={card.slider_updates}
+				tuneButton={card.tune_button}
 				showDragHandles={showEntityDragHandles}
 				onreorder={reorderEntities}
 				onreceive={receiveEntity}
@@ -208,8 +266,8 @@
 <style>
 	.section-header {
 		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
+		align-items: center;
+		gap: 14px;
 		margin-bottom: 14px;
 	}
 
@@ -222,6 +280,25 @@
 	.section-hint {
 		font-size: 13px;
 		color: var(--h-text-5);
+	}
+
+	.section-spacer {
+		flex: 1;
+	}
+
+	.group-action {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		padding: 9px 14px;
+		border-radius: 999px;
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.09 * var(--h-line-scale)));
+		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
+		color: var(--h-text-3);
+		font: inherit;
+		font-size: 13px;
+		font-weight: 500;
+		cursor: pointer;
 	}
 
 	.summary-row {

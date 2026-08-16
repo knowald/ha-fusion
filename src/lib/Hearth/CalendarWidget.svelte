@@ -2,8 +2,9 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { connected, connection, lang, selectedLanguage, states } from '$lib/Stores';
 	import { PRESS_RIPPLE, type RailWidget } from './config';
+	import { clockTimeOptions } from './clock';
 	import { startDataRefresh } from './refresh';
-	import { hearthEditMode, sensorNumber } from './store';
+	import { hearthConfig, hearthEditMode, sensorNumber } from './store';
 	import { openEntityModal } from './modals';
 	import Icon from './Icon.svelte';
 
@@ -71,8 +72,15 @@
 		return startDataRefresh(fetchNext, (value) => (next = value));
 	});
 
+	// event times follow the rail clock's hour format, so 17:00 on the clock is
+	// never "5:00 PM" one widget below it
+	let configuredClock = $derived($hearthConfig.rail.find((widget) => widget.type === 'clock'));
+
 	function clockTime(date: Date) {
-		return date.toLocaleTimeString($selectedLanguage, { hour: '2-digit', minute: '2-digit' });
+		return date.toLocaleTimeString(
+			$selectedLanguage,
+			clockTimeOptions(undefined, configuredClock?.hour_format)
+		);
 	}
 
 	let timeLine = $derived.by(() => {
@@ -80,7 +88,7 @@
 		const sameDay = next.start.toDateString() === new Date().toDateString();
 		const day = sameDay
 			? ''
-			: `${next.start.toLocaleDateString($selectedLanguage, { weekday: 'short' })} `;
+			: `${next.start.toLocaleDateString($selectedLanguage, { weekday: 'long' })} `;
 		if (next.allDay) return `${day}${$lang('hearth_all_day')}`.trim();
 		let line = `${day}${clockTime(next.start)}`;
 		const travelMinutes = widget.travel_entity

@@ -277,9 +277,13 @@
 
 	.overview.clip {
 		flex: 1;
-		height: 100%;
 		min-height: 0;
 		overflow: hidden;
+		/* the implicit row must be exactly the container height: an auto row
+		   sizes to the tallest column, which would inflate every other column's
+		   filling cards and push content past the clipped edge with the
+		   per-column scroll never engaging */
+		grid-auto-rows: minmax(0, 1fr);
 	}
 
 	.overview.clip .column {
@@ -288,9 +292,37 @@
 		scrollbar-width: thin;
 	}
 
-	@media (max-width: 1200px) {
+	/* collapse to one column only when the page itself is too narrow for two
+	   readable ones. Stacked columns then scroll as one page; screen-height
+	   rows would squeeze each column into a fraction of the viewport. */
+	@container hearth-page (max-width: 660px) {
 		.overview {
 			grid-template-columns: 1fr;
+		}
+
+		.overview.clip {
+			grid-auto-rows: auto;
+			overflow: visible;
+		}
+
+		.overview.clip .column {
+			overflow-y: visible;
+		}
+	}
+
+	/* same collapse for browsers without container queries */
+	@media (max-width: 700px) {
+		.overview {
+			grid-template-columns: 1fr;
+		}
+
+		.overview.clip {
+			grid-auto-rows: auto;
+			overflow: visible;
+		}
+
+		.overview.clip .column {
+			overflow-y: visible;
 		}
 	}
 
@@ -305,11 +337,14 @@
 		position: relative;
 	}
 
-	/* a filling slot takes its share of the column's leftover height; the floor
-	   keeps a heavy neighbour from crushing it into an unreadable sliver */
+	/* a filling slot starts at its content height and takes its share of the
+	   column's leftover on top - basis 0 would let a tall neighbouring column
+	   compress the card below its content and paint the chart past the card.
+	   Only a height-bounded column (fill_screen) may shrink it, down to the
+	   floor that keeps it from becoming an unreadable sliver */
 	.card-slot.stretch,
 	.stack-slot.stretch {
-		flex: var(--card-fill, 1) 1 0;
+		flex: var(--card-fill, 1) 1 auto;
 		min-height: 90px;
 	}
 
