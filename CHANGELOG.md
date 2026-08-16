@@ -27,6 +27,30 @@
 - Restore cross-container dashboard dragging and give alt-cloned sections fresh descendant ids (e657e8b, f8ba778)
 - Declare the fontsource side-effect imports so svelte-check passes under TypeScript 6 (5839ec8, 82fb9c2)
 
+## [2026.8.0](https://github.com/knowald/ha-fusion/releases/tag/2026.8.0) - 2026-08-04
+
+### Added
+
+- Hearth: light themes and a day/night switch driven by a Home Assistant entity (db260bb)
+- Hearth: image card for floor maps and stills, cleaning modes in the vacuum popover, live interactive card previews in the editor (14302be, d81ae86, e855479, 85dc63e)
+- Hearth: wildcard entity cards, discovered glanceable suggestions in the setup wizard, and fusion embed form fields (05a9acf, 77e70c0, 1cefdf1)
+- Hearth: search as an optional rail widget with keyboard controls, full material symbols search in the icon picker, entity card reordering (64cb617, fa994fd, a947e8b)
+- Hearth: release-only slider update mode, confirmations for disruptive device actions, first-run setup instead of a personal fallback (928abc9, dfd30e4, 9a4b525)
+- Hearth: wall display controls, screensaver drift and brightness, clock timezone (9fc618a, 90da2fb)
+
+### Changed
+
+- Hearth: cache recorder history across pages and release long-lived resources on navigation (5de42f8, 56081d0)
+- Hearth: unify component taxonomy, editor save models, refresh plumbing and optimistic control state internally (a06151d, ff313de, db19167, cde366a, 44a1e2f, 9192869, 0af33c7)
+
+### Fixed
+
+- Hearth: serialize and atomically persist config saves, preserve edits on save conflict, surface unreadable configuration, validate shapes and repair duplicate ids, keep unknown extension keys (7defe86, 9d5f7a4, 06f575d, 66f081e, 09e4ecc)
+- Hearth: honor base paths for APIs and the manifest, retain authentication retries, keep unrelated service workers alive, bundle fonts and symbols locally (78a0a11, 7eadada, eac0609, 3856114)
+- Hearth: surface device command and wake lock failures, distinguish unreachable entity states and boot from disconnect (195c278, b249c0c, af2f6e6, a719e03)
+- Hearth: strengthen tile state legibility, harden secondary touch targets, render discrete taps optimistically, clean up cancelled drag gestures (4339219, e65d8fc, a0c9be7, 5d329ae)
+- Hearth: prioritize page content on tablets, keep overflow controls reachable, make the rail clock locale-aware, localize primary controls (7bfbfee, 478a2f4, 6f038b5, 44e7569)
+
 ## [2026.7.4](https://github.com/knowald/ha-fusion/releases/tag/2026.7.4) - 2026-07-27
 
 ### Fixed
