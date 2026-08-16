@@ -112,8 +112,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.6.0)
       '@event-calendar/core':
-        specifier: ^5.9.0
-        version: 5.9.0(@typescript-eslint/types@8.63.0)
+        specifier: ^5.12.0
+        version: 5.12.0(@typescript-eslint/types@8.63.0)
       '@iconify/svelte':
         specifier: ^5.2.2
         version: 5.2.2(svelte@5.56.8(@typescript-eslint/types@8.63.0))
@@ -267,8 +267,8 @@ packages:
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@event-calendar/core@5.9.0':
-    resolution: {integrity: sha512-y9mBm5QLbDrbkWO3+/+myHAqFyYsq0TWuuQNs3NFzmYm0mH8zFDU83I+CyPG2kI+2w7kReqyj6ctwHq5ZjTdJw==}
+  '@event-calendar/core@5.12.0':
+    resolution: {integrity: sha512-qvdbuC04vfucWRh2Sr6toi95Mno3PQnBJ+3J8VMDor9u7d1xmNI+20ZVD635jgetQAwPN9+ScEqM4xeP4pVc1Q==}
 
   '@fontsource-variable/geist-mono@5.3.0':
     resolution: {integrity: sha512-vBbuwDEo9AkrqADMXOrlAR3DFcJi4/JxeuU43FoiQERnNwsfXNnvxvReZG02cQKmyk4DZkZdBZX3oTDvy2zBAw==}
@@ -2191,7 +2191,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@event-calendar/core@5.9.0(@typescript-eslint/types@8.63.0)':
+  '@event-calendar/core@5.12.0(@typescript-eslint/types@8.63.0)':
     dependencies:
       svelte: 5.56.8(@typescript-eslint/types@8.63.0)
     transitivePeerDependencies:
