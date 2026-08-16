@@ -101,26 +101,4 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 	};
 };
 
-/** Listens for the sortable action's cross-container `dndreceive` event. */
-export const onDndReceive: Action<
-	HTMLElement,
-	(detail: { id: string; newIndex: number; alt?: boolean }) => void
-> = (node, handler) => {
-	let current = handler;
-	const listener = (event: Event) => {
-		// the event bubbles (a stack's container is nested inside its column's
-		// container) - the innermost drop zone must be the only handler, or a
-		// drop into a stack would also be processed by the column
-		event.stopPropagation();
-		current((event as CustomEvent).detail);
-	};
-	node.addEventListener('dndreceive', listener);
-	return {
-		update(next) {
-			current = next;
-		},
-		destroy() {
-			node.removeEventListener('dndreceive', listener);
-		}
-	};
-};
+export { onDndReceive } from '$lib/Actions/sortable';

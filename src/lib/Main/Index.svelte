@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { editMode, motion, record, dragging, itemHeight, states, dashboard } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
-	import { sortable } from '$lib/Actions/sortable';
+	import { onDndReceive, sortable, type DndReceiveDetail } from '$lib/Actions/sortable';
 	import Content from '$lib/Main/Content.svelte';
 	import SectionHeader from '$lib/Main/SectionHeader.svelte';
 	import HorizontalStackHeader from '$lib/Main/HorizontalStackHeader.svelte';
@@ -9,6 +9,7 @@
 	import Scenes from '$lib/Main/Scenes.svelte';
 	import { handleVisibility, mediaQueries } from '$lib/Conditional';
 	import { generateId } from '$lib/Utils';
+	import { transferLegacyItem, transferLegacySection } from './legacyDrag';
 
 	let { view, altKeyPressed }: { view: any; altKeyPressed: boolean } = $props();
 
@@ -22,16 +23,44 @@
 		document.body.style.height = `${parseFloat(getComputedStyle(document.body).height) + 1}px`;
 	}
 
-	async function handleDragEnd() {
+	async function handleDragEnd(changed = true) {
 		// `view` is a plain prop object, so sortable's mutations don't notify the
 		// $dashboard store and keyed each blocks keep stale refs - the UI would
 		// render the pre-drag order while the data already changed. Deep clone to
 		// refresh all refs, same as undo/redo does when restoring history.
-		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
-		$record();
+		if (changed) {
+			dashboard.update((d) => JSON.parse(JSON.stringify(d)));
+			$record();
+		}
 		$dragging = false;
 		await tick();
 		document.body.style.height = 'auto';
+	}
+
+	function cloneEntry(entry: any) {
+		return { ...entry, id: generateId($dashboard) };
+	}
+
+	async function receiveSection(targetParentId: string | null, detail: DndReceiveDetail) {
+		const changed = transferLegacySection(
+			view.sections,
+			targetParentId,
+			detail.id,
+			detail.newIndex,
+			altKeyPressed ? cloneEntry : undefined
+		);
+		await handleDragEnd(changed);
+	}
+
+	async function receiveItem(targetSectionId: string, detail: DndReceiveDetail) {
+		const changed = transferLegacyItem(
+			view.sections,
+			targetSectionId,
+			detail.id,
+			detail.newIndex,
+			altKeyPressed ? cloneEntry : undefined
+		);
+		await handleDragEnd(changed);
 	}
 
 	function maybeCloneItem(items: any[], oldIndex: number, newIndex: number): any[] {
@@ -103,6 +132,7 @@
 			await handleDragEnd();
 		}
 	}}
+	use:onDndReceive={(detail) => receiveSection(null, detail)}
 >
 	{#each viewSections as section (section?.id)}
 		<section id={String(section?.id)} data-id={section?.id} data-section-type={section?.type}>
@@ -139,6 +169,7 @@
 							await handleDragEnd();
 						}
 					}}
+					use:onDndReceive={(detail) => receiveSection(String(section.id), detail)}
 				>
 					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
 						<section
@@ -183,6 +214,7 @@
 											await handleDragEnd();
 										}
 									}}
+									use:onDndReceive={(detail) => receiveSection(String(stackSection.id), detail)}
 								>
 									{#each stackSection?.sections ?? [] as nestedSection (nestedSection?.id)}
 										{@const empty = $editMode && !nestedSection?.items?.length}
@@ -228,6 +260,7 @@
 														await handleDragEnd();
 													}
 												}}
+												use:onDndReceive={(detail) => receiveItem(String(nestedSection.id), detail)}
 											>
 												{#each nestedSection?.items ?? [] as item (item.id)}
 													<div
@@ -270,6 +303,7 @@
 											await handleDragEnd();
 										}
 									}}
+									use:onDndReceive={(detail) => receiveItem(String(stackSection.id), detail)}
 								>
 									{#each stackSection?.items ?? [] as item (item.id)}
 										<div
@@ -320,6 +354,7 @@
 							await handleDragEnd();
 						}
 					}}
+					use:onDndReceive={(detail) => receiveSection(String(section.id), detail)}
 				>
 					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
 						{@const empty = $editMode && !stackSection?.items?.length}
@@ -351,6 +386,7 @@
 										await handleDragEnd();
 									}
 								}}
+								use:onDndReceive={(detail) => receiveItem(String(stackSection.id), detail)}
 							>
 								{#each stackSection?.items ?? [] as item (item.id)}
 									<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
@@ -385,6 +421,7 @@
 							await handleDragEnd();
 						}
 					}}
+					use:onDndReceive={(detail) => receiveItem(String(section.id), detail)}
 				>
 					{#each section?.items ?? [] as item, index (item.id)}
 						<div
@@ -422,6 +459,7 @@
 							await handleDragEnd();
 						}
 					}}
+					use:onDndReceive={(detail) => receiveItem(String(section.id), detail)}
 				>
 					{#each section?.items ?? [] as item (item.id)}
 						<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>

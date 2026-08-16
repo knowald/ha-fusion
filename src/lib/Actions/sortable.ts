@@ -1,6 +1,36 @@
 import Sortable from 'sortablejs';
 import type { Options as SortableOptions, SortableEvent, GroupOptions } from 'sortablejs';
-import type { ActionReturn } from 'svelte/action';
+import type { Action, ActionReturn } from 'svelte/action';
+
+export interface DndReceiveDetail {
+	id: string;
+	newIndex: number;
+	alt?: boolean;
+}
+
+/**
+ * Handles the cross-container event emitted by `sortable`. The event bubbles,
+ * so stop it at the innermost drop zone before forwarding its payload.
+ */
+export const onDndReceive: Action<HTMLElement, (detail: DndReceiveDetail) => void> = (
+	node,
+	handler
+) => {
+	let current = handler;
+	const listener = (event: Event) => {
+		event.stopPropagation();
+		current((event as CustomEvent<DndReceiveDetail>).detail);
+	};
+	node.addEventListener('dndreceive', listener);
+	return {
+		update(next) {
+			current = next;
+		},
+		destroy() {
+			node.removeEventListener('dndreceive', listener);
+		}
+	};
+};
 
 // Alt-drag clone: SortableJS's onEnd/onAdd events don't reliably expose which
 // modifier keys were held at drop time, so track Alt via window listeners
