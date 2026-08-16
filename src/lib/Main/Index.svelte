@@ -37,8 +37,17 @@
 		document.body.style.height = 'auto';
 	}
 
+	// every descendant needs a fresh id too: a duplicated id would make later
+	// transfers resolve the wrong section's entry
 	function cloneEntry(entry: any) {
-		return { ...entry, id: generateId($dashboard) };
+		const copy = structuredClone(entry);
+		const regenerateIds = (value: any) => {
+			value.id = generateId($dashboard);
+			for (const item of value.items ?? []) regenerateIds(item);
+			for (const section of value.sections ?? []) regenerateIds(section);
+		};
+		regenerateIds(copy);
+		return copy;
 	}
 
 	async function receiveSection(targetParentId: string | null, detail: DndReceiveDetail) {
