@@ -48,8 +48,8 @@ importers:
         specifier: ^5.5.2
         version: 5.5.2
       '@material-symbols/font-400':
-        specifier: ^0.45.10
-        version: 0.45.10
+        specifier: ^0.47.0
+        version: 0.47.0
       '@material-symbols/metadata':
         specifier: ^0.45.9
         version: 0.45.9
@@ -377,8 +377,8 @@ packages:
   '@marijn/find-cluster-break@1.0.3':
     resolution: {integrity: sha512-FY+MKLBoTsLNJF/eLWaOsXGdz6uh3Iu1axjPf6TUq92IYumcTcXWHoS747JARLkcdlJ/Waiaxc5wQfFO8jC6NA==}
 
-  '@material-symbols/font-400@0.45.10':
-    resolution: {integrity: sha512-HUstRoXOYFUe4/zRqwSnA2Zp8Ei5y4m9vqzwHb6sJEfUrYg780an0PcVnrlTJgqRwrOCPR5ttViF+yLAzla0BQ==}
+  '@material-symbols/font-400@0.47.0':
+    resolution: {integrity: sha512-UIpUQcNI8iV1U7MAFdpmguGPHwX7Dj6aKAjG2s2f5iVHcUZKdbQaN8H7HvhQCfOjvrd/H5RaQMse+9qgGknmWw==}
 
   '@material-symbols/metadata@0.45.9':
     resolution: {integrity: sha512-GAuB1tl3ik2BsaSau1hldK9aGCCp2zqsfKnRti2iPd6MJlMBD81XBOTnW7X4p0qfFdAWqkh90JjWcd6G49z2yg==}
@@ -2307,7 +2307,7 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.3': {}
 
-  '@material-symbols/font-400@0.45.10': {}
+  '@material-symbols/font-400@0.47.0': {}
 
   '@material-symbols/metadata@0.45.9': {}
 
