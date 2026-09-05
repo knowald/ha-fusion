@@ -1,0 +1,26 @@
+revision: 1
+rail:
+  - id: clock
+    type: clock
+  - id: nav
+    type: nav
+rooms:
+  - id: office
+    name: Office
+    icon: desk
+    columns: 1
+    cards:
+      - - id: lights
+          type: entities
+          title: Lights
+          entities:
+            - entity: light.desk
+            - entity: light.shelf
+              slider_updates: release
+            - entity: switch.fan
+        - id: readings
+          type: entities
+          title: Readings
+          style: stat
+          entities:
+            - entity: sensor.temperature

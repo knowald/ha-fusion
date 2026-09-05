@@ -16,3 +16,10 @@ src/lib/Playground
 !/data/.gitkeep
 logs
 .pnpm-store/v10
+
+# playwright
+/test-results
+/playwright-report
+/e2e/fixture/data/*
+!/e2e/fixture/data/configuration.yaml
+!/e2e/fixture/data/hearth.yaml
