@@ -10,6 +10,9 @@
 	import LightPopup from './LightPopup.svelte';
 	import MediaPopup from './MediaPopup.svelte';
 	import SensorPopup from './SensorPopup.svelte';
+	import DetailPopup from './DetailPopup.svelte';
+	import { domainIcon } from '$lib/core/domains';
+	import { getDomain } from '$lib/core/ha/entities';
 
 	const meta = {
 		light: { icon: 'lightbulb', sub: 'Dimmable light' },
@@ -18,6 +21,15 @@
 		media: { icon: 'music_note', sub: 'Media player' },
 		sensor: { icon: 'monitoring', sub: 'Last 24 hours' }
 	};
+
+	// the detail sheet takes its icon and caption from the entity's domain
+	function headerFor(current: NonNullable<typeof $popup>) {
+		if (current.kind !== 'detail') return meta[current.kind];
+		return {
+			icon: domainIcon(current.entity),
+			sub: (getDomain(current.entity) ?? '').replaceAll('_', ' ')
+		};
+	}
 
 	function handleKeydown(event: KeyboardEvent) {
 		// an edit sheet stacks above the popup and owns Escape while open
@@ -39,11 +51,11 @@
 			<div class="sheet" onclick={(event) => event.stopPropagation()} role="presentation">
 				<div class="header">
 					<div class="icon-tile">
-						<Icon name={meta[$popup.kind].icon} size={26} color="var(--h-accent-text)" />
+						<Icon name={headerFor($popup).icon} size={26} color="var(--h-accent-text)" />
 					</div>
 					<div class="titles">
 						<div class="name">{$popup.name}</div>
-						<div class="sub">{meta[$popup.kind].sub}</div>
+						<div class="sub">{headerFor($popup).sub}</div>
 					</div>
 					{#if $popup.kind === 'light'}
 						{@const entity = $popup.entity}
@@ -75,6 +87,8 @@
 					<BlindPopup entity={$popup.entity} sliderUpdates={$popup.sliderUpdates} />
 				{:else if $popup.kind === 'sensor'}
 					<SensorPopup entity={$popup.entity} />
+				{:else if $popup.kind === 'detail'}
+					<DetailPopup entity={$popup.entity} />
 				{:else}
 					<FanPopup entity={$popup.entity} />
 				{/if}

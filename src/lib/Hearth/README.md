@@ -114,8 +114,8 @@ that have not been ported natively stay reachable.
 
 The original dashboard lives under `src/lib/legacy`. Hearth may import from it
 only through `src/lib/legacy/bridge`, one module per legacy capability still in
-use (embeds, entity modals, the picture elements editor, the camera player, the
-token prompt). `scripts/check-boundaries.mjs` enforces this in CI, along with
+use (embeds, the calendar, todo and GPS map modals, the picture elements
+editor, the camera player, the token prompt). `scripts/check-boundaries.mjs` enforces this in CI, along with
 the layer order `routes -> hearth -> ui -> core`. Retiring a legacy feature
 means deleting its bridge module.
 
@@ -161,6 +161,12 @@ switching on the domain string.
 - **Fetched data.** Most state is push. The few surfaces that fetch go through
   `core/ha/history.ts`, which supplies the shared interval and a short-lived cache so
   page switches do not re-query the recorder.
+- **Entity detail.** A tap that does not toggle opens the detail popup
+  (`DetailPopup.svelte`), which mounts the domain's control component from
+  `details/` (switches, locks, numbers, selects, timers, alarms, climate,
+  updates and so on) above the state, attributes and, for numeric readings,
+  the 24 h history. `details/index.ts` names the domains still handed to the
+  original modals.
 - **Edit mode.** `hearthEditMode` suppresses device commands. Embedded fusion
   objects consult the original dashboard's `editMode` store instead, so
   `HearthDashboard.svelte` mirrors Hearth's mode into it while the route is
