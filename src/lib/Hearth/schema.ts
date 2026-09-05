@@ -90,6 +90,17 @@ export const DayNightSwitchSchema = v.object({
 	night_state: OptionalText
 });
 
+/** A one-tap Spotify shortcut on the media card. */
+export const MediaShortcutSchema = v.object({
+	name: v.pipe(v.string('must be text'), v.trim(), v.minLength(1, 'must not be empty')),
+	uri: v.pipe(
+		v.string('must be a Spotify URI'),
+		v.trim(),
+		v.startsWith('spotify:', 'must be a Spotify URI')
+	),
+	image_url: OptionalText
+});
+
 /** A list of entity references, as cards keep them. */
 export const EntityRefListSchema = v.array(EntityRefSchema, 'must be a list');
 

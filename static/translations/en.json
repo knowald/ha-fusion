@@ -870,5 +870,17 @@
 	"hearth_card_picture_label": "Picture elements",
 	"hearth_card_picture_name": "Picture",
 	"hearth_card_picture_sub": "floor plans and overlays",
-	"hearth_picture_hint": "Place images, icons and state badges on a canvas; each element can open or toggle an entity."
+	"hearth_picture_hint": "Place images, icons and state badges on a canvas; each element can open or toggle an entity.",
+	"hearth_quick_play": "Quick play",
+	"hearth_library": "Library",
+	"hearth_albums": "Albums",
+	"hearth_tracks": "Tracks",
+	"hearth_artists": "Artists",
+	"hearth_loading_library": "Loading library...",
+	"hearth_no_library_items": "Nothing saved here yet",
+	"hearth_default_device": "Preferred Spotify Connect device (optional)",
+	"hearth_shortcut_uri": "Spotify URI",
+	"hearth_shortcut_image": "Image URL (optional)",
+	"hearth_add_shortcut": "Add shortcut",
+	"hearth_shortcuts_hint": "Chips on the card that start a playlist, album, artist or track in one tap. Needs SpotifyPlus for device selection."
 }
