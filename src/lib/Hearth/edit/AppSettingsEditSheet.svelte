@@ -14,6 +14,8 @@
 	let reduceMotion = $state($motion === 0);
 	let youtube = $state($configuration?.addons?.youtube ?? false);
 	let maptilerKey = $state($configuration?.addons?.maptiler?.apikey ?? '');
+	let token = $state($configuration?.token ?? '');
+	let customJs = $state($configuration?.custom_js ?? false);
 	let installedVersion = $state<string>();
 	let saveError = $state<string | null>(null);
 	let saving = $state(false);
@@ -61,6 +63,10 @@
 		};
 		if (reduceMotion) next.motion = false;
 		else delete next.motion;
+		if (token.trim()) next.token = token.trim();
+		else delete next.token;
+		if (customJs) next.custom_js = true;
+		else delete next.custom_js;
 
 		try {
 			const json: Record<string, unknown> = { ...next };
@@ -176,13 +182,58 @@
 				/>
 			</div>
 			<div class="row">
+				<div class="row-main">
+					<div class="row-label">{$lang('hearth_long_lived_token')}</div>
+					<div class="row-sub">{$lang('hearth_token_hint')}</div>
+				</div>
+				<input
+					class="inline-text"
+					type="password"
+					bind:value={token}
+					placeholder="eyJ..."
+					autocomplete="new-password"
+					spellcheck="false"
+					onfocus={handleKeyFocus}
+					onblur={handleKeyFocus}
+				/>
+			</div>
+			<div class="row">
+				<div class="row-main">
+					<div class="row-label">{$lang('hearth_custom_js')}</div>
+					<div class="row-sub">{$lang('hearth_custom_js_sub')}</div>
+				</div>
+				<button
+					type="button"
+					class="switch pressable"
+					class:on={customJs}
+					aria-label={$lang('hearth_custom_js')}
+					aria-pressed={customJs}
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => (customJs = !customJs)}
+				>
+					<span class="knob"></span>
+				</button>
+			</div>
+			<div class="row">
 				<div class="row-main"><div class="row-label">{$lang('version')}</div></div>
-				<span class="row-value">{installedVersion ?? 'Loading...'}</span>
+				<span class="row-value">{installedVersion ?? $lang('hearth_loading')}</span>
 			</div>
 		</div>
 		{#if saveError}<div class="error" role="alert">{saveError}</div>{/if}
 
 		<div class="rows">
+			<button
+				type="button"
+				class="row action pressable"
+				onclick={() => editor.set({ kind: 'customCss' })}
+			>
+				<Icon name="css" size={18} />
+				<div class="row-main">
+					<div class="row-label">{$lang('hearth_custom_css')}</div>
+					<div class="row-sub">{$lang('hearth_custom_css_sub')}</div>
+				</div>
+				<Icon name="chevron_right" size={20} />
+			</button>
 			<button type="button" class="row action pressable" onclick={openClassicDashboard}>
 				<Icon name="grid_view" size={18} />
 				<div class="row-main">

@@ -76,6 +76,7 @@ export type Editor =
 	| { kind: 'theme' }
 	| { kind: 'settings' }
 	| { kind: 'appSettings' }
+	| { kind: 'customCss' }
 	| { kind: 'code' };
 
 export const editor = writable<Editor | null>(null);
