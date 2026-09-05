@@ -36,6 +36,14 @@ export default tseslint.config(
 		ignores: ['build/', '.svelte-kit/', 'dist/', 'test-results/', 'playwright-report/']
 	},
 	{
+		// the rework layers are typed; the count is capped by --max-warnings in the
+		// lint script and only goes down. legacy/ stays exempt until it is deleted.
+		files: ['src/lib/Hearth/**', 'src/lib/ui/**', 'src/lib/core/**', 'src/routes/hearth/**'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'warn'
+		}
+	},
+	{
 		/*
 		 * Temporarily disable certain rules to mitigate
 		 * unnecessary distractions during development.
