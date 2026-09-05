@@ -32,7 +32,7 @@ describe('Hearth type registries', () => {
 			});
 			// only the spacer is drawn by the rail itself and has nothing to edit
 			if (descriptor.type !== 'spacer') expect(descriptor.component).toEqual(expect.any(Function));
-			if (!['spacer', 'nav', 'search'].includes(descriptor.type)) {
+			if (!['spacer', 'nav', 'search', 'notifications'].includes(descriptor.type)) {
 				expect(descriptor.editor).toEqual(expect.any(Function));
 			}
 		}

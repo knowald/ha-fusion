@@ -8,7 +8,7 @@ import { isRecord, trimmedOrUndefined } from './normalizers';
  * than being normalized into loss.
  */
 
-export const CONFIG_VERSION = 3;
+export const CONFIG_VERSION = 4;
 
 export class ConfigTooNewError extends Error {
 	constructor(public readonly version: number) {
@@ -294,10 +294,112 @@ function toMediaShortcuts(raw: Record<string, any>): Record<string, any> {
 	return { ...raw, rooms };
 }
 
+/** 3 -> 4: the remaining sidebar and object embeds have native types. */
+function toNativeEmbeds(raw: Record<string, any>): Record<string, any> {
+	const strip = (card: Record<string, any>) => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { config: _embed, ...rest } = card;
+		return rest;
+	};
+	const migrateCard = (card: any): any => {
+		if (!isRecord(card)) return card;
+		if (card.kind === 'stack' && Array.isArray(card.cards)) {
+			return { ...card, cards: card.cards.map(migrateCard) };
+		}
+		const config = card.config as Record<string, any> | undefined;
+		if (card.type !== 'fusion' || !config) return card;
+		if (config.type === 'days_since') {
+			return {
+				...strip(card),
+				type: 'days_since',
+				...(typeof config.entity_id === 'string' ? { entity: config.entity_id } : {}),
+				...(typeof config.name === 'string' ? { title: config.name } : {}),
+				...(typeof config.icon === 'string' ? { icon: config.icon } : {})
+			};
+		}
+		if (config.type === 'conditional_media') {
+			const players = Array.isArray(config.media_players)
+				? config.media_players
+						.map((entry: any) => entry?.entity_id ?? entry)
+						.filter((entry: unknown) => typeof entry === 'string')
+				: [];
+			return {
+				...strip(card),
+				type: 'conditional_media',
+				media_players: players,
+				...(typeof config.timeout === 'number' ? { timeout: config.timeout } : {})
+			};
+		}
+		return card;
+	};
+	const migrateWidget = (widget: any): any => {
+		if (!isRecord(widget) || widget.type !== 'fusion') return widget;
+		const config = widget.config as Record<string, any> | undefined;
+		if (!config) return widget;
+		const base = strip(widget);
+		const entity = typeof config.entity_id === 'string' ? { entity: config.entity_id } : {};
+		const name = typeof config.name === 'string' ? { name: config.name } : {};
+		const chart = (style: string) => ({
+			...base,
+			type: 'chart',
+			style,
+			...entity,
+			...name,
+			...(typeof config.period === 'string' ? { period: config.period } : {}),
+			...(typeof config.math === 'string' ? { math: config.math } : {}),
+			...(typeof config.stroke === 'number' ? { stroke: config.stroke } : {})
+		});
+		switch (config.type) {
+			case 'graph':
+				return chart('line');
+			case 'history':
+				return chart('history');
+			case 'bar':
+				return chart('bar');
+			case 'radial':
+				return chart('radial');
+			case 'template':
+				return {
+					...base,
+					type: 'template',
+					...(typeof config.template === 'string' ? { template: config.template } : {})
+				};
+			case 'timer':
+				return { ...base, type: 'timer', ...entity };
+			case 'notifications':
+				return { ...base, type: 'notifications' };
+			case 'iframe': {
+				const height = typeof config.size === 'string' ? parseInt(config.size, 10) : config.size;
+				return {
+					...base,
+					type: 'iframe',
+					...(typeof config.url === 'string' ? { url: config.url } : {}),
+					...(Number.isFinite(height) ? { height } : {})
+				};
+			}
+			default:
+				return widget;
+		}
+	};
+	const rooms = (Array.isArray(raw.rooms) ? raw.rooms : []).map((room: any) =>
+		isRecord(room) && Array.isArray(room.cards)
+			? {
+					...room,
+					cards: room.cards.map((column: unknown) =>
+						Array.isArray(column) ? column.map(migrateCard) : column
+					)
+				}
+			: room
+	);
+	const rail = Array.isArray(raw.rail) ? raw.rail.map(migrateWidget) : raw.rail;
+	return { ...raw, rooms, rail };
+}
+
 const MIGRATIONS: Migration[] = [
 	{ to: 1, apply: toCardPages },
 	{ to: 2, apply: toPictureCards },
-	{ to: 3, apply: toMediaShortcuts }
+	{ to: 3, apply: toMediaShortcuts },
+	{ to: 4, apply: toNativeEmbeds }
 ];
 
 /** The document's declared format version; 0 for files written before versioning. */

@@ -93,6 +93,44 @@ describe('migrateHearthConfig', () => {
 		});
 	});
 
+	it('gives the remaining embeds native types', () => {
+		const migrated = migrateHearthConfig({
+			version: 3,
+			rail: [
+				{
+					id: 'g',
+					type: 'fusion',
+					config: { type: 'graph', entity_id: 'sensor.t', period: 'week' }
+				},
+				{ id: 'i', type: 'fusion', config: { type: 'iframe', url: 'https://x', size: '200px' } }
+			],
+			rooms: [
+				{
+					id: 'home',
+					cards: [
+						[
+							{
+								id: 'd',
+								type: 'fusion',
+								config: { type: 'days_since', entity_id: 'input_datetime.x', name: 'Filter' }
+							}
+						]
+					]
+				}
+			]
+		}) as any;
+		expect(migrated.rail).toEqual([
+			{ id: 'g', type: 'chart', style: 'line', entity: 'sensor.t', period: 'week' },
+			{ id: 'i', type: 'iframe', url: 'https://x', height: 200 }
+		]);
+		expect(migrated.rooms[0].cards[0][0]).toEqual({
+			id: 'd',
+			type: 'days_since',
+			entity: 'input_datetime.x',
+			title: 'Filter'
+		});
+	});
+
 	it('refuses a file written by a newer build', () => {
 		expect(() => migrateHearthConfig({ version: CONFIG_VERSION + 1, rail: [], rooms: [] })).toThrow(
 			ConfigTooNewError
