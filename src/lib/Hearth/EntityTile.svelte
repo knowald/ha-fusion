@@ -4,7 +4,8 @@
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
-	import { domainIcon, PRESS_RIPPLE } from './config';
+	import { PRESS_RIPPLE } from './config';
+	import { domainDescriptor, domainIcon, entityIsReadout } from '$lib/core/domains';
 	import { getTogglableService } from '$lib/core/ha/entities';
 	import { hearthEditMode, popup, requestConfirmation } from './store';
 	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
@@ -53,28 +54,7 @@
 		domain === 'fan' && on ? Math.round(stateObj?.attributes?.percentage ?? 0) : null
 	);
 
-	// domains whose fusion modal only echoes the state the tile already shows
-	const BARE_MODAL_DOMAINS = new Set([
-		'air_quality',
-		'date',
-		'time',
-		'event',
-		'image_processing',
-		'mailbox',
-		'sensor',
-		'binary_sensor',
-		'stt',
-		'weather',
-		'schedule',
-		'sun',
-		'person',
-		'zone'
-	]);
-
-	let bareModal = $derived(
-		BARE_MODAL_DOMAINS.has(domain) ||
-			(domain === 'device_tracker' && stateObj?.attributes?.source_type !== 'gps')
-	);
+	let bareModal = $derived(entityIsReadout(entity, stateObj));
 	// what a tap earns: a command, a history chart, a domain modal - or, for a
 	// readout whose modal would only echo the state, nothing at all
 	let tapSurface = $derived(
@@ -127,9 +107,9 @@
 	}
 </script>
 
-{#if domain === 'light'}
+{#if domainDescriptor(domain).tile === 'light'}
 	<LightTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {showTune} {onedit} />
-{:else if domain === 'cover'}
+{:else if domainDescriptor(domain).tile === 'cover'}
 	<BlindTile {entity} {name} {icon} {compact} {readonly} {sliderUpdates} {showTune} {onedit} />
 {:else}
 	<div

@@ -4,6 +4,7 @@
 	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
+	import './editor-fields.css';
 
 	let {
 		title,

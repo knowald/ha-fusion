@@ -2,7 +2,7 @@
 	import { autocompleteList } from '$lib/Stores';
 	import * as parser from 'js-yaml';
 	import { editor, hearthConfig, updateConfig } from '../store';
-	import { hearthConfigIssues, normalizeHearthConfig } from '../config';
+	import { hearthConfigIssues, normalizeHearthConfig } from '../normalize';
 	import EditSheet from './EditSheet.svelte';
 
 	// snapshot at open time - the editor owns the draft until Apply/discard,

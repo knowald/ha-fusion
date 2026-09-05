@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { EntityRef, OverviewCard } from '../config';
+	import type { EntityRef, OverviewCard } from '../types';
+	import { cardDescriptor } from '../cards';
 	import { provideHearthInteractionMode } from '../interaction';
 	import CardRenderer from '../CardRenderer.svelte';
 	import Icon from '../Icon.svelte';
@@ -12,13 +13,14 @@
 	provideHearthInteractionMode('preview');
 
 	let reorder = $state(false);
-	let interactive = $derived(card.type === 'entities' || card.type === 'vacuum');
+	let reorderable = $derived(cardDescriptor(card.type)?.previewReorder ?? false);
+	let interactive = $derived(reorderable || card.type === 'vacuum');
 </script>
 
 <aside class="pane">
-	<div class="heading" class:empty={card.type !== 'entities'}>
+	<div class="heading" class:empty={!reorderable}>
 		<div class="label">LIVE PREVIEW</div>
-		{#if card.type === 'entities'}
+		{#if reorderable}
 			<button
 				type="button"
 				class:active={reorder}
@@ -31,11 +33,7 @@
 		{/if}
 	</div>
 	<div class="preview" class:interactive>
-		<CardRenderer
-			{card}
-			{onentitiesreorder}
-			showEntityDragHandles={card.type === 'entities' && reorder}
-		/>
+		<CardRenderer {card} {onentitiesreorder} showEntityDragHandles={reorderable && reorder} />
 	</div>
 </aside>
 

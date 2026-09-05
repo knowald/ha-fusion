@@ -1,0 +1,245 @@
+/*
+ * Shared field layout for the per-type card and widget editors. Scoped under
+ * .editor-fields, which the edit sheets put around the editor component.
+ */
+
+.editor-fields .group-label {
+	font-family: var(--h-font-mono);
+	font-size: 11px;
+	letter-spacing: 2px;
+	color: var(--h-label);
+	margin: 18px 0 10px;
+}
+
+.editor-fields .advanced-toggle,
+.editor-fields .elements-editor {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 4px;
+	border-radius: var(--h-radius-xs);
+	color: var(--h-text-5);
+	font-size: 13px;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.editor-fields .advanced-toggle:hover,
+.editor-fields .elements-editor:hover {
+	color: var(--h-text-3);
+}
+
+.editor-fields .elements-editor {
+	margin-bottom: 14px;
+}
+
+.editor-fields .filter-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px 12px 0;
+	border-radius: var(--h-radius-sm);
+	background: var(--h-inset);
+	margin-bottom: 10px;
+}
+
+.editor-fields .filter-fields {
+	flex: 1;
+}
+
+.editor-fields .entities-section-toggle {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	gap: 8px;
+	margin: 18px 0 10px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--h-label);
+	font: inherit;
+	cursor: pointer;
+}
+
+.editor-fields .entities-section-toggle .group-label {
+	margin: 0;
+}
+
+.editor-fields .entities-count {
+	padding: 2px 6px;
+	border-radius: 999px;
+	background: rgb(var(--h-surface-rgb) / calc(0.07 * var(--h-fill-scale)));
+	color: var(--h-text-6);
+	font-family: var(--h-font-mono);
+	font-size: 10px;
+}
+
+.editor-fields .entities-section-toggle > .mi {
+	margin-left: auto;
+}
+
+.editor-fields .entity-editors {
+	display: flex;
+	flex-direction: column;
+}
+
+.editor-fields .filter-row.entity-editor-row {
+	display: block;
+	padding: 0;
+	overflow: hidden;
+}
+
+.editor-fields .entity-row-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 48px;
+	padding: 6px 8px 6px 6px;
+}
+
+.editor-fields .entity-row-toggle {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	gap: 7px;
+	min-width: 0;
+	padding: 5px;
+	border: 0;
+	background: none;
+	color: var(--h-icon);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.editor-fields .entity-row-copy {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.editor-fields .entity-row-copy strong,
+.editor-fields .entity-row-copy small {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.editor-fields .entity-row-copy strong {
+	color: var(--h-text-3);
+	font-size: 13px;
+	font-weight: 550;
+}
+
+.editor-fields .entity-row-copy small {
+	color: var(--h-text-6);
+	font-size: 10.5px;
+}
+
+.editor-fields .entity-row-actions {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.editor-fields .entity-row-actions button {
+	display: flex;
+	padding: 4px;
+	border: 0;
+	background: none;
+}
+
+.editor-fields .entity-row-actions button:disabled {
+	opacity: 0.25;
+	cursor: default;
+}
+
+.editor-fields .entity-row-actions .remove {
+	margin: 0 0 0 2px;
+}
+
+.editor-fields .entity-row-fields {
+	padding: 0 12px 8px 39px;
+	border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.05 * var(--h-line-scale)));
+}
+
+.editor-fields .remove {
+	color: var(--h-icon);
+	cursor: pointer;
+	margin-top: 32px;
+}
+
+.editor-fields .remove:hover {
+	color: var(--h-bad-text);
+}
+
+.editor-fields .reorder {
+	color: var(--h-icon);
+	cursor: pointer;
+	display: inline-flex;
+}
+
+.editor-fields .reorder:hover {
+	color: var(--h-text-2);
+}
+
+.editor-fields .check {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 14px;
+	color: var(--h-text-3);
+	margin: 4px 0 10px;
+	cursor: pointer;
+}
+
+.editor-fields .check input {
+	accent-color: var(--h-accent-deep);
+	width: 16px;
+	height: 16px;
+}
+
+.editor-fields .add-filter {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px;
+	border-radius: var(--h-radius-xs);
+	border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
+	color: var(--h-text-6);
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.editor-fields .add-filter:hover {
+	color: var(--h-text-4);
+}
+
+.editor-fields .hint {
+	font-size: 12px;
+	color: var(--h-text-6);
+	margin: 4px 0 12px;
+}
+
+.editor-fields .row {
+	display: flex;
+	gap: 12px;
+}
+
+.editor-fields .grow {
+	flex: 1;
+	min-width: 0;
+}
+
+.editor-fields .icon-column {
+	width: 140px;
+	flex: none;
+}
+
+.editor-fields .field-error {
+	font-size: 12px;
+	color: var(--h-bad-text);
+	margin: -8px 0 14px;
+}

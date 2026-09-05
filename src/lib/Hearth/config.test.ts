@@ -3,11 +3,10 @@ import {
 	DEFAULT_HEARTH_CONFIG,
 	findOverviewCard,
 	findOverviewItemList,
-	hearthConfigIssues,
 	isStack,
-	normalizeHearthConfig,
 	wildcardEntityIds
 } from './config';
+import { hearthConfigIssues, normalizeHearthConfig } from './normalize';
 
 describe('normalizeHearthConfig', () => {
 	it('uses a generic, entity-free first-run fallback', () => {
