@@ -29,6 +29,37 @@ describe('migrateHearthConfig', () => {
 		expect(migrateHearthConfig(current)).toEqual(current);
 	});
 
+	it('turns a fusion picture elements embed into a picture card', () => {
+		const migrated = migrateHearthConfig({
+			version: 1,
+			rail: [],
+			rooms: [
+				{
+					id: 'home',
+					cards: [
+						[
+							{
+								id: 'plan',
+								type: 'fusion',
+								config: {
+									type: 'picture_elements',
+									name: 'Plan',
+									elements: [{ className: 'Image' }]
+								}
+							}
+						]
+					]
+				}
+			]
+		}) as any;
+		expect(migrated.rooms[0].cards[0][0]).toEqual({
+			id: 'plan',
+			type: 'picture',
+			title: 'Plan',
+			elements: [{ className: 'Image' }]
+		});
+	});
+
 	it('refuses a file written by a newer build', () => {
 		expect(() => migrateHearthConfig({ version: CONFIG_VERSION + 1, rail: [], rooms: [] })).toThrow(
 			ConfigTooNewError

@@ -19,3 +19,29 @@ export async function editPictureElements(id: string, elements: unknown[]): Prom
 	await tick();
 	return sel.elements;
 }
+
+export interface PictureViewer {
+	update(elements: unknown[]): Promise<void>;
+	destroy(): void;
+}
+
+/**
+ * Mounts the original Konva viewer into `container`, sized to it. Imported on
+ * demand because Konva touches the canvas at import time.
+ */
+export async function mountPictureViewer(
+	container: HTMLDivElement,
+	id: string,
+	elements: unknown[]
+): Promise<PictureViewer> {
+	const { KonvaViewer } = await import('../Modal/PictureElements/konvaViewer');
+	const viewer = new KonvaViewer(container, {
+		className: 'Stage',
+		attrs: { width: container.offsetWidth, height: container.offsetHeight, id },
+		children: [{ className: 'Layer', children: elements as any[] }]
+	});
+	return {
+		update: (next) => viewer.updateLayerChildren(next as any[]),
+		destroy: () => viewer.destroyViewer()
+	};
+}

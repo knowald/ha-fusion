@@ -10,6 +10,7 @@ import { fusionCard } from './fusion/descriptor';
 import { headerCard } from './header/descriptor';
 import { imageCard } from './image/descriptor';
 import { mediaCard } from './media/descriptor';
+import { pictureCard } from './picture/descriptor';
 import { scenesCard } from './scenes/descriptor';
 import { temperatureCard } from './temperature/descriptor';
 import { vacuumCard } from './vacuum/descriptor';
@@ -27,6 +28,7 @@ export const CARD_TYPES: CardDescriptor<any>[] = [
 	imageCard,
 	climateCard,
 	scenesCard,
+	pictureCard,
 	fusionCard
 ];
 
