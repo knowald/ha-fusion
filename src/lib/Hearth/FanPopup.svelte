@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { getSupport } from '$lib/Utils';
 	import { PRESS_RIPPLE } from './config';
-	import { callEntityService, setFanSpeed } from './store';
+	import { callEntityService } from '$lib/core/ha/commands';
+	import { setFanSpeed } from '$lib/core/domains/fan';
 
 	let { entity }: { entity: string } = $props();
 

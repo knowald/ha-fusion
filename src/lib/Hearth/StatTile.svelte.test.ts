@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { states } from '$lib/Stores';
+import { states } from '$lib/core/ha/entities';
 import { hassEntity } from './testing';
 import { closePopup, popup } from './store';
 import StatTile from './StatTile.svelte';

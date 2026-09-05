@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { lang, selectedLanguage } from '$lib/Stores';
+	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { clockTimeOptions, hourInTimeZone, validTimeZone, type ClockHourFormat } from './clock';
 
 	let {

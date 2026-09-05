@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { getSupport } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
@@ -8,11 +8,10 @@
 	import {
 		blindPositionFor,
 		blindTiltFor,
-		callEntityService,
-		controlOverrides,
 		setBlindPosition,
 		setBlindTiltPosition
-	} from './store';
+	} from '$lib/core/domains/cover';
+	import { callEntityService, controlOverrides } from '$lib/core/ha/commands';
 	import PopupSlider from './PopupSlider.svelte';
 
 	let {

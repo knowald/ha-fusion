@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { horizontalDrag } from './drag';
 	import type { OverviewCard } from './config';
+	import { popup } from './store';
 	import {
 		controlOverrides,
 		controlValueFor,
 		pendingEntities,
-		popup,
-		seekMedia,
-		setControlOverride,
-		toggleMediaPlayback
-	} from './store';
+		setControlOverride
+	} from '$lib/core/ha/commands';
+	import { seekMedia, toggleMediaPlayback } from '$lib/core/domains/mediaPlayer';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
 

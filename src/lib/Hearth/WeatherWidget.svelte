@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { connection, lang, selectedLanguage, states } from '$lib/Stores';
+	import { connection } from '$lib/core/ha/connection';
+	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 
 	let { entity: weatherEntity }: { entity?: string } = $props();

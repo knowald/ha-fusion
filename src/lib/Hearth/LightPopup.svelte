@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
-	import { PRESS_RIPPLE, SWATCH_COLORS } from './config';
+	import { PRESS_RIPPLE } from './config';
+	import { SWATCH_COLORS } from '$lib/core/theme';
 	import { horizontalDrag } from './drag';
+	import { callEntityService, controlOverrides } from '$lib/core/ha/commands';
 	import {
-		callEntityService,
-		controlOverrides,
 		hexToRgb,
 		lightViewFor,
 		setLightColor,
 		setLightLevel,
 		setLightTemp
-	} from './store';
+	} from '$lib/core/domains/light';
 	import PopupSlider from './PopupSlider.svelte';
 
 	let {

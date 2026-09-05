@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { connected, connection, states } from '$lib/Stores';
+	import { connected, connection } from '$lib/core/ha/connection';
+	import { states } from '$lib/core/ha/entities';
 	import type { RailWidget } from './config';
-	import { startDataRefresh } from './refresh';
-	import { sensorNumber } from './store';
+	import { startDataRefresh } from '$lib/core/ha/history';
+	import { sensorNumber } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'energy' }> } = $props();

@@ -3,10 +3,8 @@
 		cancelEdit,
 		canRedo,
 		canUndo,
-		commandFailure,
 		confirmRequestedAction,
 		currentRoom,
-		dismissCommandFailure,
 		dismissConfirmation,
 		editedThemeSlot,
 		editor,
@@ -23,19 +21,23 @@
 		saveState,
 		undoConfig
 	} from './store';
+	import { commandFailure, dismissCommandFailure } from '$lib/core/ha/commands';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { connected, editMode as fusionEditMode, lang, motion, states } from '$lib/Stores';
+	import { editMode as fusionEditMode, motion } from '$lib/Stores';
+	import { connected } from '$lib/core/ha/connection';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/Actions/ripple';
+	import { PRESS_RIPPLE } from './config';
 	import {
 		isNightState,
-		PRESS_RIPPLE,
 		THEME_BRIDGE_CSS,
 		THEME_DEFAULTS,
 		THEME_PRESETS,
 		themeStyle,
 		type HearthTheme
-	} from './config';
+	} from '$lib/core/theme';
 	import ControlPopup from './ControlPopup.svelte';
 	import EditorHost from './edit/EditorHost.svelte';
 	import Icon from './Icon.svelte';

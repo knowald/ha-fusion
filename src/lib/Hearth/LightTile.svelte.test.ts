@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { states } from '$lib/Stores';
+import { states } from '$lib/core/ha/entities';
 import { hassEntity } from './testing';
 import LightTile from './LightTile.svelte';
 
-vi.mock('./store', async (importOriginal) => ({
-	...(await importOriginal<typeof import('./store')>()),
+vi.mock('$lib/core/domains/light', async (importOriginal) => ({
+	...(await importOriginal<typeof import('$lib/core/domains/light')>()),
 	toggleLight: vi.fn()
 }));
-import { toggleLight } from './store';
+import { toggleLight } from '$lib/core/domains/light';
 
 describe('LightTile', () => {
 	beforeEach(() => {

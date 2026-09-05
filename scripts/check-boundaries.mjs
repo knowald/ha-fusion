@@ -17,7 +17,7 @@ const LAYERS = [
 	{
 		name: 'legacy',
 		match: ['src/lib/legacy/', 'src/routes/+page.svelte', 'src/routes/+page.server.ts'],
-		allowed: ['core', 'ui', 'shared']
+		allowed: ['core', 'ui', 'shared', 'bridge']
 	},
 	{
 		name: 'hearth',

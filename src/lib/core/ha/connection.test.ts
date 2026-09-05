@@ -1,12 +1,12 @@
 import { get } from 'svelte/store';
 import { describe, expect, it } from 'vitest';
-import { authentication } from '$lib/Socket';
-import { connected } from '$lib/Stores';
+import { authentication, connected, health } from './connection';
 
-describe('Hearth connection authentication', () => {
+describe('authentication', () => {
 	it('keeps the caller retrying when the Home Assistant URL is missing', async () => {
-		connected.set(true);
+		health.set('connected');
 		await expect(authentication({})).rejects.toThrow('Home Assistant URL is not configured');
+		expect(get(health)).toBe('lost');
 		expect(get(connected)).toBe(false);
 	});
 });

@@ -46,9 +46,12 @@ sheet takes priority over save and undo.
 
 ## Layout
 
-State enters through the Home Assistant websocket and is read from `$states`.
-Commands leave through `service()` in `store.ts`, which is the single exit point
-for every device call.
+State enters through the Home Assistant websocket in `src/lib/core/ha` and is
+read from `$states`. Commands leave through `service()` in
+`src/lib/core/ha/commands.ts`, the single exit point for every device call;
+per-domain wrappers (toggle a light, set a cover position) live in
+`src/lib/core/domains`. Hearth itself owns only what is dashboard-specific:
+the config, the editor and the navigation state in `store.ts`.
 
 ```
 data/hearth.yaml
@@ -57,6 +60,16 @@ data/hearth.yaml
   -> HearthDashboard.svelte    rail + main
        -> Rail -> RailWidgetRenderer -> *Widget
        -> RoomDetail -> CardColumns -> CardRenderer -> *Card
+
+src/lib/core
+  ha/connection.ts   the one connection, health, startConnection()
+  ha/entities.ts     $states, availability, active state, group summaries
+  ha/commands.ts     service(), optimistic overrides, pending, failures
+  ha/history.ts      recorder cache and shared polling
+  ha/registry.ts     area, device and entity registries
+  domains/*.ts       command wrappers and views per HA domain
+  theme/index.ts     tokens, derivation, presets, themeStyle()
+  i18n/index.ts      $lang and the translation stores
 ```
 
 Naming follows a fixed taxonomy: `*Card` renders an `OverviewCard`, `*Widget`
@@ -120,16 +133,16 @@ Rail widgets follow a parallel but not identical path through
 
 ## Behaviour worth knowing
 
-- **Availability.** `entityAvailability()` in `store.ts` distinguishes
+- **Availability.** `entityAvailability()` in `core/ha/entities.ts` distinguishes
   `available`, `unavailable`, `unknown` and `missing`. Tiles must not collapse a
   missing or unreachable entity into "off".
-- **Optimistic updates.** `controlOverrides` in `store.ts` holds a commanded
+- **Optimistic updates.** `controlOverrides` in `core/ha/commands.ts` holds a commanded
   value until the websocket confirms it. Route new optimistic behaviour through
   it rather than adding a local timer.
 - **Command failures.** `service()` guards on `connected`, not on the connection
   object, which survives reconnects. Failures are reported, not swallowed.
 - **Fetched data.** Most state is push. The few surfaces that fetch go through
-  `refresh.ts`, which supplies the shared interval and a short-lived cache so
+  `core/ha/history.ts`, which supplies the shared interval and a short-lived cache so
   page switches do not re-query the recorder.
 - **Edit mode.** `hearthEditMode` suppresses device commands. Embedded fusion
   objects consult the original dashboard's `editMode` store instead, so
@@ -141,8 +154,8 @@ Rail widgets follow a parallel but not identical path through
 
 `npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,
 `store`, `drag`, `refresh`, `registry`, `visibility`, `clock`,
-`configurationState`, `fusionFields`, `socket`, the type registries) have unit
-tests. Components have render tests through `@testing-library/svelte`, named
+`configurationState`, `fusionFields`, the type registries) and the core
+modules have unit tests. Components have render tests through `@testing-library/svelte`, named
 `*.svelte.test.ts` next to the component; `testing.ts` holds the entity
 fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
 and `core` that only moves up.

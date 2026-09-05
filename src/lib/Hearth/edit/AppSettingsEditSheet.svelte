@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import Ripple from '$lib/Actions/ripple';
-	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
+	import { configuration, motion } from '$lib/Stores';
+	import { selectedLanguage, translation } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import { editor } from '../store';
 	import EditSheet from './EditSheet.svelte';

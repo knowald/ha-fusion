@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cachedData, startDataRefresh } from './refresh';
+import { cachedData, startDataRefresh } from './history';
 
 afterEach(() => vi.useRealTimers());
 

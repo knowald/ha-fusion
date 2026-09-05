@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import type { VisibilityCondition } from './config';
 	import { evaluateVisibility } from './visibility';
 
