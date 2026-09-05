@@ -104,6 +104,22 @@ type RailWidgetVariant =
 			icon?: string;
 			vertical_padding?: 'compact';
 	  }
+	// one sensor drawn as a line over time, a state timeline, a bar or a radial
+	// gauge; math rewrites the value (x) before display
+	| {
+			id: string;
+			type: 'chart';
+			entity?: string;
+			name?: string;
+			style?: 'line' | 'history' | 'bar' | 'radial';
+			period?: 'hour' | 'day' | 'week' | 'month';
+			math?: string;
+			stroke?: number;
+	  }
+	| { id: string; type: 'template'; template?: string }
+	| { id: string; type: 'timer'; entity?: string; name?: string }
+	| { id: string; type: 'notifications' }
+	| { id: string; type: 'iframe'; url?: string; height?: number }
 	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
@@ -204,6 +220,17 @@ type OverviewCardVariant =
 	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
 	// a Konva canvas of images, icons and state badges (floor plans)
 	| { id: string; type: 'picture'; title?: string; elements: unknown[]; height?: number }
+	// days since an input_datetime was last reset, with a one-tap reset
+	| { id: string; type: 'days_since'; entity?: string; title?: string; icon?: string }
+	// the media card for whichever listed player is active; a paused player
+	// keeps the card for timeout seconds before the next one takes over
+	| {
+			id: string;
+			type: 'conditional_media';
+			media_players: string[];
+			timeout?: number;
+			height?: number;
+	  }
 	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 /**

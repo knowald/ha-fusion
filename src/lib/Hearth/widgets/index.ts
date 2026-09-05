@@ -3,6 +3,11 @@ import { lang } from '$lib/core/i18n';
 import type { RailWidget } from '../types';
 import type { WidgetDescriptor } from './types';
 import { calendarWidget } from './calendar/descriptor';
+import { chartWidget } from './chart/descriptor';
+import { iframeWidget } from './iframe/descriptor';
+import { notificationsWidget } from './notifications/descriptor';
+import { templateWidget } from './template/descriptor';
+import { timerWidget } from './timer/descriptor';
 import { clockWidget } from './clock/descriptor';
 import { energyWidget } from './energy/descriptor';
 import { entityWidget } from './entity/descriptor';
@@ -30,6 +35,11 @@ export const RAIL_WIDGET_TYPES: WidgetDescriptor<any>[] = [
 	calendarWidget,
 	statusWidget,
 	entityWidget,
+	chartWidget,
+	templateWidget,
+	timerWidget,
+	notificationsWidget,
+	iframeWidget,
 	fusionWidget
 ];
 

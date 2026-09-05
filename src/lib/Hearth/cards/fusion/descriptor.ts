@@ -10,8 +10,6 @@ export const FUSION_OBJECT_TYPES: { value: string; label: string }[] = [
 	{ value: 'button', label: 'Button' },
 	{ value: 'entities', label: 'Entities list' },
 	{ value: 'camera', label: 'Camera' },
-	{ value: 'conditional_media', label: 'Conditional media' },
-	{ value: 'days_since', label: 'Days since' },
 	{ value: 'empty', label: 'Empty spacer' }
 ];
 
