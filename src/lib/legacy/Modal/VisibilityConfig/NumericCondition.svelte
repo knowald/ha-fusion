@@ -1,0 +1,95 @@
+<script lang="ts">
+	import { lang, entityList } from '$lib/Stores';
+	import Select from '$lib/legacy/Components/Select.svelte';
+	import type { Condition } from '$lib/Types';
+
+	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();
+
+	let entityOptions = $derived($entityList(''));
+
+	/**
+	 * Updates `entity` value
+	 */
+	function handleEntity(id: number | undefined, entity_id: string | undefined) {
+		items = items.map((condition: Condition) => {
+			if (id === condition.id) {
+				return { ...condition, entity: entity_id };
+			}
+			return condition;
+		});
+	}
+
+	/**
+	 * Updates `above` or `below` value
+	 */
+	function handleRange(id: number | undefined, target: EventTarget | null, key: 'above' | 'below') {
+		const input = target as HTMLInputElement;
+		const value = input.value;
+
+		items = items.map((condition: Condition) => {
+			if (id === condition.id) {
+				// delete key ef empty
+				if (value === '') {
+					const _condition = { ...condition };
+					delete _condition[key];
+					return _condition;
+				} else {
+					return { ...condition, [key]: Number(value) };
+				}
+			}
+			return condition;
+		});
+	}
+</script>
+
+<Select
+	options={entityOptions}
+	placeholder={$lang('entity')}
+	value={item.entity}
+	onchange={(event) => handleEntity(item?.id, event)}
+	computeIcons={true}
+	defaultIcon="mdi:state-machine"
+/>
+
+<br />
+
+<div>
+	<span>
+		<input
+			data-modal
+			type="number"
+			value={item?.above !== undefined ? item.above : ''}
+			oninput={(event) => handleRange(item?.id, event?.target, 'above')}
+			placeholder={$lang('above')}
+			autocomplete="off"
+		/>
+	</span>
+
+	<span>
+		<input
+			data-modal
+			type="number"
+			value={item?.below !== undefined ? item.below : ''}
+			oninput={(event) => handleRange(item?.id, event?.target, 'below')}
+			placeholder={$lang('below')}
+			autocomplete="off"
+		/>
+	</span>
+</div>
+
+<style>
+	div {
+		display: flex;
+		width: 100%;
+		gap: 1rem;
+	}
+
+	span {
+		width: 50%;
+	}
+
+	input[type='number'] {
+		color-scheme: dark;
+		margin-right: 2rem;
+	}
+</style>

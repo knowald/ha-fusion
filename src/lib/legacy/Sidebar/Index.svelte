@@ -1,0 +1,421 @@
+<script lang="ts">
+	// store
+	import { dashboard, motion, showDrawer, editMode, record, dragging } from '$lib/Stores';
+	import { onMount, tick } from 'svelte';
+	import { sortable } from '$lib/Actions/sortable';
+	import { openModal } from '$lib/Modals';
+	import { generateId, getSelected } from '$lib/Utils';
+	import type { SidebarItem } from '$lib/Types';
+	import '$lib/legacy/Sidebar/Sidebar.css';
+	import type { Component } from 'svelte';
+
+	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
+
+	let importedComponents: (string | undefined)[] = [];
+
+	let Bar: Component<any> = $state(undefined as any);
+	let Camera: Component<any> = $state(undefined as any);
+	let Configure: Component<any> = $state(undefined as any);
+	let Date: Component<any> = $state(undefined as any);
+	let Divider: Component<any> = $state(undefined as any);
+	let Graph: Component<any> = $state(undefined as any);
+	let History: Component<any> = $state(undefined as any);
+	let Iframe: Component<any> = $state(undefined as any);
+	let Image: Component<any> = $state(undefined as any);
+	let Navigate: Component<any> = $state(undefined as any);
+	let Notifications: Component<any> = $state(undefined as any);
+	let Radial: Component<any> = $state(undefined as any);
+	let Sensor: Component<any> = $state(undefined as any);
+	let Template: Component<any> = $state(undefined as any);
+	let Time: Component<any> = $state(undefined as any);
+	let Timer: Component<any> = $state(undefined as any);
+	let Weather: Component<any> = $state(undefined as any);
+	let WeatherForecast: Component<any> = $state(undefined as any);
+
+	const imports = {
+		bar: () => import('$lib/legacy/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),
+		camera: () => import('$lib/legacy/Sidebar/Camera.svelte').then((c) => (Camera = c.default)),
+		configure: () =>
+			import('$lib/legacy/Sidebar/Configure.svelte').then((c) => (Configure = c.default)),
+		date: () => import('$lib/legacy/Sidebar/Date.svelte').then((c) => (Date = c.default)),
+		divider: () => import('$lib/legacy/Sidebar/Divider.svelte').then((c) => (Divider = c.default)),
+		graph: () => import('$lib/legacy/Sidebar/Graph.svelte').then((c) => (Graph = c.default)),
+		history: () => import('$lib/legacy/Sidebar/History.svelte').then((c) => (History = c.default)),
+		iframe: () => import('$lib/legacy/Sidebar/Iframe.svelte').then((c) => (Iframe = c.default)),
+		image: () => import('$lib/legacy/Sidebar/Image.svelte').then((c) => (Image = c.default)),
+		navigate: () =>
+			import('$lib/legacy/Sidebar/Navigate.svelte').then((c) => (Navigate = c.default)),
+		notifications: () =>
+			import('$lib/legacy/Sidebar/Notifications.svelte').then((c) => (Notifications = c.default)),
+		radial: () => import('$lib/legacy/Sidebar/Radial.svelte').then((c) => (Radial = c.default)),
+		sensor: () => import('$lib/legacy/Sidebar/Sensor.svelte').then((c) => (Sensor = c.default)),
+		template: () =>
+			import('$lib/legacy/Sidebar/Template.svelte').then((c) => (Template = c.default)),
+		time: () => import('$lib/legacy/Sidebar/Time.svelte').then((c) => (Time = c.default)),
+		timer: () => import('$lib/legacy/Sidebar/Timer.svelte').then((c) => (Timer = c.default)),
+		weather: () => import('$lib/legacy/Sidebar/Weather.svelte').then((c) => (Weather = c.default)),
+		weather_forecast: () =>
+			import('$lib/legacy/Sidebar/WeatherForecast.svelte').then(
+				(c) => (WeatherForecast = c.default)
+			)
+	};
+
+	$effect(() => {
+		if ($dashboard?.sidebar) importComponents();
+	});
+
+	/**
+	 * Dynamically imports sidebar components based on
+	 * the types present in the `$dashboard.sidebar`.
+	 */
+	async function importComponents() {
+		const types = [...new Set($dashboard.sidebar.map((item) => item.type))];
+		const promises = [];
+
+		for (let type of types) {
+			const module = imports[type as keyof typeof imports];
+
+			if (!importedComponents.includes(type) && module) {
+				promises.push(module());
+				importedComponents.push(type);
+			}
+		}
+
+		await Promise.all(promises);
+	}
+
+	/**
+	 * Dynamically imports modals
+	 */
+	async function handleClick(selectedId: number | undefined) {
+		const sel = getSelected(selectedId, $dashboard) as SidebarItem;
+
+		if ($editMode && sel) {
+			if (sel?.type === 'bar') {
+				openModal(() => import('$lib/legacy/Modal/BarConfig.svelte'), { sel });
+			} else if (sel?.type === 'camera') {
+				openModal(() => import('$lib/legacy/Modal/CameraConfig.svelte'), { sel });
+			} else if (sel?.type === 'date') {
+				openModal(() => import('$lib/legacy/Modal/DateConfig.svelte'), { sel });
+			} else if (sel?.type === 'divider') {
+				openModal(() => import('$lib/legacy/Modal/DividerConfig.svelte'), { sel });
+			} else if (sel?.type === 'graph') {
+				openModal(() => import('$lib/legacy/Modal/GraphConfig.svelte'), { sel });
+			} else if (sel?.type === 'history') {
+				openModal(() => import('$lib/legacy/Modal/HistoryConfig.svelte'), { sel });
+			} else if (sel?.type === 'iframe') {
+				openModal(() => import('$lib/legacy/Modal/IframeConfig.svelte'), { sel });
+			} else if (sel?.type === 'image') {
+				openModal(() => import('$lib/legacy/Modal/ImageConfig.svelte'), { sel });
+			} else if (sel?.type === 'navigate') {
+				openModal(() => import('$lib/legacy/Modal/NavigateConfig.svelte'), { sel });
+			} else if (sel?.type === 'notifications') {
+				openModal(() => import('$lib/legacy/Modal/NotificationsConfig.svelte'), { sel });
+			} else if (sel?.type === 'radial') {
+				openModal(() => import('$lib/legacy/Modal/RadialConfig.svelte'), { sel });
+			} else if (sel?.type === 'sensor') {
+				openModal(() => import('$lib/legacy/Modal/SensorConfig.svelte'), { sel });
+			} else if (sel?.type === 'template') {
+				openModal(() => import('$lib/legacy/Modal/TemplateConfig.svelte'), { sel });
+			} else if (sel?.type === 'time') {
+				openModal(() => import('$lib/legacy/Modal/TimeConfig.svelte'), { sel });
+			} else if (sel?.type === 'timer') {
+				openModal(() => import('$lib/legacy/Modal/TimerConfig.svelte'), { sel });
+			} else if (sel?.type === 'weather') {
+				openModal(() => import('$lib/legacy/Modal/WeatherConfig.svelte'), { sel });
+			} else if (sel?.type === 'weather_forecast') {
+				openModal(() => import('$lib/legacy/Modal/WeatherForecastConfig.svelte'), { sel });
+			} else {
+				openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel });
+
+				// force $editMode when clicking SidebarItemConfig
+				await tick();
+				setTimeout(() => {
+					$editMode = true;
+					$showDrawer = true;
+				}, $motion);
+			}
+		} else {
+			// !$editMode modals
+			if (sel?.type === 'camera') {
+				openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
+			} else if (sel?.type === 'timer') {
+				openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel });
+			}
+		}
+	}
+
+	function handleFinalize(newItems: any[]) {
+		if (altKeyPressed) {
+			// Find the item that moved to a new position and clone it
+			const newOrder = newItems.map((item: any) => item.id);
+			const oldOrder = $dashboard.sidebar.map((item: any) => item.id);
+
+			// Detect which item moved and where
+			for (let i = 0; i < newOrder.length; i++) {
+				if (newOrder[i] !== oldOrder[i]) {
+					const movedId = newOrder[i];
+					const original = $dashboard.sidebar.find((item: any) => item.id === movedId);
+					if (original) {
+						const cloned = { ...original, id: generateId($dashboard) };
+						// Insert clone at new position, keep original in place
+						const result = [...$dashboard.sidebar];
+						result.splice(i, 0, cloned);
+						$dashboard.sidebar = result;
+					}
+					break;
+				}
+			}
+		} else {
+			$dashboard.sidebar = newItems;
+		}
+
+		$record();
+		$dragging = false;
+	}
+
+	// media query js
+	let matches = $state(false);
+
+	onMount(() => {
+		const handleMediaQueryChange = (event: { matches: boolean }) => {
+			matches = event.matches;
+		};
+
+		const mediaQuery = window.matchMedia('(max-width: 768px)');
+		matches = mediaQuery.matches;
+
+		mediaQuery.addEventListener('change', handleMediaQueryChange);
+		// cleanup
+		return () => {
+			mediaQuery.removeEventListener('change', handleMediaQueryChange);
+		};
+	});
+</script>
+
+<aside
+	style:padding={$dashboard.hide_sidebar || $dashboard.sidebar.length === 0
+		? '0px'
+		: 'var(--theme-sidebar-padding)'}
+	style:transition="padding {$motion}ms ease"
+>
+	{#if $editMode}
+		{#await import('$lib/legacy/Components/ResizeHandle.svelte') then ResizeHandle}
+			<ResizeHandle.default />
+		{/await}
+	{/if}
+
+	{#if !$dashboard?.hide_sidebar}
+		<section
+			use:sortable={{
+				group: { name: 'sidebar', pull: false, put: false },
+				items: $dashboard?.sidebar,
+				animation: $motion,
+				disabled: !$editMode,
+				onStart: () => {
+					$dragging = true;
+				},
+				onFinalize: handleFinalize
+			}}
+		>
+			{#each $dashboard.sidebar as item (item.id)}
+				{@const hide_mobile = matches && item?.hide_mobile && !$editMode}
+
+				<div
+					id={String(item.id)}
+					data-id={item.id}
+					class="sidebar_edit_mode"
+					style:display={item?.type === 'divider' ||
+					item?.type === 'date' ||
+					item?.type === 'camera' ||
+					item?.type === 'time' ||
+					item?.type === 'notifications' ||
+					item?.type === 'configure'
+						? 'flex'
+						: 'initial'}
+				>
+					<!-- BAR -->
+					{#if Bar && item?.type === 'bar' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Bar entity_id={item?.entity_id} name={item?.name} math={item?.math} id={item?.id} />
+						</button>
+
+						<!-- CAMERA -->
+					{:else if Camera && item?.type === 'camera' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Camera sel={item} />
+						</button>
+
+						<!-- CONFIGURE -->
+					{:else if Configure && item?.type === 'configure'}
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Configure sel={item} />
+						</div>
+
+						<!-- DATE -->
+					{:else if Date && item?.type === 'date' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Date
+								short_day={item?.short_day}
+								short_month={item?.short_month}
+								hide={item?.hide}
+								layout={item?.layout}
+							/>
+						</button>
+
+						<!-- DIVIDER -->
+					{:else if Divider && item?.type === 'divider' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)} aria-label={item?.type} tabindex="-1">
+							<Divider mode={item?.mode} size={item?.size} />
+						</button>
+
+						<!-- GRAPH -->
+					{:else if Graph && item?.type === 'graph' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Graph
+								entity_id={item?.entity_id}
+								name={item?.name}
+								period={item?.period}
+								stroke={item?.stroke}
+							/>
+						</button>
+
+						<!-- HISTORY -->
+					{:else if History && item?.type === 'history' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<History entity_id={item?.entity_id || ''} period={item?.period} />
+						</button>
+
+						<!-- IFRAME -->
+					{:else if Iframe && item?.type === 'iframe' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Iframe url={item?.url} size={item?.size} />
+						</button>
+
+						<!-- NOTIFICATIONS -->
+					{:else if Notifications && item?.type === 'notifications' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Notifications sel={item} />
+						</button>
+
+						<!-- IMAGE -->
+					{:else if Image && item?.type === 'image' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Image entity_id={item?.entity_id} url={item?.url} />
+						</button>
+
+						<!-- NAVIGATE -->
+					{:else if Navigate && item?.type === 'navigate' && !hide_mobile}
+						{#key $editMode}
+							<div
+								onclick={(e) => {
+									e.preventDefault();
+									if ($editMode) handleClick(item?.id);
+								}}
+								role="button"
+								tabindex="0"
+							>
+								<Navigate />
+							</div>
+						{/key}
+
+						<!-- RADIAL -->
+					{:else if Radial && item?.type === 'radial' && !hide_mobile}
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Radial entity_id={item?.entity_id} name={item?.name} strokeWidth={item?.stroke} />
+						</div>
+
+						<!-- SENSOR -->
+					{:else if Sensor && item?.type === 'sensor' && !hide_mobile}
+						<div onclick={() => handleClick(item?.id)} role="button" tabindex="0">
+							<Sensor
+								entity_id={item?.entity_id}
+								prefix={item?.prefix}
+								suffix={item?.suffix}
+								date={item?.date || false}
+							/>
+						</div>
+
+						<!-- TEMPLATE -->
+					{:else if Template && item?.type === 'template' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Template sel={item} />
+						</button>
+
+						<!-- TIME -->
+					{:else if Time && item?.type === 'time' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Time seconds={item?.seconds} hour12={item?.hour12 || false} />
+						</button>
+
+						<!-- TIMER -->
+					{:else if Timer && item?.type === 'timer' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Timer sel={item} />
+						</button>
+
+						<!-- WEATHER -->
+					{:else if Weather && item?.type === 'weather' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<Weather sel={item} />
+						</button>
+
+						<!-- WEATHER FORECAST -->
+					{:else if WeatherForecast && item?.type === 'weather_forecast' && !hide_mobile}
+						<button onclick={() => handleClick(item?.id)}>
+							<WeatherForecast sel={item} />
+						</button>
+					{/if}
+				</div>
+			{/each}
+		</section>
+
+		{#await import('$lib/legacy/Sidebar/Toast.svelte') then Toast}
+			<Toast.default />
+		{/await}
+	{/if}
+</aside>
+
+<style>
+	aside {
+		position: relative;
+		grid-area: aside;
+		padding: var(--theme-sidebar-padding);
+		padding-bottom: 1.4rem !important;
+		background-color: var(--theme-colors-sidebar-background);
+		border-right: var(--theme-colors-sidebar-border);
+	}
+
+	div {
+		width: 100%;
+	}
+
+	button {
+		background: inherit;
+		border: inherit;
+		color: inherit;
+		font-family: inherit;
+		padding: inherit;
+		text-align: inherit;
+		cursor: inherit;
+		font-size: inherit;
+		width: 100%;
+	}
+
+	section {
+		margin-top: 1rem;
+		height: calc(100% - 1rem);
+		font-size: var(--theme-sidebar-font-size);
+		display: flex;
+		flex-direction: column;
+	}
+
+	.sidebar_edit_mode {
+		transition: height 200ms ease;
+		display: flex;
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
+	}
+</style>

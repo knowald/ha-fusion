@@ -1,0 +1,218 @@
+<script lang="ts">
+	import { configuration, editMode, history, historyIndex, motion } from '$lib/Stores';
+	import Separator from '$lib/legacy/Drawer/Separator.svelte';
+	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
+	import '$lib/legacy/Drawer/Drawer.css';
+	import type { Configuration, Dashboard, Translations, ViewItem } from '$lib/Types';
+	import { loadIcons } from '@iconify/svelte';
+
+	let {
+		data,
+		view,
+		toggleDrawer
+	}: {
+		data: {
+			configuration: Configuration;
+			dashboard: Dashboard;
+			theme: any;
+			translations: Translations;
+		};
+		view: ViewItem | undefined;
+		toggleDrawer: () => void;
+	} = $props();
+
+	/** Only display SayButton in Chrome */
+	// let chrome: boolean;
+	onMount(() => {
+		// chrome = navigator?.userAgent?.indexOf('Chrome') > -1;
+
+		// preload drawer $editMode icons
+		loadIcons([
+			'gridicons:add-outline',
+			'material-symbols:invert-colors-rounded',
+			'ion:arrow-undo-sharp',
+			'ion:arrow-redo-sharp',
+			'ic:round-save',
+			'solar:sidebar-minimalistic-bold-duotone',
+			'solar:file-bold-duotone',
+			'gg:row-first',
+			'solar:posts-carousel-horizontal-bold-duotone',
+			'fluent:tab-add-24-filled'
+		]);
+	});
+
+	/**
+	 * Determines whether the dashboard data has been modified,
+	 * property is passed to both `EditModeButton` and `SaveButton`
+	 */
+	let modified = $derived($history?.[$historyIndex] !== $history?.[0]);
+</script>
+
+<header id="drawer" transition:slide|global={{ duration: $motion }}>
+	<div class:grid={!$editMode} class:grid-editmode={$editMode}>
+		<div class="edit">
+			{#await import('$lib/legacy/Drawer/EditModeButton.svelte') then EditModeButton}
+				<EditModeButton.default {modified} {toggleDrawer} />
+			{/await}
+		</div>
+
+		{#if $editMode}
+			<div class="add">
+				{#await import('$lib/legacy/Drawer/AddDropdown.svelte') then AddDropdown}
+					<AddDropdown.default {view} />
+				{/await}
+			</div>
+
+			<div class="appearance">
+				{#await import('$lib/legacy/Drawer/AppearanceButton.svelte') then AppearanceButton}
+					<AppearanceButton.default />
+				{/await}
+			</div>
+
+			<div class="history">
+				{#await import('$lib/legacy/Drawer/HistoryButtons.svelte') then HistoryButtons}
+					<HistoryButtons.default />
+				{/await}
+			</div>
+
+			<div class="save push">
+				{#await import('$lib/legacy/Drawer/SaveButton.svelte') then SaveButton}
+					<SaveButton.default {modified} />
+				{/await}
+			</div>
+		{:else}
+			<div class="code">
+				{#await import('$lib/legacy/Drawer/CodeButton.svelte') then CodeButton}
+					<CodeButton.default />
+				{/await}
+			</div>
+
+			<Separator />
+
+			<div class="search">
+				{#await import('$lib/legacy/Drawer/SearchInput.svelte') then SearchInput}
+					<SearchInput.default />
+				{/await}
+			</div>
+
+			{#if $configuration?.hearth}
+				<div class="hearth">
+					{#await import('$lib/legacy/Drawer/HearthButton.svelte') then HearthButton}
+						<HearthButton.default />
+					{/await}
+				</div>
+			{/if}
+
+			<div class="settings push">
+				{#await import('$lib/legacy/Drawer/SettingsButton.svelte') then SettingsButton}
+					<SettingsButton.default {data} />
+				{/await}
+			</div>
+
+			<!-- {#if chrome}
+				{#await import('$lib/legacy/Drawer/SayButton.svelte') then SayButton}
+					<SayButton.default />
+				{/await}
+			{/if} -->
+		{/if}
+	</div>
+</header>
+
+<style>
+	#drawer {
+		height: 4.75rem;
+		width: 100vw;
+		padding: 1rem 2rem;
+		background-color: var(--theme-colors-sidebar-background);
+		border-bottom: var(--theme-colors-sidebar-border);
+	}
+
+	.edit {
+		grid-area: edit;
+	}
+
+	.add {
+		grid-area: add;
+	}
+
+	.appearance {
+		grid-area: appearance;
+	}
+
+	.history {
+		grid-area: history;
+		justify-self: end;
+	}
+
+	.save {
+		grid-area: save;
+	}
+
+	.code {
+		grid-area: code;
+	}
+
+	.search {
+		grid-area: search;
+		display: grid;
+		max-width: 20rem;
+	}
+
+	.settings {
+		grid-area: settings;
+	}
+
+	.hearth {
+		grid-area: hearth;
+		justify-self: end;
+	}
+
+	.push {
+		justify-self: end;
+		margin-right: 3.7rem;
+	}
+
+	.grid {
+		display: grid;
+		gap: 0.5rem;
+		grid-template-areas: 'edit code div search hearth settings';
+		grid-template-columns: auto auto auto 1fr auto auto;
+		width: 100%;
+	}
+
+	.grid-editmode {
+		display: grid;
+		gap: 0.5rem;
+		grid-template-areas: 'edit add appearance . history save';
+		grid-template-columns: auto auto auto 1fr auto auto;
+		width: 100%;
+	}
+
+	/* Phone and Tablet (portrait) */
+	@media all and (max-width: 768px) {
+		#drawer {
+			padding: 1rem 1.25rem;
+			height: 8rem;
+			flex-wrap: wrap;
+		}
+
+		.grid {
+			grid-template-columns: auto auto 1fr auto auto;
+			grid-template-areas:
+				'edit code . hearth settings'
+				'search search search search search';
+		}
+
+		.grid-editmode {
+			grid-template-columns: auto auto 1fr auto;
+			grid-template-areas:
+				'edit add  appearance .'
+				'history history history save';
+		}
+
+		.save {
+			margin-right: 0;
+		}
+	}
+</style>

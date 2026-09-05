@@ -3,7 +3,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import { currentRoom, hearthConfig } from './store';
-	import { openEntityModal } from './modals';
+	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import Icon from './Icon.svelte';
 
 	let { onclose }: { onclose: () => void } = $props();

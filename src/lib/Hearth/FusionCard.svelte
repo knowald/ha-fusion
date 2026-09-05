@@ -1,23 +1,14 @@
 <script lang="ts">
 	import type { OverviewCard } from './config';
 	import { hearthEditMode } from './store';
+	import { fusionObjectEmbeds } from '$lib/legacy/bridge/embeds';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'fusion' }> } = $props();
 
 	let item = $derived({ id: card.id, ...card.config } as Record<string, any>);
 
 	// dynamic imports keep heavy embeds (Konva, Spotify) out of the base bundle
-	const components: Record<string, () => Promise<{ default: any }>> = {
-		button: () => import('$lib/Main/Button.svelte'),
-		entities: () => import('$lib/Main/Entities.svelte'),
-		camera: () => import('$lib/Main/Camera.svelte'),
-		picture_elements: () => import('$lib/Main/PictureElements.svelte'),
-		conditional_media: () => import('$lib/Main/ConditionalMedia.svelte'),
-		days_since: () => import('$lib/Main/DaysSince.svelte'),
-		spotify_player: () => import('$lib/Main/SpotifyPlayer.svelte'),
-		spotify_player_large: () => import('$lib/Main/SpotifyPlayer.svelte'),
-		empty: () => import('$lib/Main/Empty.svelte')
-	};
+	const components = fusionObjectEmbeds;
 
 	let load = $derived(item?.type ? components[item.type] : undefined);
 </script>

@@ -23,7 +23,7 @@ What this means in practice:
 ## Enabling it
 
 Set `hearth: true` in `data/configuration.yaml`. That adds a Hearth button to
-the original dashboard's drawer (`src/lib/Drawer/Index.svelte`). The route is
+the original dashboard's drawer (`src/lib/legacy/Drawer/Index.svelte`). The route is
 served at `/hearth` regardless of the flag.
 
 On first load with no `data/hearth.yaml`, the setup wizard opens automatically
@@ -86,6 +86,15 @@ mean the same thing; Home Assistant calls it an area.
 
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
+
+## Boundaries
+
+The original dashboard lives under `src/lib/legacy`. Hearth may import from it
+only through `src/lib/legacy/bridge`, one module per legacy capability still in
+use (embeds, entity modals, the picture elements editor, the camera player, the
+token prompt). `scripts/check-boundaries.mjs` enforces this in CI, along with
+the layer order `routes -> hearth -> ui -> core`. Retiring a legacy feature
+means deleting its bridge module.
 
 ## Adding a card type
 

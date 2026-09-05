@@ -21,7 +21,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { modals } from '$lib/Modals';
-	import Theme from '$lib/Components/Theme.svelte';
+	import Theme from '$lib/legacy/Components/Theme.svelte';
 
 	/**
 	 * Data from server-side load
@@ -212,49 +212,49 @@
 	style:transition="grid-template-rows {$motion}ms ease, grid-template-columns {$motion}ms ease"
 >
 	<!-- nav -->
-	{#await import('$lib/Main/Views.svelte') then Views}
+	{#await import('$lib/legacy/Main/Views.svelte') then Views}
 		<Views.default {view} />
 	{/await}
 
 	<!-- main -->
 	{#if view?.sections}
-		{#await import('$lib/Main/Index.svelte') then Main}
+		{#await import('$lib/legacy/Main/Index.svelte') then Main}
 			<Main.default {view} {altKeyPressed} />
 		{/await}
 	{:else if $connection}
-		{#await import('$lib/Main/Intro.svelte') then Intro}
+		{#await import('$lib/legacy/Main/Intro.svelte') then Intro}
 			<Intro.default {data} />
 		{/await}
 	{/if}
 
 	<!-- aside -->
-	{#await import('$lib/Sidebar/Index.svelte') then Sidebar}
+	{#await import('$lib/legacy/Sidebar/Index.svelte') then Sidebar}
 		<Sidebar.default {altKeyPressed} />
 	{/await}
 
 	<!-- menu -->
 	{#if !$disableMenuButton}
-		{#await import('$lib/Drawer/MenuButton.svelte') then MenuButton}
+		{#await import('$lib/legacy/Drawer/MenuButton.svelte') then MenuButton}
 			<MenuButton.default {handleClick} />
 		{/await}
 	{/if}
 
 	<!-- header -->
 	{#if $showDrawer}
-		{#await import('$lib/Drawer/Index.svelte') then Drawer}
+		{#await import('$lib/legacy/Drawer/Index.svelte') then Drawer}
 			<Drawer.default {view} {data} {toggleDrawer} />
 		{/await}
 	{/if}
 
 	<!-- modules -->
 	{#if $customJs}
-		{#await import('$lib/Components/CustomJs.svelte') then CustomJs}
+		{#await import('$lib/ui/CustomJs.svelte') then CustomJs}
 			<CustomJs.default />
 		{/await}
 	{/if}
 
 	<!-- custom css -->
-	{#await import('$lib/Components/CustomCss.svelte') then CustomCss}
+	{#await import('$lib/ui/CustomCss.svelte') then CustomCss}
 		<CustomCss.default />
 	{/await}
 </div>

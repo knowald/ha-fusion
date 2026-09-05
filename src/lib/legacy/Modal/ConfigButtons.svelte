@@ -1,0 +1,140 @@
+<script lang="ts">
+	import { dashboard, record, lang, editMode, ripple, motion } from '$lib/Stores';
+	import { tick } from 'svelte';
+	import { closeModal, openModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { fade } from 'svelte/transition';
+
+	let {
+		sel = undefined,
+		disableChangeType = undefined
+	}: { sel?: any; disableChangeType?: boolean } = $props();
+
+	/**
+	 * Checks if current id is in/from sidebar
+	 */
+	function sidebarItem() {
+		return $dashboard.sidebar.some((item) => item?.id === sel?.id);
+	}
+
+	/**
+	 * Removes a sidebarItem
+	 */
+	function removeSidebarItem() {
+		$dashboard.sidebar = $dashboard.sidebar.filter((item) => item?.id !== sel?.id);
+	}
+
+	/**
+	 * Get id from a mainItem
+	 */
+	function mainItem() {
+		const isStack = (type: string) => type === 'horizontal-stack' || type === 'vertical-stack';
+
+		const filterItems = (section: any): any => ({
+			...section,
+			sections:
+				isStack(section.type) && section.sections
+					? section.sections.map((nested: any) => filterItems(nested))
+					: section.sections,
+			items: section.items?.filter((item: any) => item.id !== sel.id)
+		});
+
+		$dashboard.views = $dashboard.views.map((view) => ({
+			...view,
+			sections: view.sections?.map(filterItems)
+		}));
+	}
+
+	/**
+	 * Removes a ViewItem
+	 */
+	async function removeViewItem() {
+		const index = $dashboard.views.findIndex((view) => view.id === sel.id);
+		$dashboard.views = [...$dashboard.views.slice(0, index), ...$dashboard.views.slice(index + 1)];
+		// selects another view
+		await tick();
+		const adjust = Math.min(index, $dashboard.views.length - 1);
+		const view = document
+			.getElementById('navigation')
+			?.querySelector<HTMLButtonElement>(`button:nth-of-type(${adjust + 1})`);
+		view?.click();
+	}
+
+	/**
+	 * Removes 'SidebarItem' | 'MainItem' | 'ViewItem' from `$dashboard`.
+	 */
+	async function removeObj() {
+		if (!sel) return;
+		closeModal();
+
+		if (sidebarItem()) {
+			removeSidebarItem();
+		} else if (sel?.type) {
+			mainItem();
+		} else if (sel.sections) {
+			await removeViewItem();
+		}
+		$record();
+	}
+
+	/**
+	 * Handle object type change
+	 */
+	async function handleChangeType() {
+		closeModal();
+
+		if (sidebarItem()) {
+			openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel });
+		} else {
+			openModal(() => import('$lib/legacy/Modal/MainItemConfig.svelte'), { sel });
+		}
+	}
+</script>
+
+<div class="container">
+	<div class="align-left">
+		{#if $editMode && (sel?.type || sel?.sections)}
+			<button
+				transition:fade={{ duration: $motion }}
+				class="remove action"
+				onclick={removeObj}
+				use:Ripple={{
+					...$ripple,
+					color: 'rgba(0, 0, 0, 0.35)'
+				}}
+			>
+				{$lang('remove')}
+			</button>
+
+			{#if !disableChangeType === true}
+				<button
+					transition:fade={{ duration: $motion }}
+					class="options action"
+					onclick={() => {
+						handleChangeType();
+					}}
+					use:Ripple={$ripple}
+				>
+					{$lang('change_type')}
+				</button>
+			{/if}
+		{/if}
+	</div>
+
+	<button class="done action" onclick={closeModal} use:Ripple={$ripple}>
+		{$lang('done')}
+	</button>
+</div>
+
+<style>
+	.container {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 2.37rem;
+	}
+
+	.align-left {
+		display: flex;
+		gap: 0.8rem;
+	}
+</style>

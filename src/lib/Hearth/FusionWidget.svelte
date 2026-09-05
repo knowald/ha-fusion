@@ -1,41 +1,20 @@
 <script lang="ts">
 	import type { RailWidget } from './config';
 	import { hearthEditMode } from './store';
-	import { openModal } from '$lib/Modals';
+	import { fusionWidgetEmbeds, openFusionWidgetModal } from '$lib/legacy/bridge/embeds';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'fusion' }> } = $props();
 
 	let item = $derived({ id: widget.id, ...widget.config } as Record<string, any>);
 
-	const components: Record<string, () => Promise<{ default: any }>> = {
-		bar: () => import('$lib/Sidebar/Bar.svelte'),
-		camera: () => import('$lib/Sidebar/Camera.svelte'),
-		date: () => import('$lib/Sidebar/Date.svelte'),
-		divider: () => import('$lib/Sidebar/Divider.svelte'),
-		graph: () => import('$lib/Sidebar/Graph.svelte'),
-		history: () => import('$lib/Sidebar/History.svelte'),
-		iframe: () => import('$lib/Sidebar/Iframe.svelte'),
-		image: () => import('$lib/Sidebar/Image.svelte'),
-		notifications: () => import('$lib/Sidebar/Notifications.svelte'),
-		radial: () => import('$lib/Sidebar/Radial.svelte'),
-		sensor: () => import('$lib/Sidebar/Sensor.svelte'),
-		template: () => import('$lib/Sidebar/Template.svelte'),
-		time: () => import('$lib/Sidebar/Time.svelte'),
-		timer: () => import('$lib/Sidebar/Timer.svelte'),
-		weather: () => import('$lib/Sidebar/Weather.svelte'),
-		weather_forecast: () => import('$lib/Sidebar/WeatherForecast.svelte')
-	};
+	const components = fusionWidgetEmbeds;
 
 	let load = $derived(item?.type ? components[item.type] : undefined);
 
 	// same non-edit interactions the original sidebar offers
 	function handleClick() {
 		if ($hearthEditMode) return;
-		if (item?.type === 'camera') {
-			openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel: item });
-		} else if (item?.type === 'timer') {
-			openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel: item });
-		}
+		openFusionWidgetModal(item);
 	}
 
 	// mirrors the per-type prop spreading in Sidebar/Index.svelte

@@ -263,7 +263,7 @@
 	{:else if field.control === 'template'}
 		<label class="field">
 			<span class="field-label">{field.label}</span>
-			{#await import('$lib/Components/CodeEditor.svelte')}
+			{#await import('$lib/ui/CodeEditor.svelte')}
 				<textarea
 					value={textValue(field.key)}
 					oninput={(event) => setText(field.key, event.currentTarget.value)}

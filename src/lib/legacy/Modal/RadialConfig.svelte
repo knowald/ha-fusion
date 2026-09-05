@@ -1,0 +1,124 @@
+<script lang="ts">
+	import { states, lang, ripple, entityList, updateDashboard } from '$lib/Stores';
+	import Radial from '$lib/legacy/Sidebar/Radial.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
+	import { updateObj, getName } from '$lib/Utils';
+	import Ripple from '$lib/Actions/ripple';
+	import type { RadialItem } from '$lib/Types';
+
+	let {
+		isOpen,
+		sel = $bindable(),
+		demo = undefined
+	}: {
+		isOpen: boolean;
+		sel: RadialItem;
+		demo?: string;
+	} = $props();
+
+	let name = $state(sel?.name);
+	let stroke = $state(sel?.stroke);
+
+	let numberElement: HTMLInputElement = $state(undefined as any);
+
+	let entity_id = $derived(sel?.entity_id);
+
+	const range = {
+		min: 1,
+		max: 15
+	};
+
+	let options = $derived($entityList('sensor'));
+
+	function minMax(key: string | number | undefined) {
+		return Math.min(Math.max(parseInt(key as string), range.min), range.max);
+	}
+
+	function handleNumberRange(event: any) {
+		const value = minMax(event?.target?.value);
+		sel = updateDashboard(sel, (live) => updateObj(live, 'stroke', value));
+		if (numberElement) numberElement.value = String(value);
+	}
+</script>
+
+<ConfigModal {isOpen} bind:sel {demo} title="Radial">
+	{#snippet children(set)}
+		<h2>{$lang('preview')}</h2>
+
+		<div class="preview">
+			<Radial {entity_id} {name} strokeWidth={minMax(stroke)} />
+		</div>
+
+		<h2>{$lang('entity')}</h2>
+
+		{#if sel && options && entity_id}
+			<Select
+				value={entity_id}
+				placeholder={$lang('entity')}
+				onchange={(event) => set('entity_id', event)}
+				{options}
+				computeIcons={true}
+			/>
+		{/if}
+
+		<h2>{$lang('name')}</h2>
+
+		<InputClear
+			condition={name}
+			onclear={() => {
+				name = undefined;
+				set('name');
+			}}
+		>
+			{#snippet children(padding)}
+				<input
+					type="text"
+					class="input"
+					class:placeholder={!name}
+					bind:value={name}
+					placeholder={getName(sel, (sel?.entity_id && $states?.[sel.entity_id]) || undefined)}
+					onchange={(event) => set('name', event)}
+					autocomplete="off"
+					spellcheck="false"
+					style:padding
+				/>
+			{/snippet}
+		</InputClear>
+
+		<h2>{$lang('size')}</h2>
+
+		<input
+			type="number"
+			class="input"
+			bind:value={stroke}
+			bind:this={numberElement}
+			placeholder="9"
+			min={range.min}
+			max={range.max}
+			oninput={handleNumberRange}
+			autocomplete="off"
+		/>
+
+		<h2>{$lang('mobile')}</h2>
+
+		<div class="button-container">
+			<button
+				class:selected={sel?.hide_mobile !== true}
+				onclick={() => set('hide_mobile')}
+				use:Ripple={$ripple}
+			>
+				{$lang('visible')}
+			</button>
+
+			<button
+				class:selected={sel?.hide_mobile === true}
+				onclick={() => set('hide_mobile', true)}
+				use:Ripple={$ripple}
+			>
+				{$lang('hidden')}
+			</button>
+		</div>
+	{/snippet}
+</ConfigModal>

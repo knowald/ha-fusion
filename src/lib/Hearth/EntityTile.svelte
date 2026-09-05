@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import { lang, states } from '$lib/Stores';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
@@ -16,7 +16,7 @@
 		sensorNumber,
 		toggleEntity
 	} from './store';
-	import { openEntityModal } from './modals';
+	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';

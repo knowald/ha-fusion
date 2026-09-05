@@ -1,0 +1,577 @@
+<script lang="ts">
+	import { editMode, motion, record, dragging, itemHeight, states, dashboard } from '$lib/Stores';
+	import { onMount, tick } from 'svelte';
+	import { onDndReceive, sortable, type DndReceiveDetail } from '$lib/Actions/sortable';
+	import Content from '$lib/legacy/Main/Content.svelte';
+	import SectionHeader from '$lib/legacy/Main/SectionHeader.svelte';
+	import HorizontalStackHeader from '$lib/legacy/Main/HorizontalStackHeader.svelte';
+	import VerticalStackHeader from '$lib/legacy/Main/VerticalStackHeader.svelte';
+	import Scenes from '$lib/legacy/Main/Scenes.svelte';
+	import { handleVisibility, mediaQueries } from '$lib/Conditional';
+	import { generateId } from '$lib/Utils';
+	import { transferLegacyItem, transferLegacySection } from './legacyDrag';
+
+	let { view, altKeyPressed }: { view: any; altKeyPressed: boolean } = $props();
+
+	const stackHeight = $itemHeight * 1.65;
+
+	let mounted = $state(false);
+	onMount(() => (mounted = true));
+
+	function handleDragStart() {
+		$dragging = true;
+		document.body.style.height = `${parseFloat(getComputedStyle(document.body).height) + 1}px`;
+	}
+
+	async function handleDragEnd(changed = true) {
+		// `view` is a plain prop object, so sortable's mutations don't notify the
+		// $dashboard store and keyed each blocks keep stale refs - the UI would
+		// render the pre-drag order while the data already changed. Deep clone to
+		// refresh all refs, same as undo/redo does when restoring history.
+		if (changed) {
+			dashboard.update((d) => JSON.parse(JSON.stringify(d)));
+			$record();
+		}
+		$dragging = false;
+		await tick();
+		document.body.style.height = 'auto';
+	}
+
+	// every descendant needs a fresh id too: a duplicated id would make later
+	// transfers resolve the wrong section's entry
+	function cloneEntry(entry: any) {
+		const copy = structuredClone(entry);
+		const regenerateIds = (value: any) => {
+			value.id = generateId($dashboard);
+			for (const item of value.items ?? []) regenerateIds(item);
+			for (const section of value.sections ?? []) regenerateIds(section);
+		};
+		regenerateIds(copy);
+		return copy;
+	}
+
+	async function receiveSection(targetParentId: string | null, detail: DndReceiveDetail) {
+		const changed = transferLegacySection(
+			view.sections,
+			targetParentId,
+			detail.id,
+			detail.newIndex,
+			altKeyPressed ? cloneEntry : undefined
+		);
+		await handleDragEnd(changed);
+	}
+
+	async function receiveItem(targetSectionId: string, detail: DndReceiveDetail) {
+		const changed = transferLegacyItem(
+			view.sections,
+			targetSectionId,
+			detail.id,
+			detail.newIndex,
+			altKeyPressed ? cloneEntry : undefined
+		);
+		await handleDragEnd(changed);
+	}
+
+	function maybeCloneItem(items: any[], oldIndex: number, newIndex: number): any[] {
+		if (altKeyPressed) {
+			const cloned = { ...items[oldIndex], id: generateId($dashboard) };
+			const result = [...items];
+			result.splice(newIndex, 0, cloned);
+			return result;
+		}
+		return items;
+	}
+
+	function sectionGroupPut(_to: any, _from: any, dragEl: HTMLElement): boolean {
+		const dragType = dragEl.dataset.sectionType;
+		if (dragType === 'horizontal-stack' || dragType === 'vertical-stack' || dragType === 'scenes') {
+			return false;
+		}
+		return true;
+	}
+
+	function sectionStyles(sectionType: string, editMode: boolean, motion: number, empty: boolean) {
+		return `
+			min-height: ${sectionType === 'scenes' ? '4.8rem' : `${$itemHeight}px`};
+			background-color: ${empty ? 'rgba(255, 190, 10, 0.25)' : sectionType === 'scenes' ? 'rgba(0, 0, 0, 0.125)' : 'transparent'};
+			outline: ${empty ? '2px dashed #ffc107' : 'none'};
+			transition: ${
+				editMode ? `background-color ${motion / 2}ms ease, min-height ${motion}ms ease` : 'none'
+			};
+    `;
+	}
+
+	function itemStyles(type: string) {
+		const large = [
+			'conditional_media',
+			'picture_elements',
+			'camera',
+			'spotify_player_large',
+			'entities'
+		];
+		return `
+			grid-column: ${large.includes(type) ? 'span 2' : 'span 1'};
+			grid-row: ${large.includes(type) ? 'span 4' : 'span 1'};
+			display: ${type ? '' : 'none'};
+    `;
+	}
+
+	let viewSections = $derived(
+		$editMode
+			? view?.sections
+			: typeof mounted === 'boolean' &&
+					typeof $mediaQueries === 'object' &&
+					handleVisibility($editMode, view?.sections, $states)
+	);
+</script>
+
+<main
+	style:transition="opacity {$motion}ms ease, outline-color {$motion}ms ease"
+	style:opacity={$editMode && view?.sections.length === 0 ? '0' : '1'}
+	use:sortable={{
+		group: { name: 'section', put: sectionGroupPut },
+		animation: $motion,
+		disabled: !$editMode,
+		ghostClass: 'sortable-ghost',
+		handle: '.drag-handle',
+		items: view.sections,
+		onStart: handleDragStart,
+		onFinalize: async (newItems) => {
+			view.sections = newItems;
+			await handleDragEnd();
+		}
+	}}
+	use:onDndReceive={(detail) => receiveSection(null, detail)}
+>
+	{#each viewSections as section (section?.id)}
+		<section id={String(section?.id)} data-id={section?.id} data-section-type={section?.type}>
+			<!-- horizontal stack -->
+			{#if section?.type === 'horizontal-stack'}
+				<HorizontalStackHeader {view} {section} />
+
+				<div
+					class="horizontal-stack"
+					style:min-height="{stackHeight}px"
+					style:outline="2px dashed {$editMode ? '#ffc008' : 'transparent'}"
+					style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
+					use:sortable={{
+						group: { name: 'section', put: sectionGroupPut },
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						handle: '.drag-handle',
+						items: section.sections ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems) => {
+							const stack = view?.sections.find(
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+							);
+							if (stack) {
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
+					}}
+					use:onDndReceive={(detail) => receiveSection(String(section.id), detail)}
+				>
+					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
+						<section
+							id={String(stackSection.id)}
+							data-id={stackSection.id}
+							data-section-type={stackSection?.type}
+							style:overflow="hidden"
+						>
+							<!-- nested vertical stack inside horizontal stack -->
+							{#if stackSection?.type === 'vertical-stack'}
+								<VerticalStackHeader {view} section={stackSection} />
+
+								<div
+									class="vertical-stack nested"
+									style:min-height="{stackHeight}px"
+									style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
+									style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
+									use:sortable={{
+										group: { name: 'section', put: sectionGroupPut },
+										animation: $motion,
+										disabled: !$editMode,
+										ghostClass: 'sortable-ghost',
+										handle: '.drag-handle',
+										items: stackSection.sections ?? [],
+										onStart: handleDragStart,
+										onFinalize: async (newItems) => {
+											const parentStack = view?.sections.find(
+												(s: any) => s.id === section.id && s.type === 'horizontal-stack'
+											);
+											if (parentStack) {
+												const nestedStack = parentStack.sections?.find(
+													(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
+												);
+												if (nestedStack) {
+													nestedStack.sections = newItems.map((item: any) => ({
+														...item,
+														items: item.items ?? []
+													}));
+													view.sections = [...view.sections];
+												}
+											}
+											await handleDragEnd();
+										}
+									}}
+									use:onDndReceive={(detail) => receiveSection(String(stackSection.id), detail)}
+								>
+									{#each stackSection?.sections ?? [] as nestedSection (nestedSection?.id)}
+										{@const empty = $editMode && !nestedSection?.items?.length}
+										<section
+											id={String(nestedSection.id)}
+											data-id={nestedSection.id}
+											data-section-type={nestedSection?.type}
+											style:overflow="hidden"
+										>
+											<SectionHeader {view} section={nestedSection} />
+											<div
+												class="items"
+												style={sectionStyles(stackSection?.type, $editMode, $motion, empty)}
+												use:sortable={{
+													group: 'item',
+													animation: $motion,
+													disabled: !$editMode,
+													ghostClass: 'sortable-ghost',
+													items: nestedSection.items ?? [],
+													onStart: handleDragStart,
+													onFinalize: async (newItems, evt) => {
+														const parentStack = view?.sections.find(
+															(s: any) => s.id === section.id && s.type === 'horizontal-stack'
+														);
+														if (parentStack) {
+															const ns = parentStack.sections?.find(
+																(s: any) => s.id === stackSection.id && s.type === 'vertical-stack'
+															);
+															if (ns) {
+																const sec = ns.sections?.find(
+																	(s: any) => s.id === nestedSection.id
+																);
+																if (sec) {
+																	sec.items = maybeCloneItem(
+																		newItems,
+																		evt.oldIndex ?? 0,
+																		evt.newIndex ?? 0
+																	);
+																	view.sections = [...view.sections];
+																}
+															}
+														}
+														await handleDragEnd();
+													}
+												}}
+												use:onDndReceive={(detail) => receiveItem(String(nestedSection.id), detail)}
+											>
+												{#each nestedSection?.items ?? [] as item (item.id)}
+													<div
+														data-id={item?.id}
+														class="item"
+														tabindex="-1"
+														style={itemStyles(item?.type)}
+													>
+														<Content {item} sectionName={nestedSection?.name} />
+													</div>
+												{/each}
+											</div>
+										</section>
+									{/each}
+								</div>
+							{:else}
+								<!-- regular section inside horizontal stack -->
+								{@const empty = $editMode && !stackSection?.items?.length}
+								<SectionHeader {view} section={stackSection} />
+								<div
+									class="items"
+									style={sectionStyles(section?.type, $editMode, $motion, empty)}
+									use:sortable={{
+										group: 'item',
+										animation: $motion,
+										disabled: !$editMode,
+										ghostClass: 'sortable-ghost',
+										items: stackSection.items ?? [],
+										onStart: handleDragStart,
+										onFinalize: async (newItems, evt) => {
+											const sec = view?.sections
+												.find((s: any) =>
+													s.sections?.some((sub: any) => sub.id === stackSection.id)
+												)
+												?.sections.find((sub: any) => sub.id === stackSection.id);
+											if (sec) {
+												sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+												view.sections = [...view.sections];
+											}
+											await handleDragEnd();
+										}
+									}}
+									use:onDndReceive={(detail) => receiveItem(String(stackSection.id), detail)}
+								>
+									{#each stackSection?.items ?? [] as item (item.id)}
+										<div
+											data-id={item?.id}
+											class="item"
+											tabindex="-1"
+											style={itemStyles(item?.type)}
+										>
+											<Content {item} sectionName={stackSection?.name} />
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</section>
+					{/each}
+				</div>
+
+				<!-- vertical stack -->
+			{:else if section?.type === 'vertical-stack'}
+				<VerticalStackHeader {view} {section} />
+
+				<div
+					class="vertical-stack"
+					style:min-height="{stackHeight}px"
+					style:outline="2px dashed {$editMode ? '#08c7ff' : 'transparent'}"
+					style:transition="min-height {$motion}ms ease, outline {$motion / 2}ms ease"
+					use:sortable={{
+						group: { name: 'section', put: sectionGroupPut },
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						handle: '.drag-handle',
+						items: section.sections ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems) => {
+							const stack = view?.sections.find(
+								(s: any) =>
+									s.id === section.id &&
+									(s.type === 'horizontal-stack' || s.type === 'vertical-stack')
+							);
+							if (stack) {
+								stack.sections = newItems.map((item: any) => ({
+									...item,
+									items: item.items ?? []
+								}));
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
+					}}
+					use:onDndReceive={(detail) => receiveSection(String(section.id), detail)}
+				>
+					{#each section?.sections ?? [] as stackSection (stackSection?.id)}
+						{@const empty = $editMode && !stackSection?.items?.length}
+						<section
+							id={String(stackSection.id)}
+							data-id={stackSection.id}
+							data-section-type={stackSection?.type}
+							style:overflow="hidden"
+						>
+							<SectionHeader {view} section={stackSection} />
+							<div
+								class="items"
+								style={sectionStyles(section?.type, $editMode, $motion, empty)}
+								use:sortable={{
+									group: 'item',
+									animation: $motion,
+									disabled: !$editMode,
+									ghostClass: 'sortable-ghost',
+									items: stackSection.items ?? [],
+									onStart: handleDragStart,
+									onFinalize: async (newItems, evt) => {
+										const sec = view?.sections
+											.find((s: any) => s.sections?.some((sub: any) => sub.id === stackSection.id))
+											?.sections.find((sub: any) => sub.id === stackSection.id);
+										if (sec) {
+											sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+											view.sections = [...view.sections];
+										}
+										await handleDragEnd();
+									}
+								}}
+								use:onDndReceive={(detail) => receiveItem(String(stackSection.id), detail)}
+							>
+								{#each stackSection?.items ?? [] as item (item.id)}
+									<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
+										<Content {item} sectionName={stackSection?.name} />
+									</div>
+								{/each}
+							</div>
+						</section>
+					{/each}
+				</div>
+
+				<!-- scenes -->
+			{:else if section?.type === 'scenes'}
+				{@const empty = $editMode && !section?.items?.length}
+				<SectionHeader {view} {section} />
+				<div
+					class="scenes"
+					style={sectionStyles(section?.type, $editMode, $motion, empty)}
+					use:sortable={{
+						group: 'item',
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						items: section.items ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems, evt) => {
+							const sec = view?.sections.find((s: any) => s.id === section.id);
+							if (sec) {
+								sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
+					}}
+					use:onDndReceive={(detail) => receiveItem(String(section.id), detail)}
+				>
+					{#each section?.items ?? [] as item, index (item.id)}
+						<div
+							data-id={item?.id}
+							tabindex="-1"
+							class:divider={index !== section?.items?.length - 1}
+						>
+							<Scenes sel={item} />
+						</div>
+					{/each}
+				</div>
+
+				<!-- normal -->
+			{:else}
+				{@const empty = $editMode && !section?.items?.length}
+
+				<SectionHeader {view} {section} />
+
+				<div
+					class="items"
+					style={sectionStyles(section?.type, $editMode, $motion, empty)}
+					use:sortable={{
+						group: 'item',
+						animation: $motion,
+						disabled: !$editMode,
+						ghostClass: 'sortable-ghost',
+						items: section.items ?? [],
+						onStart: handleDragStart,
+						onFinalize: async (newItems, evt) => {
+							const sec = view?.sections.find((s: any) => s.id === section.id);
+							if (sec) {
+								sec.items = maybeCloneItem(newItems, evt.oldIndex ?? 0, evt.newIndex ?? 0);
+								view.sections = [...view.sections];
+							}
+							await handleDragEnd();
+						}
+					}}
+					use:onDndReceive={(detail) => receiveItem(String(section.id), detail)}
+				>
+					{#each section?.items ?? [] as item (item.id)}
+						<div data-id={item?.id} class="item" tabindex="-1" style={itemStyles(item?.type)}>
+							<Content {item} sectionName={section?.name} />
+						</div>
+					{/each}
+				</div>
+			{/if}
+		</section>
+	{/each}
+</main>
+
+<style>
+	main {
+		grid-area: main;
+		padding: 0 2rem 2rem;
+		display: grid;
+		gap: 1.5rem;
+		outline: transparent;
+		align-content: start;
+	}
+
+	section {
+		display: grid;
+		align-content: start;
+	}
+
+	.horizontal-stack {
+		display: grid;
+		grid-auto-flow: column;
+		grid-auto-columns: 1fr;
+		gap: 2rem;
+		border-radius: 0.65rem;
+		outline-offset: 3px;
+	}
+
+	.vertical-stack {
+		display: grid;
+		grid-auto-flow: row;
+		grid-auto-rows: min-content;
+		gap: 1.5rem;
+		border-radius: 0.65rem;
+		outline-offset: 3px;
+	}
+
+	/* without stack padding a negative offset would draw over the items,
+	   0 keeps the nested outline just inside the parent's 3px-offset outline */
+	.vertical-stack.nested {
+		outline-offset: 0;
+	}
+
+	.items {
+		border-radius: 0.6rem;
+		outline-offset: -2px;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, 14.5rem);
+		grid-auto-rows: min-content;
+		gap: 0.4rem;
+		border-radius: 0.6rem;
+		height: 100%;
+	}
+
+	.item {
+		position: relative;
+		border-radius: 0.65rem;
+	}
+
+	/* Phone and Tablet (portrait) */
+	@media all and (max-width: 768px) {
+		main {
+			padding: 0 1.25rem 1.25rem 1.25rem;
+		}
+
+		.horizontal-stack {
+			grid-auto-flow: row;
+			gap: 1.5rem;
+		}
+
+		.items {
+			display: flex;
+			flex-wrap: wrap;
+		}
+	}
+
+	.scenes {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+		border-radius: 0.65rem;
+		overflow: hidden;
+		min-height: 5rem;
+	}
+
+	.scenes > .divider {
+		border-right: 1px solid transparent;
+	}
+
+	:global(.sortable-ghost) {
+		opacity: 0.4;
+	}
+
+	:global(.sortable-chosen) {
+		outline: 2px dashed rgb(255, 192, 8);
+		outline-offset: -2px;
+		border-radius: 0.65rem;
+	}
+</style>

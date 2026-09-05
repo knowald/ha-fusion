@@ -1,0 +1,313 @@
+<script lang="ts">
+	import { dashboard, dragging, lang, motion, record, refreshDashboard, ripple } from '$lib/Stores';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import { sortable } from '$lib/Actions/sortable';
+	import AddConditionButtons from '$lib/legacy/Modal/VisibilityConfig/AddConditionButtons.svelte';
+	import StateCondition from '$lib/legacy/Modal/VisibilityConfig/StateCondition.svelte';
+	import NumericCondition from '$lib/legacy/Modal/VisibilityConfig/NumericCondition.svelte';
+	import ScreenCondition from '$lib/legacy/Modal/VisibilityConfig/ScreenCondition.svelte';
+	import { onDestroy } from 'svelte';
+	import type { Condition } from '$lib/Types';
+	import { slide } from 'svelte/transition';
+	import { expoOut } from 'svelte/easing';
+	import Explanation from '$lib/legacy/Modal/VisibilityConfig/Explanation.svelte';
+	import ItemHeader from '$lib/legacy/Modal/VisibilityConfig/ItemHeader.svelte';
+	import { closeModal } from '$lib/Modals';
+	import Ripple from '$lib/Actions/ripple';
+	import { generateId } from '$lib/Utils';
+
+	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
+
+	let innerWidth = $state(0);
+	let draggingGroup = $state(false);
+	let matches: { [key: string]: boolean } = $state({});
+
+	/**
+	 * Add id's to to each item
+	 */
+	// local edit buffer, seeded once from the saved config
+	// svelte-ignore state_referenced_locally
+	let items = $state(
+		sel?.visibility?.map((item: Condition) => ({
+			id: generateId($dashboard),
+			...item,
+			...(item.condition === 'and' || item.condition === 'or'
+				? {
+						conditions: item.conditions?.map((condition: Condition) => ({
+							id: generateId($dashboard),
+							...condition
+						}))
+					}
+				: {})
+		})) || []
+	);
+
+	/**
+	 * dnd
+	 */
+
+	function handleDragStart() {
+		$dragging = true;
+	}
+
+	function handleItemFinalize(newItems: any[]) {
+		items = newItems;
+		$dragging = false;
+		draggingGroup = false;
+	}
+
+	function handleNestedFinalize(parentId: string, newItems: any[]) {
+		const condition = items.find((item: any) => item.id === parentId);
+		if (condition && condition.conditions) {
+			condition.conditions = newItems;
+			items = [...items];
+		}
+		$dragging = false;
+		draggingGroup = false;
+	}
+
+	/**
+	 * Get all 'screen' conditions
+	 * { id, media_query }
+	 */
+	let screenConditions = $derived(
+		items.flatMap((item: Condition) =>
+			item.condition === 'screen'
+				? [{ id: item.id, media_query: item.media_query }]
+				: item.condition === 'and' || item.condition === 'or'
+					? (item.conditions
+							?.filter((cond) => cond.condition === 'screen')
+							.map(({ id, media_query }) => ({ id, media_query })) ?? [])
+					: []
+		)
+	);
+
+	/**
+	 * Updates `matches`
+	 */
+	$effect(() => {
+		if (screenConditions) updateMatches();
+	});
+
+	function updateMatches() {
+		matches = Object.fromEntries(
+			screenConditions.map((item: { id: string; media_query: string }) => [
+				item.id,
+				typeof item.media_query === 'string' && item.media_query !== ''
+					? window.matchMedia(item.media_query).matches
+					: false
+			])
+		);
+	}
+
+	/**
+	 * Removes all conditions, which in turn also triggers onDestroy
+	 */
+	function handleRemove() {
+		delete sel?.visibility;
+		sel = { ...sel };
+		closeModal();
+	}
+
+	/**
+	 * When modal is closed remove any `id` and `collapsed` keys
+	 * and add transformed items to dashboard section visibility
+	 */
+	onDestroy(() => {
+		sel.visibility = items?.map((item: Condition) => {
+			const condition = { ...item };
+			delete condition.id;
+			delete condition.collapsed;
+
+			if (condition.conditions) {
+				condition.conditions = condition.conditions.map((nestedItem: Condition) => {
+					const nested = { ...nestedItem };
+					delete nested.id;
+					delete nested.collapsed;
+					return nested;
+				});
+			}
+
+			return condition;
+		});
+
+		if (!sel.visibility?.length) {
+			delete sel.visibility;
+		}
+
+		refreshDashboard();
+
+		$record();
+	});
+</script>
+
+<svelte:window onresize={updateMatches} bind:innerWidth />
+
+{#if isOpen}
+	<Modal>
+		{#snippet title()}<h1>{$lang('visibility')}</h1>{/snippet}
+
+		<Explanation {sel} {items} {matches} />
+
+		<AddConditionButtons bind:items />
+
+		{#if items}
+			<section
+				data-exclude-drag-modal
+				style:padding="1.5rem 0"
+				use:sortable={{
+					group: {
+						name: 'condition',
+						put: (_to, _from, dragEl) => {
+							const isGroup =
+								dragEl.dataset.conditionType === 'and' || dragEl.dataset.conditionType === 'or';
+							return !isGroup || !draggingGroup;
+						}
+					},
+					animation: $motion,
+					ghostClass: 'sortable-ghost',
+					items,
+					onStart: handleDragStart,
+					onFinalize: handleItemFinalize
+				}}
+			>
+				{#each items as item, i (item?.id)}
+					<div data-id={item?.id} data-condition-type={item?.condition} class:item>
+						<ItemHeader item={items[i]} bind:items {matches} {innerWidth} />
+
+						{#if !item?.collapsed}
+							<div class="content" transition:slide={{ duration: $motion, easing: expoOut }}>
+								{#if item?.condition === 'state' && !item?.collapsed}
+									<StateCondition {item} bind:items />
+								{:else if item?.condition === 'numeric_state' && !item?.collapsed}
+									<NumericCondition {item} bind:items />
+								{:else if item?.condition === 'screen' && !item?.collapsed}
+									<ScreenCondition {item} bind:items />
+								{:else if item?.condition === 'and' || item?.condition === 'or'}
+									<!-- nested -->
+									<!-- code can be reduced with snippets -->
+
+									{#if item?.conditions}
+										{@const empty = !item?.conditions?.length}
+
+										<section
+											data-exclude-drag-modal
+											class="nested"
+											style:background-color={empty ? 'rgba(255, 190, 10, 0.25)' : 'transparent'}
+											style:outline={empty ? '2px dashed #ffc107' : 'none'}
+											style:transition="background-color {$motion}ms ease"
+											use:sortable={{
+												group: 'condition',
+												animation: $motion,
+												ghostClass: 'sortable-ghost',
+												items: item?.conditions,
+												onStart: handleDragStart,
+												onFinalize: (newItems) => handleNestedFinalize(item.id, newItems)
+											}}
+										>
+											{#each item.conditions as subItem, j (subItem?.id)}
+												<div
+													data-id={subItem?.id}
+													data-condition-type={subItem?.condition}
+													class="item"
+												>
+													<ItemHeader item={item.conditions[j]} bind:items {matches} {innerWidth} />
+
+													{#if !subItem.collapsed}
+														<div
+															class="content"
+															transition:slide={{ duration: $motion, easing: expoOut }}
+														>
+															{#if subItem?.condition === 'state' && !subItem?.collapsed}
+																<StateCondition item={subItem} bind:items={item.conditions} />
+															{:else if subItem?.condition === 'numeric_state' && !subItem?.collapsed}
+																<NumericCondition item={subItem} bind:items={item.conditions} />
+															{:else if subItem?.condition === 'screen' && !subItem?.collapsed}
+																<ScreenCondition item={subItem} bind:items={item.conditions} />
+															{/if}
+														</div>
+													{/if}
+												</div>
+											{/each}
+										</section>
+									{/if}
+
+									<!-- / nested -->
+								{/if}
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</section>
+		{/if}
+
+		<div class="add-config-buttons">
+			<button
+				class="action remove"
+				onclick={handleRemove}
+				use:Ripple={{ ...$ripple, color: !items?.length ? 'transparent' : $ripple.color }}
+				style:cursor={!items?.length ? 'initial' : 'pointer'}
+				style:opacity={!items?.length ? '0.3' : 'initial'}
+				disabled={!items?.length}
+			>
+				{$lang('remove')}
+			</button>
+
+			<button class="action done" onclick={closeModal} use:Ripple={$ripple}>
+				{$lang('done')}
+			</button>
+		</div>
+	</Modal>
+{/if}
+
+<style>
+	section {
+		display: flex;
+		flex-flow: column;
+		gap: 1rem;
+	}
+
+	.nested {
+		min-height: 8.6rem;
+		border-radius: calc(1.2rem - 0.6em) calc(1.2rem - 0.6em);
+		outline-offset: -2px;
+	}
+
+	.item {
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		padding: 1rem 1.1rem 1.1rem 1.1rem;
+		border-radius: calc(1.2rem - 0.6em);
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+
+	.content {
+		padding-top: 0.8rem;
+	}
+
+	.add-config-buttons {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+	}
+
+	:global(.evaluate-condition) {
+		padding: 0.2rem 0.5rem;
+		font-size: 0.8rem;
+		border-radius: 0.35rem;
+		height: 1.6rem;
+		text-transform: uppercase;
+		font-weight: 500;
+		align-content: center;
+		line-height: 1.25rem;
+		width: fit-content;
+	}
+
+	:global(.evaluate-condition.visible) {
+		background-color: #007800;
+	}
+
+	:global(.evaluate-condition.hidden) {
+		background: #ffc008;
+		color: #3b0f0f;
+	}
+</style>

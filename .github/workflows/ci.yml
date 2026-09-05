@@ -31,6 +31,9 @@ jobs:
       - name: Type check
         run: pnpm check
 
+      - name: Import boundary check
+        run: pnpm check:boundaries
+
       - name: Hearth accessibility check
         run: pnpm check:hearth-a11y
 
