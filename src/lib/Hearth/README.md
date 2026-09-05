@@ -139,7 +139,10 @@ Rail widgets follow a parallel but not identical path through
 
 ## Tests
 
-`npm run test` (vitest). The covered modules are the pure ones: `config`,
+`npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,
 `store`, `drag`, `refresh`, `registry`, `visibility`, `clock`,
-`configurationState`, `fusionFields`, `socket` and the type registries.
-Components are not covered.
+`configurationState`, `fusionFields`, `socket`, the type registries) have unit
+tests. Components have render tests through `@testing-library/svelte`, named
+`*.svelte.test.ts` next to the component; `testing.ts` holds the entity
+fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
+and `core` that only moves up.
