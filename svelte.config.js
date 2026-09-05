@@ -12,10 +12,11 @@ const config = {
 			config.include.push('../global.d.ts');
 		}
 	},
-	// touch-first dashboard; keyboard a11y warnings are noise until keyboard
-	// navigation becomes a goal
+	// the original dashboard predates keyboard support and is being retired;
+	// hearth and ui components are held to the full a11y rule set by
+	// scripts/check-hearth-a11y.mjs
 	onwarn(warning, defaultHandler) {
-		if (warning.code.startsWith('a11y')) return;
+		if (warning.code.startsWith('a11y') && warning.filename?.includes('/src/lib/legacy/')) return;
 		defaultHandler(warning);
 	},
 	vitePlugin: {

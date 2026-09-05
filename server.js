@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 const app = express();
 
 // environment
-dotenv.config();
+dotenv.config({ quiet: true });
 const ADDON = process.env.ADDON === 'true';
 const { PORT, HASS_PORT, EXPOSED_PORT } = process.env;
 

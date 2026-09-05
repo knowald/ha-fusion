@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml';
 import type { Configuration, Dashboard, Translations } from '$lib/Types';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 /**
  * Loads a yaml/json file and returns parsed data
