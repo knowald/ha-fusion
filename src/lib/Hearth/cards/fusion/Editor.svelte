@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/Actions/ripple';
 	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
 	import { PRESS_RIPPLE } from '../../config';
@@ -75,7 +76,7 @@
 </script>
 
 <SelectField
-	label="Object type"
+	label={$lang('hearth_object_type')}
 	bind:value={fusionType}
 	options={FUSION_OBJECT_TYPES}
 	onchange={() => advancedOpen && resetAdvancedYaml()}
@@ -91,7 +92,7 @@
 		onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
 	>
 		<Icon name="edit" size={18} />
-		<span>Open elements editor</span>
+		<span>{$lang('hearth_open_elements_editor')}</span>
 	</div>
 {/if}
 <div
@@ -103,16 +104,15 @@
 	onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
 >
 	<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
-	<span>Advanced (YAML)</span>
+	<span>{$lang('hearth_advanced_yaml')}</span>
 </div>
 {#if advancedOpen}
 	<YamlField
-		label="Other options (YAML)"
+		label={$lang('hearth_other_options_yaml')}
 		bind:value={() => advancedYaml, setAdvancedYaml}
 		placeholder={yamlPlaceholder}
 	/>
 	<div class="hint">
-		Options match the original ha-fusion object config for the chosen type, e.g. entity_id, name,
-		icon.
+		{$lang('hearth_options_match_the_original_ha_fusion')}
 	</div>
 {/if}

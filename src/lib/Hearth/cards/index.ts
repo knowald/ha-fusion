@@ -1,3 +1,5 @@
+import { get } from 'svelte/store';
+import { lang } from '$lib/core/i18n';
 import type { OverviewCard, OverviewItem } from '../types';
 import { isStack } from '../config';
 import type { CardDescriptor } from './types';
@@ -41,7 +43,7 @@ export function cardNeedsConfiguration(card: OverviewCard): boolean {
 }
 
 export function cardConfigurationLabel(card: OverviewCard): string {
-	return `${cardDescriptor(card.type).name} card`;
+	return get(lang)(cardDescriptor(card.type).name);
 }
 
 /** Every entity id a card refers to. */

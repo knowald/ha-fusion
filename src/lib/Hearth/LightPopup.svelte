@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
@@ -62,7 +63,7 @@
 </script>
 
 <PopupSlider
-	label="BRIGHTNESS"
+	label={$lang('hearth_brightness')}
 	icon="light_mode"
 	value={view.on ? view.level : 0}
 	variant="amber"
@@ -86,7 +87,7 @@
 </div>
 
 <div class="color-header">
-	<div class="color-label">COLOR</div>
+	<div class="color-label">{$lang('hearth_color')}</div>
 	<div class="tabs">
 		<div
 			class="tab pressable"
@@ -96,7 +97,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => (tabChoice = 'temp'))}
 		>
-			Temperature
+			{$lang('color_temp')}
 		</div>
 		<div
 			class="tab pressable"
@@ -106,7 +107,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => (tabChoice = 'color'))}
 		>
-			Color
+			{$lang('color')}
 		</div>
 		{#if supportsWhite}
 			<div
@@ -117,7 +118,7 @@
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, selectWhite)}
 			>
-				White
+				{$lang('white')}
 			</div>
 		{/if}
 	</div>
@@ -134,9 +135,9 @@
 		<div class="temp-thumb" style:left="calc({view.tempPct}% - 9px)"></div>
 	</div>
 	<div class="temp-labels">
-		<span>Candle</span>
+		<span>{$lang('hearth_candle')}</span>
 		<span class="kelvin">{kelvinLabel}</span>
-		<span>Daylight</span>
+		<span>{$lang('hearth_daylight')}</span>
 	</div>
 {:else if mode === 'color'}
 	<div class="swatches">
@@ -156,7 +157,7 @@
 
 {#if effectList.length}
 	<div class="color-header">
-		<div class="color-label">EFFECT</div>
+		<div class="color-label">{$lang('hearth_effect')}</div>
 	</div>
 	<div class="effects">
 		{#each effectList as effect (effect)}

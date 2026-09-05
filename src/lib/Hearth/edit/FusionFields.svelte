@@ -9,12 +9,12 @@
 		| { key: string; label: string; control: 'template' };
 
 	const GRAPH_PERIOD_OPTIONS = [
-		{ value: '', label: 'Default' },
-		{ value: '5minute', label: '5 minute' },
-		{ value: 'hour', label: 'Hour' },
-		{ value: 'day', label: 'Day' },
-		{ value: 'week', label: 'Week' },
-		{ value: 'month', label: 'Month' }
+		{ value: '', label: 'hearth_default_2' },
+		{ value: '5minute', label: 'hearth_5_minute' },
+		{ value: 'hour', label: 'period_hour' },
+		{ value: 'day', label: 'day' },
+		{ value: 'week', label: 'period_week' },
+		{ value: 'month', label: 'month' }
 	];
 
 	const HISTORY_PERIOD_OPTIONS = GRAPH_PERIOD_OPTIONS.filter(
@@ -23,112 +23,155 @@
 
 	const FIELD_SPECS: Record<string, FusionField[]> = {
 		button: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity' },
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'icon', label: 'Icon', control: 'text', placeholder: 'mdi:lightbulb or Material name' }
+			{ key: 'entity_id', label: 'entity', control: 'entity' },
+			{ key: 'name', label: 'name', control: 'text' },
+			{
+				key: 'icon',
+				label: 'icon',
+				control: 'text',
+				placeholder: 'mdi:lightbulb or Material name'
+			}
 		],
-		camera: [{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['camera'] }],
+		camera: [{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['camera'] }],
 		days_since: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity' },
-			{ key: 'name', label: 'Name', control: 'text' }
+			{ key: 'entity_id', label: 'entity', control: 'entity' },
+			{ key: 'name', label: 'name', control: 'text' }
 		],
 		sensor: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['sensor'] },
-			{ key: 'prefix', label: 'Prefix', control: 'text' },
-			{ key: 'suffix', label: 'Suffix', control: 'text' }
+			{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['sensor'] },
+			{ key: 'prefix', label: 'hearth_prefix', control: 'text' },
+			{ key: 'suffix', label: 'hearth_suffix', control: 'text' }
 		],
-		template: [{ key: 'template', label: 'Template', control: 'template' }],
+		template: [{ key: 'template', label: 'template', control: 'template' }],
 		graph: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['sensor'] },
-			{ key: 'period', label: 'Period', control: 'select', options: GRAPH_PERIOD_OPTIONS },
-			{ key: 'stroke', label: 'Stroke width', control: 'numeric', placeholder: '2' }
+			{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['sensor'] },
+			{ key: 'period', label: 'period', control: 'select', options: GRAPH_PERIOD_OPTIONS },
+			{ key: 'stroke', label: 'hearth_stroke_width', control: 'numeric', placeholder: '2' }
 		],
 		bar: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity' },
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'math', label: 'Math', control: 'text' }
+			{ key: 'entity_id', label: 'entity', control: 'entity' },
+			{ key: 'name', label: 'name', control: 'text' },
+			{ key: 'math', label: 'hearth_math', control: 'text' }
 		],
 		radial: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['sensor'] },
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'stroke', label: 'Stroke width', control: 'numeric' }
+			{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['sensor'] },
+			{ key: 'name', label: 'name', control: 'text' },
+			{ key: 'stroke', label: 'hearth_stroke_width', control: 'numeric' }
 		],
 		history: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity' },
-			{ key: 'period', label: 'Period', control: 'select', options: HISTORY_PERIOD_OPTIONS }
+			{ key: 'entity_id', label: 'entity', control: 'entity' },
+			{ key: 'period', label: 'period', control: 'select', options: HISTORY_PERIOD_OPTIONS }
 		],
 		image: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['image', 'camera'] },
-			{ key: 'url', label: 'URL', control: 'text' }
+			{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['image', 'camera'] },
+			{ key: 'url', label: 'url', control: 'text' }
 		],
 		iframe: [
-			{ key: 'url', label: 'URL', control: 'text' },
-			{ key: 'size', label: 'Size', control: 'numeric' }
+			{ key: 'url', label: 'url', control: 'text' },
+			{ key: 'size', label: 'size', control: 'numeric' }
 		],
 		time: [
 			{ key: 'hour12', label: '12-hour clock', control: 'check' },
-			{ key: 'seconds', label: 'Show seconds', control: 'check' }
+			{ key: 'seconds', label: 'hearth_show_seconds', control: 'check' }
 		],
 		date: [
-			{ key: 'short_day', label: 'Short day name', control: 'check' },
-			{ key: 'short_month', label: 'Short month name', control: 'check' }
+			{ key: 'short_day', label: 'hearth_short_day_name', control: 'check' },
+			{ key: 'short_month', label: 'hearth_short_month_name', control: 'check' }
 		],
-		timer: [{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['timer'] }],
-		weather: [{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['weather'] }],
+		timer: [{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['timer'] }],
+		weather: [{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['weather'] }],
 		weather_forecast: [
-			{ key: 'entity_id', label: 'Entity', control: 'entity', domains: ['weather'] }
+			{ key: 'entity_id', label: 'entity', control: 'entity', domains: ['weather'] }
 		],
 		entities: [
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'wildcard', label: 'Entity wildcard', control: 'text', placeholder: 'light.kitchen_*' }
+			{ key: 'name', label: 'name', control: 'text' },
+			{
+				key: 'wildcard',
+				label: 'hearth_entity_wildcard',
+				control: 'text',
+				placeholder: 'light.kitchen_*'
+			}
 		],
 		conditional_media: [
-			{ key: 'entity_id', label: 'Fallback entity', control: 'entity', domains: ['media_player'] },
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'icon', label: 'Icon', control: 'text' },
-			{ key: 'timeout', label: 'Paused timeout (seconds)', control: 'numeric', placeholder: '900' },
-			{ key: 'show_timeout', label: 'Show paused timeout', control: 'check' },
-			{ key: 'marquee', label: 'Scroll long titles', control: 'check' }
+			{
+				key: 'entity_id',
+				label: 'hearth_fallback_entity',
+				control: 'entity',
+				domains: ['media_player']
+			},
+			{ key: 'name', label: 'name', control: 'text' },
+			{ key: 'icon', label: 'icon', control: 'text' },
+			{
+				key: 'timeout',
+				label: 'hearth_paused_timeout_seconds',
+				control: 'numeric',
+				placeholder: '900'
+			},
+			{ key: 'show_timeout', label: 'hearth_show_paused_timeout', control: 'check' },
+			{ key: 'marquee', label: 'hearth_scroll_long_titles', control: 'check' }
 		],
 		spotify_player: [
 			{
 				key: 'entity_id',
-				label: 'Spotify media player',
+				label: 'hearth_spotify_media_player',
 				control: 'entity',
 				domains: ['media_player']
 			},
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'icon', label: 'Icon', control: 'text', placeholder: 'mdi:spotify' },
-			{ key: 'color', label: 'Accent color', control: 'text', placeholder: '#1ed760' },
-			{ key: 'show_progress', label: 'Show progress', control: 'check' },
-			{ key: 'default_device', label: 'Default Spotify Connect device', control: 'text' }
+			{ key: 'name', label: 'name', control: 'text' },
+			{ key: 'icon', label: 'icon', control: 'text', placeholder: 'mdi:spotify' },
+			{
+				key: 'color',
+				label: 'hearth_accent_color',
+				control: 'text',
+				placeholder: '#1ed760'
+			},
+			{ key: 'show_progress', label: 'hearth_show_progress', control: 'check' },
+			{
+				key: 'default_device',
+				label: 'hearth_default_spotify_connect_device',
+				control: 'text'
+			}
 		],
 		spotify_player_large: [
 			{
 				key: 'entity_id',
-				label: 'Spotify media player',
+				label: 'hearth_spotify_media_player',
 				control: 'entity',
 				domains: ['media_player']
 			},
-			{ key: 'name', label: 'Name', control: 'text' },
-			{ key: 'icon', label: 'Icon', control: 'text', placeholder: 'mdi:spotify' },
-			{ key: 'color', label: 'Accent color', control: 'text', placeholder: '#1ed760' },
-			{ key: 'show_progress', label: 'Show progress', control: 'check' },
-			{ key: 'default_device', label: 'Default Spotify Connect device', control: 'text' }
+			{ key: 'name', label: 'name', control: 'text' },
+			{ key: 'icon', label: 'icon', control: 'text', placeholder: 'mdi:spotify' },
+			{
+				key: 'color',
+				label: 'hearth_accent_color',
+				control: 'text',
+				placeholder: '#1ed760'
+			},
+			{ key: 'show_progress', label: 'hearth_show_progress', control: 'check' },
+			{
+				key: 'default_device',
+				label: 'hearth_default_spotify_connect_device',
+				control: 'text'
+			}
 		],
 		divider: [
 			{
 				key: 'mode',
-				label: 'Style',
+				label: 'hearth_style',
 				control: 'select',
 				options: [
-					{ value: '', label: 'Divider line' },
-					{ value: 'empty', label: 'Empty space' }
+					{ value: '', label: 'hearth_divider_line' },
+					{ value: 'empty', label: 'hearth_empty_space' }
 				]
 			},
-			{ key: 'size', label: 'Empty-space height', control: 'numeric', placeholder: '50' }
+			{
+				key: 'size',
+				label: 'hearth_empty_space_height',
+				control: 'numeric',
+				placeholder: '50'
+			}
 		],
-		notifications: [{ key: 'expand', label: 'Start collapsed', control: 'check-false' }]
+		notifications: [{ key: 'expand', label: 'hearth_start_collapsed', control: 'check-false' }]
 	};
 
 	export function fusionSpecKeys(type: string): string[] {
@@ -175,6 +218,7 @@
 </script>
 
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { autocompleteList } from '$lib/Stores';
 	import EntityField from './EntityField.svelte';
 	import SelectField from './SelectField.svelte';
@@ -220,26 +264,26 @@
 {#each fields as field (field.key)}
 	{#if field.control === 'entity'}
 		<EntityField
-			label={field.label}
+			label={$lang(field.label)}
 			domains={field.domains ?? []}
 			bind:value={() => textValue(field.key), (value) => setText(field.key, value)}
 		/>
 	{:else if field.control === 'text'}
 		<TextField
-			label={field.label}
+			label={$lang(field.label)}
 			placeholder={field.placeholder ?? ''}
 			bind:value={() => textValue(field.key), (value) => setText(field.key, value)}
 		/>
 	{:else if field.control === 'numeric'}
 		<TextField
-			label={field.label}
+			label={$lang(field.label)}
 			placeholder={field.placeholder ?? ''}
 			bind:value={() => textValue(field.key), (value) => setNumeric(field.key, value)}
 		/>
 	{:else if field.control === 'select'}
 		<SelectField
-			label={field.label}
-			options={field.options}
+			label={$lang(field.label)}
+			options={field.options.map((option) => ({ ...option, label: $lang(option.label) }))}
 			bind:value={() => textValue(field.key), (value) => setText(field.key, value)}
 		/>
 	{:else if field.control === 'check'}
@@ -249,7 +293,7 @@
 				checked={!!options[field.key]}
 				onchange={(event) => setCheck(field.key, event.currentTarget.checked)}
 			/>
-			<span>{field.label}</span>
+			<span>{$lang(field.label)}</span>
 		</label>
 	{:else if field.control === 'check-false'}
 		<label class="check">
@@ -258,11 +302,11 @@
 				checked={options[field.key] === false}
 				onchange={(event) => setFalseCheck(field.key, event.currentTarget.checked)}
 			/>
-			<span>{field.label}</span>
+			<span>{$lang(field.label)}</span>
 		</label>
 	{:else if field.control === 'template'}
 		<label class="field">
-			<span class="field-label">{field.label}</span>
+			<span class="field-label">{$lang(field.label)}</span>
 			{#await import('$lib/ui/CodeEditor.svelte')}
 				<textarea
 					value={textValue(field.key)}
@@ -283,7 +327,7 @@
 		</label>
 	{/if}
 {:else}
-	<div class="hint">No form fields for this type - configure it under Advanced (YAML).</div>
+	<div class="hint">{$lang('hearth_no_form_fields_for_this_type')}</div>
 {/each}
 
 <style>

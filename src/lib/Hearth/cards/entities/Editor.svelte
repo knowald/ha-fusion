@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { EntityRef } from '../../types';
 	import { moveItem } from '../../config';
 	import { activateOnKeyboard } from '../../interaction';
@@ -144,9 +145,9 @@
 	});
 </script>
 
-<TextField label="Title" bind:value={title} placeholder="Lights" />
+<TextField label={$lang('hearth_title')} bind:value={title} placeholder="Lights" />
 <SelectField
-	label="Style"
+	label={$lang('hearth_style')}
 	bind:value={style}
 	options={[
 		{ value: 'tile', label: 'Tiles' },
@@ -154,7 +155,7 @@
 	]}
 />
 <SelectField
-	label="Columns"
+	label={$lang('columns')}
 	bind:value={columns}
 	options={[
 		{ value: '', label: 'Auto' },
@@ -165,7 +166,7 @@
 	]}
 />
 <SelectField
-	label="Vertical padding"
+	label={$lang('hearth_vertical_padding')}
 	bind:value={verticalPadding}
 	options={[
 		{ value: '', label: 'Standard' },
@@ -173,7 +174,7 @@
 	]}
 />
 <SelectField
-	label="Slider commands"
+	label={$lang('slider_updates')}
 	bind:value={sliderUpdates}
 	options={[
 		{ value: 'continuous', label: 'While dragging' },
@@ -182,32 +183,40 @@
 />
 <label class="check">
 	<input type="checkbox" bind:checked={showCount} />
-	<span>Show active count in header</span>
+	<span>{$lang('hearth_show_active_count_in_header')}</span>
 </label>
 <label class="check">
 	<input type="checkbox" bind:checked={groupActions} />
-	<span>Header actions for groups (All off, Open all, Close all)</span>
+	<span>{$lang('hearth_header_actions_for_groups_all_off')}</span>
 </label>
 <label class="check">
 	<input type="checkbox" bind:checked={tuneButtons} />
-	<span>Controls glyph on tiles (long-press always works)</span>
+	<span>{$lang('hearth_controls_glyph_on_tiles_long_press')}</span>
 </label>
 <label class="check">
 	<input type="checkbox" bind:checked={readonly} />
-	<span>Display only (no tile ever sends a command)</span>
+	<span>{$lang('hearth_display_only_no_tile_ever_sends')}</span>
 </label>
-<TextField label="Entity wildcard (optional)" bind:value={wildcard} placeholder="light.kitchen_*" />
+<TextField
+	label={$lang('hearth_entity_wildcard_optional')}
+	bind:value={wildcard}
+	placeholder="light.kitchen_*"
+/>
 <label class="check">
 	<input type="checkbox" bind:checked={collapsed} />
-	<span>Collapse into a summary row (details in a popover)</span>
+	<span>{$lang('hearth_collapse_into_a_summary_row_details')}</span>
 </label>
 
 {#if collapsed}
-	<IconField label="Summary row icon (optional)" bind:value={icon} />
-	<TextField label="Summary text (optional)" bind:value={summary} placeholder="5 open · 3 closed" />
-	<EntityField label="Summary from entity (optional)" bind:value={summaryEntity} />
+	<IconField label={$lang('hearth_summary_row_icon_optional')} bind:value={icon} />
+	<TextField
+		label={$lang('hearth_summary_text_optional')}
+		bind:value={summary}
+		placeholder="5 open · 3 closed"
+	/>
+	<EntityField label={$lang('hearth_summary_from_entity_optional')} bind:value={summaryEntity} />
 	<div class="hint">
-		Without either, the row counts the entities that are on. The title names the group.
+		{$lang('hearth_without_either_the_row_counts_the')}
 	</div>
 {/if}
 
@@ -217,7 +226,7 @@
 	aria-expanded={entitiesOpen}
 	onclick={() => (entitiesOpen = !entitiesOpen)}
 >
-	<span class="group-label">ENTITIES</span>
+	<span class="group-label">{$lang('hearth_entities')}</span>
 	<span class="entities-count">{entities.length}</span>
 	<Icon name={entitiesOpen ? 'expand_less' : 'expand_more'} size={19} />
 </button>
@@ -246,7 +255,7 @@
 							type="button"
 							class="reorder"
 							disabled={refIndex === 0}
-							aria-label="Move entity up"
+							aria-label={$lang('hearth_move_entity_up')}
 							onclick={() => moveRow(refIndex, -1)}
 						>
 							<Icon name="keyboard_arrow_up" size={20} />
@@ -255,7 +264,7 @@
 							type="button"
 							class="reorder"
 							disabled={refIndex === entities.length - 1}
-							aria-label="Move entity down"
+							aria-label={$lang('hearth_move_entity_down')}
 							onclick={() => moveRow(refIndex, 1)}
 						>
 							<Icon name="keyboard_arrow_down" size={20} />
@@ -263,7 +272,7 @@
 						<button
 							type="button"
 							class="remove"
-							aria-label="Remove entity"
+							aria-label={$lang('hearth_remove_entity')}
 							onclick={() => removeRow(refIndex)}
 						>
 							<Icon name="delete" size={20} />
@@ -272,11 +281,11 @@
 				</div>
 				{#if expandedRows.includes(refIndex)}
 					<div class="filter-fields entity-row-fields">
-						<EntityField label="Entity" bind:value={ref.entity} />
-						<TextField label="Name (optional)" bind:value={ref.name} />
-						<IconField label="Icon (optional)" bind:value={ref.icon} />
+						<EntityField label={$lang('entity')} bind:value={ref.entity} />
+						<TextField label={$lang('hearth_name_optional')} bind:value={ref.name} />
+						<IconField label={$lang('hearth_icon_optional')} bind:value={ref.icon} />
 						<SelectField
-							label="Display"
+							label={$lang('hearth_display')}
 							bind:value={ref.display}
 							options={[
 								{ value: '', label: 'Card style' },
@@ -285,7 +294,7 @@
 							]}
 						/>
 						<SelectField
-							label="Slider commands"
+							label={$lang('slider_updates')}
 							bind:value={ref.slider_updates}
 							options={[
 								{ value: '', label: 'Card setting' },
@@ -296,7 +305,7 @@
 						{#if !readonly}
 							<label class="check">
 								<input type="checkbox" bind:checked={ref.readonly} />
-								<span>Display only</span>
+								<span>{$lang('display_only')}</span>
 							</label>
 						{/if}
 					</div>
@@ -311,7 +320,7 @@
 			onkeydown={(event) => activateOnKeyboard(event, addRow)}
 		>
 			<Icon name="add" size={18} />
-			<span>Add entity</span>
+			<span>{$lang('hearth_add_entity')}</span>
 		</div>
 	</div>
 {/if}

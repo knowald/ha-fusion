@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { StatusWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -28,14 +29,13 @@
 
 <div class="row">
 	<div class="grow">
-		<TextField label="Text" bind:value={text} placeholder="All systems nominal" />
+		<TextField label={$lang('text')} bind:value={text} placeholder="All systems nominal" />
 	</div>
 	<div class="icon-column">
-		<IconField label="Icon" bind:value={icon} placeholder="eco" />
+		<IconField label={$lang('icon')} bind:value={icon} placeholder="eco" />
 	</div>
 </div>
-<EntityField label="Entity (optional, appends its state)" bind:value={entity} />
+<EntityField label={$lang('hearth_entity_optional_appends_its_state')} bind:value={entity} />
 <div class="hint">
-	Leave text and entity empty to report actual conditions instead: one row per offline dashboard
-	entity, nothing when all is well.
+	{$lang('hearth_leave_text_and_entity_empty_to')}
 </div>

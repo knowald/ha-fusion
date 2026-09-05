@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import type { OverviewCard } from '../../config';
 
@@ -24,9 +25,9 @@
 	{/if}
 
 	{#if !card.entity}
-		<div class="placeholder">Pick an image entity in the card editor</div>
+		<div class="placeholder">{$lang('hearth_pick_an_image_entity_in_the')}</div>
 	{:else if entity?.state === 'unavailable'}
-		<div class="placeholder">Image unavailable</div>
+		<div class="placeholder">{$lang('hearth_image_unavailable')}</div>
 	{:else if imageSource && imageSource !== failedSource}
 		<div class="image-frame">
 			<img
@@ -36,7 +37,7 @@
 			/>
 		</div>
 	{:else}
-		<div class="placeholder">Image not available</div>
+		<div class="placeholder">{$lang('hearth_image_not_available')}</div>
 	{/if}
 </div>
 

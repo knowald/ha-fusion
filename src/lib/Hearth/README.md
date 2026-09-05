@@ -167,6 +167,15 @@ switching on the domain string.
   mounted, and `FusionCard.svelte` sets `pointer-events: none` on the embed so it
   cannot open its own editor. Both halves are needed; either alone leaves a gap.
 
+## Copy and translation
+
+Every user-facing string in Hearth goes through `$lang()` with a key in
+`static/translations/en.json`; other locales fall back to English per key.
+Card, widget and domain descriptors carry keys, not display strings. The
+`hearth/no-bare-text` ESLint rule (`eslint/no-bare-text.js`) fails on literal
+text nodes and copy attributes under `Hearth/` and `ui/`, so a new string
+cannot ship untranslated. Placeholders show example values and are exempt.
+
 ## Tests
 
 `npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,

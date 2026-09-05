@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { TemperatureCard } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -33,16 +34,23 @@
 	});
 </script>
 
-<TextField label="Label" bind:value={label} placeholder="Average home temperature" />
-<EntityField label="Entity" bind:value={entity} domains={['sensor']} />
-<TextField label="Unit" bind:value={unit} placeholder="°C" />
-<EntityField label="Thermostat (optional)" bind:value={climateEntity} domains={['climate']} />
-<div class="hint">Adds a target readout with +/- controls and a target line.</div>
+<TextField
+	label={$lang('hearth_label')}
+	bind:value={label}
+	placeholder="Average home temperature"
+/>
+<EntityField label={$lang('entity')} bind:value={entity} domains={['sensor']} />
+<TextField label={$lang('hearth_unit')} bind:value={unit} placeholder="°C" />
+<EntityField
+	label={$lang('hearth_thermostat_optional')}
+	bind:value={climateEntity}
+	domains={['climate']}
+/>
+<div class="hint">{$lang('hearth_adds_a_target_readout_with_controls')}</div>
 <label class="check">
 	<input type="checkbox" bind:checked={verdict} />
-	<span>Verdict pill for air sensors (GOOD / FAIR / POOR)</span>
+	<span>{$lang('hearth_verdict_pill_for_air_sensors_good')}</span>
 </label>
 <div class="hint">
-	Judged by device class; custom thresholds go in YAML as verdict: &lbrace; good, fair, max
-	&rbrace;.
+	{$lang('hearth_judged_by_device_class_custom_thresholds')}
 </div>

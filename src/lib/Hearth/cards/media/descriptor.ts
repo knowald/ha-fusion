@@ -7,9 +7,9 @@ export type MediaCard = Extract<OverviewCard, { type: 'media' }>;
 
 export const mediaCard: CardDescriptor<MediaCard> = {
 	type: 'media',
-	label: 'Media player',
-	name: 'Media',
-	sub: 'now playing',
+	label: 'hearth_card_media_label',
+	name: 'hearth_card_media_name',
+	sub: 'hearth_card_media_sub',
 	icon: 'music_note',
 	fillByDefault: true,
 	sizable: true,

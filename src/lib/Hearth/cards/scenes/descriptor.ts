@@ -10,9 +10,9 @@ export type ScenesCard = Extract<OverviewCard, { type: 'scenes' }>;
 
 export const scenesCard: CardDescriptor<ScenesCard> = {
 	type: 'scenes',
-	label: 'Scenes (chips or bar)',
-	name: 'Scenes',
-	sub: 'scene shortcuts',
+	label: 'hearth_card_scenes_label',
+	name: 'hearth_card_scenes_name',
+	sub: 'hearth_card_scenes_sub',
 	icon: 'palette',
 	normalize: (card) => ({
 		style: card.style === 'bar' ? 'bar' : undefined,

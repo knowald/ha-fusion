@@ -7,9 +7,9 @@ export type ProgressWidget = Extract<RailWidget, { type: 'progress' }>;
 
 export const progressWidget: WidgetDescriptor<ProgressWidget> = {
 	type: 'progress',
-	label: 'Progress (running activity)',
-	name: 'Progress',
-	sub: 'running activity',
+	label: 'hearth_widget_progress_label',
+	name: 'hearth_widget_progress_name',
+	sub: 'hearth_widget_progress_sub',
 	icon: 'progress_activity',
 	normalize: (widget) => ({
 		active_states: Array.isArray(widget.active_states)

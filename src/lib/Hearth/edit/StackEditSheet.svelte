@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import { isStack, type HearthConfig, type OverviewStack } from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
@@ -22,8 +23,8 @@
 	let fill = $state<string>(typeof initial?.fill === 'number' ? String(initial.fill) : '');
 
 	const DIRECTION_OPTIONS: { value: OverviewStack['direction']; label: string }[] = [
-		{ value: 'horizontal', label: 'Horizontal' },
-		{ value: 'vertical', label: 'Vertical' }
+		{ value: 'horizontal', label: $lang('horizontal') },
+		{ value: 'vertical', label: $lang('vertical') }
 	];
 
 	function close() {
@@ -55,11 +56,17 @@
 	}
 </script>
 
-<EditSheet title="Edit stack" onclose={close} ondone={done} onremove={unwrap} removeLabel="Unwrap">
-	<TextField label="Title (optional)" bind:value={title} placeholder="Living room" />
-	<SelectField label="Direction" bind:value={direction} options={DIRECTION_OPTIONS} />
+<EditSheet
+	title={$lang('hearth_edit_stack')}
+	onclose={close}
+	ondone={done}
+	onremove={unwrap}
+	removeLabel={$lang('hearth_unwrap')}
+>
+	<TextField label={$lang('hearth_title_optional')} bind:value={title} placeholder="Living room" />
+	<SelectField label={$lang('fan_direction')} bind:value={direction} options={DIRECTION_OPTIONS} />
 	<SelectField
-		label="Fill leftover height"
+		label={$lang('hearth_fill_leftover_height')}
 		bind:value={fill}
 		options={[
 			{ value: '', label: 'No, size to content' },

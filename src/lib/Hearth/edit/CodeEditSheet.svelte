@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { autocompleteList } from '$lib/Stores';
 	import * as parser from 'js-yaml';
 	import { editor, hearthConfig, updateConfig } from '../store';
@@ -43,9 +44,14 @@
 	}
 </script>
 
-<EditSheet title="Configuration YAML" onclose={close} ondone={apply} doneDisabled={!!error}>
+<EditSheet
+	title={$lang('hearth_configuration_yaml')}
+	onclose={close}
+	ondone={apply}
+	doneDisabled={!!error}
+>
 	<div class="hint">
-		Edits the whole configuration. Applies as a single undo step; invalid YAML is rejected.
+		{$lang('hearth_edits_the_whole_configuration_applies_as')}
 	</div>
 	<div class="code-workspace">
 		{#await import('$lib/ui/CodeEditor.svelte') then CodeEditor}

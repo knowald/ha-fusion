@@ -7,9 +7,9 @@ export type WeatherWidget = Extract<RailWidget, { type: 'weather' }>;
 
 export const weatherWidget: WidgetDescriptor<WeatherWidget> = {
 	type: 'weather',
-	label: 'Weather',
-	name: 'Weather',
-	sub: 'current + forecast',
+	label: 'hearth_widget_weather_label',
+	name: 'hearth_widget_weather_name',
+	sub: 'hearth_widget_weather_sub',
 	icon: 'clear_day',
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,

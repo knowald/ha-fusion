@@ -3,7 +3,7 @@
 	import { base } from '$app/paths';
 	import Ripple from '$lib/Actions/ripple';
 	import { configuration, motion } from '$lib/Stores';
-	import { selectedLanguage, translation } from '$lib/core/i18n';
+	import { lang, selectedLanguage, translation } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import { editor } from '../store';
 	import EditSheet from './EditSheet.svelte';
@@ -112,18 +112,18 @@
 </script>
 
 <EditSheet
-	title="Application settings"
+	title={$lang('hearth_application_settings')}
 	onclose={close}
 	onback={back}
 	ondone={done}
 	doneDisabled={saving}
 >
 	<div class="settings">
-		<div class="section-note">Changes are staged until you choose Done.</div>
+		<div class="section-note">{$lang('hearth_changes_are_staged_until_you_choose')}</div>
 		<div class="rows">
 			{#if languages.length}
 				<div class="row">
-					<div class="row-main"><div class="row-label">Language</div></div>
+					<div class="row-main"><div class="row-label">{$lang('language')}</div></div>
 					<span class="select-wrap">
 						<select bind:value={locale}>
 							{#each languages as option (option.value)}
@@ -135,12 +135,12 @@
 				</div>
 			{/if}
 			<div class="row">
-				<div class="row-main"><div class="row-label">Reduce motion</div></div>
+				<div class="row-main"><div class="row-label">{$lang('hearth_reduce_motion')}</div></div>
 				<button
 					type="button"
 					class="switch pressable"
 					class:on={reduceMotion}
-					aria-label="Reduce motion"
+					aria-label={$lang('hearth_reduce_motion')}
 					aria-pressed={reduceMotion}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (reduceMotion = !reduceMotion)}
@@ -149,12 +149,12 @@
 				</button>
 			</div>
 			<div class="row">
-				<div class="row-main"><div class="row-label">YouTube add-on</div></div>
+				<div class="row-main"><div class="row-label">{$lang('hearth_youtube_add_on')}</div></div>
 				<button
 					type="button"
 					class="switch pressable"
 					class:on={youtube}
-					aria-label="YouTube add-on"
+					aria-label={$lang('hearth_youtube_add_on')}
 					aria-pressed={youtube}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (youtube = !youtube)}
@@ -163,7 +163,7 @@
 				</button>
 			</div>
 			<div class="row">
-				<div class="row-main"><div class="row-label">MapTiler API key</div></div>
+				<div class="row-main"><div class="row-label">{$lang('hearth_maptiler_api_key')}</div></div>
 				<input
 					class="inline-text"
 					type="password"
@@ -176,7 +176,7 @@
 				/>
 			</div>
 			<div class="row">
-				<div class="row-main"><div class="row-label">Version</div></div>
+				<div class="row-main"><div class="row-label">{$lang('version')}</div></div>
 				<span class="row-value">{installedVersion ?? 'Loading...'}</span>
 			</div>
 		</div>
@@ -186,16 +186,16 @@
 			<button type="button" class="row action pressable" onclick={openClassicDashboard}>
 				<Icon name="grid_view" size={18} />
 				<div class="row-main">
-					<div class="row-label">Classic dashboard</div>
-					<div class="row-sub">Back to the original ha-fusion dashboard</div>
+					<div class="row-label">{$lang('hearth_classic_dashboard')}</div>
+					<div class="row-sub">{$lang('hearth_back_to_the_original_ha_fusion')}</div>
 				</div>
 				<Icon name="chevron_right" size={20} />
 			</button>
 			<button type="button" class="row action danger pressable" onclick={handleLogout}>
 				<Icon name="logout" size={18} />
 				<div class="row-main">
-					<div class="row-label">Log out</div>
-					<div class="row-sub">Clears the Home Assistant session</div>
+					<div class="row-label">{$lang('log_out')}</div>
+					<div class="row-sub">{$lang('hearth_clears_the_home_assistant_session')}</div>
 				</div>
 			</button>
 		</div>

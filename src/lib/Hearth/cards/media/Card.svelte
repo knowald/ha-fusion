@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { horizontalDrag } from '../../drag';
 	import type { OverviewCard } from '../../config';
@@ -93,7 +94,7 @@
 			<div class="track">
 				{#if hasTrack}
 					<div class="kicker">
-						NOW PLAYING{attributes.friendly_name
+						{$lang('hearth_now_playing')}{attributes.friendly_name
 							? ` · ${String(attributes.friendly_name).toUpperCase()}`
 							: ''}
 					</div>

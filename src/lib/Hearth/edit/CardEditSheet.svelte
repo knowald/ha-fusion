@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import type {
 		EntityRef,
@@ -149,7 +150,9 @@
 			<div class="card-actions">
 				<button type="button" class="action-button" onclick={() => (typeOpen = true)}>
 					<span class="action-icon"><Icon name={descriptor.icon} size={20} /></span>
-					<span class="action-copy"><small>CARD TYPE</small><strong>{descriptor.name}</strong></span
+					<span class="action-copy"
+						><small>{$lang('hearth_card_type')}</small><strong>{$lang(descriptor.name)}</strong
+						></span
 					>
 					<Icon name="chevron_right" size={20} />
 				</button>
@@ -164,9 +167,9 @@
 				/>
 			{/key}
 
-			<FormSection title="LAYOUT">
+			<FormSection title={$lang('hearth_layout')}>
 				<SelectField
-					label="Fill leftover height"
+					label={$lang('hearth_fill_leftover_height')}
 					bind:value={fill}
 					options={[
 						{ value: '', label: 'Default for this card type' },
@@ -177,12 +180,15 @@
 					]}
 				/>
 				<div class="hint">
-					Cards sharing a column split whatever height is left over, in proportion to their shares.
-					Only visible on a page set to fill the screen, or when a column is taller than its cards.
+					{$lang('hearth_cards_sharing_a_column_split_whatever')}
 				</div>
 
 				{#if descriptor.sizable}
-					<TextField label="Height in px (optional)" bind:value={height} placeholder="240" />
+					<TextField
+						label={$lang('hearth_height_in_px_optional')}
+						bind:value={height}
+						placeholder="240"
+					/>
 					<div class="hint">
 						{type === 'fusion'
 							? 'Without it the embed keeps its own height.'
@@ -209,7 +215,7 @@
 				role="dialog"
 				tabindex="-1"
 				aria-modal="true"
-				aria-label="Change card type"
+				aria-label={$lang('hearth_change_card_type')}
 				onclick={(event) => event.stopPropagation()}
 				onkeydown={(event) => {
 					if (event.key === 'Escape') {
@@ -220,14 +226,16 @@
 			>
 				<div class="popup-header">
 					<div>
-						<small>STRUCTURE</small>
-						<h3>Change card type</h3>
+						<small>{$lang('hearth_structure')}</small>
+						<h3>{$lang('hearth_change_card_type')}</h3>
 					</div>
-					<button type="button" aria-label="Close" onclick={() => (typeOpen = false)}
-						><Icon name="close" size={22} /></button
+					<button
+						type="button"
+						aria-label={$lang('hearth_close')}
+						onclick={() => (typeOpen = false)}><Icon name="close" size={22} /></button
 					>
 				</div>
-				<p class="popup-intro">Choose how this card presents its content.</p>
+				<p class="popup-intro">{$lang('hearth_choose_how_this_card_presents_its')}</p>
 				<div class="type-gallery">
 					{#each CARD_TYPES as kind (kind.type)}
 						<button
@@ -238,7 +246,8 @@
 						>
 							<span class="type-icon"><Icon name={kind.icon} size={21} /></span>
 							<span class="type-copy"
-								><span class="type-name">{kind.name}</span><span class="type-sub">{kind.sub}</span
+								><span class="type-name">{$lang(kind.name)}</span><span class="type-sub"
+									>{$lang(kind.sub)}</span
 								></span
 							>
 							{#if type === kind.type}<Icon name="check" size={19} />{/if}

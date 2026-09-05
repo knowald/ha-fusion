@@ -20,9 +20,9 @@ export const FUSION_OBJECT_TYPES: { value: string; label: string }[] = [
 
 export const fusionCard: CardDescriptor<FusionCard> = {
 	type: 'fusion',
-	label: 'Fusion object (template, picture elements, ...)',
-	name: 'Fusion',
-	sub: 'legacy objects',
+	label: 'hearth_card_fusion_label',
+	name: 'hearth_card_fusion_name',
+	sub: 'hearth_card_fusion_sub',
 	icon: 'widgets',
 	sizable: true,
 	needsConfiguration: (card) => !card.config?.type,

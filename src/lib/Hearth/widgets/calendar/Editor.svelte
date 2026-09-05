@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { CalendarWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -32,13 +33,17 @@
 </script>
 
 <TextField
-	label="Calendar entities (comma separated)"
+	label={$lang('hearth_calendar_entities_comma_separated')}
 	bind:value={entities}
 	placeholder="calendar.family, calendar.work"
 />
 <EntityField
-	label="Travel time entity (minutes, optional)"
+	label={$lang('hearth_travel_time_entity_minutes_optional')}
 	bind:value={travelEntity}
 	domains={['sensor']}
 />
-<TextField label="Look-ahead hours (default 24)" bind:value={lookaheadHours} placeholder="24" />
+<TextField
+	label={$lang('hearth_look_ahead_hours_default_24')}
+	bind:value={lookaheadHours}
+	placeholder="24"
+/>

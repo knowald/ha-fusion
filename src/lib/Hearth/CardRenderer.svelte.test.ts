@@ -16,7 +16,7 @@ describe('CardRenderer', () => {
 
 	it('shows the setup placeholder for a card with nothing to render yet', () => {
 		render(CardRenderer, { card: { id: 'e', type: 'entities', entities: [] } });
-		expect(screen.getByText('Configure Entities card')).toBeTruthy();
+		expect(screen.getByText('Configure Entities')).toBeTruthy();
 	});
 
 	it('renders an entities card as one tile per entity', () => {
@@ -46,6 +46,6 @@ describe('RailWidgetRenderer', () => {
 
 	it('shows the setup placeholder for a widget missing its entity', () => {
 		render(RailWidgetRenderer, { widget: { id: 'n', type: 'energy' } });
-		expect(screen.getByText('Configure Energy today widget')).toBeTruthy();
+		expect(screen.getByText('Configure Energy today')).toBeTruthy();
 	});
 });

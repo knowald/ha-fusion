@@ -11,6 +11,7 @@ export default mergeConfig(
 			// the browser resolve condition from svelteTesting() needs a DOM even for
 			// store-only tests, since Svelte's client runtime touches window on import
 			environment: 'jsdom',
+			setupFiles: ['./vitest.setup.ts'],
 			coverage: {
 				provider: 'v8',
 				include: ['src/lib/{Hearth,ui,core}/**/*.{ts,svelte}'],

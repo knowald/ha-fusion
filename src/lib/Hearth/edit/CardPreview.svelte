@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { EntityRef, OverviewCard } from '../types';
 	import { cardDescriptor } from '../cards';
 	import { provideHearthInteractionMode } from '../interaction';
@@ -19,7 +20,7 @@
 
 <aside class="pane">
 	<div class="heading" class:empty={!reorderable}>
-		<div class="label">LIVE PREVIEW</div>
+		<div class="label">{$lang('hearth_live_preview')}</div>
 		{#if reorderable}
 			<button
 				type="button"

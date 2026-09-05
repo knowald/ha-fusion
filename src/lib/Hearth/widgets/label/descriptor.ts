@@ -7,9 +7,9 @@ export type LabelWidget = Extract<RailWidget, { type: 'label' }>;
 
 export const labelWidget: WidgetDescriptor<LabelWidget> = {
 	type: 'label',
-	label: 'Section label',
-	name: 'Section label',
-	sub: 'small heading',
+	label: 'hearth_widget_label_label',
+	name: 'hearth_widget_label_name',
+	sub: 'hearth_widget_label_sub',
 	icon: 'label',
 	component: Widget,
 	editor: Editor
