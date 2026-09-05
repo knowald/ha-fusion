@@ -1,14 +1,8 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
-	import {
-		closePopup,
-		controlOverrides,
-		editor,
-		lightViewFor,
-		pendingEntities,
-		popup,
-		toggleLight
-	} from './store';
+	import { states } from '$lib/core/ha/entities';
+	import { closePopup, editor, popup } from './store';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { lightViewFor, toggleLight } from '$lib/core/domains/light';
 	import BlindPopup from './BlindPopup.svelte';
 	import FanPopup from './FanPopup.svelte';
 	import Icon from './Icon.svelte';

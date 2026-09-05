@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildProposal } from './registry';
+import { buildProposal } from './proposal';
 
 describe('buildProposal glanceables', () => {
 	it('suggests a skippable Today group only when matching entities exist', () => {

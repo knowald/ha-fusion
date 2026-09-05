@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { states } from '$lib/Stores';
+import { states } from '$lib/core/ha/entities';
 import { hassEntity } from './testing';
 import CardRenderer from './CardRenderer.svelte';
 import RailWidgetRenderer from './RailWidgetRenderer.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { horizontalDrag } from './drag';
 	import {
 		fetchMediaPlaylists,
@@ -9,21 +9,23 @@
 		type MediaPlaylist,
 		type QueueTrack
 	} from './media';
+	import { closePopup } from './store';
 	import {
 		callEntityService,
-		closePopup,
 		controlOverrides,
 		controlValueFor,
+		pendingEntities,
+		setControlOverride
+	} from '$lib/core/ha/commands';
+	import {
 		cycleMediaRepeat,
 		mediaVolumeFor,
-		pendingEntities,
 		seekMedia,
-		setControlOverride,
 		setMediaShuffle,
 		setMediaVolume,
 		skipMediaTrack,
 		toggleMediaPlayback
-	} from './store';
+	} from '$lib/core/domains/mediaPlayer';
 	import Icon from './Icon.svelte';
 
 	let { entity }: { entity: string } = $props();

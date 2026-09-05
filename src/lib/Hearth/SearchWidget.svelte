@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
 	import Icon from './Icon.svelte';
 
 	let { onclick }: { onclick: () => void } = $props();

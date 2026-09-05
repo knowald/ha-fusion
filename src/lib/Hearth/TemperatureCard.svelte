@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { connected, connection, states } from '$lib/Stores';
+	import { connected, connection } from '$lib/core/ha/connection';
+	import { states } from '$lib/core/ha/entities';
 	import type { OverviewCard } from './config';
-	import { cachedData, startDataRefresh } from './refresh';
-	import {
-		airQualityVerdict,
-		controlOverrides,
-		sensorNumber,
-		setClimateTemperature
-	} from './store';
+	import { cachedData, startDataRefresh } from '$lib/core/ha/history';
+	import { airQualityVerdict } from '$lib/core/domains/sensor';
+	import { controlOverrides } from '$lib/core/ha/commands';
+	import { sensorNumber } from '$lib/core/ha/entities';
+	import { setClimateTemperature } from '$lib/core/domains/climate';
 	import Icon from './Icon.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'temperature' }> } = $props();

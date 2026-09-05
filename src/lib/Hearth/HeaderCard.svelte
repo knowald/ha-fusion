@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
-	import { states } from '$lib/Stores';
-	import { hearthEditMode, sensorNumber } from './store';
+	import { states } from '$lib/core/ha/entities';
+	import { hearthEditMode } from './store';
+	import { sensorNumber } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 
 	let {

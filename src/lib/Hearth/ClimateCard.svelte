@@ -1,17 +1,13 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
-	import { config, states } from '$lib/Stores';
+	import { config } from '$lib/core/ha/connection';
+	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import {
-		controlOverrides,
-		controlValueFor,
-		hearthEditMode,
-		pendingEntities,
-		setClimateHvacMode,
-		setClimateTemperature
-	} from './store';
+	import { hearthEditMode } from './store';
+	import { controlOverrides, controlValueFor, pendingEntities } from '$lib/core/ha/commands';
+	import { setClimateHvacMode, setClimateTemperature } from '$lib/core/domains/climate';
 	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';

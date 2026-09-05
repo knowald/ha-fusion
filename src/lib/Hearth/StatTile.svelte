@@ -1,13 +1,10 @@
 <script lang="ts">
-	import { lang, states } from '$lib/Stores';
-	import type { VerdictBands } from './config';
-	import {
-		airQualityVerdict,
-		entityAvailability,
-		hearthEditMode,
-		popup,
-		sensorNumber
-	} from './store';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
+	import type { VerdictBands } from '$lib/core/domains/sensor';
+	import { hearthEditMode, popup } from './store';
+	import { airQualityVerdict } from '$lib/core/domains/sensor';
+	import { entityAvailability, sensorNumber } from '$lib/core/ha/entities';
 
 	let {
 		entity,

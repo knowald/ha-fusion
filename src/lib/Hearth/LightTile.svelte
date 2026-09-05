@@ -1,20 +1,15 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { lang, states } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import { horizontalDrag } from './drag';
 	import { activateOnKeyboard } from './interaction';
 	import Icon from './Icon.svelte';
-	import {
-		controlOverrides,
-		hearthEditMode,
-		lightViewFor,
-		pendingEntities,
-		popup,
-		setLightLevel,
-		toggleLight
-	} from './store';
+	import { hearthEditMode, popup } from './store';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { lightViewFor, setLightLevel, toggleLight } from '$lib/core/domains/light';
 	import TuneButton from './TuneButton.svelte';
 
 	let {

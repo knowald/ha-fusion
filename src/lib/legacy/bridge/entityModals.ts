@@ -1,6 +1,8 @@
 import { get } from 'svelte/store';
-import { calendarFirstDay, calendarView, selectedLanguage, states } from '$lib/Stores';
-import { getDomain } from '$lib/Utils';
+import { calendarFirstDay, calendarView } from '$lib/Stores';
+import { selectedLanguage } from '$lib/core/i18n';
+import { states } from '$lib/core/ha/entities';
+import { getDomain } from '$lib/core/ha/entities';
 import { openModal } from '$lib/Modals';
 
 /**

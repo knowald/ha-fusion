@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { editMode, lang, selectedLanguage, states } from '$lib/Stores';
-	import { getDomain, isTimestamp, relativeTime } from '$lib/Utils';
+	import { editMode } from '$lib/Stores';
+	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
+	import { isTimestamp, relativeTime } from '$lib/Utils';
+	import { getDomain } from '$lib/core/ha/entities';
 	import type { HassEntity } from 'home-assistant-js-websocket';
 
 	let {

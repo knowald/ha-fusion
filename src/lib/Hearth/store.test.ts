@@ -1,23 +1,23 @@
 import { get } from 'svelte/store';
-import { connected } from '$lib/Stores';
+import { health } from '$lib/core/ha/connection';
 import { describe, expect, it } from 'vitest';
+import { confirmRequestedAction, requestConfirmation, requestedConfirmation } from './store';
+import { activeSceneIndex } from '$lib/core/domains/scene';
+import { blindPositionFor } from '$lib/core/domains/cover';
 import {
-	activeSceneIndex,
-	blindPositionFor,
 	callEntityService,
 	commandFailure,
-	confirmRequestedAction,
 	dismissCommandFailure,
+	pendingEntities
+} from '$lib/core/ha/commands';
+import {
 	entityActive,
 	entityActiveFor,
 	entityAvailability,
 	entityGroupSummary,
-	lightViewFor,
-	pendingEntities,
-	requestConfirmation,
-	requestedConfirmation,
 	sensorNumber
-} from './store';
+} from '$lib/core/ha/entities';
+import { lightViewFor } from '$lib/core/domains/light';
 
 describe('Hearth store view helpers', () => {
 	it('distinguishes missing, unknown, unavailable and available entities', () => {
@@ -60,7 +60,7 @@ describe('Hearth store view helpers', () => {
 	});
 
 	it('surfaces commands attempted while Home Assistant is disconnected', () => {
-		connected.set(false);
+		health.set('lost');
 		callEntityService('light', 'toggle', 'light.desk');
 		expect(get(commandFailure)).toEqual({
 			entityId: 'light.desk',

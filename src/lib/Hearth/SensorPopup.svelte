@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { connected, connection, states } from '$lib/Stores';
-	import { cachedData, startDataRefresh } from './refresh';
-	import { sensorNumber } from './store';
+	import { connected, connection } from '$lib/core/ha/connection';
+	import { states } from '$lib/core/ha/entities';
+	import { cachedData, startDataRefresh } from '$lib/core/ha/history';
+	import { sensorNumber } from '$lib/core/ha/entities';
 
 	let { entity }: { entity: string } = $props();
 

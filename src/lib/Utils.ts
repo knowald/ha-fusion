@@ -1,4 +1,6 @@
 import type { HassEntity } from 'home-assistant-js-websocket';
+export { getDomain, getTogglableService } from '$lib/core/ha/entities';
+import { getDomain } from '$lib/core/ha/entities';
 import type { Dashboard, Section } from '$lib/Types';
 
 /**
@@ -68,14 +70,6 @@ export function isStackType(type: string | undefined): boolean {
 }
 
 /**
- * Returns the domain from a given entity_id
- * @example domain("light.bedroom") // "light"
- */
-export function getDomain(entity_id: string | undefined) {
-	return entity_id?.split('.')?.[0];
-}
-
-/**
  * Returns the name of a given entity
  * name | friendly_name | entity_id
  */
@@ -88,64 +82,6 @@ export function getName(
 	return !sel?.name && sectionName && name?.startsWith(sectionName + ' ')
 		? name?.substring(sectionName?.length + 1)
 		: name;
-}
-
-/**
- * Returns togglable service
- */
-export function getTogglableService(entity: HassEntity) {
-	const domain = getDomain(entity?.entity_id);
-	const state = entity?.state;
-
-	if (!domain || !state) return;
-
-	let service;
-
-	switch (domain) {
-		case 'automation':
-		case 'button':
-		case 'cover':
-		case 'fan':
-		case 'humidifier':
-		case 'input_boolean':
-		case 'light':
-		case 'media_player':
-		case 'script':
-		case 'siren':
-		case 'switch':
-			service = 'toggle';
-			break;
-
-		case 'input_button':
-			service = 'press';
-			break;
-
-		case 'lock':
-			service = state === 'locked' ? 'unlock' : 'lock';
-			break;
-
-		// group members span domains, so only homeassistant.toggle covers them;
-		// without this, Button falls back to a handler that recurses into toggle
-		case 'group':
-		case 'remote':
-			return 'homeassistant.toggle';
-
-		case 'scene':
-			service = 'turn_on';
-			break;
-
-		case 'timer':
-			service = state === 'active' ? 'cancel' : 'start';
-			break;
-
-		case 'vacuum':
-			service = state === 'cleaning' ? 'pause' : 'start';
-			break;
-	}
-
-	if (service) {
-		return `${domain}.${service}`;
-	}
 }
 
 /**

@@ -5,15 +5,12 @@
 	import '@fontsource-variable/hanken-grotesk';
 	import '@material-symbols/font-400/rounded.css';
 	import { onDestroy } from 'svelte';
-	import {
-		connected,
-		configuration,
-		motion,
-		selectedLanguage,
-		states,
-		translation
-	} from '$lib/Stores';
-	import { authentication } from '$lib/Socket';
+	import { configuration, motion } from '$lib/Stores';
+	import { connected } from '$lib/core/ha/connection';
+	import { selectedLanguage, translation } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
+	import { startConnection, stopConnection } from '$lib/core/ha/connection';
+	import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
 	import { normalizeHearthConfig } from '$lib/Hearth/config';
 	import {
 		hearthConfig,
@@ -24,6 +21,8 @@
 	import HearthDashboard from '$lib/Hearth/HearthDashboard.svelte';
 
 	let { data }: { data: any } = $props();
+
+	const connectionHooks = { onTokenRequired: openTokenPrompt };
 
 	// one-time store seeding; `data` only changes on a full page load
 	// svelte-ignore state_referenced_locally
@@ -46,43 +45,14 @@
 	// svelte-ignore state_referenced_locally
 	if (data?.configuration?.motion === false) motion.set(0);
 
-	let isConnecting = false;
-	let retryInterval: ReturnType<typeof setInterval>;
+	if (browser) startConnection($configuration, connectionHooks);
 
-	if (browser) {
-		connect();
-		retryInterval = setInterval(connect, 3000);
-	}
-
-	async function connect() {
-		if (isConnecting) return;
-		isConnecting = true;
-		try {
-			await authentication($configuration);
-			clearInterval(retryInterval);
-		} catch {
-			// retry on interval
-		} finally {
-			isConnecting = false;
-		}
-	}
-
-	/**
-	 * Reconnect if long-lived access token changes
-	 */
+	// reconnect when a long-lived access token is entered
 	$effect(() => {
-		if ($configuration?.token) updateConnection();
+		if ($configuration?.token && browser) startConnection($configuration, connectionHooks);
 	});
 
-	function updateConnection() {
-		if (isConnecting || !browser) return;
-		clearInterval(retryInterval);
-
-		connect();
-		retryInterval = setInterval(connect, 3000);
-	}
-
-	onDestroy(() => clearInterval(retryInterval));
+	onDestroy(stopConnection);
 </script>
 
 <svelte:head>

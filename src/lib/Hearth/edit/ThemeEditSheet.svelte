@@ -14,7 +14,7 @@
 		THEME_DEFAULTS,
 		THEME_PRESETS,
 		type HearthTheme
-	} from '../config';
+	} from '$lib/core/theme';
 	import { editedThemeSlot, editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import ColorField from './ColorField.svelte';

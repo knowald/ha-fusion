@@ -6,8 +6,13 @@
 	import '@fontsource-variable/inter';
 	import { expoOut } from 'svelte/easing';
 	import type { Snippet } from 'svelte';
+	import { onMount } from 'svelte';
+	import { subscribeHassTriggers } from '$lib/core/ha/connection';
 
 	let { children }: { children: Snippet } = $props();
+
+	// the HA_FUSION close_popup event dismisses whatever modal is open
+	onMount(() => subscribeHassTriggers((trigger) => trigger === 'close_popup' && closeModal()));
 </script>
 
 <svelte:head>
