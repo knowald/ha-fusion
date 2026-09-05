@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { sortable } from '$lib/Actions/sortable';
 	import { slugify, uniqueId, type RailWidget } from './config';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
@@ -56,7 +57,10 @@
 		</VisibilityGate>
 	{/each}
 	{#if $hearthEditMode}
-		<AddControl label="Add widget" onadd={() => editor.set({ kind: 'railWidget', index: null })} />
+		<AddControl
+			label={$lang('hearth_add_widget')}
+			onadd={() => editor.set({ kind: 'railWidget', index: null })}
+		/>
 	{/if}
 </div>
 

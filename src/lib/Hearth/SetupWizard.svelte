@@ -157,7 +157,7 @@
 					<input type="checkbox" bind:checked={includeGlanceables} />
 					<span class="row-icon"><Icon name="today" size={20} /></span>
 					<span class="row-text">
-						<span class="row-name">Today glanceables</span>
+						<span class="row-name">{$lang('hearth_today_glanceables')}</span>
 						<span class="row-summary">{count(glanceableCount, 'suggestion')}</span>
 					</span>
 				</label>

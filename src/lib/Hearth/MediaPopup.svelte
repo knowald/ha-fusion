@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import { horizontalDrag } from './drag';
@@ -252,11 +253,11 @@
 			<div class="panel-list">
 				{#if pane === 'queue'}
 					{#if !spotify}
-						<div class="panel-empty">Queue not available for this player</div>
+						<div class="panel-empty">{$lang('hearth_queue_not_available_for_this_player')}</div>
 					{:else if queue === null}
-						<div class="panel-empty">Loading queue...</div>
+						<div class="panel-empty">{$lang('hearth_loading_queue')}</div>
 					{:else if queue.length === 0}
-						<div class="panel-empty">Queue is empty</div>
+						<div class="panel-empty">{$lang('hearth_queue_is_empty')}</div>
 					{:else}
 						{#each queue.slice(0, 20) as track, index (track.uri + index)}
 							<div class="queue-item" class:next={index === 0}>
@@ -267,9 +268,9 @@
 					{/if}
 				{:else if pane === 'playlists'}
 					{#if playlists === null}
-						<div class="panel-empty">Loading playlists...</div>
+						<div class="panel-empty">{$lang('hearth_loading_playlists')}</div>
 					{:else if playlists.length === 0}
-						<div class="panel-empty">No playlists found</div>
+						<div class="panel-empty">{$lang('hearth_no_playlists_found')}</div>
 					{:else}
 						{#each playlists as playlist (playlist.uri)}
 							<div
@@ -348,7 +349,7 @@
 						onkeydown={(event) => activateOnKeyboard(event, openPlaylists)}
 					>
 						<Icon name="queue_music" size={15} />
-						Playlists
+						{$lang('playlists')}
 					</div>
 				{/if}
 				{#if supports(FEATURE.selectSource) && sources.length}

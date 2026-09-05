@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { LabelWidget } from './descriptor';
 	import TextField from '../../edit/TextField.svelte';
@@ -16,4 +17,4 @@
 	});
 </script>
 
-<TextField label="Text" bind:value={text} placeholder="TODAY" />
+<TextField label={$lang('text')} bind:value={text} placeholder="TODAY" />

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { VacuumCard } from './descriptor';
 	import { activateOnKeyboard } from '../../interaction';
@@ -68,37 +69,52 @@
 	});
 </script>
 
-<EntityField label="Entity" bind:value={entity} domains={['vacuum']} />
-<EntityField label="Battery entity (optional)" bind:value={batteryEntity} domains={['sensor']} />
-<EntityField label="Dustbin entity (optional)" bind:value={binEntity} domains={['sensor']} />
+<EntityField label={$lang('entity')} bind:value={entity} domains={['vacuum']} />
+<EntityField
+	label={$lang('hearth_battery_entity_optional')}
+	bind:value={batteryEntity}
+	domains={['sensor']}
+/>
+<EntityField
+	label={$lang('hearth_dustbin_entity_optional')}
+	bind:value={binEntity}
+	domains={['sensor']}
+/>
 <label class="check">
 	<input type="checkbox" bind:checked={quickAction} />
-	<span>One-tap Clean/Stop button on the row</span>
+	<span>{$lang('hearth_one_tap_clean_stop_button_on')}</span>
 </label>
-<div class="group-label">CLEANING MODES</div>
+<div class="group-label">{$lang('hearth_cleaning_modes')}</div>
 <div class="hint">
-	Button entities launched from the vacuum popover, in display order. Each runs on a single tap, so
-	give every mode the rooms it covers and how long it takes.
+	{$lang('hearth_button_entities_launched_from_the_vacuum')}
 </div>
 {#each modes as mode, modeIndex (modeIndex)}
 	<div class="filter-row">
 		<div class="filter-fields">
-			<EntityField label="Button entity" bind:value={mode.entity} domains={['button']} />
-			<TextField label="Name (optional)" bind:value={mode.name} />
-			<IconField label="Icon (optional)" bind:value={mode.icon} />
+			<EntityField
+				label={$lang('hearth_button_entity')}
+				bind:value={mode.entity}
+				domains={['button']}
+			/>
+			<TextField label={$lang('hearth_name_optional')} bind:value={mode.name} />
+			<IconField label={$lang('hearth_icon_optional')} bind:value={mode.icon} />
 			<TextField
-				label="Covers (optional)"
+				label={$lang('hearth_covers_optional')}
 				bind:value={mode.detail}
 				placeholder="Living + Bedroom"
 			/>
-			<TextField label="Duration (optional)" bind:value={mode.duration} placeholder="26 min" />
+			<TextField
+				label={$lang('hearth_duration_optional')}
+				bind:value={mode.duration}
+				placeholder="26 min"
+			/>
 			<label class="check">
 				<input
 					type="checkbox"
 					checked={mode.default}
 					onchange={(event) => setDefaultMode(modeIndex, event.currentTarget.checked)}
 				/>
-				<span>Recommended mode</span>
+				<span>{$lang('hearth_recommended_mode')}</span>
 			</label>
 		</div>
 		<span
@@ -120,5 +136,5 @@
 	onkeydown={(event) => activateOnKeyboard(event, addMode)}
 >
 	<Icon name="add" size={18} />
-	<span>Add cleaning mode</span>
+	<span>{$lang('hearth_add_cleaning_mode')}</span>
 </div>

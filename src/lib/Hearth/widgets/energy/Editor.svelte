@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { EnergyWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -29,14 +30,14 @@
 </script>
 
 <EntityField
-	label="Energy sensor (today total or increasing)"
+	label={$lang('hearth_energy_sensor_today_total_or_increasing')}
 	bind:value={entity}
 	domains={['sensor']}
 />
-<TextField label="Price per kWh (optional)" bind:value={price} placeholder="0.72" />
+<TextField label={$lang('hearth_price_per_kwh_optional')} bind:value={price} placeholder="0.72" />
 <EntityField
-	label="Price entity (optional, overrides static price)"
+	label={$lang('hearth_price_entity_optional_overrides_static_price')}
 	bind:value={priceEntity}
 	domains={['sensor', 'input_number']}
 />
-<TextField label="Currency label (optional)" bind:value={currency} placeholder="zł" />
+<TextField label={$lang('hearth_currency_label_optional')} bind:value={currency} placeholder="zł" />

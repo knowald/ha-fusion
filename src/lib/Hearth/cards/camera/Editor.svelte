@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { CameraCard } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -25,9 +26,9 @@
 	});
 </script>
 
-<TextField label="Title" bind:value={title} placeholder="Lights" />
-<EntityField label="Entity" bind:value={entity} domains={['camera']} />
+<TextField label={$lang('hearth_title')} bind:value={title} placeholder="Lights" />
+<EntityField label={$lang('entity')} bind:value={entity} domains={['camera']} />
 <label class="check">
 	<input type="checkbox" bind:checked={stream} />
-	<span>Live stream</span>
+	<span>{$lang('hearth_live_stream')}</span>
 </label>

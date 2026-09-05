@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { base } from '$app/paths';
 	import { get } from 'svelte/store';
@@ -205,7 +206,7 @@
 	}
 </script>
 
-<EditSheet title="Theme" onclose={close} ondone={done}>
+<EditSheet title={$lang('theme')} onclose={close} ondone={done}>
 	<div class="slots">
 		<div
 			class="slot pressable"
@@ -216,7 +217,7 @@
 			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('day'))}
 		>
 			<Icon name="light_mode" size={18} />
-			<span>Day</span>
+			<span>{$lang('day')}</span>
 		</div>
 		<div
 			class="slot pressable"
@@ -227,28 +228,32 @@
 			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('night'))}
 		>
 			<Icon name="dark_mode" size={18} />
-			<span>Night</span>
-			{#if !nightEnabled}<span class="slot-note">off</span>{/if}
+			<span>{$lang('alarm_modes_armed_night')}</span>
+			{#if !nightEnabled}<span class="slot-note">{$lang('hearth_off')}</span>{/if}
 		</div>
 	</div>
 
 	<div class="hint">
 		{#if slot === 'night'}
 			{#if nightEnabled}
-				Shown while the switch entity reads night. This tab previews the night theme.
+				{$lang('hearth_shown_while_the_switch_entity_reads')}
 			{:else}
-				Night theme is off. Its first change starts from a copy of the day theme.
+				{$lang('hearth_night_theme_is_off_its_first')}
 			{/if}
 		{:else}
-			The default theme, also used after dark until a night theme is configured.
+			{$lang('hearth_the_default_theme_also_used_after')}
 		{/if}
 	</div>
 
-	<div class="group-label">DAY / NIGHT SWITCH</div>
-	<EntityField label="Switch entity" bind:value={switchEntity} />
-	<TextField label="Night states" bind:value={nightState} placeholder="below_horizon" />
+	<div class="group-label">{$lang('hearth_day_night_switch')}</div>
+	<EntityField label={$lang('hearth_switch_entity')} bind:value={switchEntity} />
+	<TextField
+		label={$lang('hearth_night_states')}
+		bind:value={nightState}
+		placeholder="below_horizon"
+	/>
 	<div class="hint">
-		Comma-separated. When empty, below_horizon, night, dark, on and true count as night.
+		{$lang('hearth_comma_separated_when_empty_below_horizon')}
 	</div>
 
 	{#if nightEnabled}
@@ -259,11 +264,11 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, disableNightTheme)}
 		>
-			Turn off the night theme
+			{$lang('hearth_turn_off_the_night_theme')}
 		</div>
 	{/if}
 
-	<div class="group-label">PRESETS</div>
+	<div class="group-label">{$lang('hearth_presets')}</div>
 	<div class="presets">
 		{#each THEME_PRESETS as preset (preset.id)}
 			<div
@@ -283,7 +288,7 @@
 		{/each}
 	</div>
 
-	<div class="group-label">SAVED THEMES</div>
+	<div class="group-label">{$lang('hearth_saved_themes')}</div>
 	<div class="save-row">
 		<input
 			type="text"
@@ -300,7 +305,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, saveCurrentTheme)}
 		>
-			Save
+			{$lang('save')}
 		</div>
 	</div>
 
@@ -309,7 +314,7 @@
 	{/if}
 
 	{#if themesLoading}
-		<div class="hint">Loading saved themes...</div>
+		<div class="hint">{$lang('hearth_loading_saved_themes')}</div>
 	{:else if savedThemes.length}
 		<div class="saved-themes">
 			{#each savedThemes as saved (saved.id)}
@@ -351,62 +356,61 @@
 	{/if}
 
 	<div class="hint">
-		Saving or deleting a theme writes to disk immediately, independent of the dashboard save/undo
-		cycle. Applying a saved theme only changes the edited theme - save the dashboard to keep it.
+		{$lang('hearth_saving_or_deleting_a_theme_writes')}
 	</div>
 
-	<div class="group-label">COLORS</div>
+	<div class="group-label">{$lang('hearth_colors')}</div>
 	<div class="picker-grid">
 		<ColorField
-			label="Accent"
+			label={$lang('hearth_accent')}
 			value={knob('accent')}
 			onchange={(value) => patchTheme(deriveAccent(value, light))}
 		/>
 		<ColorField
-			label="Cool accent"
+			label={$lang('hearth_cool_accent')}
 			value={knob('cool')}
 			onchange={(value) => patchTheme(deriveCool(value, light))}
 		/>
 		<ColorField
-			label="Background top"
+			label={$lang('hearth_background_top')}
 			value={knob('background_inner')}
 			onchange={(value) => patchTheme(deriveBackground(value, knob('background_outer')))}
 		/>
 		<ColorField
-			label="Background bottom"
+			label={$lang('hearth_background_bottom')}
 			value={knob('background_outer')}
 			onchange={(value) => patchTheme(deriveBackground(knob('background_inner'), value))}
 		/>
 		<ColorField
-			label="Text"
+			label={$lang('text')}
 			value={knob('text_1')}
 			onchange={(value) => patchTheme(deriveText(value, knob('background_outer'), light))}
 		/>
 		<ColorField
-			label="Good"
+			label={$lang('hearth_good')}
 			value={knob('good')}
 			onchange={(value) => patchTheme({ good: value, good_text: value })}
 		/>
 		<ColorField
-			label="Alert"
+			label={$lang('hearth_alert')}
 			value={knob('bad')}
 			onchange={(value) => patchTheme(deriveBad(value, light))}
 		/>
 		<ColorField
-			label="Media"
+			label={$lang('media')}
 			value={knob('media')}
 			onchange={(value) => patchTheme({ media: value })}
 		/>
 	</div>
 
 	<TextField
-		label="Background image URL"
+		label={$lang('hearth_background_image_url')}
 		bind:value={backgroundImageUrl}
 		placeholder="/local/wallpaper.jpg or https://..."
 	/>
 
 	<SelectField
-		label="Corners"
+		label={$lang('hearth_corners')}
 		value={radiusScale}
 		options={RADIUS_SCALES.map(({ value, label }) => ({ value, label }))}
 		onchange={(value) => {
@@ -416,8 +420,7 @@
 	/>
 
 	<div class="hint">
-		Pickers set sensible derived shades automatically. Theme knobs are tunable in data/hearth.yaml,
-		under theme: for day and theme_night: for night.
+		{$lang('hearth_pickers_set_sensible_derived_shades_automatically')}
 	</div>
 	<div
 		class="reset pressable"
@@ -426,7 +429,9 @@
 		tabindex="0"
 		onkeydown={(event) => activateOnKeyboard(event, () => applyPreset(null))}
 	>
-		Reset the {slot} theme to defaults
+		{slot === 'night'
+			? $lang('hearth_reset_the_night_theme_to_defaults')
+			: $lang('hearth_reset_the_day_theme_to_defaults')}
 	</div>
 </EditSheet>
 

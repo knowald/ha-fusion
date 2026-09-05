@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import Ripple from '$lib/Actions/ripple';
 	import { activateOnKeyboard } from '../interaction';
@@ -34,7 +35,9 @@
 		const query = search.trim().toLowerCase();
 		if (!query) return RAIL_WIDGET_TYPES;
 		return RAIL_WIDGET_TYPES.filter(
-			(kind) => kind.name.toLowerCase().includes(query) || kind.sub.toLowerCase().includes(query)
+			(kind) =>
+				$lang(kind.name).toLowerCase().includes(query) ||
+				$lang(kind.sub).toLowerCase().includes(query)
 		);
 	});
 
@@ -116,18 +119,18 @@
 				>
 					<span class="kind-icon"><Icon name={kind.icon} size={20} /></span>
 					<div>
-						<div class="kind-name">{kind.name}</div>
-						<div class="kind-sub">{kind.sub}</div>
+						<div class="kind-name">{$lang(kind.name)}</div>
+						<div class="kind-sub">{$lang(kind.sub)}</div>
 					</div>
 				</div>
 			{:else}
-				<div class="no-results">No widgets match</div>
+				<div class="no-results">{$lang('hearth_no_widgets_match')}</div>
 			{/each}
 		</div>
 		<div class="config editor-fields">
 			<div class="preview-well" style="pointer-events: none">
 				{#if type === 'spacer'}
-					<div class="preview-note">Flexible gap - pushes the widgets around it apart</div>
+					<div class="preview-note">{$lang('hearth_flexible_gap_pushes_the_widgets_around')}</div>
 				{:else}
 					<RailWidgetRenderer widget={previewWidget} />
 				{/if}
@@ -150,7 +153,7 @@
 					onkeydown={(event) => activateOnKeyboard(event, setAlwaysVisible)}
 				>
 					<Icon name="visibility" size={16} />
-					Always visible
+					{$lang('hearth_always_visible')}
 				</span>
 				<span
 					class="chip pressable"
@@ -162,7 +165,7 @@
 					onkeydown={(event) => activateOnKeyboard(event, () => (hideMobile = !hideMobile))}
 				>
 					<Icon name="smartphone" size={16} />
-					Hide on mobile
+					{$lang('hearth_hide_on_mobile')}
 				</span>
 				<span
 					class="chip pressable"
@@ -174,7 +177,7 @@
 					onkeydown={(event) => activateOnKeyboard(event, () => (conditionsOpen = !conditionsOpen))}
 				>
 					<Icon name="rule" size={16} />
-					Conditions{visibility.length ? ` (${visibility.length})` : ''}
+					{$lang('conditions')}{visibility.length ? ` (${visibility.length})` : ''}
 				</span>
 			</div>
 

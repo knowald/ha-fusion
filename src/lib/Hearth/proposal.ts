@@ -1,4 +1,6 @@
+import { get } from 'svelte/store';
 import type { HassEntities } from 'home-assistant-js-websocket';
+import { lang } from '$lib/core/i18n';
 import type { RegistryEntity, RegistrySnapshot } from '$lib/core/ha/registry';
 import { slugify, uniqueId, type EntityRef, type HearthRoom, type RailWidget } from './config';
 
@@ -30,14 +32,16 @@ function suggestGlanceables(currentStates: HassEntities): RailWidget[] {
 		widgets.push({
 			id: 'today-appliance',
 			type: 'progress',
-			name: String(appliance[1].attributes?.friendly_name ?? 'Appliance'),
+			name: String(appliance[1].attributes?.friendly_name ?? get(lang)('hearth_appliance')),
 			status_entity: appliance[0]
 		});
 	}
 	if (calendars.length) {
 		widgets.push({ id: 'today-calendar', type: 'calendar', entities: calendars });
 	}
-	return widgets.length ? [{ id: 'today-label', type: 'label', text: 'TODAY' }, ...widgets] : [];
+	return widgets.length
+		? [{ id: 'today-label', type: 'label', text: get(lang)('hearth_today') }, ...widgets]
+		: [];
 }
 
 const AREA_ICON_KEYWORDS: [string[], string][] = [
@@ -170,7 +174,7 @@ export function buildProposal(
 								{
 									id: `${roomId}-lighting`,
 									type: 'entities' as const,
-									title: 'Lighting',
+									title: get(lang)('hearth_lighting'),
 									show_count: true,
 									entities: lighting
 								}
@@ -181,7 +185,7 @@ export function buildProposal(
 								{
 									id: `${roomId}-devices`,
 									type: 'entities' as const,
-									title: 'Devices',
+									title: get(lang)('hearth_devices'),
 									entities: devices
 								}
 							]

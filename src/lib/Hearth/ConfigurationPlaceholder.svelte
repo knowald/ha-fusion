@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -11,8 +12,12 @@
 <div class="placeholder" class:compact>
 	<Icon name="tune" size={compact ? 18 : 24} color="var(--h-icon-dim)" />
 	<div>
-		<strong>Configure {label}</strong>
-		<span>Open the {context} editor to finish setup.</span>
+		<strong>{$lang('configure')} {label}</strong>
+		<span
+			>{context === 'card'
+				? $lang('hearth_open_the_card_editor_to_finish')
+				: $lang('hearth_open_the_widget_editor_to_finish')}</span
+		>
 	</div>
 </div>
 

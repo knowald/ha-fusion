@@ -3,6 +3,7 @@ import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import noBareText from './eslint/no-bare-text.js';
 
 export default tseslint.config(
 	eslint.configs.recommended,
@@ -34,6 +35,12 @@ export default tseslint.config(
 	},
 	{
 		ignores: ['build/', '.svelte-kit/', 'dist/', 'test-results/', 'playwright-report/']
+	},
+	{
+		// user-facing copy in the rework layers goes through $lang()
+		files: ['src/lib/Hearth/**/*.svelte', 'src/lib/ui/**/*.svelte'],
+		plugins: { hearth: { rules: { 'no-bare-text': noBareText } } },
+		rules: { 'hearth/no-bare-text': 'error' }
 	},
 	{
 		// the rework layers are typed; the count is capped by --max-warnings in the

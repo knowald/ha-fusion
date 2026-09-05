@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { onDestroy } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { states } from '$lib/core/ha/entities';
@@ -79,17 +80,17 @@
 			case 'cleaning':
 			case 'returning':
 				return [
-					{ command: 'pause', label: 'Pause', icon: 'pause' },
-					{ command: 'return_to_base', label: 'Send home', icon: 'home' }
+					{ command: 'pause', label: $lang('pause'), icon: 'pause' },
+					{ command: 'return_to_base', label: $lang('hearth_send_home'), icon: 'home' }
 				];
 			case 'paused':
 			case 'error':
 				return [
-					{ command: 'start', label: 'Resume', icon: 'play_arrow', primary: true },
-					{ command: 'return_to_base', label: 'Send home', icon: 'home' }
+					{ command: 'start', label: $lang('hearth_resume'), icon: 'play_arrow', primary: true },
+					{ command: 'return_to_base', label: $lang('hearth_send_home'), icon: 'home' }
 				];
 			case 'idle':
-				return [{ command: 'return_to_base', label: 'Send home', icon: 'home' }];
+				return [{ command: 'return_to_base', label: $lang('hearth_send_home'), icon: 'home' }];
 			default:
 				return [];
 		}
@@ -142,7 +143,7 @@
 						size={21}
 						color="var(--h-accent-dim-text)"
 					/>
-					{#if mode.default}<span class="tag">DEFAULT</span>{/if}
+					{#if mode.default}<span class="tag">{$lang('hearth_default')}</span>{/if}
 				</div>
 				<div class="name">{modeName(mode)}</div>
 				{#if showMeta}
@@ -155,20 +156,20 @@
 		{/each}
 	</div>
 {:else}
-	<div class="empty">Add cleaning-mode button entities in the card editor</div>
+	<div class="empty">{$lang('hearth_add_cleaning_mode_button_entities_in')}</div>
 {/if}
 
 {#if launched}
 	<div class="undo">
 		<Icon name="check_circle" size={19} color="var(--h-good)" />
 		<div class="undo-text">
-			<div class="undo-title">Starting {modeName(launched.mode)}</div>
+			<div class="undo-title">{$lang('hearth_starting')} {modeName(launched.mode)}</div>
 			{#if modeMeta(launched.mode)}
 				<div class="undo-detail">{modeMeta(launched.mode)}</div>
 			{/if}
 		</div>
 		<button type="button" class="undo-action pressable" use:Ripple={PRESS_RIPPLE} onclick={undo}>
-			Undo
+			{$lang('undo')}
 		</button>
 	</div>
 {/if}

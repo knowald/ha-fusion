@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { EntityWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -29,17 +30,17 @@
 	});
 </script>
 
-<EntityField label="Entity" bind:value={entity} />
+<EntityField label={$lang('entity')} bind:value={entity} />
 <div class="row">
 	<div class="grow">
-		<TextField label="Name (optional)" bind:value={name} />
+		<TextField label={$lang('hearth_name_optional')} bind:value={name} />
 	</div>
 	<div class="icon-column">
-		<IconField label="Icon (optional)" bind:value={icon} />
+		<IconField label={$lang('hearth_icon_optional')} bind:value={icon} />
 	</div>
 </div>
 <SelectField
-	label="Vertical padding"
+	label={$lang('hearth_vertical_padding')}
 	bind:value={verticalPadding}
 	options={[
 		{ value: '', label: 'Standard' },

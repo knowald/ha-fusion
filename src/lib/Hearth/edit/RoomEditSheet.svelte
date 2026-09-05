@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import { moveItem, resizeCardColumns, slugify, uniqueId } from '../config';
 	import { currentRoom, editor, hearthConfig, updateConfig } from '../store';
@@ -100,13 +101,21 @@
 	onmoveup={id ? () => move(-1) : undefined}
 	onmovedown={id ? () => move(1) : undefined}
 >
-	<TextField label="Name" bind:value={name} placeholder="Living Room" />
-	<IconField label="Icon" bind:value={icon} placeholder="meeting_room" />
-	<TextField label="Summary" bind:value={summary} placeholder="Cozy · curtains open" />
-	<EntityField label="Temperature sensor" bind:value={tempEntity} domains={['sensor']} />
-	<EntityField label="Humidity sensor" bind:value={humidityEntity} domains={['sensor']} />
+	<TextField label={$lang('name')} bind:value={name} placeholder="Living Room" />
+	<IconField label={$lang('icon')} bind:value={icon} placeholder="meeting_room" />
+	<TextField label={$lang('summary')} bind:value={summary} placeholder="Cozy · curtains open" />
+	<EntityField
+		label={$lang('hearth_temperature_sensor')}
+		bind:value={tempEntity}
+		domains={['sensor']}
+	/>
+	<EntityField
+		label={$lang('hearth_humidity_sensor')}
+		bind:value={humidityEntity}
+		domains={['sensor']}
+	/>
 	<SelectField
-		label="Screen height"
+		label={$lang('hearth_screen_height')}
 		bind:value={fillScreen}
 		options={[
 			{ value: 'scroll', label: 'Scrollable (default)' },
@@ -115,12 +124,11 @@
 	/>
 	{#if fillScreen === 'fill'}
 		<div class="hint">
-			Media and sensor cards without a fixed height share the leftover space; anything past the
-			bottom edge is clipped. Below the tablet breakpoint the page scrolls regardless.
+			{$lang('hearth_media_and_sensor_cards_without_a')}
 		</div>
 	{/if}
 	<SelectField
-		label="Page columns"
+		label={$lang('hearth_page_columns')}
 		bind:value={columns}
 		options={[
 			{ value: '', label: 'Auto' },
@@ -132,12 +140,12 @@
 
 	<label class="check">
 		<input type="checkbox" bind:checked={hideHeader} />
-		<span>Hide page header</span>
+		<span>{$lang('hearth_hide_page_header')}</span>
 	</label>
 	<div class="hint">
-		Everything on the page is a card: add, move and edit its groups from the page itself.
+		{$lang('hearth_everything_on_the_page_is_a')}
 		{#if id && $hearthConfig.rooms.length === 1}
-			This is the last page, so it cannot be removed.
+			{$lang('hearth_this_is_the_last_page_so')}
 		{/if}
 	</div>
 </EditSheet>

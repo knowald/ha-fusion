@@ -5,8 +5,8 @@ export type SpacerWidget = Extract<RailWidget, { type: 'spacer' }>;
 
 export const spacerWidget: WidgetDescriptor<SpacerWidget> = {
 	type: 'spacer',
-	label: 'Spacer',
-	name: 'Spacer',
-	sub: 'flexible gap',
+	label: 'hearth_widget_spacer_label',
+	name: 'hearth_widget_spacer_name',
+	sub: 'hearth_widget_spacer_sub',
 	icon: 'unfold_more'
 };

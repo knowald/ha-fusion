@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { states } from '$lib/core/ha/entities';
@@ -10,10 +11,10 @@
 	let { entity }: { entity: string } = $props();
 
 	const speeds = [
-		{ label: 'Off', value: 0 },
-		{ label: 'Low', value: 33 },
-		{ label: 'Med', value: 66 },
-		{ label: 'High', value: 100 }
+		{ label: $lang('off'), value: 0 },
+		{ label: $lang('fan_speed_low'), value: 33 },
+		{ label: $lang('hearth_med'), value: 66 },
+		{ label: $lang('fan_speed_high'), value: 100 }
 	];
 
 	let fan = $derived($states?.[entity]);
@@ -46,7 +47,7 @@
 	}
 </script>
 
-<div class="label">FAN SPEED</div>
+<div class="label">{$lang('hearth_fan_speed')}</div>
 <div class="segments">
 	{#each speeds as speed (speed.value)}
 		<div
@@ -64,7 +65,7 @@
 </div>
 
 {#if supports?.PRESET_MODE && presetModes.length}
-	<div class="label">PRESET MODE</div>
+	<div class="label">{$lang('hearth_preset_mode')}</div>
 	<div class="segments">
 		{#each presetModes as mode (mode)}
 			<div
@@ -84,7 +85,7 @@
 {/if}
 
 {#if supports?.OSCILLATE}
-	<div class="label">OSCILLATE</div>
+	<div class="label">{$lang('hearth_oscillate')}</div>
 	<div class="segments">
 		<div
 			class="segment pressable"
@@ -96,7 +97,7 @@
 			onkeydown={(event) =>
 				activateOnKeyboard(event, () => call('oscillate', { oscillating: true }))}
 		>
-			On
+			{$lang('on')}
 		</div>
 		<div
 			class="segment pressable"
@@ -108,13 +109,13 @@
 			onkeydown={(event) =>
 				activateOnKeyboard(event, () => call('oscillate', { oscillating: false }))}
 		>
-			Off
+			{$lang('off')}
 		</div>
 	</div>
 {/if}
 
 {#if supports?.DIRECTION}
-	<div class="label">DIRECTION</div>
+	<div class="label">{$lang('hearth_direction')}</div>
 	<div class="segments">
 		<div
 			class="segment pressable"
@@ -126,7 +127,7 @@
 			onkeydown={(event) =>
 				activateOnKeyboard(event, () => call('set_direction', { direction: 'forward' }))}
 		>
-			Forward
+			{$lang('fan_forward')}
 		</div>
 		<div
 			class="segment pressable"
@@ -138,7 +139,7 @@
 			onkeydown={(event) =>
 				activateOnKeyboard(event, () => call('set_direction', { direction: 'reverse' }))}
 		>
-			Reverse
+			{$lang('fan_reverse')}
 		</div>
 	</div>
 {/if}

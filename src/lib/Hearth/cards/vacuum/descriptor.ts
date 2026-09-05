@@ -10,9 +10,9 @@ export type VacuumCard = Extract<OverviewCard, { type: 'vacuum' }>;
 
 export const vacuumCard: CardDescriptor<VacuumCard> = {
 	type: 'vacuum',
-	label: 'Vacuum',
-	name: 'Vacuum',
-	sub: 'cleaning control',
+	label: 'hearth_card_vacuum_label',
+	name: 'hearth_card_vacuum_name',
+	sub: 'hearth_card_vacuum_sub',
 	icon: 'robot_2',
 	normalize: (card) => ({
 		modes: (Array.isArray(card.modes) ? card.modes : [])

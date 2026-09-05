@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { sortable } from '$lib/Actions/sortable';
 	import type { EntityRef } from './config';
 	import type { SliderUpdateMode } from '$lib/Types';
@@ -64,7 +65,7 @@
 	{#each entities as ref, index (`${ref.entity}-${index}`)}
 		<div class="entity-slot" data-id={JSON.stringify([cardId, index])}>
 			{#if $hearthEditMode && cardId && showDragHandles}
-				<div class="entity-drag-handle" aria-label="Rearrange entity">
+				<div class="entity-drag-handle" aria-label={$lang('hearth_rearrange_entity')}>
 					<Icon name="drag_indicator" size={17} />
 				</div>
 			{/if}

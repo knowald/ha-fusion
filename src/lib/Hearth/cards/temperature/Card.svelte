@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { connected, connection } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
 	import type { OverviewCard } from '../../config';
@@ -123,13 +124,21 @@
 		</div>
 		{#if climate && target !== null}
 			<div class="thermostat">
-				<div class="target-label">TARGET</div>
+				<div class="target-label">{$lang('hearth_target')}</div>
 				<div class="target-value">{target.toFixed(1)}°</div>
 				<div class="target-buttons">
-					<button type="button" aria-label="Lower target" onclick={() => nudgeTarget(-1)}>
+					<button
+						type="button"
+						aria-label={$lang('hearth_lower_target')}
+						onclick={() => nudgeTarget(-1)}
+					>
 						<Icon name="remove" size={18} color="var(--h-text-3)" />
 					</button>
-					<button type="button" aria-label="Raise target" onclick={() => nudgeTarget(1)}>
+					<button
+						type="button"
+						aria-label={$lang('hearth_raise_target')}
+						onclick={() => nudgeTarget(1)}
+					>
 						<Icon name="add" size={18} color="var(--h-text-3)" />
 					</button>
 				</div>
@@ -171,13 +180,18 @@
 			</svg>
 			{#if chart.targetY !== null && target !== null}
 				<div class="target-line-label" style:top="{(chart.targetY / CHART_HEIGHT) * 100}%">
-					TARGET {target.toFixed(1)}
+					{$lang('hearth_target')}
+					{target.toFixed(1)}
 				</div>
 			{/if}
 		</div>
 		<div class="chart-footer">
 			<span>24 H</span>
-			<span>LOW {formatReading(chart.low)} · HIGH {formatReading(chart.high)}</span>
+			<span
+				>{$lang('hearth_low')}
+				{formatReading(chart.low)} · {$lang('hearth_high')}
+				{formatReading(chart.high)}</span
+			>
 		</div>
 	{/if}
 </div>

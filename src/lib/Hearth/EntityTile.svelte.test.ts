@@ -46,7 +46,7 @@ describe('EntityTile', () => {
 		const tile = screen.getByRole('button');
 		expect(tile.getAttribute('tabindex')).toBe('-1');
 		expect(tile.classList.contains('unreachable')).toBe(true);
-		expect(screen.getByText('unavailable')).toBeTruthy();
+		expect(screen.getByText('Unavailable')).toBeTruthy();
 		await fireEvent.click(tile);
 		expect(toggleEntity).not.toHaveBeenCalled();
 	});

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { WeatherWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -16,4 +17,4 @@
 	});
 </script>
 
-<EntityField label="Weather entity" bind:value={entity} domains={['weather']} />
+<EntityField label={$lang('hearth_weather_entity')} bind:value={entity} domains={['weather']} />

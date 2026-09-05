@@ -7,9 +7,9 @@ export type CameraCard = Extract<OverviewCard, { type: 'camera' }>;
 
 export const cameraCard: CardDescriptor<CameraCard> = {
 	type: 'camera',
-	label: 'Camera',
-	name: 'Camera',
-	sub: 'live camera feed',
+	label: 'hearth_card_camera_label',
+	name: 'hearth_card_camera_name',
+	sub: 'hearth_card_camera_sub',
 	icon: 'videocam',
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),

@@ -6,9 +6,9 @@ export type NavWidget = Extract<RailWidget, { type: 'nav' }>;
 
 export const navWidget: WidgetDescriptor<NavWidget> = {
 	type: 'nav',
-	label: 'Page navigation',
-	name: 'Page navigation',
-	sub: 'room links',
+	label: 'hearth_widget_nav_label',
+	name: 'hearth_widget_nav_name',
+	sub: 'hearth_widget_nav_sub',
 	icon: 'home',
 	component: Widget
 };

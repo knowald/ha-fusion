@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { RailWidget } from '../../config';
 	import { hearthEditMode } from '../../store';
 	import { activateOnKeyboard } from '../../interaction';
@@ -65,7 +66,7 @@
 
 {#snippet embed()}
 	{#if !load}
-		<div class="placeholder">Fusion widget: set a type in the widget editor</div>
+		<div class="placeholder">{$lang('hearth_fusion_widget_set_a_type_in')}</div>
 	{:else}
 		{#key item.type}
 			{#await load() then module}

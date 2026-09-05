@@ -38,7 +38,7 @@ describe('LightTile', () => {
 	it('names a missing entity rather than drawing it switched off', () => {
 		states.set({});
 		render(LightTile, { entity: 'light.gone' });
-		expect(screen.getByText('hearth_missing_entity')).toBeTruthy();
+		expect(screen.getByText('Missing entity')).toBeTruthy();
 		expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('false');
 	});
 

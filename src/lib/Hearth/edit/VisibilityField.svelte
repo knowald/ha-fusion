@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import type { VisibilityCondition } from '../config';
 	import Icon from '../Icon.svelte';
@@ -9,8 +10,8 @@
 	let { value = $bindable([]) }: { value?: VisibilityCondition[] } = $props();
 
 	const TYPE_OPTIONS = [
-		{ value: 'entity', label: 'Entity state' },
-		{ value: 'media', label: 'Media query' }
+		{ value: 'entity', label: $lang('hearth_entity_state') },
+		{ value: 'media', label: $lang('hearth_media_query') }
 	];
 
 	function rowType(condition: VisibilityCondition): 'entity' | 'media' {
@@ -79,23 +80,23 @@
 	}
 </script>
 
-<div class="group-label">VISIBILITY</div>
+<div class="group-label">{$lang('hearth_visibility')}</div>
 {#each value as condition, index (index)}
 	<div class="visibility-row">
 		<div class="visibility-fields">
 			<SelectField
-				label="Condition type"
+				label={$lang('hearth_condition_type')}
 				value={rowType(condition)}
 				options={TYPE_OPTIONS}
 				onchange={(type) => setRowType(index, type)}
 			/>
 			{#if rowType(condition) === 'entity'}
 				<EntityField
-					label="Entity"
+					label={$lang('entity')}
 					bind:value={() => entityValue(index), (entity) => setEntity(index, entity)}
 				/>
 				<TextField
-					label="State"
+					label={$lang('state')}
 					placeholder="on"
 					bind:value={() => stateValue(index), (state) => setState(index, state)}
 				/>
@@ -105,11 +106,11 @@
 						checked={isStateNot(index)}
 						onchange={(event) => setStateNot(index, event.currentTarget.checked)}
 					/>
-					<span>Must not match</span>
+					<span>{$lang('hearth_must_not_match')}</span>
 				</label>
 			{:else}
 				<TextField
-					label="Media query"
+					label={$lang('hearth_media_query')}
 					placeholder="(max-width: 700px)"
 					bind:value={() => mediaValue(index), (media) => setMedia(index, media)}
 				/>
@@ -134,7 +135,7 @@
 	onkeydown={(event) => activateOnKeyboard(event, addRow)}
 >
 	<Icon name="add" size={18} />
-	<span>Add condition</span>
+	<span>{$lang('add_condition')}</span>
 </div>
 
 <style>

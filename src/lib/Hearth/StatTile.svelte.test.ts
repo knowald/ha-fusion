@@ -29,7 +29,7 @@ describe('StatTile', () => {
 		states.set({ 'sensor.mode': hassEntity('sensor.mode', 'unavailable') });
 		render(StatTile, { entity: 'sensor.mode', name: 'Mode' });
 		expect(screen.queryByRole('button')).toBeNull();
-		expect(screen.getByText('unavailable')).toBeTruthy();
+		expect(screen.getByText('Unavailable')).toBeTruthy();
 		expect(get(popup)).toBeNull();
 	});
 });

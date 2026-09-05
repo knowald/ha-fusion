@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../../config';
 	import { activateOnKeyboard } from '../../interaction';
@@ -63,13 +64,13 @@
 </script>
 
 <SelectField
-	label="Widget type"
+	label={$lang('hearth_widget_type')}
 	bind:value={fusionType}
 	options={FUSION_WIDGET_TYPES}
 	onchange={() => advancedOpen && resetAdvancedYaml()}
 />
 <FusionFields type={fusionType} bind:options />
-<TextField label="Height in px (optional)" bind:value={height} placeholder="120" />
+<TextField label={$lang('hearth_height_in_px_optional')} bind:value={height} placeholder="120" />
 <div
 	class="advanced-toggle pressable"
 	use:Ripple={PRESS_RIPPLE}
@@ -79,16 +80,15 @@
 	onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
 >
 	<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
-	<span>Advanced (YAML)</span>
+	<span>{$lang('hearth_advanced_yaml')}</span>
 </div>
 {#if advancedOpen}
 	<YamlField
-		label="Other options (YAML)"
+		label={$lang('hearth_other_options_yaml')}
 		bind:value={() => advancedYaml, setAdvancedYaml}
 		placeholder={yamlPlaceholder}
 	/>
 	<div class="hint">
-		Options match the original ha-fusion sidebar config for the chosen type, e.g. entity_id, name,
-		period.
+		{$lang('hearth_options_match_the_original_ha_fusion_2')}
 	</div>
 {/if}

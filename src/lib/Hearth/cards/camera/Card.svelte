@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { LegacyCamera as Camera } from '$lib/legacy/bridge/camera';
 	import type { OverviewCard } from '../../config';
 
@@ -20,7 +21,7 @@
 			/>
 		</div>
 	{:else}
-		<div class="placeholder">Pick a camera entity in the card editor</div>
+		<div class="placeholder">{$lang('hearth_pick_a_camera_entity_in_the')}</div>
 	{/if}
 </div>
 

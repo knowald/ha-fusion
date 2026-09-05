@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { connected, connection } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
 	import type { RailWidget } from '../../config';
@@ -80,7 +81,7 @@
 <div class="card">
 	<div class="header">
 		<Icon name="bolt" size={18} color="rgb(var(--h-accent-rgb))" fill />
-		<span class="title">Energy</span>
+		<span class="title">{$lang('hearth_energy')}</span>
 		<span class="reading">
 			{#if total !== null}
 				<span class="value">{total.toFixed(1)} kWh</span>
