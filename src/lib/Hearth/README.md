@@ -55,11 +55,11 @@ the config, the editor and the navigation state in `store.ts`.
 
 ```
 data/hearth.yaml
-  -> normalizeHearthConfig()   config.ts
+  -> normalizeHearthConfig()   normalize.ts, per-type rules from the registries
   -> $hearthConfig             store.ts
   -> HearthDashboard.svelte    rail + main
-       -> Rail -> RailWidgetRenderer -> *Widget
-       -> RoomDetail -> CardColumns -> CardRenderer -> *Card
+       -> Rail -> RailWidgetRenderer -> widgets/<type>/Widget.svelte
+       -> RoomDetail -> CardColumns -> CardRenderer -> cards/<type>/Card.svelte
 
 src/lib/core
   ha/connection.ts   the one connection, health, startConnection()
@@ -72,9 +72,11 @@ src/lib/core
   i18n/index.ts      $lang and the translation stores
 ```
 
-Naming follows a fixed taxonomy: `*Card` renders an `OverviewCard`, `*Widget`
-renders a `RailWidget`, `*Tile` is an entity-level leaf, `*Popup` is a centred
-sheet, `*Popover` is anchored to a row. Editor components live in `edit/`.
+Naming follows a fixed taxonomy: `cards/<type>/Card.svelte` renders an
+`OverviewCard`, `widgets/<type>/Widget.svelte` renders a `RailWidget`, `*Tile`
+is an entity-level leaf, `*Popup` is a centred sheet, `*Popover` is anchored to
+a row. The edit sheets and shared form fields live in `edit/`; each type's own
+editor sits next to its card or widget.
 
 ### Config shape
 
@@ -111,25 +113,32 @@ means deleting its bridge module.
 
 ## Adding a card type
 
-There is no single registration point yet. `OVERVIEW_CARD_TYPES` in `config.ts`
-drives the picker gallery and type validation, but the renderer and the edit form
-are still hand-written per type. Touch all of these:
+Every card type is one folder under `cards/` with three parts, registered by
+one line in `cards/index.ts`:
 
-1. `config.ts` - the `OverviewCardVariant` union.
-2. `config.ts` - `OVERVIEW_CARD_TYPES`, which supplies the gallery entry.
-3. `config.ts` - a branch in `normalizeCard()` if the type has fields to validate.
-4. `config.ts` - `FILL_BY_DEFAULT` if the card should stretch to fill its column.
-5. `CardRenderer.svelte` - a branch in the type chain. It has no fallback, so a
-   missing branch renders nothing.
-6. `edit/CardEditSheet.svelte` - field state, a `buildCard()` branch, and the form
-   markup. A missing `buildCard()` branch silently drops every field except `id`,
-   `type` and `entity`.
-7. `configurationState.ts` - if the card should show the not-configured-yet
-   placeholder before it has an entity.
+- `descriptor.ts` - the `CardDescriptor`: gallery label and icon, the
+  type-specific `normalize` rule for raw YAML, optional `issues` for the YAML
+  editor, `needsConfiguration` for the setup placeholder, `entityIds` for
+  attention and search, and layout flags (`fillByDefault`, `sizable`,
+  `previewReorder`).
+- `Card.svelte` - renders `{ card }`.
+- `Editor.svelte` - the type-specific form. It receives `initial` (the card of
+  this type being edited, or undefined) and calls `onchange({ fields, valid })`
+  whenever a field changes; the shell adds id, type, fill, height and
+  visibility. An editor may export `applyPreviewReorder` for the live preview.
 
-Rail widgets follow a parallel but not identical path through
-`RAIL_WIDGET_TYPES`, `RailWidgetRenderer.svelte` and
-`edit/RailWidgetEditSheet.svelte`.
+The card's type shape lives in the `OverviewCardVariant` union in `types.ts`.
+`typeRegistry.test.ts` fails when a registered descriptor is missing a part.
+
+Rail widgets follow the same shape under `widgets/`, registered in
+`widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only
+widgets (the spacer) have no component; option-free widgets (nav, search) have
+no editor.
+
+Entity domains are described in `src/lib/core/domains/index.ts`: icon, tap
+behaviour, tile treatment, active predicate, group summary words and toggle
+service. `EntityTile` and the group summaries read those descriptors instead of
+switching on the domain string.
 
 ## Behaviour worth knowing
 

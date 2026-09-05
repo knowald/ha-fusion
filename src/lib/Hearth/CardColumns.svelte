@@ -3,7 +3,6 @@
 	import {
 		cloneOverviewItem,
 		findOverviewItemList,
-		fillWeight,
 		isStack,
 		takenCardIds,
 		uniqueId,
@@ -12,6 +11,7 @@
 		type OverviewItem,
 		type OverviewStack
 	} from './config';
+	import { fillWeight } from './cards';
 	import { onDndReceive } from './drag';
 	import { provideHearthInteractionMode } from './interaction';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
