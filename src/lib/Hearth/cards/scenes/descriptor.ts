@@ -1,5 +1,7 @@
+import * as v from 'valibot';
+import { SceneRefSchema } from '../../schema';
 import type { OverviewCard, SceneRef } from '../../types';
-import { entityRefIssues, normalizeSceneRef } from '../../normalizers';
+import { normalizeSceneRef } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
 import Editor from './Editor.svelte';
@@ -18,7 +20,7 @@ export const scenesCard: CardDescriptor<ScenesCard> = {
 			.map(normalizeSceneRef)
 			.filter((ref: SceneRef | null): ref is SceneRef => ref !== null)
 	}),
-	issues: (raw, path) => entityRefIssues(raw.scenes, `${path}.scenes`),
+	schema: v.looseObject({ scenes: v.array(SceneRefSchema, 'must be a list') }),
 	needsConfiguration: (card) => card.scenes.length === 0,
 	entityIds: (card) =>
 		card.scenes.flatMap((ref) => [ref.entity, ...(ref.active_entity ? [ref.active_entity] : [])]),

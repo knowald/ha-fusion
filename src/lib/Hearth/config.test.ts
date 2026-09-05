@@ -147,7 +147,7 @@ describe('normalizeHearthConfig', () => {
 	it('preserves unknown extension keys at every config level', () => {
 		const config = normalizeHearthConfig({
 			x_vendor: { enabled: true },
-			rail: [],
+			rail: [{ id: 'clock', type: 'clock', x_widget: 'kept' }],
 			rooms: [
 				{
 					id: 'home',
@@ -167,6 +167,7 @@ describe('normalizeHearthConfig', () => {
 		} as any) as any;
 
 		expect(config.x_vendor).toEqual({ enabled: true });
+		expect(config.rail[0].x_widget).toBe('kept');
 		expect(config.rooms[0].x_room).toBe('kept');
 		expect(config.rooms[0].cards[0][0].x_stack).toBe(42);
 		expect(config.rooms[0].cards[0][0].cards[0].x_card).toBe(true);
@@ -235,7 +236,7 @@ describe('hearthConfigIssues', () => {
 
 		expect(issues).toContain('rail[1].id duplicates rail[0].id');
 		expect(issues).toContain('rail[1].type is not a supported widget type');
-		expect(issues).toContain('rooms[0].cards[0][0].entities[0].entity must be a non-empty string');
+		expect(issues).toContain('rooms[0].cards[0][0].entities[0].entity is required');
 		expect(issues).toContain('rooms[0].cards[0][1].id duplicates rooms[0].cards[0][0].id');
 	});
 });

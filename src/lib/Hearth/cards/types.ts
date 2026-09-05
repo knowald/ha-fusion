@@ -1,4 +1,5 @@
 import type { Component } from 'svelte';
+import type { GenericSchema } from 'valibot';
 import type { EntityRef, OverviewCard } from '../types';
 
 /** The fields a card editor owns: everything but the id, type and the layout options the shell adds. */
@@ -45,8 +46,11 @@ export interface CardDescriptor<T extends OverviewCard = OverviewCard> {
 	previewReorder?: boolean;
 	/** Type-specific field normalization for a raw YAML card; id, fill, height and visibility are handled by the caller. */
 	normalize?: (raw: Record<string, any>) => Partial<T>;
-	/** Structural problems worth refusing a save over, beyond what the generic checks catch. */
-	issues?: (raw: Record<string, unknown>, path: string) => string[];
+	/**
+	 * Structural rules for the type's own fields, checked before a YAML edit is
+	 * applied. Use a loose object so unknown extension keys pass.
+	 */
+	schema?: GenericSchema;
 	/** True while the card has nothing to render yet and should show the setup placeholder. */
 	needsConfiguration: (card: T) => boolean;
 	/** Every entity id the card refers to, for attention and search. */

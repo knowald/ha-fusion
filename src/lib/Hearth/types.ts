@@ -1,4 +1,11 @@
+import type * as v from 'valibot';
 import type { SliderUpdateMode } from '$lib/Types';
+import type {
+	EntityRefSchema,
+	SceneRefSchema,
+	VacuumModeRefSchema,
+	VisibilityConditionSchema
+} from './schema';
 import type { VerdictBands } from '$lib/core/domains/sensor';
 import type { DayNightSwitch, HearthTheme } from '$lib/core/theme';
 
@@ -31,51 +38,10 @@ export interface HearthRoom {
 	cards: OverviewItem[][];
 }
 
-export interface EntityRef {
-	entity: string;
-	name?: string;
-	icon?: string;
-	// per-entity presentation; falls back to the card's style when unset
-	display?: 'tile' | 'stat';
-	// display-only tile, for entities whose integration exposes no working
-	// toggle (a PlayStation media_player, a read-only sensor)
-	readonly?: boolean;
-	// overrides the containing entities card's slider update behavior
-	slider_updates?: SliderUpdateMode;
-	// stat readouts judge known air sensors by device_class; false suppresses
-	// that, custom bands extend it to any ascending numeric sensor
-	verdict?: false | VerdictBands;
-}
-
-export interface SceneRef extends EntityRef {
-	// small caption under the name in the scene bar, replaced by "active" while
-	// this scene is the active one
-	caption?: string;
-	// marks the scene active while this entity holds active_state ('on' when
-	// omitted); without it activity comes from which listed scene was applied
-	// most recently
-	active_entity?: string;
-	active_state?: string;
-}
-
-export interface VacuumModeRef extends EntityRef {
-	// what the mode covers, so a one-tap run is safe to commit to without
-	// opening the vacuum app first
-	detail?: string;
-	// expected run time, shown next to the detail
-	duration?: string;
-	// tags the mode as the recommended one. It stays the same size and costs
-	// the same single tap as the rest; the tag is the only difference
-	default?: boolean;
-}
-
-/**
- * Per-item visibility condition, mirroring the original's section conditions
- * but trimmed to the two cases Hearth's builder exposes. All conditions on an
- * item AND together.
- */
-export type VisibilityCondition =
-	{ entity: string; state?: string; state_not?: string } | { media: string };
+export type EntityRef = v.InferOutput<typeof EntityRefSchema>;
+export type SceneRef = v.InferOutput<typeof SceneRefSchema>;
+export type VacuumModeRef = v.InferOutput<typeof VacuumModeRefSchema>;
+export type VisibilityCondition = v.InferOutput<typeof VisibilityConditionSchema>;
 
 type RailWidgetVariant =
 	| {

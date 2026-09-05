@@ -1,4 +1,5 @@
 import type { Component } from 'svelte';
+import type { GenericSchema } from 'valibot';
 import type { RailWidget } from '../types';
 
 /** The fields a widget editor owns: everything but the id, type and the visibility options the shell adds. */
@@ -35,6 +36,8 @@ export interface WidgetDescriptor<T extends RailWidget = RailWidget> {
 	sub: string;
 	icon: string;
 	normalize?: (raw: Record<string, any>) => Partial<T>;
+	/** Structural rules for the type's own fields; a loose object so extension keys pass. */
+	schema?: GenericSchema;
 	needsConfiguration?: (widget: T) => boolean;
 	/**
 	 * Absent for layout-only widgets such as the spacer, which the rail draws

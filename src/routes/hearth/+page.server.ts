@@ -2,6 +2,7 @@ import { readFile } from 'fs/promises';
 import { dev } from '$app/environment';
 import * as yaml from 'js-yaml';
 import type { Configuration, Translations } from '$lib/Types';
+import { CONFIG_VERSION, configVersion } from '$lib/Hearth/migrate';
 import dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
@@ -40,6 +41,8 @@ export async function load({ request }): Promise<{
 		hearth = await loadYaml('./data/hearth.yaml');
 		if (hearth !== undefined && (!hearth || typeof hearth !== 'object' || Array.isArray(hearth))) {
 			hearthError = 'Hearth configuration must contain a YAML mapping';
+		} else if (configVersion(hearth) > CONFIG_VERSION) {
+			hearthError = `Hearth configuration version ${configVersion(hearth)} is newer than this build supports (${CONFIG_VERSION}); update ha-fusion`;
 		}
 	} catch (error) {
 		hearthError =
@@ -53,7 +56,7 @@ export async function load({ request }): Promise<{
 	const hearthKeys = hearthError
 		? []
 		: Object.keys((hearth as Record<string, unknown> | undefined) ?? {}).filter(
-				(key) => key !== 'revision'
+				(key) => key !== 'revision' && key !== 'version'
 			);
 	const hearthNeedsSetup = !hearthError && (hearth === undefined || hearthKeys.length === 0);
 
