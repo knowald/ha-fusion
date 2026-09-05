@@ -8,6 +8,7 @@
 	import StackEditSheet from './StackEditSheet.svelte';
 	import ThemeEditSheet from './ThemeEditSheet.svelte';
 	import AppSettingsEditSheet from './AppSettingsEditSheet.svelte';
+	import CustomCssEditSheet from './CustomCssEditSheet.svelte';
 </script>
 
 {#if $editor}
@@ -30,6 +31,8 @@
 			<SettingsEditSheet />
 		{:else if $editor.kind === 'appSettings'}
 			<AppSettingsEditSheet />
+		{:else if $editor.kind === 'customCss'}
+			<CustomCssEditSheet />
 		{:else if $editor.kind === 'code'}
 			<CodeEditSheet />
 		{:else}

@@ -935,5 +935,13 @@
 	"hearth_above": "Above",
 	"hearth_below": "Below",
 	"hearth_any_of": "Any of",
-	"hearth_any_of_hint": "Shown when at least one of the nested conditions holds."
+	"hearth_any_of_hint": "Shown when at least one of the nested conditions holds.",
+	"hearth_long_lived_token": "Long-lived access token",
+	"hearth_token_hint": "Needed in the companion app and behind ingress, where the login redirect cannot complete.",
+	"hearth_custom_js": "Custom JavaScript",
+	"hearth_custom_js_sub": "Runs data/custom_javascript.js on every page load",
+	"hearth_custom_css": "Custom CSS",
+	"hearth_custom_css_sub": "Edit data/custom_css.css",
+	"hearth_custom_css_hint": "Saved straight to disk and applied on the next load.",
+	"hearth_loading": "Loading..."
 }
