@@ -1,5 +1,7 @@
+import * as v from 'valibot';
+import { EntityRefListSchema } from '../../schema';
 import type { EntityRef, OverviewCard } from '../../types';
-import { entityRefIssues, normalizeEntityRef, trimmedOrUndefined } from '../../normalizers';
+import { normalizeEntityRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
 import Editor from './Editor.svelte';
@@ -36,7 +38,7 @@ export const entitiesCard: CardDescriptor<EntitiesCard> = {
 		summary: trimmedOrUndefined(card.summary),
 		summary_entity: trimmedOrUndefined(card.summary_entity)
 	}),
-	issues: (raw, path) => entityRefIssues(raw.entities, `${path}.entities`),
+	schema: v.looseObject({ entities: EntityRefListSchema }),
 	needsConfiguration: (card) => card.entities.length === 0 && !card.wildcard?.trim(),
 	entityIds: (card) => [
 		...card.entities.map((ref) => ref.entity),

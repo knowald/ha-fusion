@@ -1,5 +1,7 @@
+import * as v from 'valibot';
+import { VacuumModeRefSchema } from '../../schema';
 import type { OverviewCard, VacuumModeRef } from '../../types';
-import { entityRefIssues, normalizeVacuumModeRef, trimmedOrUndefined } from '../../normalizers';
+import { normalizeVacuumModeRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
 import Editor from './Editor.svelte';
@@ -20,8 +22,7 @@ export const vacuumCard: CardDescriptor<VacuumCard> = {
 		bin_entity: trimmedOrUndefined(card.bin_entity),
 		quick_action: card.quick_action === true ? true : undefined
 	}),
-	issues: (raw, path) =>
-		raw.modes !== undefined ? entityRefIssues(raw.modes, `${path}.modes`) : [],
+	schema: v.looseObject({ modes: v.optional(v.array(VacuumModeRefSchema, 'must be a list')) }),
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => [
 		...(card.entity ? [card.entity] : []),

@@ -13,9 +13,9 @@ Hearth as the primary target.
 
 What this means in practice:
 
-- `data/hearth.yaml` may need manual edits after an update. The normalizer
-  (`normalizeHearthConfig` in `config.ts`) accepts older shapes where it can, but
-  there is no migration tooling and no format version.
+- `data/hearth.yaml` carries a `version`. Older files are lifted by the
+  migrations in `migrate.ts` before normalization; a file written by a newer
+  build refuses to load instead of being normalized into loss.
 - Anything exported from this directory can change without notice. Nothing here
   is a public API.
 - The original dashboard remains the default. Hearth is opt-in.
@@ -79,6 +79,14 @@ a row. The edit sheets and shared form fields live in `edit/`; each type's own
 editor sits next to its card or widget.
 
 ### Config shape
+
+The shared reference shapes (entity, scene and vacuum mode references,
+visibility conditions) are valibot schemas in `schema.ts`; their TypeScript
+types derive from them. Card and widget descriptors attach a schema for their
+own fields, and the YAML editor reports every schema issue with its path
+before applying an edit. Saves go through `src/lib/server/persistence.ts`,
+which serializes writes per file, replaces atomically, keeps ten backups and
+manages the `revision` counter used for conflict detection.
 
 `HearthConfig` holds `rail` (a list of rail widgets), `rooms` (pages, each with
 `cards` as an array of columns), the `theme` and `theme_night` token maps, the
