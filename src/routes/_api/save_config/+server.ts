@@ -1,26 +1,21 @@
-import { writeFile } from 'fs/promises';
 import { json } from '@sveltejs/kit';
-import * as yaml from 'js-yaml';
+import { saveYamlDocument } from '$lib/server/persistence';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json();
-
-	let data;
-	try {
-		data = yaml.dump(body);
-	} catch {
-		return new Response(JSON.stringify({ error: 'Invalid JSON - cannot convert to YAML' }), {
+	if (!body || typeof body !== 'object' || Array.isArray(body)) {
+		return new Response(JSON.stringify({ error: 'Configuration must be a mapping' }), {
 			status: 400
 		});
 	}
 
 	try {
-		await writeFile('data/configuration.yaml', data);
-		return json({ action: 'saved' });
-	} catch (error) {
-		return new Response(JSON.stringify({ error: error }), {
-			status: 400
+		const result = await saveYamlDocument({ file: 'data/configuration.yaml', body });
+		return json({ action: 'saved', revision: result.revision });
+	} catch (err: any) {
+		return new Response(JSON.stringify({ error: err?.message ?? 'save failed' }), {
+			status: 500
 		});
 	}
 };
