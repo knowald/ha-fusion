@@ -1,0 +1,4 @@
+locale: en
+hearth: true
+token: e2e-long-lived-token
+motion: false

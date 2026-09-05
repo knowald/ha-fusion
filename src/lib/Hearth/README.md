@@ -146,3 +146,8 @@ tests. Components have render tests through `@testing-library/svelte`, named
 `*.svelte.test.ts` next to the component; `testing.ts` holds the entity
 fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
 and `core` that only moves up.
+
+`npm run test:e2e` (Playwright, Chromium) boots the production build from
+`e2e/fixture` against the scripted Home Assistant in `e2e/fake-hass.mjs` and
+drives the touch surfaces: tap, brightness drag, cancelled drag, long press.
+Run `npm run build` first.
