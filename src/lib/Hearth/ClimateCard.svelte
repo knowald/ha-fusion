@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { config, states } from '$lib/Stores';
 	import { PRESS_RIPPLE } from './config';
@@ -90,13 +91,27 @@
 				<div class="stat">
 					<div class="stat-label">Target</div>
 					<div class="stepper">
-						<span class="step pressable" use:Ripple={PRESS_RIPPLE} onclick={() => stepTarget(-1)}>
+						<span
+							class="step pressable"
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => stepTarget(-1)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => stepTarget(-1))}
+						>
 							<Icon name="remove" size={18} />
 						</span>
 						<span class="target-value"
 							>{displayTarget === null ? '-' : displayTarget.toFixed(1)}</span
 						>
-						<span class="step pressable" use:Ripple={PRESS_RIPPLE} onclick={() => stepTarget(1)}>
+						<span
+							class="step pressable"
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => stepTarget(1)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => stepTarget(1))}
+						>
 							<Icon name="add" size={18} />
 						</span>
 					</div>
@@ -111,6 +126,13 @@
 							title={mode}
 							use:Ripple={PRESS_RIPPLE}
 							onclick={() => card.entity && setClimateHvacMode(card.entity, mode)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) =>
+								activateOnKeyboard(
+									event,
+									() => card.entity && setClimateHvacMode(card.entity, mode)
+								)}
 						>
 							<Icon name={HVAC_MODE_ICONS[mode] ?? 'thermostat'} size={19} />
 						</span>

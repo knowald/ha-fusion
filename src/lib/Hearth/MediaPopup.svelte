@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/Stores';
 	import { horizontalDrag } from './drag';
 	import {
@@ -143,7 +144,7 @@
 	let volume = $derived(mediaVolumeFor(entity, $states, $controlOverrides));
 </script>
 
-<div class="sheet" onclick={(event) => event.stopPropagation()}>
+<div class="sheet" onclick={(event) => event.stopPropagation()} role="presentation">
 	{#if attributes.entity_picture}
 		<img class="art" src={attributes.entity_picture} alt="" />
 	{:else}
@@ -183,22 +184,46 @@
 							class="mode pressable"
 							class:active={attributes.shuffle}
 							onclick={() => setMediaShuffle(entity, !attributes.shuffle)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) =>
+								activateOnKeyboard(event, () => setMediaShuffle(entity, !attributes.shuffle))}
 						>
 							<Icon name="shuffle" size={20} />
 						</span>
 					{/if}
 					{#if supports(FEATURE.previousTrack)}
-						<span class="skip pressable" onclick={() => skipMediaTrack(entity, 'previous')}>
+						<span
+							class="skip pressable"
+							onclick={() => skipMediaTrack(entity, 'previous')}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) =>
+								activateOnKeyboard(event, () => skipMediaTrack(entity, 'previous'))}
+						>
 							<Icon name="skip_previous" size={30} />
 						</span>
 					{/if}
 					{#if supports(FEATURE.play) || supports(FEATURE.pause)}
-						<span class="play pressable" class:pending onclick={() => toggleMediaPlayback(entity)}>
+						<span
+							class="play pressable"
+							class:pending
+							onclick={() => toggleMediaPlayback(entity)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => toggleMediaPlayback(entity))}
+						>
 							<Icon name={playing ? 'pause_circle' : 'play_circle'} size={54} fill />
 						</span>
 					{/if}
 					{#if supports(FEATURE.nextTrack)}
-						<span class="skip pressable" onclick={() => skipMediaTrack(entity, 'next')}>
+						<span
+							class="skip pressable"
+							onclick={() => skipMediaTrack(entity, 'next')}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => skipMediaTrack(entity, 'next'))}
+						>
 							<Icon name="skip_next" size={30} />
 						</span>
 					{/if}
@@ -207,6 +232,9 @@
 							class="mode pressable"
 							class:active={attributes.repeat && attributes.repeat !== 'off'}
 							onclick={() => cycleMediaRepeat(entity)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => cycleMediaRepeat(entity))}
 						>
 							<Icon name={attributes.repeat === 'one' ? 'repeat_one' : 'repeat'} size={20} />
 						</span>
@@ -242,7 +270,13 @@
 						<div class="panel-empty">No playlists found</div>
 					{:else}
 						{#each playlists as playlist (playlist.uri)}
-							<div class="row pressable" onclick={() => playPlaylist(playlist)}>
+							<div
+								class="row pressable"
+								onclick={() => playPlaylist(playlist)}
+								role="button"
+								tabindex="0"
+								onkeydown={(event) => activateOnKeyboard(event, () => playPlaylist(playlist))}
+							>
 								{#if playlist.image}
 									<img class="row-art" src={playlist.image} alt="" />
 								{:else}
@@ -262,7 +296,13 @@
 					{/if}
 				{:else}
 					{#each sources as source (source)}
-						<div class="row pressable" onclick={() => selectSource(source)}>
+						<div
+							class="row pressable"
+							onclick={() => selectSource(source)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => selectSource(source))}
+						>
 							<Icon
 								name="speaker"
 								size={20}
@@ -297,7 +337,14 @@
 			{/if}
 			<div class="panel-actions">
 				{#if spotify}
-					<div class="chip pressable" class:open={pane === 'playlists'} onclick={openPlaylists}>
+					<div
+						class="chip pressable"
+						class:open={pane === 'playlists'}
+						onclick={openPlaylists}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) => activateOnKeyboard(event, openPlaylists)}
+					>
 						<Icon name="queue_music" size={15} />
 						Playlists
 					</div>
@@ -307,6 +354,10 @@
 						class="chip speaker pressable"
 						class:open={pane === 'speakers'}
 						onclick={() => (pane = pane === 'speakers' ? 'queue' : 'speakers')}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) =>
+							activateOnKeyboard(event, () => (pane = pane === 'speakers' ? 'queue' : 'speakers'))}
 					>
 						<Icon name="speaker" size={15} />
 						<span class="chip-label">{attributes.source ?? 'Speaker'}</span>
@@ -316,7 +367,13 @@
 		</div>
 	</div>
 
-	<span class="close pressable" onclick={closePopup}>
+	<span
+		class="close pressable"
+		onclick={closePopup}
+		role="button"
+		tabindex="0"
+		onkeydown={(event) => activateOnKeyboard(event, closePopup)}
+	>
 		<Icon name="close" size={24} />
 	</span>
 </div>

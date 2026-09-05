@@ -139,6 +139,7 @@
 					type="button"
 					class="switch pressable"
 					class:on={reduceMotion}
+					aria-label="Reduce motion"
 					aria-pressed={reduceMotion}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (reduceMotion = !reduceMotion)}
@@ -152,6 +153,7 @@
 					type="button"
 					class="switch pressable"
 					class:on={youtube}
+					aria-label="YouTube add-on"
 					aria-pressed={youtube}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (youtube = !youtube)}

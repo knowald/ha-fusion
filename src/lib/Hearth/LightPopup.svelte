@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/Stores';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
@@ -75,6 +76,9 @@
 			class="preset pressable"
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => setLightLevel(entity, preset)}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => setLightLevel(entity, preset))}
 		>
 			{preset}%
 		</div>
@@ -84,18 +88,37 @@
 <div class="color-header">
 	<div class="color-label">COLOR</div>
 	<div class="tabs">
-		<div class="tab pressable" class:active={mode === 'temp'} onclick={() => (tabChoice = 'temp')}>
+		<div
+			class="tab pressable"
+			class:active={mode === 'temp'}
+			onclick={() => (tabChoice = 'temp')}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => (tabChoice = 'temp'))}
+		>
 			Temperature
 		</div>
 		<div
 			class="tab pressable"
 			class:active={mode === 'color'}
 			onclick={() => (tabChoice = 'color')}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => (tabChoice = 'color'))}
 		>
 			Color
 		</div>
 		{#if supportsWhite}
-			<div class="tab pressable" class:active={mode === 'white'} onclick={selectWhite}>White</div>
+			<div
+				class="tab pressable"
+				class:active={mode === 'white'}
+				onclick={selectWhite}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, selectWhite)}
+			>
+				White
+			</div>
 		{/if}
 	</div>
 </div>
@@ -123,6 +146,9 @@
 				class:selected={swatchSelected(swatch)}
 				style:background={swatch}
 				onclick={() => setLightColor(entity, swatch)}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => setLightColor(entity, swatch))}
 			></div>
 		{/each}
 	</div>
@@ -139,6 +165,9 @@
 				class:active={currentEffect === effect}
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => selectEffect(effect)}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => selectEffect(effect))}
 			>
 				{effect}
 			</div>

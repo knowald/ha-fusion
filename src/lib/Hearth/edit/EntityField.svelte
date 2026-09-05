@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/Stores';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
@@ -40,6 +41,16 @@
 				event.preventDefault();
 				pickerOpen = true;
 			}}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) =>
+				activateOnKeyboard(event, () =>
+					((event) => {
+						// prevent the label from bouncing focus back to the input
+						event.preventDefault();
+						pickerOpen = true;
+					})(event)
+				)}
 		>
 			<Icon name="search" size={18} />
 		</span>

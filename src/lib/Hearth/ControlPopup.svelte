@@ -36,12 +36,12 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if $popup}
-	<div class="overlay" onclick={closePopup}>
+	<div class="overlay" onclick={closePopup} role="presentation">
 		{#if $popup.kind === 'media'}
 			<!-- the media sheet is full-bleed art with its own chrome -->
 			<MediaPopup entity={$popup.entity} />
 		{:else}
-			<div class="sheet" onclick={(event) => event.stopPropagation()}>
+			<div class="sheet" onclick={(event) => event.stopPropagation()} role="presentation">
 				<div class="header">
 					<div class="icon-tile">
 						<Icon name={meta[$popup.kind].icon} size={26} color="var(--h-accent-text)" />
