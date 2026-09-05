@@ -9,7 +9,7 @@
 	import { hearthEditMode } from '../../store';
 	import { controlOverrides, controlValueFor, pendingEntities } from '$lib/core/ha/commands';
 	import { setClimateHvacMode, setClimateTemperature } from '$lib/core/domains/climate';
-	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
+	import { openEntityDetail } from '$lib/Hearth/details';
 	import Icon from '../../Icon.svelte';
 	import TuneButton from '../../TuneButton.svelte';
 
@@ -72,7 +72,7 @@
 				<span class="hint">{hint}</span>
 			{/if}
 			{#if card.entity && !$hearthEditMode}
-				<TuneButton onopen={() => card.entity && openEntityModal(card.entity)} />
+				<TuneButton onopen={() => card.entity && openEntityDetail(card.entity)} />
 			{/if}
 		</div>
 	</div>

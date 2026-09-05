@@ -8,7 +8,7 @@
 	import { startDataRefresh } from '$lib/core/ha/history';
 	import { hearthConfig, hearthEditMode } from '../../store';
 	import { sensorNumber } from '$lib/core/ha/entities';
-	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
+	import { openEntityDetail } from '$lib/Hearth/details';
 	import Icon from '../../Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'calendar' }> } = $props();
@@ -106,7 +106,7 @@
 
 	function openCalendar() {
 		const entity = widget.entities?.[0];
-		if (entity) openEntityModal(entity);
+		if (entity) openEntityDetail(entity);
 	}
 </script>
 

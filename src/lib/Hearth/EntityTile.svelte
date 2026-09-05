@@ -11,7 +11,7 @@
 	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
 	import { entityActiveFor, entityAvailability, sensorNumber } from '$lib/core/ha/entities';
 	import { toggleEntity } from '$lib/core/domains/entity';
-	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
+	import { openEntityDetail } from '$lib/Hearth/details';
 	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';
@@ -90,7 +90,7 @@
 		} else if (tapSurface === 'history') {
 			popup.set({ kind: 'sensor', entity, name: label });
 		} else if (tapSurface === 'modal') {
-			openEntityModal(entity, name);
+			openEntityDetail(entity, name);
 		}
 	}
 
@@ -102,7 +102,7 @@
 		} else if (tapSurface === 'history') {
 			popup.set({ kind: 'sensor', entity, name: label });
 		} else if (tapSurface !== 'none') {
-			openEntityModal(entity, name);
+			openEntityDetail(entity, name);
 		}
 	}
 </script>
