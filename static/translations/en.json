@@ -930,5 +930,10 @@
 	"hearth_last_hour": "Last hour",
 	"hearth_last_day": "Last 24 hours",
 	"hearth_last_week": "Last week",
-	"hearth_last_month": "Last month"
+	"hearth_last_month": "Last month",
+	"hearth_numeric_state": "Numeric state",
+	"hearth_above": "Above",
+	"hearth_below": "Below",
+	"hearth_any_of": "Any of",
+	"hearth_any_of_hint": "Shown when at least one of the nested conditions holds."
 }

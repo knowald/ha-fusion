@@ -72,16 +72,30 @@ export const VacuumModeRefSchema = v.object({
 });
 
 /**
- * Per-item visibility condition, mirroring the original's section conditions
- * but trimmed to the two cases Hearth's builder exposes. All conditions on an
- * item AND together.
+ * Per-item visibility condition, mirroring the original's section conditions:
+ * an entity state match, a numeric window on an entity, a media query, or an
+ * `or` group of conditions. All conditions on an item AND together.
  */
-export const VisibilityConditionSchema = v.union(
-	[
-		v.object({ entity: EntityIdSchema, state: OptionalText, state_not: OptionalText }),
-		v.object({ media: v.string('must be a media query') })
-	],
-	'must name an entity or a media query'
+export type VisibilityConditionInput =
+	| { entity: string; state?: string; state_not?: string; above?: number; below?: number }
+	| { media: string }
+	| { or: VisibilityConditionInput[] };
+
+export const VisibilityConditionSchema: v.GenericSchema<VisibilityConditionInput> = v.lazy(() =>
+	v.union(
+		[
+			v.object({
+				entity: EntityIdSchema,
+				state: OptionalText,
+				state_not: OptionalText,
+				above: v.optional(v.number('must be a number')),
+				below: v.optional(v.number('must be a number'))
+			}),
+			v.object({ media: v.string('must be a media query') }),
+			v.object({ or: v.array(VisibilityConditionSchema, 'must be a list of conditions') })
+		],
+		'must name an entity, a media query or an or-group'
+	)
 );
 
 /** Selects the night theme from a Home Assistant entity state. */
