@@ -866,5 +866,9 @@
 	"hearth_time": "Time",
 	"hearth_details": "Details",
 	"hearth_controls": "Controls",
-	"press": "Press"
+	"press": "Press",
+	"hearth_card_picture_label": "Picture elements",
+	"hearth_card_picture_name": "Picture",
+	"hearth_card_picture_sub": "floor plans and overlays",
+	"hearth_picture_hint": "Place images, icons and state badges on a canvas; each element can open or toggle an entity."
 }

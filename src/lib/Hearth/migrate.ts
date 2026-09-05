@@ -8,7 +8,7 @@ import { isRecord, trimmedOrUndefined } from './normalizers';
  * than being normalized into loss.
  */
 
-export const CONFIG_VERSION = 1;
+export const CONFIG_VERSION = 2;
 
 export class ConfigTooNewError extends Error {
 	constructor(public readonly version: number) {
@@ -223,7 +223,41 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 	return next;
 }
 
-const MIGRATIONS: Migration[] = [{ to: 1, apply: toCardPages }];
+/** 1 -> 2: picture elements became a card type of their own instead of a fusion embed. */
+function toPictureCards(raw: Record<string, any>): Record<string, any> {
+	const migrateCard = (card: any): any => {
+		if (!isRecord(card)) return card;
+		if (card.kind === 'stack' && Array.isArray(card.cards)) {
+			return { ...card, cards: card.cards.map(migrateCard) };
+		}
+		const config = card.config as Record<string, any> | undefined;
+		if (card.type !== 'fusion' || !config || config.type !== 'picture_elements') return card;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { config: _embed, ...rest } = card;
+		return {
+			...rest,
+			type: 'picture',
+			elements: Array.isArray(config.elements) ? config.elements : [],
+			...(typeof config.name === 'string' ? { title: config.name } : {})
+		};
+	};
+	const rooms = (Array.isArray(raw.rooms) ? raw.rooms : []).map((room: any) =>
+		isRecord(room) && Array.isArray(room.cards)
+			? {
+					...room,
+					cards: room.cards.map((column: unknown) =>
+						Array.isArray(column) ? column.map(migrateCard) : column
+					)
+				}
+			: room
+	);
+	return { ...raw, rooms };
+}
+
+const MIGRATIONS: Migration[] = [
+	{ to: 1, apply: toCardPages },
+	{ to: 2, apply: toPictureCards }
+];
 
 /** The document's declared format version; 0 for files written before versioning. */
 export function configVersion(raw: unknown): number {

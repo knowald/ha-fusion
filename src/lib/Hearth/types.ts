@@ -191,6 +191,8 @@ type OverviewCardVariant =
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	// `bar` renders the persistent scene row: equal-width tiles, active one lit
 	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
+	// a Konva canvas of images, icons and state badges (floor plans)
+	| { id: string; type: 'picture'; title?: string; elements: unknown[]; height?: number }
 	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 /**
