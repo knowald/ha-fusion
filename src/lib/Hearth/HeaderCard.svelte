@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/Stores';
 	import { hearthEditMode, sensorNumber } from './store';
 	import Icon from './Icon.svelte';
@@ -33,6 +34,9 @@
 	class="header"
 	class:editable={$hearthEditMode && onedit}
 	onclick={() => $hearthEditMode && onedit?.()}
+	role="button"
+	tabindex="0"
+	onkeydown={(event) => activateOnKeyboard(event, () => $hearthEditMode && onedit?.())}
 >
 	<div class="icon-tile">
 		<Icon name={icon || 'home'} size={32} color="var(--h-accent-text)" />

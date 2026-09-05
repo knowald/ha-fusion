@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import { base } from '$app/paths';
 	import { get } from 'svelte/store';
 	import {
@@ -206,11 +207,25 @@
 
 <EditSheet title="Theme" onclose={close} ondone={done}>
 	<div class="slots">
-		<div class="slot pressable" class:active={slot === 'day'} onclick={() => selectSlot('day')}>
+		<div
+			class="slot pressable"
+			class:active={slot === 'day'}
+			onclick={() => selectSlot('day')}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('day'))}
+		>
 			<Icon name="light_mode" size={18} />
 			<span>Day</span>
 		</div>
-		<div class="slot pressable" class:active={slot === 'night'} onclick={() => selectSlot('night')}>
+		<div
+			class="slot pressable"
+			class:active={slot === 'night'}
+			onclick={() => selectSlot('night')}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('night'))}
+		>
 			<Icon name="dark_mode" size={18} />
 			<span>Night</span>
 			{#if !nightEnabled}<span class="slot-note">off</span>{/if}
@@ -237,13 +252,27 @@
 	</div>
 
 	{#if nightEnabled}
-		<div class="reset pressable" onclick={disableNightTheme}>Turn off the night theme</div>
+		<div
+			class="reset pressable"
+			onclick={disableNightTheme}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, disableNightTheme)}
+		>
+			Turn off the night theme
+		</div>
 	{/if}
 
 	<div class="group-label">PRESETS</div>
 	<div class="presets">
 		{#each THEME_PRESETS as preset (preset.id)}
-			<div class="preset pressable" onclick={() => applyPreset(preset.theme)}>
+			<div
+				class="preset pressable"
+				onclick={() => applyPreset(preset.theme)}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => applyPreset(preset.theme))}
+			>
 				<span
 					class="preview"
 					style:background="linear-gradient(135deg, {preset.theme?.background_inner ??
@@ -267,6 +296,9 @@
 			class="button pressable"
 			class:disabled={!newThemeName.trim() || saving}
 			onclick={saveCurrentTheme}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, saveCurrentTheme)}
 		>
 			Save
 		</div>
@@ -281,7 +313,13 @@
 	{:else if savedThemes.length}
 		<div class="saved-themes">
 			{#each savedThemes as saved (saved.id)}
-				<div class="saved-theme pressable" onclick={() => applySavedTheme(saved)}>
+				<div
+					class="saved-theme pressable"
+					onclick={() => applySavedTheme(saved)}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => applySavedTheme(saved))}
+				>
 					<div class="dots">
 						<span class="dot" style:background={swatch(saved, 'background_inner')}></span>
 						<span class="dot" style:background={swatch(saved, 'accent')}></span>
@@ -295,6 +333,15 @@
 							event.stopPropagation();
 							deleteSavedTheme(saved);
 						}}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) =>
+							activateOnKeyboard(event, () =>
+								((event) => {
+									event.stopPropagation();
+									deleteSavedTheme(saved);
+								})(event)
+							)}
 					>
 						<Icon name="delete" size={18} />
 					</span>
@@ -372,7 +419,13 @@
 		Pickers set sensible derived shades automatically. Theme knobs are tunable in data/hearth.yaml,
 		under theme: for day and theme_night: for night.
 	</div>
-	<div class="reset pressable" onclick={() => applyPreset(null)}>
+	<div
+		class="reset pressable"
+		onclick={() => applyPreset(null)}
+		role="button"
+		tabindex="0"
+		onkeydown={(event) => activateOnKeyboard(event, () => applyPreset(null))}
+	>
 		Reset the {slot} theme to defaults
 	</div>
 </EditSheet>

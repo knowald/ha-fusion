@@ -122,6 +122,7 @@
 		class:inactive={!active && !completed}
 		class:completed
 		type={completed && !$hearthEditMode ? 'button' : undefined}
+		role={completed && !$hearthEditMode ? undefined : 'status'}
 		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
 		onclick={completed && !$hearthEditMode ? dismissCompletion : undefined}
 	>

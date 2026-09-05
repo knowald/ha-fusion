@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import Icon from './Icon.svelte';
 
 	let { onedit }: { onedit: () => void } = $props();
@@ -14,6 +15,15 @@
 			onedit();
 		}}
 		onpointerdown={(event) => event.stopPropagation()}
+		role="button"
+		tabindex="0"
+		onkeydown={(event) =>
+			activateOnKeyboard(event, () =>
+				((event) => {
+					event.stopPropagation();
+					onedit();
+				})(event)
+			)}
 	>
 		<Icon name="edit" size={17} />
 	</span>

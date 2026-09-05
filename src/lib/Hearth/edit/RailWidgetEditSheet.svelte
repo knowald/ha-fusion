@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import { get } from 'svelte/store';
 	import Ripple from '$lib/Actions/ripple';
 	import {
@@ -340,6 +341,9 @@
 					use:Ripple={PRESS_RIPPLE}
 					use:scrollSelectedIntoView={type === kind.value}
 					onclick={() => (type = kind.value)}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => (type = kind.value))}
 				>
 					<span class="kind-icon"><Icon name={kind.icon} size={20} /></span>
 					<div>
@@ -513,7 +517,14 @@
 				/>
 				<FusionFields type={fusionType} bind:options={fusionOptions} />
 				<TextField label="Height in px (optional)" bind:value={height} placeholder="120" />
-				<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+				<div
+					class="advanced-toggle pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={toggleAdvanced}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
+				>
 					<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
 					<span>Advanced (YAML)</span>
 				</div>
@@ -536,6 +547,9 @@
 					class:active={alwaysVisible}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={setAlwaysVisible}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, setAlwaysVisible)}
 				>
 					<Icon name="visibility" size={16} />
 					Always visible
@@ -545,6 +559,9 @@
 					class:active={hideMobile}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (hideMobile = !hideMobile)}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => (hideMobile = !hideMobile))}
 				>
 					<Icon name="smartphone" size={16} />
 					Hide on mobile
@@ -554,6 +571,9 @@
 					class:active={visibility.length > 0 || conditionsOpen}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (conditionsOpen = !conditionsOpen)}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => (conditionsOpen = !conditionsOpen))}
 				>
 					<Icon name="rule" size={16} />
 					Conditions{visibility.length ? ` (${visibility.length})` : ''}

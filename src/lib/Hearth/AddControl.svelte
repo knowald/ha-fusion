@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from './config';
 	import Icon from './Icon.svelte';
@@ -6,7 +7,14 @@
 	let { label, onadd }: { label: string; onadd: () => void } = $props();
 </script>
 
-<div class="add add-tile pressable" use:Ripple={PRESS_RIPPLE} onclick={onadd}>
+<div
+	class="add add-tile pressable"
+	use:Ripple={PRESS_RIPPLE}
+	onclick={onadd}
+	role="button"
+	tabindex="0"
+	onkeydown={(event) => activateOnKeyboard(event, onadd)}
+>
 	<Icon name="add" size={20} />
 	<span>{label}</span>
 </div>

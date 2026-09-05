@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { RailWidget } from './config';
 	import { hearthEditMode } from './store';
+	import { activateOnKeyboard } from './interaction';
 	import { fusionWidgetEmbeds, openFusionWidgetModal } from '$lib/legacy/bridge/embeds';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'fusion' }> } = $props();
@@ -12,6 +13,7 @@
 	let load = $derived(item?.type ? components[item.type] : undefined);
 
 	// same non-edit interactions the original sidebar offers
+	let tappable = $derived(item?.type === 'camera' || item?.type === 'timer');
 	function handleClick() {
 		if ($hearthEditMode) return;
 		openFusionWidgetModal(item);
@@ -61,12 +63,7 @@
 	});
 </script>
 
-<div
-	class="fusion"
-	class:sized={widget.height}
-	style:--fusion-height={widget.height ? `${widget.height}px` : undefined}
-	onclick={handleClick}
->
+{#snippet embed()}
 	{#if !load}
 		<div class="placeholder">Fusion widget: set a type in the widget editor</div>
 	{:else}
@@ -77,7 +74,29 @@
 			{/await}
 		{/key}
 	{/if}
-</div>
+{/snippet}
+
+{#if tappable}
+	<div
+		class="fusion"
+		class:sized={widget.height}
+		style:--fusion-height={widget.height ? `${widget.height}px` : undefined}
+		role="button"
+		tabindex="0"
+		onclick={handleClick}
+		onkeydown={(event) => activateOnKeyboard(event, handleClick)}
+	>
+		{@render embed()}
+	</div>
+{:else}
+	<div
+		class="fusion"
+		class:sized={widget.height}
+		style:--fusion-height={widget.height ? `${widget.height}px` : undefined}
+	>
+		{@render embed()}
+	</div>
+{/if}
 
 <style>
 	.fusion {
