@@ -59,7 +59,7 @@ type RailWidgetVariant =
 	| { id: string; type: 'search' }
 	| { id: string; type: 'nav' }
 	| { id: string; type: 'spacer' }
-	| { id: string; type: 'label'; text?: string }
+	| { id: string; type: 'label'; text?: string; divider?: boolean }
 	// price is a static amount per kWh; price_entity overrides it when set
 	| {
 			id: string;

@@ -11,6 +11,10 @@ export const labelWidget: WidgetDescriptor<LabelWidget> = {
 	name: 'hearth_widget_label_name',
 	sub: 'hearth_widget_label_sub',
 	icon: 'label',
+	normalize: (widget) => ({
+		text: typeof widget.text === 'string' && widget.text.trim() ? widget.text : undefined,
+		divider: widget.divider === true ? true : undefined
+	}),
 	component: Widget,
 	editor: Editor
 };
