@@ -2,6 +2,7 @@ import type * as v from 'valibot';
 import type { SliderUpdateMode } from '$lib/Types';
 import type {
 	EntityRefSchema,
+	MediaShortcutSchema,
 	SceneRefSchema,
 	VacuumModeRefSchema,
 	VisibilityConditionSchema
@@ -42,6 +43,7 @@ export type EntityRef = v.InferOutput<typeof EntityRefSchema>;
 export type SceneRef = v.InferOutput<typeof SceneRefSchema>;
 export type VacuumModeRef = v.InferOutput<typeof VacuumModeRefSchema>;
 export type VisibilityCondition = v.InferOutput<typeof VisibilityConditionSchema>;
+export type MediaShortcut = v.InferOutput<typeof MediaShortcutSchema>;
 
 type RailWidgetVariant =
 	| {
@@ -135,7 +137,16 @@ type OverviewCardVariant =
 			verdict?: false | VerdictBands;
 			height?: number;
 	  }
-	| { id: string; type: 'media'; entity?: string; height?: number }
+	// shortcuts are one-tap Spotify URIs; default_device names the Connect
+	// device they start on when nothing is playing yet
+	| {
+			id: string;
+			type: 'media';
+			entity?: string;
+			height?: number;
+			shortcuts?: MediaShortcut[];
+			default_device?: string;
+	  }
 	// battery_entity and bin_entity add readings to the popover status line for
 	// integrations that expose them as separate entities; battery falls back to
 	// the vacuum's own battery_level attribute

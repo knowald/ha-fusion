@@ -12,8 +12,6 @@ export const FUSION_OBJECT_TYPES: { value: string; label: string }[] = [
 	{ value: 'camera', label: 'Camera' },
 	{ value: 'conditional_media', label: 'Conditional media' },
 	{ value: 'days_since', label: 'Days since' },
-	{ value: 'spotify_player', label: 'Spotify player' },
-	{ value: 'spotify_player_large', label: 'Spotify player (large)' },
 	{ value: 'empty', label: 'Empty spacer' }
 ];
 

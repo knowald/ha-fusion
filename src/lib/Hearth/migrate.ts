@@ -8,7 +8,7 @@ import { isRecord, trimmedOrUndefined } from './normalizers';
  * than being normalized into loss.
  */
 
-export const CONFIG_VERSION = 2;
+export const CONFIG_VERSION = 3;
 
 export class ConfigTooNewError extends Error {
 	constructor(public readonly version: number) {
@@ -254,9 +254,50 @@ function toPictureCards(raw: Record<string, any>): Record<string, any> {
 	return { ...raw, rooms };
 }
 
+/** 2 -> 3: the Spotify player embeds became media cards with shortcuts. */
+function toMediaShortcuts(raw: Record<string, any>): Record<string, any> {
+	const migrateCard = (card: any): any => {
+		if (!isRecord(card)) return card;
+		if (card.kind === 'stack' && Array.isArray(card.cards)) {
+			return { ...card, cards: card.cards.map(migrateCard) };
+		}
+		const config = card.config as Record<string, any> | undefined;
+		if (
+			card.type !== 'fusion' ||
+			!config ||
+			(config.type !== 'spotify_player' && config.type !== 'spotify_player_large')
+		) {
+			return card;
+		}
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { config: _embed, ...rest } = card;
+		return {
+			...rest,
+			type: 'media',
+			...(typeof config.entity_id === 'string' ? { entity: config.entity_id } : {}),
+			...(Array.isArray(config.shortcuts) ? { shortcuts: config.shortcuts } : {}),
+			...(typeof config.default_device === 'string'
+				? { default_device: config.default_device }
+				: {})
+		};
+	};
+	const rooms = (Array.isArray(raw.rooms) ? raw.rooms : []).map((room: any) =>
+		isRecord(room) && Array.isArray(room.cards)
+			? {
+					...room,
+					cards: room.cards.map((column: unknown) =>
+						Array.isArray(column) ? column.map(migrateCard) : column
+					)
+				}
+			: room
+	);
+	return { ...raw, rooms };
+}
+
 const MIGRATIONS: Migration[] = [
 	{ to: 1, apply: toCardPages },
-	{ to: 2, apply: toPictureCards }
+	{ to: 2, apply: toPictureCards },
+	{ to: 3, apply: toMediaShortcuts }
 ];
 
 /** The document's declared format version; 0 for files written before versioning. */

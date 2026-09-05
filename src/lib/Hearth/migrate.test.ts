@@ -60,6 +60,39 @@ describe('migrateHearthConfig', () => {
 		});
 	});
 
+	it('turns a spotify player embed into a media card with shortcuts', () => {
+		const migrated = migrateHearthConfig({
+			version: 2,
+			rail: [],
+			rooms: [
+				{
+					id: 'home',
+					cards: [
+						[
+							{
+								id: 'spotify',
+								type: 'fusion',
+								config: {
+									type: 'spotify_player_large',
+									entity_id: 'media_player.spotify_me',
+									shortcuts: [{ name: 'Focus', uri: 'spotify:playlist:1' }],
+									default_device: 'Kitchen'
+								}
+							}
+						]
+					]
+				}
+			]
+		}) as any;
+		expect(migrated.rooms[0].cards[0][0]).toEqual({
+			id: 'spotify',
+			type: 'media',
+			entity: 'media_player.spotify_me',
+			shortcuts: [{ name: 'Focus', uri: 'spotify:playlist:1' }],
+			default_device: 'Kitchen'
+		});
+	});
+
 	it('refuses a file written by a newer build', () => {
 		expect(() => migrateHearthConfig({ version: CONFIG_VERSION + 1, rail: [], rooms: [] })).toThrow(
 			ConfigTooNewError

@@ -5,6 +5,10 @@
 	import { horizontalDrag } from './drag';
 	import {
 		fetchMediaPlaylists,
+		fetchSpotifyLibrary,
+		playSpotifyUri,
+		type LibraryItem,
+		type LibraryKind,
 		fetchMediaQueue,
 		hasSpotifyPlus,
 		type MediaPlaylist,
@@ -99,7 +103,13 @@
 
 	/* right panel */
 
-	let pane = $state<'queue' | 'playlists' | 'speakers'>('queue');
+	let pane = $state<'queue' | 'playlists' | 'speakers' | 'library'>('queue');
+	let libraryKind = $state<LibraryKind>('albums');
+	let library = $state<Record<LibraryKind, LibraryItem[] | null>>({
+		albums: null,
+		tracks: null,
+		artists: null
+	});
 	let queue = $state<QueueTrack[] | null>(null);
 	let playlists = $state<MediaPlaylist[] | null>(null);
 	let queueRequest = 0;
@@ -131,6 +141,27 @@
 			: []
 	);
 	let currentContext = $derived(attributes.sp_context_uri ?? attributes.media_context_content_id);
+
+	function openLibrary() {
+		if (pane === 'library') {
+			pane = 'queue';
+			return;
+		}
+		pane = 'library';
+		loadLibrary(libraryKind);
+	}
+
+	function loadLibrary(kind: LibraryKind) {
+		libraryKind = kind;
+		if (library[kind] === null) {
+			fetchSpotifyLibrary(entity, kind).then((items) => (library[kind] = items));
+		}
+	}
+
+	function playLibraryItem(item: LibraryItem) {
+		void playSpotifyUri(entity, item.uri);
+		pane = 'queue';
+	}
 
 	function playPlaylist(playlist: MediaPlaylist) {
 		callEntityService('spotifyplus', 'player_media_play_context', entity, {
@@ -248,7 +279,13 @@
 
 		<div class="panel">
 			<div class="panel-label">
-				{pane === 'queue' ? 'UP NEXT' : pane === 'playlists' ? 'PLAYLISTS' : 'PLAY ON'}
+				{pane === 'queue'
+					? 'UP NEXT'
+					: pane === 'playlists'
+						? 'PLAYLISTS'
+						: pane === 'library'
+							? $lang('hearth_library').toUpperCase()
+							: 'PLAY ON'}
 			</div>
 			<div class="panel-list">
 				{#if pane === 'queue'}
@@ -294,6 +331,44 @@
 								{#if currentContext === playlist.uri}
 									<Icon name="equalizer" size={18} color="var(--h-media)" fill />
 								{/if}
+							</div>
+						{/each}
+					{/if}
+				{:else if pane === 'library'}
+					<div class="library-kinds">
+						{#each ['albums', 'tracks', 'artists'] as kind (kind)}
+							<button
+								type="button"
+								class="kind-chip"
+								class:active={libraryKind === kind}
+								onclick={() => loadLibrary(kind as LibraryKind)}
+							>
+								{$lang(`hearth_${kind}`)}
+							</button>
+						{/each}
+					</div>
+					{#if library[libraryKind] === null}
+						<div class="panel-empty">{$lang('hearth_loading_library')}</div>
+					{:else if library[libraryKind]?.length === 0}
+						<div class="panel-empty">{$lang('hearth_no_library_items')}</div>
+					{:else}
+						{#each library[libraryKind] ?? [] as item (item.uri)}
+							<div
+								class="row pressable"
+								onclick={() => playLibraryItem(item)}
+								role="button"
+								tabindex="0"
+								onkeydown={(event) => activateOnKeyboard(event, () => playLibraryItem(item))}
+							>
+								{#if item.image}
+									<img class="row-art" src={item.image} alt="" />
+								{:else}
+									<div class="row-art empty"></div>
+								{/if}
+								<div class="row-text">
+									<div class="row-name">{item.name}</div>
+									{#if item.sub}<div class="row-sub">{item.sub}</div>{/if}
+								</div>
 							</div>
 						{/each}
 					{/if}
@@ -350,6 +425,17 @@
 					>
 						<Icon name="queue_music" size={15} />
 						{$lang('playlists')}
+					</div>
+					<div
+						class="chip pressable"
+						class:open={pane === 'library'}
+						onclick={openLibrary}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) => activateOnKeyboard(event, openLibrary)}
+					>
+						<Icon name="library_music" size={18} />
+						{$lang('hearth_library')}
 					</div>
 				{/if}
 				{#if supports(FEATURE.selectSource) && sources.length}
@@ -719,6 +805,28 @@
 		display: flex;
 		gap: 8px;
 		margin-top: 6px;
+	}
+
+	.library-kinds {
+		display: flex;
+		gap: 6px;
+		margin-bottom: 8px;
+	}
+
+	.kind-chip {
+		padding: 6px 12px;
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.12 * var(--h-line-scale)));
+		border-radius: 999px;
+		background: none;
+		color: var(--h-text-4);
+		font: inherit;
+		font-size: 12px;
+		cursor: pointer;
+	}
+
+	.kind-chip.active {
+		color: var(--h-media);
+		border-color: var(--h-media);
 	}
 
 	.chip {
