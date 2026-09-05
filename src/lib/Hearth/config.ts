@@ -75,6 +75,15 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 
 function normalizeVisibilityCondition(raw: any): VisibilityCondition | null {
 	if (!raw || typeof raw !== 'object') return null;
+	if (Array.isArray(raw.or)) {
+		const nested = raw.or
+			.map(normalizeVisibilityCondition)
+			.filter(
+				(condition: VisibilityCondition | null): condition is VisibilityCondition =>
+					condition !== null
+			);
+		return nested.length ? { or: nested } : null;
+	}
 	if (typeof raw.media === 'string' && raw.media.trim()) {
 		return { media: raw.media };
 	}
@@ -83,6 +92,8 @@ function normalizeVisibilityCondition(raw: any): VisibilityCondition | null {
 		if (typeof raw.state === 'string' && raw.state !== '') condition.state = raw.state;
 		if (typeof raw.state_not === 'string' && raw.state_not !== '')
 			condition.state_not = raw.state_not;
+		if (typeof raw.above === 'number' && Number.isFinite(raw.above)) condition.above = raw.above;
+		if (typeof raw.below === 'number' && Number.isFinite(raw.below)) condition.below = raw.below;
 		return condition;
 	}
 	return null;

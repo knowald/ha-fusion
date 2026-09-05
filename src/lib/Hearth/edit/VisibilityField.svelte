@@ -6,20 +6,38 @@
 	import EntityField from './EntityField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
+	import VisibilityField from './VisibilityField.svelte';
 
-	let { value = $bindable([]) }: { value?: VisibilityCondition[] } = $props();
+	let {
+		value = $bindable([]),
+		nested = false
+	}: { value?: VisibilityCondition[]; nested?: boolean } = $props();
+
+	type RowType = 'entity' | 'numeric' | 'media' | 'or';
 
 	const TYPE_OPTIONS = [
 		{ value: 'entity', label: $lang('hearth_entity_state') },
-		{ value: 'media', label: $lang('hearth_media_query') }
+		{ value: 'numeric', label: $lang('hearth_numeric_state') },
+		{ value: 'media', label: $lang('hearth_media_query') },
+		// an or-group inside an or-group adds nothing; keep the tree one level deep
+		...(nested ? [] : [{ value: 'or', label: $lang('hearth_any_of') }])
 	];
 
-	function rowType(condition: VisibilityCondition): 'entity' | 'media' {
-		return 'media' in condition ? 'media' : 'entity';
+	function rowType(condition: VisibilityCondition): RowType {
+		if ('media' in condition) return 'media';
+		if ('or' in condition) return 'or';
+		return condition.above !== undefined || condition.below !== undefined ? 'numeric' : 'entity';
 	}
 
 	function setRowType(index: number, type: string) {
-		value[index] = type === 'media' ? { media: '' } : { entity: '', state: '' };
+		value[index] =
+			type === 'media'
+				? { media: '' }
+				: type === 'or'
+					? { or: [{ entity: '', state: '' }] }
+					: type === 'numeric'
+						? { entity: '', above: 0 }
+						: { entity: '', state: '' };
 	}
 
 	function entityValue(index: number): string {
@@ -61,6 +79,20 @@
 		else condition.state = text;
 	}
 
+	function boundValue(index: number, key: 'above' | 'below'): string {
+		const condition = value[index];
+		const bound = 'entity' in condition ? condition[key] : undefined;
+		return typeof bound === 'number' ? String(bound) : '';
+	}
+
+	function setBound(index: number, key: 'above' | 'below', text: string) {
+		const condition = value[index];
+		if (!('entity' in condition)) return;
+		const parsed = parseFloat(text);
+		if (Number.isFinite(parsed)) condition[key] = parsed;
+		else delete condition[key];
+	}
+
 	function mediaValue(index: number): string {
 		const condition = value[index];
 		return 'media' in condition ? condition.media : '';
@@ -80,7 +112,9 @@
 	}
 </script>
 
-<div class="group-label">{$lang('hearth_visibility')}</div>
+{#if !nested}
+	<div class="group-label">{$lang('hearth_visibility')}</div>
+{/if}
 {#each value as condition, index (index)}
 	<div class="visibility-row">
 		<div class="visibility-fields">
@@ -108,6 +142,24 @@
 					/>
 					<span>{$lang('hearth_must_not_match')}</span>
 				</label>
+			{:else if rowType(condition) === 'numeric'}
+				<EntityField
+					label={$lang('entity')}
+					bind:value={() => entityValue(index), (entity) => setEntity(index, entity)}
+				/>
+				<TextField
+					label={$lang('hearth_above')}
+					placeholder="20"
+					bind:value={() => boundValue(index, 'above'), (text) => setBound(index, 'above', text)}
+				/>
+				<TextField
+					label={$lang('hearth_below')}
+					placeholder="25"
+					bind:value={() => boundValue(index, 'below'), (text) => setBound(index, 'below', text)}
+				/>
+			{:else if rowType(condition) === 'or' && 'or' in condition}
+				<div class="hint">{$lang('hearth_any_of_hint')}</div>
+				<VisibilityField bind:value={condition.or} nested />
 			{:else}
 				<TextField
 					label={$lang('hearth_media_query')}
