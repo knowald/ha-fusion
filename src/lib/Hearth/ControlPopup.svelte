@@ -198,4 +198,18 @@
 		color: var(--h-icon);
 		cursor: pointer;
 	}
+	@media (max-width: 700px) {
+		.overlay {
+			align-items: flex-end;
+			padding: 0;
+		}
+
+		.sheet {
+			width: 100%;
+			max-height: calc(100dvh - 24px);
+			border-radius: var(--h-radius-xl) var(--h-radius-xl) 0 0;
+			border-bottom: 0;
+			padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+		}
+	}
 </style>

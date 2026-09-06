@@ -45,6 +45,7 @@
 						class:hide-mobile={widget.hide_mobile && !$hearthEditMode}
 						class:hide-mobile-editing={widget.hide_mobile && $hearthEditMode}
 						class:visibility-dimmed={$hearthEditMode && !visible}
+						class:nav={widget.type === 'nav' && !$hearthEditMode}
 						data-id={widget.id}
 					>
 						{#if $hearthEditMode}
@@ -91,6 +92,11 @@
 	}
 
 	@media (max-width: 900px) {
+		/* PhoneNav shows the pages at the top; the rail's copy would be a screen away */
+		.widget.nav {
+			display: none;
+		}
+
 		.widget.hide-mobile {
 			display: none;
 		}

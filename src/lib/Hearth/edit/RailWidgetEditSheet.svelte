@@ -337,7 +337,7 @@
 		color: var(--h-accent-icon);
 	}
 
-	@media (max-width: 700px) {
+	@media (max-width: 820px) {
 		.rail-editor {
 			flex-direction: column;
 			overflow-y: auto;

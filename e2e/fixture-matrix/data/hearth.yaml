@@ -2,6 +2,16 @@ version: 4
 revision: 1
 day_night:
   entity: sun.sun
+theme_night:
+  background_inner: '#141a22'
+  background_outer: '#0a0e14'
+  accent: '#9fc7d8'
+  accent_deep: '#7fb6d9'
+  accent_bright: '#bfe0ee'
+  accent_icon: '#bfe0ee'
+  accent_text: '#d6ebf3'
+  accent_dim_text: '#9fb8c4'
+  on_accent: '#07141c'
 padding_x: 0
 padding_y: 0
 rail:
@@ -161,7 +171,7 @@ rooms:
           label: Inside
           entity: sensor.temperature
           climate_entity: climate.living
-          height: 220
+          height: 260
         - id: media
           type: media
           entity: media_player.living

@@ -100,12 +100,11 @@
 	}
 
 	@media (max-width: 820px) {
+		/* fields first on narrow screens; the preview follows them */
 		.pane {
-			z-index: calc(var(--h-layer-raised) + 1);
-			grid-row: 1;
 			padding: 12px;
-			margin: -12px -12px 0;
-			border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
+			margin: 12px -12px 0;
+			border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 			background: var(--h-sheet-0);
 		}
 

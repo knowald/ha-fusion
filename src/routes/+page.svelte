@@ -45,9 +45,17 @@
 	$selectedLanguage = data?.configuration?.locale || 'en';
 	if (browser) document.documentElement.lang = $selectedLanguage;
 
-	// motion:false in configuration.yaml disables transitions app-wide
+	// motion:false in configuration.yaml disables transitions app-wide, and so
+	// does the OS reduced-motion setting unless motion is explicitly true
 	// svelte-ignore state_referenced_locally
-	if (data?.configuration?.motion === false) motion.set(0);
+	const reducedMotion = browser && matchMedia('(prefers-reduced-motion: reduce)').matches;
+	// svelte-ignore state_referenced_locally
+	if (
+		data?.configuration?.motion === false ||
+		(reducedMotion && data?.configuration?.motion !== true)
+	) {
+		motion.set(0);
+	}
 
 	if (browser) startConnection($configuration, connectionHooks);
 

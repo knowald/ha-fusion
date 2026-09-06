@@ -112,6 +112,18 @@ mean the same thing; Home Assistant calls it an area.
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
 
+## Breakpoints
+
+Three widths, always written as these literals:
+
+| Name         | Rule                                        | What changes                                                                                                                                                        |
+| ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rail folds   | `@media (max-width: 900px)`                 | One column: `shell/PhoneNav.svelte` shows the pages at the top, the rail's nav widget hides, the clock drops to hero size, the rail follows the page, chips shrink. |
+| sheets stack | `@media (max-width: 820px)`                 | Edit sheets go full-height, the card preview follows the fields, pickers stack.                                                                                     |
+| tiles fold   | `@container hearth-page (max-width: 560px)` | Card columns collapse to one (1200px viewport fallback without container queries).                                                                                  |
+
+Popups become bottom sheets and the edit bar spans the width at 700px.
+
 ## Design tokens
 
 Every Hearth style reads from tokens on `:root`, injected by `shell/ThemeStyle.svelte`.
