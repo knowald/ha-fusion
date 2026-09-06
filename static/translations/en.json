@@ -964,5 +964,7 @@
 	"hearth_page": "Page",
 	"hearth_search_cards": "Search card types",
 	"hearth_search_widgets": "Search widgets",
-	"hearth_no_cards_match": "No card types match"
+	"hearth_no_cards_match": "No card types match",
+	"hearth_decrease": "Decrease",
+	"hearth_increase": "Increase"
 }

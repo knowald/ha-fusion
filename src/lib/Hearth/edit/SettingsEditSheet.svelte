@@ -128,17 +128,17 @@
 						<div class="row-label">{$lang('hearth_keep_screen_awake')}</div>
 						<div class="row-sub">{$lang('hearth_while_the_dashboard_is_open')}</div>
 					</div>
-					<div
+					<button
+						type="button"
 						class="switch pressable"
 						class:on={keepScreenOn}
+						aria-label={$lang('hearth_keep_screen_awake')}
+						aria-pressed={keepScreenOn}
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => setKeepScreenOn(!keepScreenOn)}
-						role="button"
-						tabindex="0"
-						onkeydown={(event) => activateOnKeyboard(event, () => setKeepScreenOn(!keepScreenOn))}
 					>
-						<div class="knob"></div>
-					</div>
+						<span class="knob"></span>
+					</button>
 				</div>
 				{#if keepScreenOn && ($wakeLockState === 'unsupported' || $wakeLockState === 'denied')}
 					<div class="setting-warning" role="alert">
@@ -158,13 +158,31 @@
 						<div class="row-sub">{$lang('hearth_for_screens_whose_frame_covers_the')}</div>
 					</div>
 					<span class="unit-input">
-						<input
-							type="number"
-							min="0"
-							max="300"
-							value={paddingX}
-							onchange={(event) => setPadding('padding_x', event.currentTarget.value)}
-						/>
+						<span class="stepper">
+							<button
+								type="button"
+								class="step"
+								aria-label={$lang('hearth_decrease')}
+								onclick={() => setPadding('padding_x', String(paddingX - 4))}
+							>
+								<Icon name="remove" size={ICON.inline} />
+							</button>
+							<input
+								type="number"
+								min="0"
+								max="300"
+								value={paddingX}
+								onchange={(event) => setPadding('padding_x', event.currentTarget.value)}
+							/>
+							<button
+								type="button"
+								class="step"
+								aria-label={$lang('hearth_increase')}
+								onclick={() => setPadding('padding_x', String(paddingX + 4))}
+							>
+								<Icon name="add" size={ICON.inline} />
+							</button>
+						</span>
 						<span class="unit">px</span>
 					</span>
 				</div>
@@ -173,13 +191,31 @@
 						<div class="row-label">{$lang('hearth_top_bottom_padding')}</div>
 					</div>
 					<span class="unit-input">
-						<input
-							type="number"
-							min="0"
-							max="300"
-							value={paddingY}
-							onchange={(event) => setPadding('padding_y', event.currentTarget.value)}
-						/>
+						<span class="stepper">
+							<button
+								type="button"
+								class="step"
+								aria-label={$lang('hearth_decrease')}
+								onclick={() => setPadding('padding_y', String(paddingY - 4))}
+							>
+								<Icon name="remove" size={ICON.inline} />
+							</button>
+							<input
+								type="number"
+								min="0"
+								max="300"
+								value={paddingY}
+								onchange={(event) => setPadding('padding_y', event.currentTarget.value)}
+							/>
+							<button
+								type="button"
+								class="step"
+								aria-label={$lang('hearth_increase')}
+								onclick={() => setPadding('padding_y', String(paddingY + 4))}
+							>
+								<Icon name="add" size={ICON.inline} />
+							</button>
+						</span>
 						<span class="unit">px</span>
 					</span>
 				</div>
@@ -338,21 +374,44 @@
 		color: var(--h-text-6);
 	}
 
-	.unit-input input {
-		width: 72px;
-		text-align: right;
-		padding: 8px 10px;
+	/* minus, value, plus in one bordered group; the native spinner is hidden */
+	.stepper {
+		display: flex;
+		align-items: center;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
+	}
+
+	.stepper:focus-within {
+		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
+	}
+
+	.step {
+		display: grid;
+		place-items: center;
+		width: 36px;
+		height: 36px;
+		border: 0;
+		background: none;
+		color: var(--h-icon);
+		cursor: pointer;
+	}
+
+	.step:hover {
+		color: var(--h-accent-text);
+	}
+
+	.unit-input input {
+		width: 48px;
+		text-align: center;
+		padding: 8px 0;
+		border: 0;
+		background: none;
 		color: var(--h-text-2);
 		font-family: inherit;
 		font-size: var(--h-type-body);
 		outline: none;
-	}
-
-	.unit-input input:focus {
-		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
 	}
 
 	/* the native spinner paints white over the dark field and eats the padding */
@@ -368,6 +427,9 @@
 	}
 
 	.switch {
+		box-sizing: border-box;
+		border: 0;
+		padding: 0;
 		width: 52px;
 		height: 30px;
 		border-radius: var(--h-radius-sm);
