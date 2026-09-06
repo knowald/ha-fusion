@@ -146,7 +146,7 @@
 </script>
 
 <EditSheet
-	title={id !== null ? 'Edit card' : 'Add card'}
+	title={$lang(id !== null ? 'hearth_edit_card' : 'hearth_add_card')}
 	onclose={close}
 	ondone={done}
 	doneDisabled={draft.valid === false}
@@ -180,11 +180,11 @@
 					label={$lang('hearth_fill_leftover_height')}
 					bind:value={fill}
 					options={[
-						{ value: '', label: 'Default for this card type' },
-						{ value: '0', label: 'No, size to content' },
-						{ value: '1', label: 'Yes, one share' },
-						{ value: '2', label: 'Yes, double share' },
-						{ value: '3', label: 'Yes, triple share' }
+						{ value: '', label: $lang('hearth_fill_default') },
+						{ value: '0', label: $lang('hearth_fill_none') },
+						{ value: '1', label: $lang('hearth_fill_one') },
+						{ value: '2', label: $lang('hearth_fill_double') },
+						{ value: '3', label: $lang('hearth_fill_triple') }
 					]}
 				/>
 				<div class="hint">

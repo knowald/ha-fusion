@@ -74,7 +74,7 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 				title: card.title ?? 'Air',
 				entities: [
 					...(card.pm25_entity
-						? [{ entity: card.pm25_entity, name: 'Home PM2.5', display: 'stat' }]
+						? [{ entity: card.pm25_entity, name: 'Home PM2.5', display: 'stat' }] // copy ok: name from the old file
 						: []),
 					...(card.humidity_entity
 						? [{ entity: card.humidity_entity, name: 'Humidity', display: 'stat' }]

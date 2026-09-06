@@ -6,12 +6,12 @@ import Card from './Card.svelte';
 
 export type FusionCard = Extract<OverviewCard, { type: 'fusion' }>;
 
-/** Original main object types embeddable through the fusion card. */
+/** Original main object types embeddable through the fusion card; labels are translation keys. */
 export const FUSION_OBJECT_TYPES: { value: string; label: string }[] = [
-	{ value: 'button', label: 'Button' },
-	{ value: 'entities', label: 'Entities list' },
-	{ value: 'camera', label: 'Camera' },
-	{ value: 'empty', label: 'Empty spacer' }
+	{ value: 'button', label: 'hearth_fusion_button' },
+	{ value: 'entities', label: 'hearth_fusion_entities_list' },
+	{ value: 'camera', label: 'hearth_fusion_camera' },
+	{ value: 'empty', label: 'hearth_fusion_empty_spacer' }
 ];
 
 export const fusionCard: CardDescriptor<FusionCard> = {

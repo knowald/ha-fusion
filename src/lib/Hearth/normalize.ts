@@ -52,7 +52,7 @@ function normalizeTheme(raw: unknown): HearthTheme | undefined {
 }
 
 export function hearthConfigIssues(raw: unknown): string[] {
-	if (!isRecord(raw)) return ['Configuration must be a YAML mapping'];
+	if (!isRecord(raw)) return ['Configuration must be a YAML mapping']; // copy ok: yaml diagnostic
 
 	const issues: string[] = [];
 	const report = (schema: v.GenericSchema, value: unknown, path: string) => {

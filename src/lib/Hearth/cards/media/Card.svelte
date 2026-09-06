@@ -104,7 +104,7 @@
 							: ''}
 					</div>
 				{/if}
-				<div class="title">{attributes.media_title ?? 'Nothing playing'}</div>
+				<div class="title">{attributes.media_title ?? $lang('hearth_nothing_playing')}</div>
 				<div class="artist">{attributes.media_artist ?? ''}</div>
 			</div>
 			{#if hasTrack}

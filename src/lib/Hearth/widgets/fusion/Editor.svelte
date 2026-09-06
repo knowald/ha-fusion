@@ -67,7 +67,7 @@
 <SelectField
 	label={$lang('hearth_widget_type')}
 	bind:value={fusionType}
-	options={FUSION_WIDGET_TYPES}
+	options={FUSION_WIDGET_TYPES.map((option) => ({ ...option, label: $lang(option.label) }))}
 	onchange={() => advancedOpen && resetAdvancedYaml()}
 />
 <FusionFields type={fusionType} bind:options />

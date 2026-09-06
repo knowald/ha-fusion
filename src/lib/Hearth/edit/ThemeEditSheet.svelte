@@ -130,7 +130,7 @@
 			if (!response.ok) throw new Error(`load failed: ${response.status}`);
 			savedThemes = await response.json();
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to load saved themes';
+			themesError = err.message ?? $lang('hearth_themes_load_failed');
 		} finally {
 			themesLoading = false;
 		}
@@ -155,7 +155,7 @@
 			newThemeName = '';
 			await loadThemes();
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to save theme';
+			themesError = err.message ?? $lang('hearth_theme_save_failed');
 		} finally {
 			saving = false;
 		}
@@ -167,7 +167,7 @@
 	}
 
 	async function deleteSavedTheme(saved: SavedTheme) {
-		if (!confirm(`Delete theme "${saved.name}"?`)) return;
+		if (!confirm($lang('hearth_delete_theme_confirm').replace('{name}', saved.name))) return;
 		themesError = '';
 		try {
 			const response = await fetch(`${base}/_api/hearth_themes`, {
@@ -178,7 +178,7 @@
 			if (!response.ok) throw new Error(`delete failed: ${response.status}`);
 			savedThemes = savedThemes.filter((entry) => entry.id !== saved.id);
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to delete theme';
+			themesError = err.message ?? $lang('hearth_theme_delete_failed');
 		}
 	}
 

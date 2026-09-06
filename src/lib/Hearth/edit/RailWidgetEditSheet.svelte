@@ -86,7 +86,7 @@
 </script>
 
 <EditSheet
-	title={index !== null ? 'Edit widget' : 'Add widget'}
+	title={$lang(index !== null ? 'hearth_edit_widget' : 'hearth_add_widget')}
 	onclose={close}
 	ondone={done}
 	doneDisabled={draft.valid === false}

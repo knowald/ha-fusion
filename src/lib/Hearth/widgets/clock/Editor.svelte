@@ -35,9 +35,9 @@
 	label={$lang('hearth_hour_format')}
 	bind:value={hourFormat}
 	options={[
-		{ value: 'auto', label: 'Locale default' },
-		{ value: '12', label: '12 hour' },
-		{ value: '24', label: '24 hour' }
+		{ value: 'auto', label: $lang('hearth_locale_default') },
+		{ value: '12', label: $lang('hearth_12_hour') },
+		{ value: '24', label: $lang('hearth_24_hour') }
 	]}
 />
 <label class="check"

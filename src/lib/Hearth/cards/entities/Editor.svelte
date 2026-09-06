@@ -151,8 +151,8 @@
 	label={$lang('hearth_style')}
 	bind:value={style}
 	options={[
-		{ value: 'tile', label: 'Tiles' },
-		{ value: 'stat', label: 'Stat boxes' }
+		{ value: 'tile', label: $lang('hearth_style_tiles') },
+		{ value: 'stat', label: $lang('hearth_style_stat_boxes') }
 	]}
 />
 <SelectField
@@ -178,8 +178,8 @@
 	label={$lang('slider_updates')}
 	bind:value={sliderUpdates}
 	options={[
-		{ value: 'continuous', label: 'While dragging' },
-		{ value: 'release', label: 'On release' }
+		{ value: 'continuous', label: $lang('hearth_while_dragging') },
+		{ value: 'release', label: $lang('hearth_on_release') }
 	]}
 />
 <label class="check">
@@ -247,7 +247,7 @@
 							size={ICON.control}
 						/>
 						<span class="entity-row-copy">
-							<strong>{ref.name.trim() || ref.entity.trim() || 'New entity'}</strong>
+							<strong>{ref.name.trim() || ref.entity.trim() || $lang('hearth_new_entity')}</strong>
 							{#if ref.name.trim() && ref.entity.trim()}<small>{ref.entity}</small>{/if}
 						</span>
 					</button>
@@ -289,18 +289,18 @@
 							label={$lang('hearth_display')}
 							bind:value={ref.display}
 							options={[
-								{ value: '', label: 'Card style' },
-								{ value: 'tile', label: 'Tile' },
-								{ value: 'stat', label: 'Stat box' }
+								{ value: '', label: $lang('hearth_card_style') },
+								{ value: 'tile', label: $lang('hearth_style_tile') },
+								{ value: 'stat', label: $lang('hearth_style_stat_box') }
 							]}
 						/>
 						<SelectField
 							label={$lang('slider_updates')}
 							bind:value={ref.slider_updates}
 							options={[
-								{ value: '', label: 'Card setting' },
-								{ value: 'continuous', label: 'While dragging' },
-								{ value: 'release', label: 'On release' }
+								{ value: '', label: $lang('hearth_card_setting') },
+								{ value: 'continuous', label: $lang('hearth_while_dragging') },
+								{ value: 'release', label: $lang('hearth_on_release') }
 							]}
 						/>
 						{#if !readonly}

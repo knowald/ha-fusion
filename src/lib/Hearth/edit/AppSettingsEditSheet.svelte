@@ -77,7 +77,7 @@
 				body: JSON.stringify(json)
 			});
 			if (!response.ok) {
-				saveError = `Save failed [${response.status}]`;
+				saveError = `${$lang('hearth_save_failed')} [${response.status}]`;
 				return;
 			}
 
@@ -95,7 +95,7 @@
 			close();
 		} catch (error) {
 			console.error(error);
-			saveError = 'Save failed';
+			saveError = $lang('hearth_save_failed');
 		} finally {
 			saving = false;
 		}
@@ -111,7 +111,7 @@
 	}
 
 	function handleLogout() {
-		if (!confirm('Log out and clear the Home Assistant session?')) return;
+		if (!confirm($lang('hearth_logout_confirm'))) return;
 		localStorage.removeItem('hassTokens');
 		location.reload();
 	}
