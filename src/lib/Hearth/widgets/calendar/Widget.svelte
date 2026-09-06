@@ -3,12 +3,13 @@
 	import Ripple from '$lib/ui/actions/ripple';
 	import { connected } from '$lib/core/ha/connection';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
-	import { parseLocalDate } from '$lib/core/i18n/time';
+	import { dateKey, parseLocalDate } from '$lib/core/i18n/time';
+	import { timer } from '$lib/core/app/clock';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE, type RailWidget } from '../../config';
 	import { clockTimeOptions } from '../../clock';
 	import { fetchCalendarEvents, startDataRefresh, type CalendarEvent } from '$lib/core/ha/history';
-	import { hearthConfig, hearthEditMode } from '../../store';
+	import { displayTimeZone, hearthConfig, hearthEditMode } from '../../store';
 	import { sensorNumber } from '$lib/core/ha/entities';
 	import { openEntityDetail } from '$lib/Hearth/details';
 	import Icon from '../../Icon.svelte';
@@ -19,6 +20,8 @@
 		title: string;
 		start: Date;
 		allDay: boolean;
+		/** YYYY-MM-DD of an all-day event; a calendar date has no zone. */
+		date?: string;
 	}
 
 	function parseEvent(event: CalendarEvent): NextEvent | null {
@@ -30,14 +33,13 @@
 			typeof rawStart === 'string' ? rawStart : (rawStart?.dateTime ?? rawStart?.date);
 		const start = startValue ? parseLocalDate(startValue) : new Date(NaN);
 		if (Number.isNaN(start.getTime())) return null;
+		const allDay = startValue !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(startValue);
 
 		return {
 			title: event?.summary ?? $lang('hearth_busy'),
 			start,
-			allDay:
-				typeof rawStart === 'string'
-					? /^\d{4}-\d{2}-\d{2}$/.test(rawStart)
-					: !!rawStart?.date && !rawStart?.dateTime
+			allDay,
+			date: allDay ? startValue : undefined
 		};
 	}
 
@@ -77,16 +79,22 @@
 	function clockTime(date: Date) {
 		return date.toLocaleTimeString(
 			$selectedLanguage,
-			clockTimeOptions(undefined, configuredClock?.hour_format)
+			clockTimeOptions($displayTimeZone, configuredClock?.hour_format)
 		);
 	}
 
 	let timeLine = $derived.by(() => {
 		if (!next) return '';
-		const sameDay = next.start.toDateString() === new Date().toDateString();
+		// an all-day event names a calendar date; a timed one falls on whatever
+		// day it is in the display zone
+		const eventDay = next.date ?? dateKey(next.start, $displayTimeZone);
+		const sameDay = eventDay === dateKey($timer, $displayTimeZone);
 		const day = sameDay
 			? ''
-			: `${next.start.toLocaleDateString($selectedLanguage, { weekday: 'long' })} `;
+			: `${next.start.toLocaleDateString($selectedLanguage, {
+					weekday: 'long',
+					...(next.allDay || !$displayTimeZone ? {} : { timeZone: $displayTimeZone })
+				})} `;
 		if (next.allDay) return `${day}${$lang('hearth_all_day')}`.trim();
 		let line = `${day}${clockTime(next.start)}`;
 		const travelMinutes = widget.travel_entity

@@ -1,5 +1,6 @@
-import { get, writable } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 import { base } from '$app/paths';
+import { validTimeZone } from './clock';
 import type { SliderUpdateMode } from '$lib/core/app/configuration';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
 
@@ -177,6 +178,15 @@ async function performSave(force: boolean): Promise<boolean> {
 	hearthEditMode.set(false);
 	return true;
 }
+
+/**
+ * The zone times are shown in: the rail clock's configured zone when it has
+ * one, else the browser's. Every surface that formats a wall-clock time
+ * (clock, screensaver, calendar) reads it here.
+ */
+export const displayTimeZone = derived(hearthConfig, ($config) =>
+	validTimeZone($config.rail.find((widget) => widget.type === 'clock')?.timezone)
+);
 
 /* navigation & popups */
 

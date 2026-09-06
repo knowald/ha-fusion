@@ -3,8 +3,9 @@
 	import { cubicOut } from 'svelte/easing';
 	import { motion } from '$lib/core/app/motion';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
-	import { hearthConfig } from './store';
-	import { clockTimeOptions, validTimeZone } from './clock';
+	import { displayTimeZone, hearthConfig } from './store';
+	import { clockTimeOptions } from './clock';
+	import { timer } from '$lib/core/app/clock';
 	import { pushLayer } from '$lib/ui/layers';
 
 	let { minutes = 10 }: { minutes?: number } = $props();
@@ -16,7 +17,6 @@
 	$effect(() => {
 		if (active) return pushLayer(() => (active = false));
 	});
-	let now = $state(new Date());
 	let overlay: HTMLElement | undefined = $state();
 
 	let lastActivity = Date.now();
@@ -57,16 +57,13 @@
 	});
 
 	$effect(() => {
-		if (!active) return;
-		now = new Date();
 		// focus so keydown targets the overlay instead of the dashboard
-		overlay?.focus();
-		const clockTimer = setInterval(() => (now = new Date()), 30_000);
-		return () => clearInterval(clockTimer);
+		if (active) overlay?.focus();
 	});
 
 	let configuredClock = $derived($hearthConfig.rail.find((widget) => widget.type === 'clock'));
-	let activeTimezone = $derived(validTimeZone(configuredClock?.timezone));
+	let activeTimezone = $derived($displayTimeZone);
+	let now = $derived($timer);
 	let drift = $derived($hearthConfig.screensaver_drift ?? false);
 	let brightness = $derived($hearthConfig.screensaver_brightness ?? 32);
 	let time = $derived(

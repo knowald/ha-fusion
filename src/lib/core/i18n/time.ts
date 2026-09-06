@@ -42,6 +42,17 @@ export function parseLocalDate(value: string): Date {
 	return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
 }
 
+/** The calendar date of `date` as YYYY-MM-DD in `timeZone`, or the browser zone. */
+export function dateKey(date: Date, timeZone?: string): string {
+	// en-CA formats as YYYY-MM-DD
+	return new Intl.DateTimeFormat('en-CA', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		...(timeZone ? { timeZone } : {})
+	}).format(date);
+}
+
 /** Whole local calendar days from `from` to `to`; negative when `to` is earlier. */
 export function calendarDaysBetween(from: Date, to: Date): number {
 	const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
