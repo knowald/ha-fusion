@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
-	import { states } from '$lib/core/ha/entities';
+	import { entityControllable, states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';
 	import type { OverviewCard } from '../../config';
 	import { hearthEditMode, requestConfirmation } from '../../store';
@@ -19,7 +19,7 @@
 	}
 
 	function requestScene(ref: { entity: string; name?: string }) {
-		if ($hearthEditMode) return;
+		if ($hearthEditMode || !entityControllable($states?.[ref.entity])) return;
 		const name = sceneName(ref);
 		requestConfirmation({
 			title: `Activate ${name}?`,
@@ -44,6 +44,8 @@
 					type="button"
 					class="scene pressable"
 					class:active
+					class:unavailable={!entityControllable($states?.[ref.entity])}
+					aria-disabled={!entityControllable($states?.[ref.entity])}
 					class:pending={$pendingEntities[ref.entity] !== undefined}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => requestScene(ref)}
@@ -94,6 +96,11 @@
 		user-select: none;
 		-webkit-user-select: none;
 		font: inherit;
+	}
+
+	.scene.unavailable {
+		opacity: 0.45;
+		cursor: default;
 	}
 
 	.scene.active {

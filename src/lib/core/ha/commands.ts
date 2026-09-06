@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { callService, type HassEntity } from 'home-assistant-js-websocket';
 import { connected, connection } from './connection';
-import { states } from './entities';
+import { entityControllable, states } from './entities';
 
 /*
  * The command pipeline: every device call leaves through service() here, with
@@ -190,6 +190,15 @@ export function callEntityService(
 	entityId: string,
 	data: Record<string, unknown> = {}
 ) {
+	if (!commandsAllowed()) return;
+	// the one place every entity command passes, so an unavailable target is
+	// refused here rather than in each card, popup and detail sheet
+	const $states = get(states);
+	if ($states && !entityControllable($states[entityId])) {
+		const reason = $states[entityId] ? 'is unavailable' : 'is not known to Home Assistant';
+		reportCommandFailure(entityId, new Error(`${entityId} ${reason}`));
+		return;
+	}
 	markPending(entityId);
 	service(domain, name, { entity_id: entityId, ...data });
 }

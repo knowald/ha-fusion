@@ -27,6 +27,16 @@ export function entityAvailable(entity: HassEntity | undefined): boolean {
 	return entityAvailability(entity) === 'available';
 }
 
+/**
+ * Whether a command may be sent to the entity. Missing and unavailable
+ * entities cannot act; `unknown` can, since scenes, buttons and scripts report
+ * it until their first use.
+ */
+export function entityControllable(entity: HassEntity | undefined): boolean {
+	const availability = entityAvailability(entity);
+	return availability === 'available' || availability === 'unknown';
+}
+
 export const UNAVAILABLE_STATES = ['unavailable', 'unknown'];
 
 /** States the original dashboard's button treats as active, across domains. */
