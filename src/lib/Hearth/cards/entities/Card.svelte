@@ -272,7 +272,8 @@
 	.section-header {
 		display: flex;
 		align-items: center;
-		gap: 14px;
+		flex-wrap: wrap;
+		gap: 10px 14px;
 		margin-bottom: 14px;
 	}
 
@@ -283,6 +284,7 @@
 	}
 
 	.section-hint {
+		white-space: nowrap;
 		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 	}
@@ -294,6 +296,7 @@
 	.group-action {
 		display: flex;
 		align-items: center;
+		white-space: nowrap;
 		gap: 8px;
 		padding: 10px 14px;
 		border-radius: var(--h-radius-pill);

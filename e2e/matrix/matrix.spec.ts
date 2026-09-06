@@ -49,9 +49,10 @@ async function enterEdit(page: Page) {
 async function openCardEditor(page: Page, title: string) {
 	await enterEdit(page);
 	await page
-		.locator('.card-slot', { hasText: title })
+		.locator('.card-slot, .stack-slot', { hasText: title })
 		.first()
 		.getByRole('button', { name: 'Edit' })
+		.first()
 		.click();
 	await expect(page.getByRole('dialog', { name: 'Edit card' })).toBeVisible();
 	await page.waitForTimeout(600);
@@ -184,7 +185,9 @@ const SCENES: Scene[] = [
 		setup: async (page) => {
 			await enterEdit(page);
 			await page.getByRole('button', { name: 'Add card' }).first().click();
-			await page.getByRole('button', { name: /CARD TYPE/ }).click();
+			const typeButton = page.getByRole('button', { name: /CARD TYPE/ });
+			await typeButton.scrollIntoViewIfNeeded();
+			await typeButton.click();
 			await page.waitForTimeout(400);
 		}
 	},
