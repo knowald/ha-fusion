@@ -217,6 +217,22 @@ switching on the domain string.
   mounted, and `FusionCard.svelte` sets `pointer-events: none` on the embed so it
   cannot open its own editor. Both halves are needed; either alone leaves a gap.
 
+## Interaction
+
+One table for every entity, read from `core/domains`. A tile never invents its own gesture.
+
+| Domain group                                                                                                                                           | Tap                                                                  | Long press                       | Horizontal drag                              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | -------------------------------- | -------------------------------------------- |
+| Lights                                                                                                                                                 | Toggle                                                               | Light sheet (brightness, colour) | Brightness from the release point            |
+| Covers                                                                                                                                                 | Toggle open/closed                                                   | Cover sheet (position)           | Position                                     |
+| Fans                                                                                                                                                   | Toggle                                                               | Fan sheet (speed)                | -                                            |
+| Media players                                                                                                                                          | Toggle play/pause via the card                                       | Media sheet                      | Position and volume sliders inside the sheet |
+| Other `toggle` domains (switch, input_boolean, lock, vacuum, scene, script, automation, timer, humidifier, button, input_button, group, remote, siren) | Toggle service; lock and alarm confirm first                         | Detail sheet                     | -                                            |
+| `controls` domains (climate, camera, image, alarm, calendar, water heater, valve, update, todo, counter, lawn mower, GPS tracker)                      | Detail sheet                                                         | Detail sheet                     | -                                            |
+| `readout` domains (sensor, binary_sensor, person, weather, sun, ...)                                                                                   | Numeric readings open their 24 h history; anything else does nothing | Same                             | -                                            |
+
+Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; every command shows the pending pulse until the state confirms it or the failure toast reports it; a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
+
 ## Copy and translation
 
 Every user-facing string in Hearth goes through `$lang()` with a key in
