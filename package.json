@@ -2,6 +2,10 @@
 	"name": "ha-fusion",
 	"version": "2026.8.2",
 	"private": true,
+	"engines": {
+		"node": ">=22",
+		"pnpm": ">=10"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
