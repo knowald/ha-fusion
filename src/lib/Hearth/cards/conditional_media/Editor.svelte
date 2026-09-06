@@ -23,8 +23,7 @@
 		onchange({
 			fields: {
 				media_players: players.map((row) => row.entity.trim()).filter(Boolean),
-				timeout: Number.isFinite(timeoutValue) && timeoutValue >= 0 ? timeoutValue : undefined,
-				height: initial?.height
+				timeout: Number.isFinite(timeoutValue) && timeoutValue >= 0 ? timeoutValue : undefined
 			}
 		});
 	});

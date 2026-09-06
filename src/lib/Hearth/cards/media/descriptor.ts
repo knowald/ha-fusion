@@ -15,6 +15,7 @@ export const mediaCard: CardDescriptor<MediaCard> = {
 	icon: 'music_note',
 	fillByDefault: true,
 	sizable: true,
+	stretchMinHeight: 140,
 	normalize: (card) => ({
 		shortcuts: Array.isArray(card.shortcuts)
 			? card.shortcuts

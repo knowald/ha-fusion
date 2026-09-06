@@ -29,8 +29,7 @@
 		onchange({
 			fields: {
 				title: title.trim() || undefined,
-				elements: $state.snapshot(elements),
-				height: initial?.height
+				elements: $state.snapshot(elements)
 			}
 		});
 	});

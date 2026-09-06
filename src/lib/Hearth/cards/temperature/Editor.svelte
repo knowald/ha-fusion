@@ -27,8 +27,7 @@
 				entity: entity.trim() || undefined,
 				unit: unit.trim() || undefined,
 				climate_entity: climateEntity.trim() || undefined,
-				verdict: verdict ? initialBands : false,
-				height: initial?.height
+				verdict: verdict ? initialBands : false
 			}
 		});
 	});

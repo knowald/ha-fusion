@@ -12,6 +12,7 @@ export const vacuumCard: CardDescriptor<VacuumCard> = {
 	label: 'hearth_card_vacuum_label',
 	name: 'hearth_card_vacuum_name',
 	sub: 'hearth_card_vacuum_sub',
+	previewInteractive: true,
 	icon: 'robot_2',
 	normalize: (card) => ({
 		modes: (Array.isArray(card.modes) ? card.modes : [])

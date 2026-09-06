@@ -22,8 +22,7 @@ import { weatherWidget } from './weather/descriptor';
 
 export type { WidgetDescriptor, WidgetDraft, WidgetEditorProps, WidgetFields } from './types';
 
-/** Every rail widget type, in gallery order. Register a new type here and nowhere else. */
-export const RAIL_WIDGET_TYPES: WidgetDescriptor<any>[] = [
+const REGISTERED = [
 	clockWidget,
 	weatherWidget,
 	navWidget,
@@ -41,7 +40,17 @@ export const RAIL_WIDGET_TYPES: WidgetDescriptor<any>[] = [
 	notificationsWidget,
 	iframeWidget,
 	fusionWidget
-];
+] as const;
+
+// a widget shape in types.ts without a descriptor (or the reverse) fails here
+type RegisteredType = (typeof REGISTERED)[number]['type'];
+type Unregistered =
+	Exclude<RailWidget['type'], RegisteredType> | Exclude<RegisteredType, RailWidget['type']>;
+const everyWidgetTypeRegistered: [Unregistered] extends [never] ? true : never = true;
+void everyWidgetTypeRegistered;
+
+/** Every rail widget type, in gallery order. Register a new type here and nowhere else. */
+export const RAIL_WIDGET_TYPES: WidgetDescriptor<any>[] = [...REGISTERED];
 
 const BY_TYPE = new Map<string, WidgetDescriptor<any>>(
 	RAIL_WIDGET_TYPES.map((widget) => [widget.type, widget])

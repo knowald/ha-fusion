@@ -195,9 +195,7 @@
 						placeholder="240"
 					/>
 					<div class="hint">
-						{type === 'fusion'
-							? 'Without it the embed keeps its own height.'
-							: 'Without it the card fills the rest of its column.'}
+						{$lang(descriptor.heightHint ?? 'hearth_height_hint_fill')}
 					</div>
 				{/if}
 

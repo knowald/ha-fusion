@@ -54,8 +54,7 @@
 	$effect(() => {
 		onchange({
 			fields: {
-				config: { type: fusionType, ...$state.snapshot(options) },
-				height: initial?.height
+				config: { type: fusionType, ...$state.snapshot(options) }
 			},
 			valid: !advancedOpen || advancedValid
 		});
