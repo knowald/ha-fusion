@@ -64,6 +64,17 @@ export function trimmedOrUndefined(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
+/**
+ * A URL an embed may load: absolute http(s), or a path on this host such as
+ * `/local/page.html`. Other schemes (javascript:, data:, file:) are dropped so
+ * a YAML edit cannot turn the iframe into a script runner.
+ */
+export function normalizeEmbedUrl(value: unknown): string | undefined {
+	const url = trimmedOrUndefined(value);
+	if (!url) return undefined;
+	return /^(https?:\/\/|\/(?!\/))/i.test(url) ? url : undefined;
+}
+
 export function normalizeSceneRef(raw: any): SceneRef | null {
 	const entity = normalizeEntityRef(raw);
 	if (!entity) return null;
