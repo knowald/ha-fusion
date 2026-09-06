@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calendarDaysBetween, isTimestamp, parseLocalDate } from './time';
+import { calendarDaysBetween, dateKey, isTimestamp, parseLocalDate } from './time';
 
 describe('parseLocalDate', () => {
 	it('reads a date-only value as local midnight', () => {
@@ -13,6 +13,15 @@ describe('parseLocalDate', () => {
 			Date.parse('2026-03-29T10:30:00+02:00')
 		);
 		expect(Number.isNaN(parseLocalDate('nope').getTime())).toBe(true);
+	});
+});
+
+describe('dateKey', () => {
+	it('names the calendar date in the given zone', () => {
+		const date = new Date('2026-03-29T23:30:00Z');
+		expect(dateKey(date, 'UTC')).toBe('2026-03-29');
+		expect(dateKey(date, 'Europe/Warsaw')).toBe('2026-03-30');
+		expect(dateKey(date, 'America/Los_Angeles')).toBe('2026-03-29');
 	});
 });
 

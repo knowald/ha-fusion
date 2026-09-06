@@ -2,6 +2,7 @@
 	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
+	import { timer } from '$lib/core/app/clock';
 	import { horizontalDrag } from '../../drag';
 	import type { OverviewCard } from '../../config';
 	import { popup } from '../../store';
@@ -18,21 +19,14 @@
 
 	let { card }: { card: Extract<OverviewCard, { type: 'media' }> } = $props();
 
-	let now = $state(Date.now());
-
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
 	let attributes = $derived(entity?.attributes ?? {});
 	let playing = $derived(entity?.state === 'playing');
 	let hasTrack = $derived(playing || entity?.state === 'paused');
 	let duration = $derived(attributes.media_duration ?? 0);
-
-	$effect(() => {
-		if (!playing) return;
-		now = Date.now();
-		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => clearInterval(timer);
-	});
+	// the shared second clock drives the position readout while playing
+	let now = $derived(playing ? $timer.getTime() : 0);
 
 	// interpolate between websocket updates while playing
 	let position = $derived.by(() => {

@@ -2,6 +2,7 @@
 	import { ICON } from '../../iconSizes';
 	import { browser } from '$app/environment';
 	import { states } from '$lib/core/ha/entities';
+	import { timer } from '$lib/core/app/clock';
 	import { capitalize, type RailWidget } from '../../config';
 	import { hearthEditMode } from '../../store';
 	import { sensorNumber } from '$lib/core/ha/entities';
@@ -38,14 +39,10 @@
 		return value === null ? null : Math.max(0, Math.min(100, value));
 	});
 
-	// re-evaluated every 30s so timestamp countdowns tick without state changes
-	let now = $state(Date.now());
+	// the shared clock keeps timestamp countdowns ticking without state changes
+	let now = $derived($timer.getTime());
 	let fallbackCompletedAt = $state<number | null>(null);
 	let dismissedCompletion = $state<string | null>(null);
-	$effect(() => {
-		const timer = setInterval(() => (now = Date.now()), 30_000);
-		return () => clearInterval(timer);
-	});
 	$effect(() => {
 		if (completed) {
 			if (fallbackCompletedAt === null) fallbackCompletedAt = Date.now();

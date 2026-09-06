@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { timer } from '$lib/core/app/clock';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import {
 		clockTimeOptions,
@@ -14,12 +14,7 @@
 		show_seconds = false
 	}: { timezone?: string; hour_format?: ClockHourFormat; show_seconds?: boolean } = $props();
 
-	let now = $state(new Date());
-
-	onMount(() => {
-		const timer = setInterval(() => (now = new Date()), 1000);
-		return () => clearInterval(timer);
-	});
+	let now = $derived($timer);
 
 	let activeTimezone = $derived(validTimeZone(timezone));
 	let time = $derived(
