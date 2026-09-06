@@ -1,7 +1,5 @@
 import { tick } from 'svelte';
-import { loadIcons } from '@iconify/svelte';
 import { openModal } from '$lib/Modals';
-import { icons } from '../Modal/PictureElements/icons';
 
 /**
  * Opens the original picture elements editor for a fusion card's element list
@@ -9,10 +7,13 @@ import { icons } from '../Modal/PictureElements/icons';
  */
 export async function editPictureElements(id: string, elements: unknown[]): Promise<unknown[]> {
 	const sel = { id, elements };
-	const [{ default: PictureElementsConfig }] = await Promise.all([
+	// iconify and the icon table load with the editor, not with the card
+	const [{ default: PictureElementsConfig }, { loadIcons }, { icons }] = await Promise.all([
 		import('../Modal/PictureElements/PictureElementsConfig.svelte'),
-		loadIcons(Object.values(icons))
+		import('@iconify/svelte'),
+		import('../Modal/PictureElements/icons')
 	]);
+	await loadIcons(Object.values(icons));
 	await openModal(PictureElementsConfig, { sel });
 	// PictureElementsConfig writes sel.elements from its onDestroy, which runs
 	// as part of the reactivity flush triggered by the modal stack closing.
