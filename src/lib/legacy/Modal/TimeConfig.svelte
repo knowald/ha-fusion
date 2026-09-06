@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import Time from '$lib/Sidebar/Time.svelte';
+	import Time from '$lib/legacy/Sidebar/Time.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import type { TimeItem } from '$lib/Types';

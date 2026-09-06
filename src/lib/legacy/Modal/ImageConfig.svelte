@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple, entityList } from '$lib/Stores';
-	import Image from '$lib/Sidebar/Image.svelte';
+	import Image from '$lib/legacy/Sidebar/Image.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';

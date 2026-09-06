@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, autocompleteList, ripple } from '$lib/Stores';
-	import Template from '$lib/Sidebar/Template.svelte';
+	import Template from '$lib/legacy/Sidebar/Template.svelte';
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { TemplateItem } from '$lib/Types';

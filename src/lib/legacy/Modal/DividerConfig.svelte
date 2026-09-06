@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple, motion, record, updateDashboard } from '$lib/Stores';
-	import Divider from '$lib/Sidebar/Divider.svelte';
+	import Divider from '$lib/legacy/Sidebar/Divider.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import type { SidebarItem } from '$lib/Types';

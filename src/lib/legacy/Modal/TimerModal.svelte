@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, connection, lang, ripple } from '$lib/Stores';
 	import { onMount } from 'svelte';
-	import Timer from '$lib/Sidebar/Timer.svelte';
+	import Timer from '$lib/legacy/Sidebar/Timer.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';

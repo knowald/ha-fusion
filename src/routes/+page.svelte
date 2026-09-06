@@ -228,7 +228,7 @@
 	{/if}
 
 	<!-- aside -->
-	{#await import('$lib/Sidebar/Index.svelte') then Sidebar}
+	{#await import('$lib/legacy/Sidebar/Index.svelte') then Sidebar}
 		<Sidebar.default {altKeyPressed} />
 	{/await}
 

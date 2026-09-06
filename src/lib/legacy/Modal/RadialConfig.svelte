@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { states, lang, ripple, entityList, updateDashboard } from '$lib/Stores';
-	import Radial from '$lib/Sidebar/Radial.svelte';
+	import Radial from '$lib/legacy/Sidebar/Radial.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';

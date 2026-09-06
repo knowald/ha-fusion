@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { states, lang, ripple, entityList } from '$lib/Stores';
-	import Weather from '$lib/Sidebar/Weather.svelte';
+	import Weather from '$lib/legacy/Sidebar/Weather.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';

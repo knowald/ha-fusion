@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
-	import Notifications from '$lib/Sidebar/Notifications.svelte';
+	import Notifications from '$lib/legacy/Sidebar/Notifications.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();

@@ -26,24 +26,24 @@
 		getWeatherForecastEntity
 	} from '$lib/legacy/Modal/getRandomEntity';
 
-	import Bar from '$lib/Sidebar/Bar.svelte';
-	import Sensor from '$lib/Sidebar/Sensor.svelte';
-	import Time from '$lib/Sidebar/Time.svelte';
-	import Date from '$lib/Sidebar/Date.svelte';
-	import Divider from '$lib/Sidebar/Divider.svelte';
-	import Navigate from '$lib/Sidebar/Navigate.svelte';
-	import Weather from '$lib/Sidebar/Weather.svelte';
-	import WeatherForecast from '$lib/Sidebar/WeatherForecast.svelte';
-	import Iframe from '$lib/Sidebar/Iframe.svelte';
-	import Image from '$lib/Sidebar/Image.svelte';
+	import Bar from '$lib/legacy/Sidebar/Bar.svelte';
+	import Sensor from '$lib/legacy/Sidebar/Sensor.svelte';
+	import Time from '$lib/legacy/Sidebar/Time.svelte';
+	import Date from '$lib/legacy/Sidebar/Date.svelte';
+	import Divider from '$lib/legacy/Sidebar/Divider.svelte';
+	import Navigate from '$lib/legacy/Sidebar/Navigate.svelte';
+	import Weather from '$lib/legacy/Sidebar/Weather.svelte';
+	import WeatherForecast from '$lib/legacy/Sidebar/WeatherForecast.svelte';
+	import Iframe from '$lib/legacy/Sidebar/Iframe.svelte';
+	import Image from '$lib/legacy/Sidebar/Image.svelte';
 	import Camera from '$lib/legacy/Main/Camera.svelte';
-	import History from '$lib/Sidebar/History.svelte';
-	import Graph from '$lib/Sidebar/Graph.svelte';
-	import Template from '$lib/Sidebar/Template.svelte';
-	import Timer from '$lib/Sidebar/Timer.svelte';
+	import History from '$lib/legacy/Sidebar/History.svelte';
+	import Graph from '$lib/legacy/Sidebar/Graph.svelte';
+	import Template from '$lib/legacy/Sidebar/Template.svelte';
+	import Timer from '$lib/legacy/Sidebar/Timer.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
-	import Radial from '$lib/Sidebar/Radial.svelte';
-	import Notifications from '$lib/Sidebar/Notifications.svelte';
+	import Radial from '$lib/legacy/Sidebar/Radial.svelte';
+	import Notifications from '$lib/legacy/Sidebar/Notifications.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: SidebarItem } = $props();

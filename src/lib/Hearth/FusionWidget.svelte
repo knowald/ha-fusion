@@ -8,22 +8,22 @@
 	let item = $derived({ id: widget.id, ...widget.config } as Record<string, any>);
 
 	const components: Record<string, () => Promise<{ default: any }>> = {
-		bar: () => import('$lib/Sidebar/Bar.svelte'),
-		camera: () => import('$lib/Sidebar/Camera.svelte'),
-		date: () => import('$lib/Sidebar/Date.svelte'),
-		divider: () => import('$lib/Sidebar/Divider.svelte'),
-		graph: () => import('$lib/Sidebar/Graph.svelte'),
-		history: () => import('$lib/Sidebar/History.svelte'),
-		iframe: () => import('$lib/Sidebar/Iframe.svelte'),
-		image: () => import('$lib/Sidebar/Image.svelte'),
-		notifications: () => import('$lib/Sidebar/Notifications.svelte'),
-		radial: () => import('$lib/Sidebar/Radial.svelte'),
-		sensor: () => import('$lib/Sidebar/Sensor.svelte'),
-		template: () => import('$lib/Sidebar/Template.svelte'),
-		time: () => import('$lib/Sidebar/Time.svelte'),
-		timer: () => import('$lib/Sidebar/Timer.svelte'),
-		weather: () => import('$lib/Sidebar/Weather.svelte'),
-		weather_forecast: () => import('$lib/Sidebar/WeatherForecast.svelte')
+		bar: () => import('$lib/legacy/Sidebar/Bar.svelte'),
+		camera: () => import('$lib/legacy/Sidebar/Camera.svelte'),
+		date: () => import('$lib/legacy/Sidebar/Date.svelte'),
+		divider: () => import('$lib/legacy/Sidebar/Divider.svelte'),
+		graph: () => import('$lib/legacy/Sidebar/Graph.svelte'),
+		history: () => import('$lib/legacy/Sidebar/History.svelte'),
+		iframe: () => import('$lib/legacy/Sidebar/Iframe.svelte'),
+		image: () => import('$lib/legacy/Sidebar/Image.svelte'),
+		notifications: () => import('$lib/legacy/Sidebar/Notifications.svelte'),
+		radial: () => import('$lib/legacy/Sidebar/Radial.svelte'),
+		sensor: () => import('$lib/legacy/Sidebar/Sensor.svelte'),
+		template: () => import('$lib/legacy/Sidebar/Template.svelte'),
+		time: () => import('$lib/legacy/Sidebar/Time.svelte'),
+		timer: () => import('$lib/legacy/Sidebar/Timer.svelte'),
+		weather: () => import('$lib/legacy/Sidebar/Weather.svelte'),
+		weather_forecast: () => import('$lib/legacy/Sidebar/WeatherForecast.svelte')
 	};
 
 	let load = $derived(item?.type ? components[item.type] : undefined);
