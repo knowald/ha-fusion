@@ -163,6 +163,9 @@
 	   matches the column gap so the widest glow (30px blur) fades out before
 	   the clip edge without either box painting into its neighbour's content. */
 	.rail-scroll {
+		/* a grid item's min-content would widen the single narrow-screen track
+		   past the viewport; let the rail shrink and its widgets wrap instead */
+		min-width: 0;
 		min-height: 0;
 		overflow-y: auto;
 		scrollbar-width: none;
@@ -263,10 +266,18 @@
 			); /* literal ok: edit bar height plus margin */
 		}
 
+		/* the glow bleed shrinks to the layout's own padding so the columns end
+		   at the viewport edge instead of 8px past it */
 		.rail-scroll,
 		.main {
 			overflow-y: visible;
 			min-height: auto;
+			padding: 24px;
+			margin: -24px;
+		}
+
+		.rail-scroll {
+			padding-bottom: 80px; /* literal ok: toggle height plus margin */
 		}
 
 		/* On short wall tablets the active page is the primary glance surface;

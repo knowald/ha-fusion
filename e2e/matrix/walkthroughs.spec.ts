@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 
 /*
@@ -8,6 +9,8 @@ import { expect, test, type Page } from '@playwright/test';
  */
 
 const FAKE_HASS = 'http://127.0.0.1:8125';
+const HEARTH_FILE = new URL('../fixture-matrix/data/hearth.yaml', import.meta.url);
+const HEARTH_FIXTURE = readFileSync(HEARTH_FILE, 'utf8');
 
 async function calls(page: Page) {
 	return (await page.request.get(`${FAKE_HASS}/_test/calls`)).json();
@@ -21,6 +24,9 @@ async function longPress(page: Page, name: RegExp) {
 	await page.waitForTimeout(700);
 	await page.mouse.up();
 }
+
+// task 3 saves into the fixture; put the file back after every task
+test.afterEach(() => writeFileSync(HEARTH_FILE, HEARTH_FIXTURE));
 
 test.beforeEach(async ({ page }) => {
 	await page.request.post(`${FAKE_HASS}/_test/reset`);
@@ -74,17 +80,9 @@ test('3. add a garage page with two switches, save', async ({ page }) => {
 	const cardSheet = page.getByRole('dialog', { name: 'Add card' });
 	await cardSheet.getByLabel('Title').fill('Switches');
 	await cardSheet.getByRole('button', { name: 'Add entity' }).click();
-	await page.getByPlaceholder('Search entities').fill('heater');
-	await page
-		.getByRole('button', { name: /Space heater/ })
-		.first()
-		.click();
+	await cardSheet.getByPlaceholder('entity_id').last().fill('switch.heater');
 	await cardSheet.getByRole('button', { name: 'Add entity' }).click();
-	await page.getByPlaceholder('Search entities').fill('guest');
-	await page
-		.getByRole('button', { name: /Guest mode/ })
-		.first()
-		.click();
+	await cardSheet.getByPlaceholder('entity_id').last().fill('input_boolean.guest');
 	await cardSheet.getByRole('button', { name: 'Done' }).click();
 	await expect(page.locator('.card-slot', { hasText: 'Switches' })).toBeVisible();
 	await page.getByRole('button', { name: 'Save', exact: true }).click();
@@ -104,7 +102,7 @@ test('4. rename a card, undo, cancel without saving', async ({ page }) => {
 	await expect(page.getByText('Lamps')).toBeVisible();
 	await page.getByRole('button', { name: 'Undo' }).click();
 	await expect(page.getByText('Lamps')).toBeHidden();
-	await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+	await page.locator('.edit-bar').getByRole('button', { name: 'Cancel' }).click();
 	await expect(page.getByRole('button', { name: 'Edit Hearth configuration' })).toBeVisible();
 });
 
@@ -115,7 +113,7 @@ test('5. preview the night theme and come back', async ({ page }) => {
 	await sheet.getByRole('button', { name: /Night/ }).click();
 	await sheet.getByRole('button', { name: /^Day/ }).click();
 	await page.keyboard.press('Escape');
-	await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+	await page.locator('.edit-bar').getByRole('button', { name: 'Cancel' }).click();
 });
 
 test('6. unlock the front door', async ({ page }) => {
@@ -141,6 +139,11 @@ test.describe('phone', () => {
 
 	test('7. one hand: switch pages and dim a light', async ({ page }) => {
 		const strip = page.getByRole('navigation', { name: 'Pages' });
+		const overflow = await page.evaluate(() => {
+			const layout = document.querySelector('.layout') as HTMLElement;
+			return layout.scrollWidth - layout.clientWidth;
+		});
+		expect(overflow).toBe(0);
 		await strip.getByRole('button', { name: /Devices/ }).click();
 		await expect(page.getByRole('button', { name: /Front door lock/ })).toBeInViewport();
 		await strip.getByRole('button', { name: /Living room/ }).click();

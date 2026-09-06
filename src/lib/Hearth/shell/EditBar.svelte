@@ -249,8 +249,19 @@
 			right: 8px;
 			bottom: calc(8px + env(safe-area-inset-bottom));
 			transform: none;
+			gap: 6px;
+			padding: 8px;
 			flex-wrap: wrap;
 			justify-content: flex-end;
+		}
+
+		/* the area import is a setup-time action; it lives in the settings sheet too */
+		.edit-bar .setup {
+			display: none;
+		}
+
+		.bar-button {
+			padding: 10px 14px;
 		}
 	}
 </style>
