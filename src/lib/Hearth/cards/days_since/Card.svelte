@@ -3,7 +3,8 @@
 	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { timer } from '$lib/core/app/clock';
-	import { states } from '$lib/core/ha/entities';
+	import { entityAvailable, states } from '$lib/core/ha/entities';
+	import { calendarDaysBetween, parseLocalDate } from '$lib/core/i18n/time';
 	import { callEntityService } from '$lib/core/ha/commands';
 	import { PRESS_RIPPLE } from '../../config';
 	import { activateOnKeyboard } from '../../interaction';
@@ -16,10 +17,14 @@
 	let entity = $derived(card.entity ?? '');
 	let stateObj = $derived($states?.[entity]);
 	let label = $derived(card.title || stateObj?.attributes?.friendly_name || entity);
+	let available = $derived(entityAvailable(stateObj));
 	let days = $derived.by(() => {
-		const reset = Date.parse(stateObj?.state ?? '');
-		if (!Number.isFinite(reset)) return null;
-		return Math.floor(Math.abs($timer.getTime() - reset) / 86_400_000);
+		if (!available) return null;
+		const reset = parseLocalDate(stateObj?.state ?? '');
+		if (Number.isNaN(reset.getTime())) return null;
+		const elapsed = calendarDaysBetween(reset, $timer);
+		// a reset date in the future is a misconfiguration, not a count
+		return elapsed < 0 ? null : elapsed;
 	});
 	let caption = $derived(
 		days === null
@@ -32,7 +37,7 @@
 	);
 
 	function reset() {
-		if ($hearthEditMode || !entity) return;
+		if ($hearthEditMode || !entity || !available) return;
 		requestConfirmation({
 			title: $lang('hearth_reset_counter'),
 			message: $lang('hearth_reset_counter_message'),
@@ -51,8 +56,10 @@
 
 <div
 	class="card pressable"
+	class:unavailable={!available}
 	role="button"
 	tabindex="0"
+	aria-disabled={!available}
 	use:Ripple={PRESS_RIPPLE}
 	onclick={reset}
 	onkeydown={(event) => activateOnKeyboard(event, reset)}
@@ -75,6 +82,11 @@
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
 		box-shadow: var(--h-card-shadow);
 		cursor: pointer;
+	}
+
+	.card.unavailable {
+		opacity: 0.5;
+		cursor: default;
 	}
 
 	.name {
