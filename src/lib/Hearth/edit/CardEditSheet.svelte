@@ -86,11 +86,17 @@
 		const fillValue = fill === '' ? undefined : Number(fill);
 		// Unknown extension keys survive a no-op form edit. Switching type starts
 		// a new schema and intentionally leaves type-specific extensions behind.
-		return {
+		// snapshot: the draft is $state and its nested arrays are proxies,
+		// which the store's structuredClone cannot copy
+		const fields = {
 			...(initial?.type === type ? initial : {}),
-			// snapshot: the draft is $state and its nested arrays are proxies,
-			// which the store's structuredClone cannot copy
-			...$state.snapshot(draft.fields),
+			...$state.snapshot(draft.fields)
+		};
+		return {
+			...fields,
+			// the editor loads on demand and reports its fields a beat after the
+			// preview first renders; normalizing fills typed defaults until then
+			...descriptor.normalize(fields),
 			id: cardId,
 			type,
 			...(descriptor.sizable

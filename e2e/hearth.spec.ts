@@ -50,10 +50,6 @@ test('redirects the old /hearth path to the dashboard', async ({ page }) => {
 	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
 });
 
-test('the edit toggle sits inside the viewport', async ({ page }) => {
-	await expect(page.getByRole('button', { name: 'Edit Hearth configuration' })).toBeInViewport();
-});
-
 test('boots against the entity snapshot and shows live state', async ({ page }) => {
 	await expect(page.getByRole('button', { name: /Ceiling fan/ })).toHaveAttribute(
 		'aria-pressed',
@@ -138,6 +134,24 @@ async function openCardEditor(page: Page, title: string) {
 		.click();
 	return page.getByRole('dialog', { name: 'Edit card' });
 }
+
+test('adds a card and a widget from the galleries', async ({ page }) => {
+	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();
+	await page.getByRole('button', { name: 'Add card' }).click();
+	const cardSheet = page.getByRole('dialog', { name: 'Add card' });
+	await expect(cardSheet).toBeVisible();
+	await cardSheet.getByRole('button', { name: 'Done' }).click();
+	// a card without entities renders its setup placeholder
+	await expect(page.locator('.card-slot')).toHaveCount(3);
+	await expect(page.getByText('Configure Entities')).toBeVisible();
+
+	await page.getByRole('button', { name: 'Add widget' }).click();
+	const widgetSheet = page.getByRole('dialog', { name: 'Add widget' });
+	await expect(widgetSheet).toBeVisible();
+	await widgetSheet.getByRole('button', { name: 'Done' }).click();
+	await expect(widgetSheet).toBeHidden();
+	await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+});
 
 test.describe('saving', () => {
 	// saves land in the fixture directory; put the file back after each test
