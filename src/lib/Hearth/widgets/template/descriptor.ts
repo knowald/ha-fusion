@@ -18,6 +18,7 @@ export const templateWidget: WidgetDescriptor<TemplateWidget> = {
 	}),
 	schema: v.looseObject({ template: OptionalText }),
 	needsConfiguration: (widget) => !widget.template,
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

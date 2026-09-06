@@ -30,6 +30,7 @@ export const iframeWidget: WidgetDescriptor<IframeWidget> = {
 		height: HeightSchema
 	}),
 	needsConfiguration: (widget) => !widget.url,
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

@@ -38,8 +38,10 @@ describe('Hearth type registries', () => {
 		for (const descriptor of RAIL_WIDGET_TYPES) {
 			expect(descriptor).toMatchObject({
 				type: expect.any(String),
-				icon: expect.any(String)
+				icon: expect.any(String),
+				entityIds: expect.any(Function)
 			});
+			expect(descriptor.entityIds({ id: 'x', type: descriptor.type } as never)).toEqual([]);
 			for (const key of [descriptor.label, descriptor.name, descriptor.sub]) {
 				expect(translated(key), `${descriptor.type}: ${key} missing from en.json`).toBe(true);
 			}
