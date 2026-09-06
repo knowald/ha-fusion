@@ -86,7 +86,10 @@
 
 <style>
 	.fusion {
-		font-size: var(--theme-sidebar-font-size, 1rem);
+		font-size: var(
+			--theme-sidebar-font-size,
+			var(--h-type-body)
+		); /* literal ok: original sidebar variable */
 		color: var(--h-text-2);
 	}
 
@@ -104,7 +107,7 @@
 		border-radius: var(--h-radius-sm);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		text-align: center;
 	}
 </style>

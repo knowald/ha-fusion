@@ -268,25 +268,27 @@
 <style>
 	.editor {
 		position: relative;
-		border-radius: 0.6rem;
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		background-color: rgb(17, 17, 17, 0.6);
+		border-radius: var(--h-radius-tight);
+		border: 1px solid rgba(0, 0, 0, 0.1)
+			/* literal ok: editor chrome matches the CodeMirror theme */;
+		background-color: rgb(17, 17, 17, 0.6)
+			/* literal ok: editor chrome matches the CodeMirror theme */;
 	}
 	:global(.cm-editor) {
-		font-size: 0.9rem;
+		font-size: var(--h-type-emphasis);
 	}
 	:global(.cm-scroller) {
 		max-height: 69vh !important;
 	}
 	:global(.cm-tooltip) {
 		overflow: hidden !important;
-		border-radius: 0.4rem;
+		border-radius: var(--h-radius-tight);
 	}
 	/* circumvent modal 'overflow: hidden' */
 	:global(ul[aria-label='Completions']) {
 		position: fixed !important;
 	}
 	:global(ul[aria-label='Completions'] > li[role='option']) {
-		background-color: #353a42;
+		background-color: #353a42 /* literal ok: editor chrome matches the CodeMirror theme */;
 	}
 </style>

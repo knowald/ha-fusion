@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
@@ -102,7 +103,7 @@
 	<div class="content">
 		<Icon
 			name={icon || 'blinds'}
-			size={26}
+			size={ICON.tile}
 			color={!available
 				? 'var(--h-icon-dim)'
 				: open
@@ -131,7 +132,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 15px 16px;
+		padding: 16px 16px;
 		border-radius: var(--h-radius-md);
 		/* pan-y, not none: the horizontal gesture stays ours while a vertical
 		   swipe still scrolls the page or an enclosing popover */
@@ -148,8 +149,8 @@
 	}
 
 	.tile.compact {
-		padding-top: 9px;
-		padding-bottom: 9px;
+		padding-top: 10px;
+		padding-bottom: 10px;
 	}
 
 	/* blinds sit in the warm palette like everything else; only their fill
@@ -183,15 +184,15 @@
 
 	.content {
 		position: relative;
-		z-index: 1;
+		z-index: var(--h-layer-raised);
 		display: flex;
 		align-items: center;
-		gap: 13px;
+		gap: 14px;
 		min-width: 0;
 	}
 
 	.name {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 500;
 		color: var(--h-text-3);
 		white-space: nowrap;
@@ -200,8 +201,8 @@
 	}
 
 	.state {
-		font-size: 13px;
-		margin-top: 3px;
+		font-size: var(--h-type-secondary);
+		margin-top: 4px;
 		color: var(--h-text-3);
 	}
 

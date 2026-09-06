@@ -68,7 +68,7 @@
 	}
 
 	.header-slot {
-		margin-bottom: 30px;
+		margin-bottom: 32px;
 	}
 
 	/* hidden headers stay visible in edit mode so the page remains editable */

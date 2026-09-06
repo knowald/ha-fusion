@@ -152,8 +152,8 @@
 	   every node in the tree. */
 	:global(html.theme-fade) .frame {
 		transition:
-			background-color 600ms ease,
-			color 600ms ease;
+			background-color var(--h-motion-theme) ease,
+			color var(--h-motion-theme) ease;
 	}
 
 	/* scroll containers clip on both axes, which would crop the tiles' glow -
@@ -166,8 +166,8 @@
 		scrollbar-width: none;
 		display: flex;
 		flex-direction: column;
-		padding: 30px;
-		margin: -30px;
+		padding: 32px;
+		margin: -32px;
 	}
 
 	/* Filling cards absorb leftover height, but unexpected runtime overflow
@@ -180,8 +180,8 @@
 		transform: scale(0.96);
 		filter: drop-shadow(0 0 9px rgb(var(--h-accent-rgb) / calc(0.45 * var(--h-accent-scale))));
 		transition:
-			transform 120ms ease,
-			filter 60ms ease;
+			transform var(--h-motion-fast) ease,
+			filter var(--h-motion-fast) ease;
 	}
 
 	@keyframes -global-hearth-pending {
@@ -197,7 +197,7 @@
 	}
 
 	.frame {
-		/* theme tokens are injected on :root via svelte:head (see rootCss) so
+		/* theme tokens are injected on:root via svelte:head (see rootCss) so
 		   portaled modals resolve them too */
 		width: 100%;
 		height: 100dvh;
@@ -214,7 +214,7 @@
 	.layout {
 		display: grid;
 		grid-template-columns: 300px 1fr;
-		gap: 30px;
+		gap: 32px;
 		padding: calc(40px + var(--h-pad-y)) calc(40px + var(--h-pad-x));
 		height: 100%;
 	}
@@ -228,8 +228,8 @@
 		min-height: 0;
 		overflow-y: auto;
 		scrollbar-width: none;
-		padding: 30px;
-		margin: -30px;
+		padding: 32px;
+		margin: -32px;
 	}
 
 	.main::-webkit-scrollbar {

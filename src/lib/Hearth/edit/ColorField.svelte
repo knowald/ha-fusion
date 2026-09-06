@@ -23,7 +23,7 @@
 	}
 
 	.field-label {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-3);
 	}
 
@@ -32,7 +32,7 @@
 		height: 30px;
 		padding: 0;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		border-radius: 9px;
+		border-radius: var(--h-radius-tight);
 		background: none;
 		cursor: pointer;
 	}
@@ -43,6 +43,6 @@
 
 	input[type='color']::-webkit-color-swatch {
 		border: none;
-		border-radius: 6px;
+		border-radius: var(--h-radius-tight);
 	}
 </style>

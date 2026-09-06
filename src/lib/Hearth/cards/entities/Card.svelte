@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
@@ -148,7 +149,7 @@
 		<div class="summary-copy">
 			<Icon
 				name={card.icon || domainIcon(resolvedEntities[0]?.entity)}
-				size={24}
+				size={ICON.tile}
 				color="var(--h-accent-dim-text)"
 			/>
 			<div class="summary-text">
@@ -156,7 +157,7 @@
 				<div class="summary-state">{summaryText}</div>
 			</div>
 		</div>
-		<Icon name="chevron_right" size={20} color="var(--h-icon)" />
+		<Icon name="chevron_right" size={ICON.control} color="var(--h-icon)" />
 	</div>
 
 	{#if $hearthEditMode && showEntityDragHandles}
@@ -221,7 +222,7 @@
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => turnAllOff(switchableIds)}
 					>
-						<Icon name="power_settings_new" size={17} />
+						<Icon name="power_settings_new" size={ICON.inline} />
 						{$lang('hearth_all_off')}
 					</button>
 				{/if}
@@ -232,7 +233,7 @@
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => setAllCovers(coverIds, true)}
 					>
-						<Icon name="keyboard_double_arrow_up" size={16} />
+						<Icon name="keyboard_double_arrow_up" size={ICON.inline} />
 						{$lang('hearth_open_all')}
 					</button>
 					<button
@@ -241,7 +242,7 @@
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => setAllCovers(coverIds, false)}
 					>
-						<Icon name="keyboard_double_arrow_down" size={16} />
+						<Icon name="keyboard_double_arrow_down" size={ICON.inline} />
 						{$lang('hearth_close_all')}
 					</button>
 				{/if}
@@ -276,13 +277,13 @@
 	}
 
 	.section-title {
-		font-size: 19px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		color: var(--h-text-2);
 	}
 
 	.section-hint {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 	}
 
@@ -293,14 +294,14 @@
 	.group-action {
 		display: flex;
 		align-items: center;
-		gap: 7px;
-		padding: 9px 14px;
-		border-radius: 999px;
+		gap: 8px;
+		padding: 10px 14px;
+		border-radius: var(--h-radius-pill);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.09 * var(--h-line-scale)));
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		color: var(--h-text-3);
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-weight: 500;
 		cursor: pointer;
 	}
@@ -312,7 +313,7 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
-		padding: 16px 17px;
+		padding: 16px 18px;
 		border-radius: var(--h-radius-md);
 		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
 		box-shadow: var(--h-card-shadow);
@@ -330,7 +331,7 @@
 	.summary-copy {
 		display: flex;
 		align-items: center;
-		gap: 13px;
+		gap: 14px;
 		min-width: 0;
 	}
 
@@ -339,7 +340,7 @@
 	}
 
 	.summary-title {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 600;
 		color: var(--h-text-1);
 		white-space: nowrap;
@@ -348,7 +349,7 @@
 	}
 
 	.summary-state {
-		font-size: 12.5px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 		white-space: nowrap;
 		overflow: hidden;
@@ -360,21 +361,21 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 12px;
-		margin-bottom: 13px;
+		margin-bottom: 14px;
 	}
 
 	.popover-title {
-		font-size: 14.5px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
 
 	.popover-badge {
-		padding: 6px 11px;
-		border-radius: 999px;
+		padding: 6px 12px;
+		border-radius: var(--h-radius-pill);
 		background: rgb(var(--h-accent-rgb) / calc(0.13 * var(--h-accent-scale)));
 		font-family: var(--h-font-mono);
-		font-size: 10.5px;
+		font-size: var(--h-type-label);
 		letter-spacing: 0.8px;
 		text-transform: uppercase;
 		color: var(--h-accent-icon);
@@ -386,7 +387,7 @@
 		border-radius: var(--h-radius-md);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		text-align: center;
 	}
 

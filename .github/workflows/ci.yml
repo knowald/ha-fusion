@@ -33,6 +33,8 @@ jobs:
 
       - name: Import boundary check
         run: pnpm check:boundaries
+      - name: Style tokens
+        run: pnpm check:style
 
       - name: Hearth accessibility check
         run: pnpm check:hearth-a11y

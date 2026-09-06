@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { VacuumCard } from './descriptor';
@@ -124,7 +125,7 @@
 			onclick={() => modes.splice(modeIndex, 1)}
 			onkeydown={(event) => activateOnKeyboard(event, () => modes.splice(modeIndex, 1))}
 		>
-			<Icon name="delete" size={20} />
+			<Icon name="delete" size={ICON.control} />
 		</span>
 	</div>
 {/each}
@@ -135,6 +136,6 @@
 	onclick={addMode}
 	onkeydown={(event) => activateOnKeyboard(event, addMode)}
 >
-	<Icon name="add" size={18} />
+	<Icon name="add" size={ICON.control} />
 	<span>{$lang('hearth_add_cleaning_mode')}</span>
 </div>

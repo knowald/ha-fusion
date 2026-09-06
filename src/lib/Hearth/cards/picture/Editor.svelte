@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
@@ -44,7 +45,7 @@
 	onclick={openElementsEditor}
 	onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
 >
-	<Icon name="edit" size={18} />
+	<Icon name="edit" size={ICON.control} />
 	<span>{$lang('hearth_open_elements_editor')} ({elements.length})</span>
 </div>
 <div class="hint">{$lang('hearth_picture_hint')}</div>

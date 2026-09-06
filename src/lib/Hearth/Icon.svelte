@@ -7,7 +7,7 @@
 	}: { name: string; size?: number; color?: string; fill?: boolean } = $props();
 </script>
 
-<span class="mi" class:fill style:font-size="{size}px" style:color>{name}</span>
+<span class="mi" class:fill style:font-size="{size}px" style:color aria-hidden="true">{name}</span>
 
 <style>
 	.mi {

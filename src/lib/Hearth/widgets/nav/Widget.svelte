@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { sortable } from '$lib/ui/actions/sortable';
 	import { lang } from '$lib/core/i18n';
@@ -33,7 +34,7 @@
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => currentRoom.set(room.id)}
 		>
-			<Icon name={room.icon} size={21} />
+			<Icon name={room.icon} size={ICON.control} />
 			<span class="nav-name">{room.name}</span>
 		</button>
 	{/each}
@@ -44,7 +45,7 @@
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => editor.set({ kind: 'room', id: null })}
 		>
-			<Icon name="add" size={21} />
+			<Icon name="add" size={ICON.control} />
 			<span class="nav-name">{$lang('hearth_add_page')}</span>
 		</button>
 	{/if}
@@ -59,7 +60,7 @@
 
 	.rooms-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-text-6);
 		margin-bottom: 12px;
@@ -92,7 +93,7 @@
 	}
 
 	.nav-name {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 500;
 	}
 

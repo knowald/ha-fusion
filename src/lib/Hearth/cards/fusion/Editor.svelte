@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../../config';
@@ -76,7 +77,7 @@
 	onclick={toggleAdvanced}
 	onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
 >
-	<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+	<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={ICON.control} />
 	<span>{$lang('hearth_advanced_yaml')}</span>
 </div>
 {#if advancedOpen}

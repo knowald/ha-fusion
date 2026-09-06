@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { connection } from '$lib/core/ha/connection';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
@@ -127,7 +128,7 @@
 				aria-label={$lang('hearth_close')}
 				onclick={onclose}
 			>
-				<Icon name="close" size={22} />
+				<Icon name="close" size={ICON.control} />
 			</button>
 		</div>
 		<p class="intro">
@@ -148,7 +149,7 @@
 			{#if proposal.glanceables.length}
 				<label class="row glanceables">
 					<input type="checkbox" bind:checked={includeGlanceables} />
-					<span class="row-icon"><Icon name="today" size={20} /></span>
+					<span class="row-icon"><Icon name="today" size={ICON.control} /></span>
 					<span class="row-text">
 						<span class="row-name">{$lang('hearth_today_glanceables')}</span>
 						<span class="row-summary">{count(glanceableCount, 'suggestion')}</span>
@@ -159,7 +160,7 @@
 				{#each proposal.rooms as room (room.id)}
 					<label class="row">
 						<input type="checkbox" bind:checked={included[room.id]} />
-						<span class="row-icon"><Icon name={room.icon} size={20} /></span>
+						<span class="row-icon"><Icon name={room.icon} size={ICON.control} /></span>
 						<span class="row-text">
 							<span class="row-name">{room.name}</span>
 							<span class="row-summary">{summarize(room)}</span>
@@ -193,7 +194,7 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 90;
+		z-index: var(--h-layer-confirm);
 		background: var(--h-overlay);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
@@ -212,7 +213,7 @@
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 20px 22px;
-		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+		box-shadow: 0 40px 100px var(--h-scrim);
 	}
 
 	.header {
@@ -222,7 +223,7 @@
 	}
 
 	.title {
-		font-size: 16px;
+		font-size: var(--h-type-subtitle);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
@@ -242,7 +243,7 @@
 
 	.intro {
 		margin: 10px 0 14px;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		line-height: 1.5;
 		color: var(--h-text-4);
 	}
@@ -259,7 +260,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		padding: 9px 10px;
+		padding: 10px 10px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
 	}
@@ -288,7 +289,7 @@
 	}
 
 	.row-name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-2);
 		white-space: nowrap;
 		overflow: hidden;
@@ -296,7 +297,7 @@
 	}
 
 	.row-summary {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 	}
 
@@ -306,7 +307,7 @@
 		align-items: center;
 		gap: 12px;
 		padding: 24px 10px;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-6);
 		text-align: center;
 	}
@@ -325,7 +326,7 @@
 	.bar-button {
 		padding: 10px 20px;
 		border-radius: var(--h-radius-xs);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		cursor: pointer;
 		color: var(--h-text-3);

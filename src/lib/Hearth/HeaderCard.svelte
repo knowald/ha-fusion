@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
@@ -41,7 +42,7 @@
 	onkeydown={(event) => activateOnKeyboard(event, () => $hearthEditMode && onedit?.())}
 >
 	<div class="icon-tile">
-		<Icon name={icon || 'home'} size={32} color="var(--h-accent-text)" />
+		<Icon name={icon || 'home'} size={ICON.hero} color="var(--h-accent-text)" />
 	</div>
 	<div class="titles">
 		<div class="name">{title}</div>
@@ -49,7 +50,7 @@
 	</div>
 	{#if $hearthEditMode && onedit}
 		<div class="edit-hint">
-			<Icon name="edit" size={20} />
+			<Icon name="edit" size={ICON.control} />
 		</div>
 	{/if}
 	<div class="chips">
@@ -101,14 +102,14 @@
 	}
 
 	.name {
-		font-size: 30px;
+		font-size: var(--h-type-display-sm);
 		font-weight: 600;
 		color: var(--h-text-1);
 		letter-spacing: -0.5px;
 	}
 
 	.summary {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-5);
 	}
 
@@ -131,13 +132,13 @@
 	}
 
 	.chip-value {
-		font-size: 22px;
+		font-size: var(--h-type-headline);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
 
 	.chip-label {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 	}
 </style>

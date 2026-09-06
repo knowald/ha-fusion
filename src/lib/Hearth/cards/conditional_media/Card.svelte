@@ -41,6 +41,6 @@
 		border-radius: var(--h-radius-lg);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 	}
 </style>

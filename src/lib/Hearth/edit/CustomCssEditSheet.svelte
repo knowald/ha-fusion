@@ -77,7 +77,7 @@
 
 <style>
 	.hint {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-6);
 		margin-bottom: 12px;
 	}
@@ -89,6 +89,6 @@
 	.error {
 		margin-top: 12px;
 		color: var(--h-bad-text);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 	}
 </style>

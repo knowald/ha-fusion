@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -96,7 +97,7 @@
 							tabindex="0"
 							onkeydown={(event) => activateOnKeyboard(event, () => stepTarget(-1))}
 						>
-							<Icon name="remove" size={18} />
+							<Icon name="remove" size={ICON.control} />
 						</span>
 						<span class="target-value"
 							>{displayTarget === null ? '-' : displayTarget.toFixed(1)}</span
@@ -109,7 +110,7 @@
 							tabindex="0"
 							onkeydown={(event) => activateOnKeyboard(event, () => stepTarget(1))}
 						>
-							<Icon name="add" size={18} />
+							<Icon name="add" size={ICON.control} />
 						</span>
 					</div>
 				</div>
@@ -131,7 +132,7 @@
 									() => card.entity && setClimateHvacMode(card.entity, mode)
 								)}
 						>
-							<Icon name={HVAC_MODE_ICONS[mode] ?? 'thermostat'} size={19} />
+							<Icon name={HVAC_MODE_ICONS[mode] ?? 'thermostat'} size={ICON.control} />
 						</span>
 					{/each}
 				</div>
@@ -158,7 +159,7 @@
 	}
 
 	.title {
-		font-size: 19px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		color: var(--h-text-2);
 	}
@@ -170,7 +171,7 @@
 	}
 
 	.hint {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 	}
 
@@ -188,19 +189,19 @@
 	}
 
 	.stat-label {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 	}
 
 	.current-value {
-		font-size: 34px;
+		font-size: var(--h-type-display);
 		font-weight: 600;
 		color: var(--h-text-1);
 		margin-top: 4px;
 	}
 
 	.stat-unit {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		color: var(--h-text-5);
 		font-weight: 400;
 		margin-left: 2px;
@@ -232,7 +233,7 @@
 	.target-value {
 		flex: 1;
 		text-align: center;
-		font-size: 22px;
+		font-size: var(--h-type-headline);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
@@ -273,7 +274,7 @@
 		border-radius: var(--h-radius-md);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		text-align: center;
 	}
 </style>

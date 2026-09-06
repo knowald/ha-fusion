@@ -1,4 +1,6 @@
 <script lang="ts">
+	import EmptyState from './EmptyState.svelte';
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -119,7 +121,7 @@
 >
 	<div class="panel" role="dialog" aria-modal="true" aria-label={$lang('search')}>
 		<div class="search">
-			<Icon name="search" size={20} />
+			<Icon name="search" size={ICON.control} />
 			<input
 				type="text"
 				bind:value={query}
@@ -134,7 +136,7 @@
 				aria-label={$lang('hearth_close')}
 				onclick={onclose}
 			>
-				<Icon name="close" size={22} />
+				<Icon name="close" size={ICON.control} />
 			</button>
 		</div>
 		<div class="list">
@@ -152,7 +154,7 @@
 					<span class="row-icon">
 						<Icon
 							name={result.kind === 'room' ? result.icon : domainIcon(result.entityId)}
-							size={20}
+							size={ICON.control}
 						/>
 					</span>
 					<span class="row-text">
@@ -164,9 +166,11 @@
 					{/if}
 				</button>
 			{:else}
-				<div class="hint">
-					{query.trim() ? $lang('hearth_no_matches') : $lang('hearth_search_hint')}
-				</div>
+				<EmptyState
+					inline
+					icon={query.trim() ? 'search_off' : 'search'}
+					text={query.trim() ? $lang('hearth_no_matches') : $lang('hearth_search_hint')}
+				/>
 			{/each}
 		</div>
 	</div>
@@ -176,7 +180,7 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 55;
+		z-index: var(--h-layer-search);
 		background: var(--h-overlay);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
@@ -196,14 +200,14 @@
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 20px 22px;
-		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+		box-shadow: 0 40px 100px var(--h-scrim);
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 0 13px;
+		padding: 0 14px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
@@ -219,12 +223,12 @@
 	.search input {
 		flex: 1;
 		min-width: 0;
-		padding: 11px 0;
+		padding: 12px 0;
 		border: none;
 		background: none;
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		outline: none;
 	}
 
@@ -256,7 +260,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		padding: 9px 10px;
+		padding: 10px 10px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
 		width: 100%;
@@ -285,7 +289,7 @@
 	}
 
 	.row-name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-2);
 		white-space: nowrap;
 		overflow: hidden;
@@ -294,7 +298,7 @@
 
 	.row-id {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-5);
 		white-space: nowrap;
 		overflow: hidden;
@@ -303,7 +307,7 @@
 
 	.row-state {
 		max-width: 90px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 		white-space: nowrap;
 		overflow: hidden;
@@ -312,7 +316,7 @@
 
 	.hint {
 		padding: 12px 10px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		text-align: center;
 	}

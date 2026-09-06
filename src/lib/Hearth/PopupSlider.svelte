@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { horizontalDrag } from './drag';
 	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import Icon from './Icon.svelte';
@@ -24,7 +25,7 @@
 <div class="bar" use:horizontalDrag={{ set: (next, commit) => onchange(next, commit), updateMode }}>
 	<div class="fill {variant}" style:width="{value}%"></div>
 	<div class="readout">
-		<Icon name={icon} size={24} color="var(--h-text-1)" />
+		<Icon name={icon} size={ICON.tile} color="var(--h-text-1)" />
 		<span class="value">{value}%</span>
 	</div>
 </div>
@@ -32,7 +33,7 @@
 <style>
 	.label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 22px 0 10px;
@@ -76,9 +77,9 @@
 	}
 
 	.value {
-		font-size: 24px;
+		font-size: var(--h-type-stat);
 		font-weight: 700;
 		color: var(--h-text-1);
-		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+		text-shadow: 0 1px 3px var(--h-track);
 	}
 </style>

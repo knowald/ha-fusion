@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { sortable } from '$lib/ui/actions/sortable';
 	import type { EntityRef } from './config';
@@ -66,7 +67,7 @@
 		<div class="entity-slot" data-id={JSON.stringify([cardId, index])}>
 			{#if $hearthEditMode && cardId && showDragHandles}
 				<div class="entity-drag-handle" aria-label={$lang('hearth_rearrange_entity')}>
-					<Icon name="drag_indicator" size={17} />
+					<Icon name="drag_indicator" size={ICON.inline} />
 				</div>
 			{/if}
 			{#if (ref.display ?? style) === 'stat'}
@@ -104,7 +105,7 @@
 		align-self: center;
 		justify-self: center;
 		color: var(--h-text-6);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 	}
 
 	.entity-slot {
@@ -119,13 +120,13 @@
 
 	.entity-drag-handle {
 		position: absolute;
-		top: 7px;
-		right: 7px;
-		z-index: 6;
+		top: 8px;
+		right: 8px;
+		z-index: var(--h-layer-grid-header);
 		display: flex;
-		padding: 5px;
+		padding: 6px;
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.35 * var(--h-accent-scale)));
-		border-radius: 8px;
+		border-radius: var(--h-radius-tight);
 		background: var(--h-sheet-0);
 		color: var(--h-text-2);
 		cursor: grab;

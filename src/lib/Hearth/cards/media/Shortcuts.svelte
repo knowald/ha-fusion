@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../../config';
 	import { hearthEditMode } from '../../store';
@@ -30,7 +31,7 @@
 			{#if shortcut.image_url}
 				<img src={shortcut.image_url} alt="" />
 			{:else}
-				<span class="glyph"><Icon name="play_arrow" size={18} fill /></span>
+				<span class="glyph"><Icon name="play_arrow" size={ICON.control} fill /></span>
 			{/if}
 			<span class="name">{shortcut.name}</span>
 		</button>
@@ -53,12 +54,12 @@
 		gap: 8px;
 		max-width: 180px;
 		padding: 6px 12px 6px 6px;
-		border: 1px solid rgb(255 255 255 / 0.14);
-		border-radius: 999px;
-		background: rgb(0 0 0 / 0.35);
-		color: #fff;
+		border: 1px solid var(--h-on-art-line);
+		border-radius: var(--h-radius-pill);
+		background: var(--h-art-scrim-1);
+		color: var(--h-on-art-1);
 		font: inherit;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		cursor: pointer;
 		backdrop-filter: blur(6px);
 	}
@@ -71,7 +72,7 @@
 		object-fit: cover;
 		display: grid;
 		place-items: center;
-		background: rgb(255 255 255 / 0.12);
+		background: var(--h-on-art-fill);
 	}
 
 	.name {

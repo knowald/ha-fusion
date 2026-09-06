@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { timer } from '$lib/core/app/clock';
@@ -56,7 +57,7 @@
 	onclick={reset}
 	onkeydown={(event) => activateOnKeyboard(event, reset)}
 >
-	<Icon name={card.icon || 'event_repeat'} size={26} color="var(--h-accent-icon)" />
+	<Icon name={card.icon || 'event_repeat'} size={ICON.tile} color="var(--h-accent-icon)" />
 	<div class="text">
 		<div class="name">{label}</div>
 		<div class="count">{caption}</div>
@@ -68,7 +69,7 @@
 		display: flex;
 		align-items: center;
 		gap: 14px;
-		padding: 15px 16px;
+		padding: 16px 16px;
 		border-radius: var(--h-radius-md);
 		background: rgb(var(--h-surface-rgb) / calc(0.045 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
@@ -77,12 +78,12 @@
 	}
 
 	.name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 	}
 
 	.count {
-		font-size: 22px;
+		font-size: var(--h-type-headline);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}

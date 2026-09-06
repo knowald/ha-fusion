@@ -45,7 +45,7 @@
 <style>
 	.template {
 		padding: 8px 0;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		overflow-wrap: anywhere;
 	}
@@ -56,6 +56,6 @@
 
 	.error {
 		color: var(--h-bad-text);
-		font-size: 12px;
+		font-size: var(--h-type-small);
 	}
 </style>

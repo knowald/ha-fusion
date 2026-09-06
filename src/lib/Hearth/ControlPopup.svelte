@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { closePopup, popup } from './store';
@@ -48,7 +49,7 @@
 			<div class="sheet" onclick={(event) => event.stopPropagation()} role="presentation">
 				<div class="header">
 					<div class="icon-tile">
-						<Icon name={headerFor($popup).icon} size={26} color="var(--h-accent-text)" />
+						<Icon name={headerFor($popup).icon} size={ICON.tile} color="var(--h-accent-text)" />
 					</div>
 					<div class="titles">
 						<div class="name">{$popup.name}</div>
@@ -74,7 +75,7 @@
 						aria-label={$lang('hearth_close')}
 						onclick={closePopup}
 					>
-						<Icon name="close" size={26} />
+						<Icon name="close" size={ICON.tile} />
 					</button>
 				</div>
 
@@ -98,7 +99,7 @@
 	.overlay {
 		position: absolute;
 		inset: 0;
-		z-index: 50;
+		z-index: var(--h-layer-popup);
 		background: var(--h-overlay);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
@@ -118,7 +119,7 @@
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		border-radius: var(--h-radius-xl);
 		padding: 28px;
-		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+		box-shadow: 0 40px 100px var(--h-scrim);
 	}
 
 	.header {
@@ -142,23 +143,23 @@
 	}
 
 	.name {
-		font-size: 20px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
 
 	.sub {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-icon);
 	}
 
 	.switch {
 		width: 52px;
 		height: 30px;
-		border-radius: 15px;
+		border-radius: var(--h-radius-sm);
 		cursor: pointer;
 		position: relative;
-		transition: background 0.2s;
+		transition: background var(--h-motion-base);
 		flex: none;
 		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
 		border: 0;
@@ -171,17 +172,17 @@
 
 	.knob {
 		position: absolute;
-		top: 3px;
-		left: 3px;
+		top: 4px;
+		left: 4px;
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
 		background: var(--h-icon);
-		transition: left 0.2s;
+		transition: left var(--h-motion-base);
 	}
 
 	.switch.on .knob {
-		left: 25px;
+		left: 24px;
 		background: var(--h-on-accent);
 	}
 
