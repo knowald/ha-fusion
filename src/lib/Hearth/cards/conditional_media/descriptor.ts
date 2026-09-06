@@ -1,7 +1,6 @@
 import type { OverviewCard } from '../../types';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type ConditionalMediaCard = Extract<OverviewCard, { type: 'conditional_media' }>;
 
@@ -25,5 +24,5 @@ export const conditionalMediaCard: CardDescriptor<ConditionalMediaCard> = {
 	needsConfiguration: (card) => card.media_players.length === 0,
 	entityIds: (card) => card.media_players,
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

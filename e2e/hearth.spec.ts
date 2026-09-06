@@ -104,3 +104,16 @@ test('a long press opens the light sheet and Escape closes it', async ({ page })
 	await page.keyboard.press('Escape');
 	await expect(toggle).toBeHidden();
 });
+
+test('edit mode loads the card editor on demand', async ({ page }) => {
+	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();
+	await page
+		.locator('.card-slot', { hasText: 'Lights' })
+		.getByRole('button', { name: 'Edit' })
+		.click();
+	const sheet = page.getByRole('dialog', { name: 'Edit card' });
+	await expect(sheet).toBeVisible();
+	await expect(sheet.getByLabel('Title')).toHaveValue('Lights');
+	await page.keyboard.press('Escape');
+	await expect(sheet).toBeHidden();
+});

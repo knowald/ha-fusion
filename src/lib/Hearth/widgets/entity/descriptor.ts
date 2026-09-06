@@ -1,7 +1,6 @@
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type EntityWidget = Extract<RailWidget, { type: 'entity' }>;
 
@@ -16,5 +15,5 @@ export const entityWidget: WidgetDescriptor<EntityWidget> = {
 	}),
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

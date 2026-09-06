@@ -56,5 +56,11 @@ export interface CardDescriptor<T extends OverviewCard = OverviewCard> {
 	/** Every entity id the card refers to, for attention and search. */
 	entityIds: (card: T) => string[];
 	component: Component<CardComponentProps<T>>;
-	editor: Component<CardEditorProps<T>, { applyPreviewReorder?: (entities: EntityRef[]) => void }>;
+	/** Loaded when the edit sheet opens, so editors stay out of the dashboard bundle. */
+	editor: () => Promise<{ default: CardEditor<T> }>;
 }
+
+export type CardEditor<T extends OverviewCard = OverviewCard> = Component<
+	CardEditorProps<T>,
+	{ applyPreviewReorder?: (entities: EntityRef[]) => void }
+>;

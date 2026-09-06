@@ -4,7 +4,6 @@ import type { OverviewCard, SceneRef } from '../../types';
 import { normalizeSceneRef } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type ScenesCard = Extract<OverviewCard, { type: 'scenes' }>;
 
@@ -25,5 +24,5 @@ export const scenesCard: CardDescriptor<ScenesCard> = {
 	entityIds: (card) =>
 		card.scenes.flatMap((ref) => [ref.entity, ...(ref.active_entity ? [ref.active_entity] : [])]),
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

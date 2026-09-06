@@ -1,7 +1,6 @@
 import type { OverviewCard } from '../../types';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type HeaderCard = Extract<OverviewCard, { type: 'header' }>;
 
@@ -17,5 +16,5 @@ export const headerCard: CardDescriptor<HeaderCard> = {
 		...(card.humidity_entity ? [card.humidity_entity] : [])
 	],
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

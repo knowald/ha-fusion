@@ -1,7 +1,6 @@
 import type { OverviewCard } from '../../types';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type ClimateCard = Extract<OverviewCard, { type: 'climate' }>;
 
@@ -14,5 +13,5 @@ export const climateCard: CardDescriptor<ClimateCard> = {
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

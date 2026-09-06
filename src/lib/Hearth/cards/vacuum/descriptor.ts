@@ -4,7 +4,6 @@ import type { OverviewCard, VacuumModeRef } from '../../types';
 import { normalizeVacuumModeRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type VacuumCard = Extract<OverviewCard, { type: 'vacuum' }>;
 
@@ -31,5 +30,5 @@ export const vacuumCard: CardDescriptor<VacuumCard> = {
 		...(card.bin_entity ? [card.bin_entity] : [])
 	],
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

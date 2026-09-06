@@ -163,11 +163,13 @@
 
 			<!-- keyed so a type switch mounts a fresh editor with fresh field state -->
 			{#key type}
-				<descriptor.editor
-					bind:this={editorRef}
-					initial={editorInitial}
-					onchange={(next) => (draft = next)}
-				/>
+				{#await descriptor.editor() then Editor}
+					<Editor.default
+						bind:this={editorRef}
+						initial={editorInitial}
+						onchange={(next) => (draft = next)}
+					/>
+				{/await}
 			{/key}
 
 			<FormSection title={$lang('hearth_layout')}>

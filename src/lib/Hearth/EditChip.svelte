@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import Icon from './Icon.svelte';
 
@@ -17,6 +18,7 @@
 		onpointerdown={(event) => event.stopPropagation()}
 		role="button"
 		tabindex="0"
+		aria-label={$lang('edit')}
 		onkeydown={(event) =>
 			activateOnKeyboard(event, () =>
 				((event) => {

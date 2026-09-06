@@ -2,7 +2,6 @@ import type { OverviewCard } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type PictureCard = Extract<OverviewCard, { type: 'picture' }>;
 
@@ -32,5 +31,5 @@ export const pictureCard: CardDescriptor<PictureCard> = {
 	needsConfiguration: (card) => card.elements.length === 0,
 	entityIds: (card) => elementEntityIds(card.elements),
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };
