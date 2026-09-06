@@ -97,8 +97,10 @@
 		font-weight: 500;
 	}
 
-	/* phones: rooms become a horizontal chip row instead of a tall list */
-	@media (max-width: 820px) {
+	/* phones (the rail's own fold): rooms become a horizontal chip row
+	   instead of a tall list, which only shows while editing since the rail
+	   hides runtime navigation behind PhoneNav there */
+	@media (max-width: 900px) {
 		.divider {
 			margin: 16px 0;
 		}
