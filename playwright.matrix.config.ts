@@ -1,27 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const FAKE_HASS_PORT = 8124;
-const APP_PORT = 5099;
+const FAKE_HASS_PORT = 8125;
+const APP_PORT = 5098;
 
 /*
- * Browser smoke tests run the production build (node server.js) from the
- * e2e/fixture directory, so the app reads that directory's data/ instead of
- * the developer's own, against the scripted Home Assistant in fake-hass.mjs.
- * Run `pnpm build` first.
+ * Screenshot matrix for the visual review: every Hearth surface at three
+ * viewports in day and night themes, against e2e/fixture-matrix, which
+ * configures every card and widget type. Run `pnpm build` first, then
+ * `pnpm matrix`; open matrix-output/index.html.
  */
 export default defineConfig({
-	testDir: './e2e',
+	testDir: './e2e/matrix',
 	testMatch: '**/*.spec.ts',
-	// the screenshot matrix has its own config and fixture
-	testIgnore: '**/matrix/**',
 	fullyParallel: false,
 	workers: 1,
-	retries: process.env.CI ? 1 : 0,
-	reporter: process.env.CI ? 'github' : 'list',
+	retries: 0,
+	timeout: 60_000,
+	expect: { timeout: 8_000 },
+	reporter: 'list',
+	outputDir: './matrix-output/.playwright',
 	use: {
 		baseURL: `http://127.0.0.1:${APP_PORT}`,
-		trace: 'retain-on-failure',
-		viewport: { width: 1280, height: 800 }
+		actionTimeout: 8_000,
+		trace: 'off'
 	},
 	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 	webServer: [
@@ -33,7 +34,7 @@ export default defineConfig({
 		},
 		{
 			command: 'node ../../server.js',
-			cwd: 'e2e/fixture',
+			cwd: 'e2e/fixture-matrix',
 			port: APP_PORT,
 			env: {
 				PORT: String(APP_PORT),
