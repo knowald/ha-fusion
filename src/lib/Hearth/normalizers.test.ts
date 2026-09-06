@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeEmbedUrl } from './normalizers';
+import { normalizeEmbedUrl, normalizeWholeNumber } from './normalizers';
 
 describe('normalizeEmbedUrl', () => {
 	it('keeps http(s) addresses and same-host paths', () => {
@@ -18,6 +18,17 @@ describe('normalizeEmbedUrl', () => {
 			3
 		]) {
 			expect(normalizeEmbedUrl(url)).toBeUndefined();
+		}
+	});
+});
+
+describe('normalizeWholeNumber', () => {
+	it('rounds finite numbers at or above the minimum and drops the rest', () => {
+		expect(normalizeWholeNumber(12.4, 0)).toBe(12);
+		expect(normalizeWholeNumber(0, 0)).toBe(0);
+		expect(normalizeWholeNumber(0, 1)).toBeUndefined();
+		for (const raw of [-1, NaN, Infinity, -Infinity, '12', null, [], {}]) {
+			expect(normalizeWholeNumber(raw, 0)).toBeUndefined();
 		}
 	});
 });

@@ -1,5 +1,5 @@
 import type { RailWidget } from '../../types';
-import { trimmedOrUndefined } from '../../normalizers';
+import { normalizeWholeNumber, trimmedOrUndefined } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
 
@@ -20,8 +20,7 @@ export const chartWidget: WidgetDescriptor<ChartWidget> = {
 		style: CHART_STYLES.includes(widget.style) ? widget.style : undefined,
 		period: CHART_PERIODS.includes(widget.period) ? widget.period : undefined,
 		math: trimmedOrUndefined(widget.math),
-		stroke:
-			typeof widget.stroke === 'number' && widget.stroke > 0 ? Math.round(widget.stroke) : undefined
+		stroke: normalizeWholeNumber(widget.stroke, 1)
 	}),
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,

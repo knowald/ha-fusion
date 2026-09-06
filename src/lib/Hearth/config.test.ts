@@ -240,3 +240,22 @@ describe('hearthConfigIssues', () => {
 		expect(issues).toContain('rooms[0].cards[0][1].id duplicates rooms[0].cards[0][0].id');
 	});
 });
+
+describe('wall tablet settings', () => {
+	it('keeps only finite, whole, in-range numbers and mapping themes', () => {
+		const config = normalizeHearthConfig({
+			rail: [],
+			rooms: [],
+			padding_x: 12.6,
+			padding_y: -4,
+			screensaver_minutes: Infinity,
+			theme: ['not', 'a', 'mapping'],
+			theme_night: { accent: '#fff' }
+		});
+		expect(config.padding_x).toBe(13);
+		expect(config.padding_y).toBeUndefined();
+		expect(config.screensaver_minutes).toBeUndefined();
+		expect(config.theme).toBeUndefined();
+		expect(config.theme_night).toEqual({ accent: '#fff' });
+	});
+});

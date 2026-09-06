@@ -12,7 +12,8 @@ import {
 	normalizeFill,
 	normalizeHeight,
 	reserveId,
-	trimmedOrUndefined
+	trimmedOrUndefined,
+	normalizeWholeNumber
 } from './normalizers';
 import { CARD_TYPES, cardDescriptor } from './cards';
 import { migrateHearthConfig } from './migrate';
@@ -281,14 +282,12 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 
 	return {
 		...extensions,
-		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
-		theme_night:
-			config.theme_night && typeof config.theme_night === 'object' ? config.theme_night : undefined,
+		theme: isRecord(config.theme) ? config.theme : undefined,
+		theme_night: isRecord(config.theme_night) ? config.theme_night : undefined,
 		day_night: dayNight,
 		rail,
 		rooms,
-		screensaver_minutes:
-			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
+		screensaver_minutes: normalizeWholeNumber(config.screensaver_minutes, 1),
 		screensaver_drift: config.screensaver_drift === true ? true : undefined,
 		screensaver_brightness:
 			typeof config.screensaver_brightness === 'number' &&
@@ -296,7 +295,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 				? Math.min(100, Math.max(10, Math.round(config.screensaver_brightness)))
 				: undefined,
 		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined,
-		padding_x: typeof config.padding_x === 'number' ? config.padding_x : undefined,
-		padding_y: typeof config.padding_y === 'number' ? config.padding_y : undefined
+		padding_x: normalizeWholeNumber(config.padding_x, 0),
+		padding_y: normalizeWholeNumber(config.padding_y, 0)
 	};
 }
