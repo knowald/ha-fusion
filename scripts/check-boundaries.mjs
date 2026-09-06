@@ -7,7 +7,7 @@ import { join, posix, relative, resolve } from 'node:path';
  * SvelteKit virtual modules). `legacy` is reachable from other layers only
  * through `src/lib/legacy/bridge`, which is the one place a legacy dependency
  * is declared. Covers static imports, re-exports and dynamic import() in .ts,
- * .js and .svelte files.
+ * .js, .svelte and .css files (including vi.mock specifiers and @import).
  */
 
 const ROOT = resolve(import.meta.dirname, '..');
@@ -60,12 +60,12 @@ async function* walk(dir) {
 	for (const entry of await readdir(dir, { withFileTypes: true })) {
 		const path = join(dir, entry.name);
 		if (entry.isDirectory()) yield* walk(path);
-		else if (/\.(ts|js|svelte)$/.test(entry.name) && !/\.d\.ts$/.test(entry.name)) yield path;
+		else if (/\.(ts|js|svelte|css)$/.test(entry.name) && !/\.d\.ts$/.test(entry.name)) yield path;
 	}
 }
 
 const IMPORT_PATTERN =
-	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]/g;
+	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]|@import\s+(?:url\()?['"]([^'"]+)['"]/g;
 
 function resolveTarget(fromFile, specifier) {
 	if (specifier.startsWith('$lib/')) return posix.join('src/lib', specifier.slice(5));
@@ -83,7 +83,7 @@ for await (const absolute of walk(SRC)) {
 	const allowed = allowedFrom(layer);
 	const source = await readFile(absolute, 'utf8');
 	for (const match of source.matchAll(IMPORT_PATTERN)) {
-		const specifier = match[1] ?? match[2] ?? match[3] ?? match[4];
+		const specifier = match[1] ?? match[2] ?? match[3] ?? match[4] ?? match[5];
 		const target = resolveTarget(file, specifier);
 		if (!target) continue;
 		const targetLayer = layerOf(target);
