@@ -5,7 +5,7 @@
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 

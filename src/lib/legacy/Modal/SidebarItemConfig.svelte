@@ -12,7 +12,7 @@
 	import { openModal, closeModal } from '$lib/Modals';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import type { SidebarItem } from '$lib/Types';
 	import {

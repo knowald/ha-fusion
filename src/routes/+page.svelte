@@ -248,13 +248,13 @@
 
 	<!-- modules -->
 	{#if $customJs}
-		{#await import('$lib/Components/CustomJs.svelte') then CustomJs}
+		{#await import('$lib/ui/CustomJs.svelte') then CustomJs}
 			<CustomJs.default />
 		{/await}
 	{/if}
 
 	<!-- custom css -->
-	{#await import('$lib/Components/CustomCss.svelte') then CustomCss}
+	{#await import('$lib/ui/CustomCss.svelte') then CustomCss}
 		<CustomCss.default />
 	{/await}
 </div>

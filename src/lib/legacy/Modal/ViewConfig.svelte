@@ -2,7 +2,7 @@
 	import { lang, ripple } from '$lib/Stores';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import type { ViewItem } from '$lib/Types';
 

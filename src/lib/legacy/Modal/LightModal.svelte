@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { states, selectedLanguage, lang, ripple, connection } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import LightSlider from '$lib/Components/LightSlider.svelte';
+	import LightSlider from '$lib/legacy/Components/LightSlider.svelte';
 	import WhiteSlider from '$lib/Components/WhiteSlider.svelte';
-	import ColorPicker from '$lib/Components/ColorPicker.svelte';
+	import ColorPicker from '$lib/legacy/Components/ColorPicker.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { getName } from '$lib/Utils';

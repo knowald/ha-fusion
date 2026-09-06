@@ -11,7 +11,7 @@
 		motion
 	} from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import { getName } from '$lib/Utils';
 	import { openModal, modals } from '$lib/Modals';
 	import StateLogic from '$lib/Components/StateLogic.svelte';

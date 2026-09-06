@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 	import { sortable } from '$lib/Actions/sortable';
 	import Icon from '@iconify/svelte';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import { SvelteMap } from 'svelte/reactivity';
 

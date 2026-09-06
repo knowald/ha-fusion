@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import {
 		connection,

@@ -2,7 +2,7 @@
 	import { lang, ripple, updateDashboard } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import type { SpotifyShortcut } from '$lib/Types';
 	import { updateObj } from '$lib/Utils';
 

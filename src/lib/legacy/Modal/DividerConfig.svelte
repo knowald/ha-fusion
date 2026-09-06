@@ -6,7 +6,7 @@
 	import type { SidebarItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { onDestroy } from 'svelte';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();

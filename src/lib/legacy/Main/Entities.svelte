@@ -2,7 +2,7 @@
 	import { editMode, itemHeight, lang, ripple, states } from '$lib/Stores';
 	import { openModal } from '$lib/Modals';
 	import { getName } from '$lib/Utils';
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import Ripple from '$lib/Actions/ripple';
 

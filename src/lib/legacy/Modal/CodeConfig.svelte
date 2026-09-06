@@ -3,7 +3,7 @@
 	import { dashboard, motion, lang, autocompleteList } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
 	import * as parser from 'js-yaml';
-	import CodeEditor from '$lib/Components/CodeEditor.svelte';
+	import CodeEditor from '$lib/ui/CodeEditor.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 
 	let { isOpen }: { isOpen: boolean } = $props();

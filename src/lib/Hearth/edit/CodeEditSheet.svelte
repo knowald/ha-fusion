@@ -48,7 +48,7 @@
 		Edits the whole configuration. Applies as a single undo step; invalid YAML is rejected.
 	</div>
 	<div class="code-workspace">
-		{#await import('$lib/Components/CodeEditor.svelte') then CodeEditor}
+		{#await import('$lib/ui/CodeEditor.svelte') then CodeEditor}
 			<CodeEditor.default
 				{value}
 				type="yaml"
