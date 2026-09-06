@@ -47,7 +47,6 @@
 
 	// motion:false in configuration.yaml disables transitions app-wide, and so
 	// does the OS reduced-motion setting unless motion is explicitly true
-	// svelte-ignore state_referenced_locally
 	const reducedMotion = browser && matchMedia('(prefers-reduced-motion: reduce)').matches;
 	// svelte-ignore state_referenced_locally
 	if (
