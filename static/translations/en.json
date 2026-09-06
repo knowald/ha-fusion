@@ -943,5 +943,7 @@
 	"hearth_custom_css": "Custom CSS",
 	"hearth_custom_css_sub": "Edit data/custom_css.css",
 	"hearth_custom_css_hint": "Saved straight to disk and applied on the next load.",
-	"hearth_loading": "Loading..."
+	"hearth_loading": "Loading...",
+	"hearth_height_hint_fill": "Without it the card fills the rest of its column.",
+	"hearth_height_hint_embed": "Without it the embed keeps its own height."
 }

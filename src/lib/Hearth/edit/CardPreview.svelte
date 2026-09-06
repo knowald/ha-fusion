@@ -15,7 +15,9 @@
 
 	let reorder = $state(false);
 	let reorderable = $derived(cardDescriptor(card.type)?.previewReorder ?? false);
-	let interactive = $derived(reorderable || card.type === 'vacuum');
+	let interactive = $derived(
+		reorderable || (cardDescriptor(card.type)?.previewInteractive ?? false)
+	);
 </script>
 
 <aside class="pane">

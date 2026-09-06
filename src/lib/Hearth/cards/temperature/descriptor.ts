@@ -13,6 +13,7 @@ export const temperatureCard: CardDescriptor<TemperatureCard> = {
 	icon: 'monitoring',
 	fillByDefault: true,
 	sizable: true,
+	stretchMinHeight: 110,
 	normalize: (card) => ({
 		climate_entity: trimmedOrUndefined(card.climate_entity),
 		verdict: normalizeVerdict(card.verdict)

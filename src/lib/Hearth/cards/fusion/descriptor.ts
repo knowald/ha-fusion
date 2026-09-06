@@ -1,4 +1,5 @@
 import type { OverviewCard } from '../../types';
+import { isRecord } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
 
@@ -19,6 +20,8 @@ export const fusionCard: CardDescriptor<FusionCard> = {
 	sub: 'hearth_card_fusion_sub',
 	icon: 'widgets',
 	sizable: true,
+	heightHint: 'hearth_height_hint_embed',
+	normalize: (card) => ({ config: isRecord(card.config) ? card.config : undefined }),
 	needsConfiguration: (card) => !card.config?.type,
 	entityIds: (card) => (typeof card.config?.entity_id === 'string' ? [card.config.entity_id] : []),
 	component: Card,
