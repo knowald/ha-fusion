@@ -51,7 +51,9 @@ async function openCardEditor(page: Page, title: string) {
 	const slot = page.locator('.card-slot, .stack-slot', { hasText: title }).first();
 	const stack = (await slot.getAttribute('data-card-type')) === 'stack';
 	await slot.getByRole('button', { name: 'Edit' }).first().click();
-	await expect(page.getByRole('dialog', { name: stack ? 'Edit stack' : 'Edit card' })).toBeVisible();
+	await expect(
+		page.getByRole('dialog', { name: stack ? 'Edit stack' : 'Edit card' })
+	).toBeVisible();
 	await page.waitForTimeout(600);
 }
 
@@ -182,8 +184,6 @@ const SCENES: Scene[] = [
 		setup: async (page) => {
 			await enterEdit(page);
 			await page.getByRole('button', { name: 'Add card' }).first().click();
-			await page.waitForTimeout(600);
-			await page.getByRole('button', { name: /CARD TYPE/ }).click({ force: true });
 			await page.waitForTimeout(400);
 		}
 	},

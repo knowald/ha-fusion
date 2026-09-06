@@ -228,6 +228,7 @@
 	   snippets rendered into this shared shell. */
 	.body > :global(.group-label),
 	.body > :global(.type-gallery),
+	.body > :global(.editor-layout),
 	.body > :global(.preview),
 	.body > :global(.filter-row),
 	.body > :global(.add-filter),

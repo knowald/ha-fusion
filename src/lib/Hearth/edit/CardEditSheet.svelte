@@ -24,8 +24,7 @@
 	import CardPreview from './CardPreview.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import FormSection from './FormSection.svelte';
-	import Icon from '../Icon.svelte';
-	import { layer } from '$lib/ui/layers';
+	import TypeGallery from './TypeGallery.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 	import VisibilityField from './VisibilityField.svelte';
@@ -60,7 +59,8 @@
 	const initial = id !== null ? findOverviewCard(get(hearthConfig), id, roomId) : undefined;
 
 	let type = $state<OverviewCard['type']>(initial?.type ?? 'entities');
-	let typeOpen = $state(false);
+	// a new card opens on the gallery; an existing one on its fields
+	let typeOpen = $state(id === null);
 	// blank means the type's own default: media and sensor cards fill, the rest
 	// size to their content
 	let fill = $state<string>(
@@ -141,9 +141,8 @@
 		close();
 	}
 
-	function selectType(value: OverviewCard['type']) {
-		type = value;
-		typeOpen = false;
+	function selectType(value: string) {
+		type = value as OverviewCard['type'];
 	}
 </script>
 
@@ -155,19 +154,17 @@
 	onremove={id !== null ? remove : undefined}
 	wide
 >
-	<div class="card-editor-layout">
+	<TypeGallery
+		kinds={CARD_TYPES}
+		selected={type}
+		label="hearth_card_type"
+		searchPlaceholder={$lang('hearth_search_cards')}
+		noMatch={$lang('hearth_no_cards_match')}
+		bind:open={typeOpen}
+		onselect={selectType}
+	/>
+	<div class="card-editor-layout editor-layout" class:hidden={typeOpen}>
 		<div class="card-settings editor-fields">
-			<div class="card-actions">
-				<button type="button" class="action-button" onclick={() => (typeOpen = true)}>
-					<span class="action-icon"><Icon name={descriptor.icon} size={ICON.control} /></span>
-					<span class="action-copy"
-						><small>{$lang('hearth_card_type')}</small><strong>{$lang(descriptor.name)}</strong
-						></span
-					>
-					<Icon name="chevron_right" size={ICON.control} />
-				</button>
-			</div>
-
 			<!-- keyed so a type switch mounts a fresh editor with fresh field state -->
 			{#key type}
 				{#await descriptor.editor() then Editor}
@@ -217,54 +214,6 @@
 				: undefined}
 		/>
 	</div>
-
-	{#if typeOpen}
-		<div
-			class="popup-backdrop"
-			role="presentation"
-			onclick={(event) => event.target === event.currentTarget && (typeOpen = false)}
-		>
-			<div
-				class="action-popup"
-				role="dialog"
-				tabindex="-1"
-				aria-modal="true"
-				aria-label={$lang('hearth_change_card_type')}
-				use:layer={() => (typeOpen = false)}
-			>
-				<div class="popup-header">
-					<div>
-						<small>{$lang('hearth_structure')}</small>
-						<h3>{$lang('hearth_change_card_type')}</h3>
-					</div>
-					<button
-						type="button"
-						aria-label={$lang('hearth_close')}
-						onclick={() => (typeOpen = false)}><Icon name="close" size={ICON.control} /></button
-					>
-				</div>
-				<p class="popup-intro">{$lang('hearth_choose_how_this_card_presents_its')}</p>
-				<div class="type-gallery">
-					{#each CARD_TYPES as kind (kind.type)}
-						<button
-							type="button"
-							class="type-option"
-							class:selected={type === kind.type}
-							onclick={() => selectType(kind.type)}
-						>
-							<span class="type-icon"><Icon name={kind.icon} size={ICON.control} /></span>
-							<span class="type-copy"
-								><span class="type-name">{$lang(kind.name)}</span><span class="type-sub"
-									>{$lang(kind.sub)}</span
-								></span
-							>
-							{#if type === kind.type}<Icon name="check" size={ICON.control} />{/if}
-						</button>
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
 </EditSheet>
 
 <style>
@@ -279,175 +228,12 @@
 		min-width: 0;
 	}
 
-	.type-gallery {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 8px;
-		margin-bottom: 20px;
-	}
-
-	.card-actions {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 8px;
-		margin-bottom: 20px;
-	}
-
-	.action-button {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		min-width: 0;
-		padding: 10px;
-		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
-		color: var(--h-icon);
-		font: inherit;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.action-button:hover {
-		border-color: rgb(var(--h-line-rgb) / calc(0.16 * var(--h-line-scale)));
-		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
-	}
-
-	.action-icon {
-		display: flex;
-		padding: 8px;
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
-	}
-
-	.action-copy {
-		display: flex;
-		flex: 1;
-		flex-direction: column;
-		min-width: 0;
-	}
-
-	.action-copy small,
-	.popup-header small {
-		font-family: var(--h-font-mono);
-		font-size: var(--h-type-caption);
-		letter-spacing: 1.5px;
-		color: var(--h-label);
-	}
-
-	.action-copy strong {
-		overflow: hidden;
-		color: var(--h-text-3);
-		font-size: var(--h-type-small);
-		font-weight: 550;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.popup-backdrop {
-		position: fixed;
-		inset: 0;
-		z-index: var(--h-layer-picker);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 20px;
-		background: var(--h-scrim);
-		backdrop-filter: blur(5px);
-	}
-
-	.action-popup {
-		width: min(620px, 100%);
-		max-height: min(680px, calc(100dvh - 40px));
-		padding: 22px;
-		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
-		border-radius: var(--h-radius-lg);
-		background: var(--h-sheet-0);
-		box-shadow: 0 24px 70px var(--h-scrim);
-		overflow: auto;
-	}
-
-	.popup-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 16px;
-	}
-
-	.popup-header h3 {
-		margin: 2px 0 0;
-		color: var(--h-text-1);
-		font-size: var(--h-type-title);
-	}
-
-	.popup-header button {
-		display: flex;
-		padding: 8px;
-		border: 0;
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
-		color: var(--h-icon);
-		cursor: pointer;
-	}
-
-	.popup-intro {
-		margin: 8px 0 18px;
-		color: var(--h-text-6);
-		font-size: var(--h-type-secondary);
-	}
-
-	.type-option {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		min-width: 0;
-		padding: 12px 12px;
-		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
-		color: var(--h-text-4);
-		cursor: pointer;
-		user-select: none;
-		-webkit-user-select: none;
-	}
-
-	.type-option.selected {
-		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
-		border-color: rgb(var(--h-accent-rgb) / calc(0.3 * var(--h-accent-scale)));
-		color: var(--h-accent-icon);
-	}
-
-	.type-icon {
-		display: flex;
-		flex: none;
-	}
-
-	.type-copy {
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-	}
-
-	.type-name {
-		font-size: var(--h-type-secondary);
-		font-family: inherit;
-		text-align: left;
-		font-weight: 600;
-	}
-
-	.type-sub {
-		font-size: var(--h-type-caption);
-		color: var(--h-text-6);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+	/* the open gallery is the whole sheet; fields and preview wait underneath */
+	.card-editor-layout.hidden {
+		display: none;
 	}
 
 	@media (max-width: 820px) {
-		.card-actions {
-			grid-template-columns: 1fr;
-		}
-
 		.card-editor-layout {
 			grid-template-columns: 1fr;
 			gap: 18px;

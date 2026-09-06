@@ -50,8 +50,8 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			margin: 0 calc(-24px - var(--h-pad-x));
-			padding: calc(8px + env(safe-area-inset-top)) calc(16px + var(--h-pad-x)) 8px;
+			margin: 0 calc(-1 * var(--h-pad-x));
+			padding: 8px calc(12px + var(--h-pad-x));
 			background: linear-gradient(180deg, var(--h-bg-1) 70%, transparent);
 		}
 
