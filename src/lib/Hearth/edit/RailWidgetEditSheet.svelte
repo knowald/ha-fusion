@@ -158,7 +158,7 @@
 		<aside class="pane">
 			<div class="pane-label">{$lang('hearth_live_preview')}</div>
 			<div class="preview-well" style="pointer-events: none">
-				{#if type === 'spacer'}
+				{#if previewWidget.type === 'spacer' && !previewWidget.height && !previewWidget.line}
 					<div class="preview-note">{$lang('hearth_flexible_gap_pushes_the_widgets_around')}</div>
 				{:else}
 					<RailWidgetRenderer widget={previewWidget} />

@@ -43,9 +43,9 @@ describe('Hearth type registries', () => {
 			for (const key of [descriptor.label, descriptor.name, descriptor.sub]) {
 				expect(translated(key), `${descriptor.type}: ${key} missing from en.json`).toBe(true);
 			}
-			// only the spacer is drawn by the rail itself and has nothing to edit
-			if (descriptor.type !== 'spacer') expect(descriptor.component).toEqual(expect.any(Function));
-			if (!['spacer', 'nav', 'search', 'notifications'].includes(descriptor.type)) {
+			expect(descriptor.component).toEqual(expect.any(Function));
+			// option-free widgets have nothing to edit
+			if (!['nav', 'search', 'notifications'].includes(descriptor.type)) {
 				expect((await descriptor.editor?.())?.default).toEqual(expect.any(Function));
 			}
 			expectSchemaContract(descriptor.type, descriptor.schema, descriptor.normalize?.({}) ?? {});

@@ -15,6 +15,7 @@ describe('normalizeHearthConfig', () => {
 		expect(DEFAULT_HEARTH_CONFIG).toMatchObject({
 			rail: [
 				{ id: 'clock', type: 'clock' },
+				{ id: 'divider', type: 'spacer', line: true, height: 24 },
 				{ id: 'nav', type: 'nav' },
 				{ id: 'spacer', type: 'spacer' }
 			],

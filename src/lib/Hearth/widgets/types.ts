@@ -39,11 +39,8 @@ export interface WidgetDescriptor<T extends RailWidget = RailWidget> {
 	/** Structural rules for the type's own fields; a loose object so extension keys pass. */
 	schema: GenericSchema;
 	needsConfiguration?: (widget: T) => boolean;
-	/**
-	 * Absent for layout-only widgets such as the spacer, which the rail draws
-	 * itself. Typed loosely because widgets without options declare no props.
-	 */
-	component?: Component<any>;
+	/** Typed loosely because option-free widgets declare no props. */
+	component: Component<any>;
 	/** Absent for widgets with no options. */
 	editor?: () => Promise<{ default: Component<WidgetEditorProps<T>> }>;
 }

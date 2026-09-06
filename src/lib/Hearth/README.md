@@ -187,9 +187,8 @@ before and after normalization, so every type's schema and normalizer agree on
 at least one real document.
 
 Rail widgets follow the same shape under `widgets/`, registered in
-`widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only
-widgets (the spacer) have no component; option-free widgets (nav, search) have
-no editor.
+`widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Option-free
+widgets (nav, search, notifications) have no editor.
 
 Entity domains are described in `src/lib/core/domains/index.ts`: icon, tap
 behaviour, tile treatment, active predicate, group summary words and toggle

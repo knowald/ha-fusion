@@ -59,6 +59,7 @@ export const DEFAULT_HEARTH_CONFIG: HearthConfig = {
 	day_night: { entity: 'sun.sun' },
 	rail: [
 		{ id: 'clock', type: 'clock' },
+		{ id: 'divider', type: 'spacer', line: true, height: 24 },
 		{ id: 'nav', type: 'nav' },
 		{ id: 'spacer', type: 'spacer' }
 	],
