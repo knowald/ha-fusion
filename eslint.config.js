@@ -45,9 +45,16 @@ export default tseslint.config(
 	{
 		// the rework layers are typed; the count is capped by --max-warnings in the
 		// lint script and only goes down. legacy/ stays exempt until it is deleted.
-		files: ['src/lib/Hearth/**', 'src/lib/ui/**', 'src/lib/core/**', 'src/routes/hearth/**'],
+		files: ['src/lib/Hearth/**', 'src/routes/+page.svelte', 'src/routes/+page.server.ts'],
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'warn'
+		}
+	},
+	{
+		// core and ui are any-free; keep them that way
+		files: ['src/lib/core/**', 'src/lib/ui/**'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'error'
 		}
 	},
 	{

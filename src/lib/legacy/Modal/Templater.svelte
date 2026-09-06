@@ -34,7 +34,8 @@
 	} = $props();
 
 	// svelte-ignore state_referenced_locally
-	let template = $state(sel?.template?.[type]);
+	// ButtonItem.template is typed as nested objects but holds template strings
+	let template = $state(String(sel?.template?.[type] ?? ''));
 	let modalTransitionEnd = $state(false);
 
 	let service: string | undefined = $state(undefined);
