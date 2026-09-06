@@ -5,22 +5,30 @@ import type { RequestHandler } from './$types';
 
 const CONFIG_PATH = './data/hearth.yaml';
 
+function isMapping(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export const POST: RequestHandler = async ({ request }) => {
-	const body = await request.json();
-	if (!body || typeof body !== 'object') error(400, 'invalid body');
+	const body = await request.json().catch(() => null);
+	if (!isMapping(body)) error(400, 'invalid body');
 
 	// new shape is { revision, config }; legacy clients post the config object
 	// directly, which skips the conflict check
 	const isRevisionedShape = 'config' in body;
 	const config = isRevisionedShape ? body.config : body;
-	if (!config || typeof config !== 'object') error(400, 'invalid config');
+	if (!isMapping(config)) error(400, 'invalid config');
+	const revision = isRevisionedShape ? body.revision : undefined;
+	if (revision !== undefined && !(Number.isInteger(revision) && (revision as number) >= 0)) {
+		error(400, 'invalid revision');
+	}
 
 	let result;
 	try {
 		result = await saveYamlDocument({
 			file: CONFIG_PATH,
 			body: config,
-			revision: isRevisionedShape ? body.revision : undefined,
+			revision: revision as number | undefined,
 			force: body.force === true,
 			head: { version: CONFIG_VERSION }
 		});

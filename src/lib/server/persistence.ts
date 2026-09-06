@@ -51,8 +51,9 @@ async function backupCurrentFile(file: string) {
 		await mkdir(BACKUP_DIR, { recursive: true });
 		const stem = basename(file).replace(/\.ya?ml$/, '');
 		await copyFile(file, `${BACKUP_DIR}/${stem}-${Date.now()}.yaml`);
-	} catch {
-		// nothing to back up on first save
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return;
+		console.warn(`Could not back up ${file} before saving:`, error);
 	}
 }
 
@@ -101,7 +102,7 @@ async function atomicWriteFile(file: string, data: string) {
 
 export interface SaveRequest {
 	file: string;
-	/** The document body; a client-supplied `revision` inside it never wins. */
+	/** The document body; keys it shares with `head` or `revision` never win. */
 	body: Record<string, unknown>;
 	/** The revision the client loaded; undefined skips the conflict check. */
 	revision?: number;
@@ -123,9 +124,10 @@ export async function saveYamlDocument(request: SaveRequest): Promise<SaveResult
 		if (request.revision !== undefined && request.force !== true && request.revision !== revision) {
 			return { conflict: true as const, revision };
 		}
+		const head: Record<string, unknown> = { revision: revision + 1, ...(request.head ?? {}) };
 		const body = { ...request.body };
-		delete body.revision;
-		const data = yaml.dump({ revision: revision + 1, ...(request.head ?? {}), ...body });
+		for (const key of Object.keys(head)) delete body[key];
+		const data = yaml.dump({ ...head, ...body });
 		await backupCurrentFile(request.file);
 		await atomicWriteFile(request.file, data);
 		return { conflict: false as const, revision: revision + 1 };
