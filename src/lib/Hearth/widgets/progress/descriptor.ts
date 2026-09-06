@@ -1,6 +1,13 @@
+import * as v from 'valibot';
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
+import {
+	OptionalText,
+	OptionalEntityId,
+	OptionalTextList,
+	optionalNumberAtLeast
+} from '../../schema';
 
 export type ProgressWidget = Extract<RailWidget, { type: 'progress' }>;
 
@@ -25,6 +32,17 @@ export const progressWidget: WidgetDescriptor<ProgressWidget> = {
 			widget.completion_delay_minutes >= -1
 				? widget.completion_delay_minutes
 				: undefined
+	}),
+	schema: v.looseObject({
+		name: OptionalText,
+		icon: OptionalText,
+		status_entity: OptionalEntityId,
+		progress_entity: OptionalEntityId,
+		unit: OptionalText,
+		remaining_entity: OptionalEntityId,
+		active_states: OptionalTextList,
+		completed_states: OptionalTextList,
+		completion_delay_minutes: optionalNumberAtLeast(-1)
 	}),
 	needsConfiguration: (widget) => !widget.status_entity,
 	component: Widget,

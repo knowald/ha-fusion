@@ -1,6 +1,8 @@
+import * as v from 'valibot';
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
+import { OptionalText } from '../../schema';
 
 export type TemplateWidget = Extract<RailWidget, { type: 'template' }>;
 
@@ -14,6 +16,7 @@ export const templateWidget: WidgetDescriptor<TemplateWidget> = {
 		template:
 			typeof widget.template === 'string' && widget.template.trim() ? widget.template : undefined
 	}),
+	schema: v.looseObject({ template: OptionalText }),
 	needsConfiguration: (widget) => !widget.template,
 	component: Widget,
 	editor: () => import('./Editor.svelte')

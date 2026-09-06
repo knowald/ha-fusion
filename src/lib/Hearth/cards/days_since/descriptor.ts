@@ -1,7 +1,9 @@
+import * as v from 'valibot';
 import type { OverviewCard } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
+import { OptionalText, OptionalEntityId } from '../../schema';
 
 export type DaysSinceCard = Extract<OverviewCard, { type: 'days_since' }>;
 
@@ -16,6 +18,7 @@ export const daysSinceCard: CardDescriptor<DaysSinceCard> = {
 		title: trimmedOrUndefined(card.title),
 		icon: trimmedOrUndefined(card.icon)
 	}),
+	schema: v.looseObject({ entity: OptionalEntityId, title: OptionalText, icon: OptionalText }),
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,

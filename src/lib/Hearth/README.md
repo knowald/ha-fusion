@@ -163,8 +163,10 @@ one line in `cards/index.ts`:
 
 - `descriptor.ts` - the `CardDescriptor`: translation keys for the gallery
   (`label`, `name`, `sub`) and an icon, the mandatory `normalize` rule that
-  coerces every typed field of a raw YAML card, an optional valibot `schema`
-  for the YAML editor, `needsConfiguration` for the setup placeholder,
+  coerces every typed field of a raw YAML card, the mandatory valibot `schema`
+  (a loose object over the type's own fields, so the YAML editor can name a
+  bad value before Apply while unknown keys pass), `needsConfiguration` for
+  the setup placeholder,
   `entityIds` for attention and search, layout flags (`fillByDefault`,
   `sizable`, `stretchMinHeight`, `heightHint`) and preview flags
   (`previewReorder`, `previewInteractive`). `editor` is a loader
@@ -178,7 +180,11 @@ one line in `cards/index.ts`:
 The card's type shape lives in the `OverviewCardVariant` union in `types.ts`;
 `cards/index.ts` fails to compile when a union member has no descriptor or a
 descriptor has no union member. `typeRegistry.test.ts` fails when a descriptor
-is missing a part or its translation keys are absent from `en.json`.
+is missing a part, its translation keys are absent from `en.json`, its
+defaults fail its own schema, or a schema field accepts a wrongly shaped value.
+`config.test.ts` round-trips the matrix fixture through `hearthConfigIssues`
+before and after normalization, so every type's schema and normalizer agree on
+at least one real document.
 
 Rail widgets follow the same shape under `widgets/`, registered in
 `widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only

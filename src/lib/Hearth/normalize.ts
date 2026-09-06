@@ -19,7 +19,14 @@ import {
 import { CARD_TYPES, cardDescriptor } from './cards';
 import { migrateHearthConfig } from './migrate';
 import * as v from 'valibot';
-import { issueLines } from './schema';
+import {
+	CardSharedSchema,
+	issueLines,
+	RootSettingsSchema,
+	RoomSchema,
+	StackSchema,
+	WidgetSharedSchema
+} from './schema';
 import { RAIL_WIDGET_TYPES, widgetDescriptor } from './widgets';
 
 /*
@@ -48,6 +55,11 @@ export function hearthConfigIssues(raw: unknown): string[] {
 	if (!isRecord(raw)) return ['Configuration must be a YAML mapping'];
 
 	const issues: string[] = [];
+	const report = (schema: v.GenericSchema, value: unknown, path: string) => {
+		const parsed = v.safeParse(schema, value);
+		if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
+	};
+	report(RootSettingsSchema, raw, '');
 	const widgetIds = new Map<string, string>();
 	const itemIds = new Map<string, string>();
 	const checkId = (value: unknown, path: string, seen: Map<string, string>) => {
@@ -67,6 +79,7 @@ export function hearthConfigIssues(raw: unknown): string[] {
 		checkId(value.id, path, itemIds);
 		if (value.kind === 'stack') {
 			if (!allowStack) issues.push(`${path}: nested stacks are not supported`);
+			report(StackSchema, value, path);
 			if (!Array.isArray(value.cards)) issues.push(`${path}.cards must be a list`);
 			else value.cards.forEach((card, index) => checkCard(card, `${path}.cards[${index}]`, false));
 			return;
@@ -75,11 +88,8 @@ export function hearthConfigIssues(raw: unknown): string[] {
 			issues.push(`${path}.type is not a supported card type`);
 			return;
 		}
-		const schema = cardDescriptor(value.type)?.schema;
-		if (schema) {
-			const parsed = v.safeParse(schema, value);
-			if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
-		}
+		report(CardSharedSchema, value, path);
+		report(cardDescriptor(value.type)!.schema, value, path);
 	};
 
 	if (!Array.isArray(raw.rail)) issues.push('rail must be a list');
@@ -95,11 +105,8 @@ export function hearthConfigIssues(raw: unknown): string[] {
 				issues.push(`${path}.type is not a supported widget type`);
 				return;
 			}
-			const schema = widgetDescriptor(widget.type)?.schema;
-			if (schema) {
-				const parsed = v.safeParse(schema, widget);
-				if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
-			}
+			report(WidgetSharedSchema, widget, path);
+			report(widgetDescriptor(widget.type)!.schema, widget, path);
 		});
 	}
 
@@ -113,6 +120,7 @@ export function hearthConfigIssues(raw: unknown): string[] {
 				return;
 			}
 			checkId(room.id, path, roomIds);
+			report(RoomSchema, room, path);
 			if (!Array.isArray(room.cards)) {
 				issues.push(`${path}.cards must be a list of columns`);
 				return;
