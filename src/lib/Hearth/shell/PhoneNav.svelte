@@ -43,6 +43,7 @@
 
 	@media (max-width: 900px) {
 		.phone-nav {
+			min-width: 0;
 			position: sticky;
 			top: 0;
 			z-index: var(--h-layer-bar);

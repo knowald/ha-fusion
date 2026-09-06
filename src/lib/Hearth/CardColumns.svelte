@@ -268,7 +268,9 @@
 <style>
 	.overview {
 		display: grid;
-		grid-template-columns: repeat(var(--overview-columns, 2), 1fr);
+		/* minmax(0, 1fr): a column never grows past its share to fit a tile
+		   grid's min-content, which would push the page past the viewport */
+		grid-template-columns: repeat(var(--overview-columns, 2), minmax(0, 1fr));
 		gap: 32px;
 	}
 
@@ -303,7 +305,7 @@
 	   viewport. */
 	@container hearth-page (max-width: 560px) {
 		.overview {
-			grid-template-columns: 1fr;
+			grid-template-columns: minmax(0, 1fr);
 		}
 
 		.overview.clip {
@@ -321,7 +323,7 @@
 	@supports not (container-type: inline-size) {
 		@media (max-width: 1200px) {
 			.overview {
-				grid-template-columns: 1fr;
+				grid-template-columns: minmax(0, 1fr);
 			}
 
 			.overview.clip {
@@ -340,6 +342,7 @@
 		flex-direction: column;
 		gap: 18px;
 		min-height: 0;
+		min-width: 0;
 	}
 
 	.card-slot {
