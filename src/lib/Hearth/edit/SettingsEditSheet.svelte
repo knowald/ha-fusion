@@ -305,6 +305,8 @@
 
 	select {
 		appearance: none;
+		/* every select in the sheet shares one width, so their left edges line up */
+		width: 200px;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
@@ -351,6 +353,18 @@
 
 	.unit-input input:focus {
 		border-color: rgb(var(--h-accent-rgb) / calc(0.4 * var(--h-accent-scale)));
+	}
+
+	/* the native spinner paints white over the dark field and eats the padding */
+	.unit-input input[type='number'] {
+		appearance: textfield;
+		-moz-appearance: textfield;
+	}
+
+	.unit-input input::-webkit-outer-spin-button,
+	.unit-input input::-webkit-inner-spin-button {
+		appearance: none;
+		margin: 0;
 	}
 
 	.switch {
