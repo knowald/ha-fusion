@@ -39,6 +39,8 @@ export interface WidgetDescriptor<T extends RailWidget = RailWidget> {
 	/** Structural rules for the type's own fields; a loose object so extension keys pass. */
 	schema: GenericSchema;
 	needsConfiguration?: (widget: T) => boolean;
+	/** Every entity id the widget shows, for attention and search. */
+	entityIds: (widget: T) => string[];
 	/** Typed loosely because option-free widgets declare no props. */
 	component: Component<any>;
 	/** Absent for widgets with no options. */

@@ -12,5 +12,6 @@ export const searchWidget: WidgetDescriptor<SearchWidget> = {
 	sub: 'hearth_widget_search_sub',
 	icon: 'search',
 	schema: v.looseObject({}),
+	entityIds: () => [],
 	component: Widget
 };

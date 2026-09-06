@@ -45,6 +45,10 @@ export const progressWidget: WidgetDescriptor<ProgressWidget> = {
 		completion_delay_minutes: optionalNumberAtLeast(-1)
 	}),
 	needsConfiguration: (widget) => !widget.status_entity,
+	entityIds: (widget) =>
+		[widget.status_entity, widget.progress_entity, widget.remaining_entity].filter(
+			(id): id is string => !!id
+		),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

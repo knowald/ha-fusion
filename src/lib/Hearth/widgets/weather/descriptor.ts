@@ -16,6 +16,7 @@ export const weatherWidget: WidgetDescriptor<WeatherWidget> = {
 	normalize: (widget) => ({ entity: trimmedOrUndefined(widget.entity) }),
 	schema: v.looseObject({ entity: OptionalEntityId }),
 	needsConfiguration: (widget) => !widget.entity,
+	entityIds: (widget) => (widget.entity ? [widget.entity] : []),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

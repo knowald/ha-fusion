@@ -21,6 +21,7 @@ export const spacerWidget: WidgetDescriptor<SpacerWidget> = {
 		height: normalizeWholeNumber(widget.height, SPACER_MIN_HEIGHT)
 	}),
 	schema: v.looseObject({ line: OptionalFlag, height: optionalNumberAtLeast(SPACER_MIN_HEIGHT) }),
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

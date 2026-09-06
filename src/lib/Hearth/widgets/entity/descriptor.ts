@@ -22,6 +22,7 @@ export const entityWidget: WidgetDescriptor<EntityWidget> = {
 		vertical_padding: v.optional(v.picklist(['compact'], 'must be compact'))
 	}),
 	needsConfiguration: (widget) => !widget.entity,
+	entityIds: (widget) => (widget.entity ? [widget.entity] : []),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

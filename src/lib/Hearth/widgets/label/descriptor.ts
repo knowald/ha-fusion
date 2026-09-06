@@ -17,6 +17,7 @@ export const labelWidget: WidgetDescriptor<LabelWidget> = {
 		divider: widget.divider === true ? true : undefined
 	}),
 	schema: v.looseObject({ text: OptionalText, divider: OptionalFlag }),
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

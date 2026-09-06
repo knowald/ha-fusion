@@ -19,6 +19,7 @@ export const timerWidget: WidgetDescriptor<TimerWidget> = {
 	}),
 	schema: v.looseObject({ entity: OptionalEntityId, name: OptionalText }),
 	needsConfiguration: (widget) => !widget.entity,
+	entityIds: (widget) => (widget.entity ? [widget.entity] : []),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

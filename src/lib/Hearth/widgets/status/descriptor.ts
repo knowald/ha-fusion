@@ -19,6 +19,7 @@ export const statusWidget: WidgetDescriptor<StatusWidget> = {
 		entity: trimmedOrUndefined(widget.entity)
 	}),
 	schema: v.looseObject({ icon: OptionalText, text: OptionalText, entity: OptionalEntityId }),
+	entityIds: (widget) => (widget.entity ? [widget.entity] : []),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };
