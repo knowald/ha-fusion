@@ -87,8 +87,11 @@ visibility conditions) are valibot schemas in `schema.ts`; their TypeScript
 types derive from them. Card and widget descriptors attach a schema for their
 own fields, and the YAML editor reports every schema issue with its path
 before applying an edit. Saves go through `src/lib/server/persistence.ts`,
-which serializes writes per file, replaces atomically, keeps ten backups and
-manages the `revision` counter used for conflict detection.
+which serializes writes per file within one server process, backs the
+replaced document up under `data/backups/` (ten kept, named by timestamp and
+the revision they replace; a save that cannot be backed up fails), replaces
+the file atomically and manages the `revision` counter used for conflict
+detection.
 
 `HearthConfig` holds `rail` (a list of rail widgets), `rooms` (pages, each with
 `cards` as an array of columns), the `theme` and `theme_night` token maps, the
