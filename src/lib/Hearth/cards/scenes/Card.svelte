@@ -66,7 +66,7 @@
 
 <style>
 	.section-title {
-		font-size: 19px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		color: var(--h-text-2);
 		margin-bottom: 14px;
@@ -83,8 +83,8 @@
 		overflow: hidden;
 		display: flex;
 		align-items: center;
-		gap: 9px;
-		padding: 11px 16px;
+		gap: 10px;
+		padding: 12px 16px;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		box-shadow: var(--h-card-shadow);
@@ -102,7 +102,7 @@
 	}
 
 	.scene-name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 500;
 		color: var(--h-text-3);
 		white-space: nowrap;
@@ -129,12 +129,12 @@
 		min-width: 0;
 		flex-direction: column;
 		gap: 8px;
-		padding: 15px 10px;
+		padding: 16px 10px;
 		border-radius: var(--h-radius-md);
 	}
 
 	.scenes.bar .scene-name {
-		font-size: 13.5px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -143,7 +143,7 @@
 
 	.scene-caption {
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 0.5px;
 		text-transform: uppercase;
 		color: var(--h-text-6);
@@ -162,7 +162,7 @@
 		border-radius: var(--h-radius-md);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		text-align: center;
 	}
 </style>

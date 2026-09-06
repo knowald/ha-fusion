@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { connected } from '$lib/core/ha/connection';
 	import { subscribeForecast } from '$lib/core/ha/history';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
@@ -79,7 +80,7 @@
 	<div class="row">
 		<Icon
 			name={conditionIcons[condition] ?? 'clear_day'}
-			size={38}
+			size={ICON.control}
 			color="rgb(var(--h-accent-rgb))"
 			fill
 		/>
@@ -104,7 +105,7 @@
 
 <style>
 	.card {
-		margin-top: 26px;
+		margin-top: 28px;
 		margin-bottom: 8px;
 		padding: 16px 18px;
 		border-radius: var(--h-radius-card);
@@ -132,13 +133,13 @@
 	}
 
 	.temp {
-		font-size: 26px;
+		font-size: var(--h-type-stat);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
 
 	.sub {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 	}
 
@@ -151,13 +152,13 @@
 	}
 
 	.day {
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-5);
 	}
 
 	.value {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-3);
-		margin-top: 3px;
+		margin-top: 4px;
 	}
 </style>

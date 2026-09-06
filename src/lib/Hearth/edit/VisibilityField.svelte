@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import type { VisibilityCondition } from '../config';
@@ -175,7 +176,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => removeRow(index))}
 		>
-			<Icon name="delete" size={20} />
+			<Icon name="delete" size={ICON.control} />
 		</span>
 	</div>
 {/each}
@@ -186,14 +187,14 @@
 	tabindex="0"
 	onkeydown={(event) => activateOnKeyboard(event, addRow)}
 >
-	<Icon name="add" size={18} />
+	<Icon name="add" size={ICON.control} />
 	<span>{$lang('add_condition')}</span>
 </div>
 
 <style>
 	.group-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 18px 0 10px;
@@ -217,7 +218,7 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		margin: -4px 0 14px;
 		cursor: pointer;
@@ -248,7 +249,7 @@
 		border-radius: var(--h-radius-xs);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		cursor: pointer;
 	}
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { fade } from 'svelte/transition';
 	import { motion } from '$lib/core/app/motion';
 	import { connected } from '$lib/core/ha/connection';
@@ -26,13 +27,13 @@
 
 {#if showDisconnected}
 	<div class="connection-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
-		<Icon name="cloud_off" size={18} />
+		<Icon name="cloud_off" size={ICON.control} />
 		{$lang('hearth_connection_lost')}
 	</div>
 {/if}
 {#if $hearthLoadError}
 	<div class="load-error" role="alert">
-		<Icon name="error" size={20} />
+		<Icon name="error" size={ICON.control} />
 		<div>
 			<strong>{$lang('hearth_config_unreadable')}</strong>
 			<span>{$hearthLoadError}</span>
@@ -42,13 +43,13 @@
 {/if}
 {#if $saveState === 'saved'}
 	<div class="save-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
-		<Icon name="check_circle" size={18} />
+		<Icon name="check_circle" size={ICON.control} />
 		{$lang('saved')}
 	</div>
 {/if}
 {#if $commandFailure}
 	<div class="command-error" role="alert" transition:fade={{ duration: $motion ? 250 : 0 }}>
-		<Icon name="error" size={18} />
+		<Icon name="error" size={ICON.control} />
 		<div>
 			<strong>{$lang('hearth_command_failed')}</strong>
 			<span>
@@ -62,13 +63,13 @@
 			aria-label={$lang('hearth_close')}
 			onclick={dismissCommandFailure}
 		>
-			<Icon name="close" size={18} />
+			<Icon name="close" size={ICON.control} />
 		</button>
 	</div>
 {/if}
 {#if overflowBy > 0}
 	<div class="overflow-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
-		<Icon name="unfold_less" size={18} />
+		<Icon name="unfold_less" size={ICON.control} />
 		{$lang('hearth_page_overflows_this_screen_by')}
 		{overflowBy}px
 	</div>
@@ -80,7 +81,7 @@
 		top: calc(18px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 40;
+		z-index: var(--h-layer-toast);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -89,9 +90,9 @@
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-bad-text);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 
 	.load-error {
@@ -99,7 +100,7 @@
 		top: calc(18px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 42;
+		z-index: calc(var(--h-layer-toast) + 2);
 		display: flex;
 		align-items: flex-start;
 		gap: 10px;
@@ -109,7 +110,7 @@
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-bad-rgb) / 0.5);
 		color: var(--h-bad-text);
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 
 	.load-error div {
@@ -120,20 +121,20 @@
 	}
 
 	.load-error strong {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 	}
 
 	.load-error span {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		overflow-wrap: anywhere;
 	}
 
 	.save-toast {
 		position: absolute;
-		bottom: calc(84px + var(--h-pad-y));
+		bottom: calc(40px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 40;
+		z-index: var(--h-layer-toast);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -142,27 +143,27 @@
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-good-text);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 
 	.command-error {
 		position: absolute;
-		bottom: calc(84px + var(--h-pad-y));
+		bottom: calc(40px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 43;
+		z-index: calc(var(--h-layer-toast) + 3);
 		display: flex;
 		align-items: flex-start;
 		gap: 10px;
 		width: min(560px, calc(100vw - 32px));
-		padding: 11px 12px;
+		padding: 12px 12px;
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-bad-rgb) / 0.55);
 		color: var(--h-bad-text);
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 
 	.command-error > div {
@@ -174,17 +175,17 @@
 	}
 
 	.command-error strong {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 	}
 
 	.command-error span {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		overflow-wrap: anywhere;
 	}
 
 	.toast-dismiss {
 		display: inline-flex;
-		padding: 3px;
+		padding: 4px;
 		border: 0;
 		background: none;
 		color: inherit;
@@ -196,7 +197,7 @@
 		top: calc(18px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 40;
+		z-index: var(--h-layer-toast);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -205,8 +206,8 @@
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 </style>

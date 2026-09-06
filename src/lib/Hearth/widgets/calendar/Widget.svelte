@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { connected } from '$lib/core/ha/connection';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
@@ -105,7 +106,7 @@
 
 {#if next || $hearthEditMode}
 	<div class="row" class:inactive={!next}>
-		<Icon name="event" size={20} color="var(--h-icon)" />
+		<Icon name="event" size={ICON.control} color="var(--h-icon)" />
 		<div class="body">
 			<div class="title">{next?.title ?? $lang('hearth_no_upcoming_events')}</div>
 			{#if timeLine}
@@ -119,7 +120,7 @@
 			use:Ripple={PRESS_RIPPLE}
 			onclick={openCalendar}
 		>
-			<Icon name="chevron_right" size={20} color="var(--h-icon)" />
+			<Icon name="chevron_right" size={ICON.control} color="var(--h-icon)" />
 		</button>
 	</div>
 {/if}
@@ -147,7 +148,7 @@
 	}
 
 	.title {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-weight: 500;
 		color: var(--h-text-2);
 		white-space: nowrap;
@@ -156,7 +157,7 @@
 	}
 
 	.time {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 		margin-top: 2px;
 	}

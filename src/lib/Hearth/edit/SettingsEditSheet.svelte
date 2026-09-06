@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -84,7 +85,7 @@
 								<option value={option.value}>{option.label}</option>
 							{/each}
 						</select>
-						<Icon name="expand_more" size={18} />
+						<Icon name="expand_more" size={ICON.control} />
 					</span>
 				</div>
 				{#if screensaver !== '0'}
@@ -118,7 +119,7 @@
 									<option value={option.value}>{option.label}</option>
 								{/each}
 							</select>
-							<Icon name="expand_more" size={18} />
+							<Icon name="expand_more" size={ICON.control} />
 						</span>
 					</div>
 				{/if}
@@ -141,7 +142,7 @@
 				</div>
 				{#if keepScreenOn && ($wakeLockState === 'unsupported' || $wakeLockState === 'denied')}
 					<div class="setting-warning" role="alert">
-						<Icon name="warning" size={18} />
+						<Icon name="warning" size={ICON.control} />
 						<span>
 							{#if $wakeLockState === 'unsupported'}
 								{$lang('hearth_screen_wake_lock_is_unavailable_open')}
@@ -197,12 +198,12 @@
 					onkeydown={(event) =>
 						activateOnKeyboard(event, () => editor.set({ kind: 'appSettings' }))}
 				>
-					<Icon name="settings_applications" size={18} />
+					<Icon name="settings_applications" size={ICON.control} />
 					<div class="row-main">
 						<div class="row-label">{$lang('hearth_application_settings')}</div>
 						<div class="row-sub">{$lang('hearth_language_motion_add_ons_version_and')}</div>
 					</div>
-					<Icon name="chevron_right" size={20} />
+					<Icon name="chevron_right" size={ICON.control} />
 				</div>
 				<div
 					class="row action pressable"
@@ -212,12 +213,12 @@
 					tabindex="0"
 					onkeydown={(event) => activateOnKeyboard(event, () => editor.set({ kind: 'code' }))}
 				>
-					<Icon name="code" size={18} />
+					<Icon name="code" size={ICON.control} />
 					<div class="row-main">
 						<div class="row-label">{$lang('hearth_edit_configuration_yaml')}</div>
 						<div class="row-sub">{$lang('hearth_edits_the_whole_configuration_as_yaml')}</div>
 					</div>
-					<Icon name="chevron_right" size={20} />
+					<Icon name="chevron_right" size={ICON.control} />
 				</div>
 			</div>
 		</section>
@@ -236,7 +237,7 @@
 
 	.section-title {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 0 0 8px;
@@ -267,12 +268,12 @@
 	}
 
 	.row-label {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-2);
 	}
 
 	.row-sub {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		margin-top: 2px;
 	}
@@ -309,7 +310,7 @@
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		padding: 8px 32px 8px 12px;
 		outline: none;
 		cursor: pointer;
@@ -331,7 +332,7 @@
 	}
 
 	.unit {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-6);
 	}
 
@@ -344,7 +345,7 @@
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		outline: none;
 	}
 
@@ -355,10 +356,10 @@
 	.switch {
 		width: 52px;
 		height: 30px;
-		border-radius: 15px;
+		border-radius: var(--h-radius-sm);
 		cursor: pointer;
 		position: relative;
-		transition: background 0.2s;
+		transition: background var(--h-motion-base);
 		flex: none;
 		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
 	}
@@ -369,17 +370,17 @@
 
 	.knob {
 		position: absolute;
-		top: 3px;
-		left: 3px;
+		top: 4px;
+		left: 4px;
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
 		background: var(--h-icon);
-		transition: left 0.2s;
+		transition: left var(--h-motion-base);
 	}
 
 	.switch.on .knob {
-		left: 25px;
+		left: 24px;
 		background: var(--h-on-accent);
 	}
 
@@ -391,7 +392,7 @@
 		border-top: 1px solid rgb(var(--h-bad-rgb) / 0.22);
 		background: rgb(var(--h-bad-rgb) / 0.06);
 		color: var(--h-bad-text);
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		line-height: 1.4;
 	}
 </style>

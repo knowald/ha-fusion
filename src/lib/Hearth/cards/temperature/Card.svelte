@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { connected } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
@@ -126,14 +127,14 @@
 						aria-label={$lang('hearth_lower_target')}
 						onclick={() => nudgeTarget(-1)}
 					>
-						<Icon name="remove" size={18} color="var(--h-text-3)" />
+						<Icon name="remove" size={ICON.control} color="var(--h-text-3)" />
 					</button>
 					<button
 						type="button"
 						aria-label={$lang('hearth_raise_target')}
 						onclick={() => nudgeTarget(1)}
 					>
-						<Icon name="add" size={18} color="var(--h-text-3)" />
+						<Icon name="add" size={ICON.control} color="var(--h-text-3)" />
 					</button>
 				</div>
 			</div>
@@ -213,7 +214,7 @@
 	}
 
 	.label {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-4);
 	}
 
@@ -224,14 +225,14 @@
 	}
 
 	.value {
-		font-size: 46px;
+		font-size: var(--h-type-hero);
 		font-weight: 600;
 		letter-spacing: -1.5px;
 		color: var(--h-text-1);
 	}
 
 	.unit {
-		font-size: 18px;
+		font-size: var(--h-type-subtitle);
 		color: var(--h-text-3);
 	}
 
@@ -241,22 +242,22 @@
 
 	.target-label {
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.6px;
 		color: var(--h-text-6);
 	}
 
 	.target-value {
-		font-size: 22px;
+		font-size: var(--h-type-headline);
 		font-weight: 600;
 		color: var(--h-accent-icon);
-		margin-top: 5px;
+		margin-top: 6px;
 	}
 
 	.target-buttons {
 		display: flex;
 		gap: 6px;
-		margin-top: 9px;
+		margin-top: 10px;
 		justify-content: flex-end;
 	}
 
@@ -275,10 +276,10 @@
 	}
 
 	.verdict {
-		padding: 7px 13px;
-		border-radius: 999px;
+		padding: 8px 14px;
+		border-radius: var(--h-radius-pill);
 		font-family: var(--h-font-mono);
-		font-size: 10.5px;
+		font-size: var(--h-type-label);
 		letter-spacing: 1.2px;
 	}
 
@@ -316,7 +317,7 @@
 		left: 0;
 		margin-top: 4px;
 		font-family: var(--h-font-mono);
-		font-size: 9.5px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1px;
 		color: var(--h-label);
 		pointer-events: none;
@@ -327,7 +328,7 @@
 		align-items: center;
 		justify-content: space-between;
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.4px;
 		color: var(--h-text-6);
 	}

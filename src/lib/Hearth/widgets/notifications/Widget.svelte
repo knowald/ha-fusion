@@ -1,4 +1,6 @@
 <script lang="ts">
+	import EmptyState from '../../EmptyState.svelte';
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { persistentNotifications } from '$lib/core/ha/connection';
 	import { service } from '$lib/core/ha/commands';
@@ -35,11 +37,11 @@
 				aria-label={$lang('hearth_dismiss')}
 				onclick={() => dismiss(id)}
 			>
-				<Icon name="close" size={16} />
+				<Icon name="close" size={ICON.inline} />
 			</button>
 		</div>
 	{:else}
-		<div class="empty">{$lang('hearth_no_notifications')}</div>
+		<EmptyState inline text={$lang('hearth_no_notifications')} />
 	{/each}
 </div>
 
@@ -62,7 +64,7 @@
 	.body {
 		flex: 1;
 		min-width: 0;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-3);
 		overflow-wrap: anywhere;
 	}
@@ -88,10 +90,5 @@
 		cursor: pointer;
 		display: grid;
 		place-items: center;
-	}
-
-	.empty {
-		font-size: 12px;
-		color: var(--h-text-6);
 	}
 </style>

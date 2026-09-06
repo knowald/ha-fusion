@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
 	import type { CardEditorProps } from '../types';
@@ -42,7 +43,7 @@
 			onclick={() => players.splice(index, 1)}
 			onkeydown={(event) => activateOnKeyboard(event, () => players.splice(index, 1))}
 		>
-			<Icon name="delete" size={20} />
+			<Icon name="delete" size={ICON.control} />
 		</span>
 	</div>
 {/each}
@@ -53,7 +54,7 @@
 	onclick={() => players.push({ entity: '' })}
 	onkeydown={(event) => activateOnKeyboard(event, () => players.push({ entity: '' }))}
 >
-	<Icon name="add" size={18} />
+	<Icon name="add" size={ICON.control} />
 	<span>{$lang('hearth_add_player')}</span>
 </div>
 <TextField label={$lang('hearth_pause_timeout')} bind:value={timeout} placeholder="300" />

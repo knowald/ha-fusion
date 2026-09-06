@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import type { EntityRef } from '../../types';
 	import { moveItem } from '../../config';
@@ -228,7 +229,7 @@
 >
 	<span class="group-label">{$lang('hearth_entities')}</span>
 	<span class="entities-count">{entities.length}</span>
-	<Icon name={entitiesOpen ? 'expand_less' : 'expand_more'} size={19} />
+	<Icon name={entitiesOpen ? 'expand_less' : 'expand_more'} size={ICON.control} />
 </button>
 {#if entitiesOpen}
 	<div class="entity-editors">
@@ -243,7 +244,7 @@
 					>
 						<Icon
 							name={expandedRows.includes(refIndex) ? 'expand_more' : 'chevron_right'}
-							size={19}
+							size={ICON.control}
 						/>
 						<span class="entity-row-copy">
 							<strong>{ref.name.trim() || ref.entity.trim() || 'New entity'}</strong>
@@ -258,7 +259,7 @@
 							aria-label={$lang('hearth_move_entity_up')}
 							onclick={() => moveRow(refIndex, -1)}
 						>
-							<Icon name="keyboard_arrow_up" size={20} />
+							<Icon name="keyboard_arrow_up" size={ICON.control} />
 						</button>
 						<button
 							type="button"
@@ -267,7 +268,7 @@
 							aria-label={$lang('hearth_move_entity_down')}
 							onclick={() => moveRow(refIndex, 1)}
 						>
-							<Icon name="keyboard_arrow_down" size={20} />
+							<Icon name="keyboard_arrow_down" size={ICON.control} />
 						</button>
 						<button
 							type="button"
@@ -275,7 +276,7 @@
 							aria-label={$lang('hearth_remove_entity')}
 							onclick={() => removeRow(refIndex)}
 						>
-							<Icon name="delete" size={20} />
+							<Icon name="delete" size={ICON.control} />
 						</button>
 					</span>
 				</div>
@@ -319,7 +320,7 @@
 			onclick={addRow}
 			onkeydown={(event) => activateOnKeyboard(event, addRow)}
 		>
-			<Icon name="add" size={18} />
+			<Icon name="add" size={ICON.control} />
 			<span>{$lang('hearth_add_entity')}</span>
 		</div>
 	</div>

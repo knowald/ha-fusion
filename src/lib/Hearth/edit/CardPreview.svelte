@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import type { EntityRef, OverviewCard } from '../types';
 	import { cardDescriptor } from '../cards';
@@ -30,7 +31,7 @@
 				aria-pressed={reorder}
 				onclick={() => (reorder = !reorder)}
 			>
-				<Icon name="drag_indicator" size={16} />
+				<Icon name="drag_indicator" size={ICON.inline} />
 				{reorder ? 'Finish reorder' : 'Reorder'}
 			</button>
 		{/if}
@@ -59,21 +60,21 @@
 	.label {
 		color: var(--h-label);
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 	}
 
 	button {
 		display: flex;
 		align-items: center;
-		gap: 5px;
-		padding: 5px 8px;
+		gap: 6px;
+		padding: 6px 8px;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 		color: var(--h-text-5);
 		font: inherit;
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		cursor: pointer;
 	}
 
@@ -100,7 +101,7 @@
 
 	@media (max-width: 820px) {
 		.pane {
-			z-index: 2;
+			z-index: calc(var(--h-layer-raised) + 1);
 			grid-row: 1;
 			padding: 12px;
 			margin: -12px -12px 0;

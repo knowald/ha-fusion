@@ -152,7 +152,7 @@
 
 <style>
 	.hint {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		margin: 6px 0 2px;
 	}
@@ -161,7 +161,7 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		padding: 6px 0;
 		cursor: pointer;

@@ -16,7 +16,8 @@
 		"lint": "prettier --check . && eslint . --max-warnings 119",
 		"format": "prettier --write .",
 		"matrix": "playwright test --config playwright.matrix.config.ts",
-		"style:inventory": "node scripts/style-inventory.mjs"
+		"style:inventory": "node scripts/style-inventory.mjs",
+		"check:style": "node scripts/check-style-tokens.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

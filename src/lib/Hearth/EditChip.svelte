@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import Icon from './Icon.svelte';
@@ -8,7 +9,7 @@
 
 <!-- the drag handle must NOT stop propagation - SortableJS listens on the container -->
 <div class="chip">
-	<span class="drag-handle"><Icon name="drag_indicator" size={17} /></span>
+	<span class="drag-handle"><Icon name="drag_indicator" size={ICON.inline} /></span>
 	<span
 		class="pencil pressable"
 		onclick={(event) => {
@@ -27,7 +28,7 @@
 				})(event)
 			)}
 	>
-		<Icon name="edit" size={17} />
+		<Icon name="edit" size={ICON.inline} />
 	</span>
 </div>
 
@@ -36,12 +37,12 @@
 		position: absolute;
 		top: 10px;
 		right: 10px;
-		z-index: 5;
+		z-index: var(--h-layer-chip);
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		padding: 5px 7px;
-		border-radius: 10px;
+		padding: 6px 8px;
+		border-radius: var(--h-radius-tight);
 		/* solid, not a color-mix: older tablet webviews drop the whole
 		   declaration and the chip becomes invisible over the card */
 		background: var(--h-sheet-0);

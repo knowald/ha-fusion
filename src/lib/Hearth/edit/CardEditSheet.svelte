@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import type {
@@ -158,12 +159,12 @@
 		<div class="card-settings editor-fields">
 			<div class="card-actions">
 				<button type="button" class="action-button" onclick={() => (typeOpen = true)}>
-					<span class="action-icon"><Icon name={descriptor.icon} size={20} /></span>
+					<span class="action-icon"><Icon name={descriptor.icon} size={ICON.control} /></span>
 					<span class="action-copy"
 						><small>{$lang('hearth_card_type')}</small><strong>{$lang(descriptor.name)}</strong
 						></span
 					>
-					<Icon name="chevron_right" size={20} />
+					<Icon name="chevron_right" size={ICON.control} />
 				</button>
 			</div>
 
@@ -239,7 +240,7 @@
 					<button
 						type="button"
 						aria-label={$lang('hearth_close')}
-						onclick={() => (typeOpen = false)}><Icon name="close" size={22} /></button
+						onclick={() => (typeOpen = false)}><Icon name="close" size={ICON.control} /></button
 					>
 				</div>
 				<p class="popup-intro">{$lang('hearth_choose_how_this_card_presents_its')}</p>
@@ -251,13 +252,13 @@
 							class:selected={type === kind.type}
 							onclick={() => selectType(kind.type)}
 						>
-							<span class="type-icon"><Icon name={kind.icon} size={21} /></span>
+							<span class="type-icon"><Icon name={kind.icon} size={ICON.control} /></span>
 							<span class="type-copy"
 								><span class="type-name">{$lang(kind.name)}</span><span class="type-sub"
 									>{$lang(kind.sub)}</span
 								></span
 							>
-							{#if type === kind.type}<Icon name="check" size={19} />{/if}
+							{#if type === kind.type}<Icon name="check" size={ICON.control} />{/if}
 						</button>
 					{/each}
 				</div>
@@ -314,7 +315,7 @@
 
 	.action-icon {
 		display: flex;
-		padding: 7px;
+		padding: 8px;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 	}
@@ -329,7 +330,7 @@
 	.action-copy small,
 	.popup-header small {
 		font-family: var(--h-font-mono);
-		font-size: 9px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.5px;
 		color: var(--h-label);
 	}
@@ -337,7 +338,7 @@
 	.action-copy strong {
 		overflow: hidden;
 		color: var(--h-text-3);
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		font-weight: 550;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -346,12 +347,12 @@
 	.popup-backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 80;
+		z-index: var(--h-layer-picker);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding: 20px;
-		background: rgb(0 0 0 / 0.55);
+		background: var(--h-scrim);
 		backdrop-filter: blur(5px);
 	}
 
@@ -362,7 +363,7 @@
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		border-radius: var(--h-radius-lg);
 		background: var(--h-sheet-0);
-		box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+		box-shadow: 0 24px 70px var(--h-scrim);
 		overflow: auto;
 	}
 
@@ -376,12 +377,12 @@
 	.popup-header h3 {
 		margin: 2px 0 0;
 		color: var(--h-text-1);
-		font-size: 20px;
+		font-size: var(--h-type-title);
 	}
 
 	.popup-header button {
 		display: flex;
-		padding: 7px;
+		padding: 8px;
 		border: 0;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
@@ -392,7 +393,7 @@
 	.popup-intro {
 		margin: 8px 0 18px;
 		color: var(--h-text-6);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 	}
 
 	.type-option {
@@ -400,7 +401,7 @@
 		align-items: center;
 		gap: 10px;
 		min-width: 0;
-		padding: 11px 12px;
+		padding: 12px 12px;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
@@ -428,14 +429,14 @@
 	}
 
 	.type-name {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-family: inherit;
 		text-align: left;
 		font-weight: 600;
 	}
 
 	.type-sub {
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		color: var(--h-text-6);
 		white-space: nowrap;
 		overflow: hidden;

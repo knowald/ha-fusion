@@ -1,4 +1,5 @@
 <script lang="ts">
+	import EmptyState from '../../EmptyState.svelte';
 	import { lang } from '$lib/core/i18n';
 	import { connected } from '$lib/core/ha/connection';
 	import { states, sensorNumber, entityActive } from '$lib/core/ha/entities';
@@ -110,7 +111,7 @@
 				<path d={line.path} fill="none" stroke="var(--h-accent-dim-text)" stroke-width={stroke} />
 			</svg>
 		{:else}
-			<div class="empty">{$lang('hearth_no_recorded_history_for_the_last')}</div>
+			<EmptyState inline text={$lang('hearth_no_recorded_history_for_the_last')} />
 		{/if}
 	{:else if style === 'history'}
 		<div class="timeline" title={stateObj?.state}>
@@ -164,7 +165,7 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 8px;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 	}
 
@@ -183,7 +184,7 @@
 	.empty,
 	.period {
 		margin-top: 8px;
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-6);
 	}
 
@@ -191,7 +192,7 @@
 		display: flex;
 		height: 10px;
 		margin-top: 10px;
-		border-radius: 5px;
+		border-radius: var(--h-radius-hair);
 		overflow: hidden;
 		background: rgb(var(--h-line-rgb) / 0.12);
 	}
@@ -207,7 +208,7 @@
 	.bar {
 		height: 8px;
 		margin-top: 10px;
-		border-radius: 4px;
+		border-radius: var(--h-radius-hair);
 		background: rgb(var(--h-line-rgb) / 0.12);
 		overflow: hidden;
 	}
@@ -215,7 +216,7 @@
 	.bar-fill {
 		height: 100%;
 		background: rgb(var(--h-accent-rgb));
-		transition: width 300ms ease;
+		transition: width var(--h-motion-slow) ease;
 	}
 
 	.radial-wrap {
@@ -234,6 +235,6 @@
 		inset: 0;
 		display: grid;
 		place-items: center;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 	}
 </style>

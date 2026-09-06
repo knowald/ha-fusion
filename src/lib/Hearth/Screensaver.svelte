@@ -112,10 +112,10 @@
 	.screensaver {
 		position: fixed;
 		inset: 0;
-		z-index: 100;
+		z-index: var(--h-layer-screensaver);
 		display: grid;
 		place-items: center;
-		background: #030201;
+		background: #030201 /* literal ok: pure black for OLED burn-in */;
 		font-family: var(--h-font-ui);
 		outline: none;
 		cursor: default;
@@ -132,7 +132,7 @@
 	}
 
 	.clock {
-		font-size: clamp(80px, 14vw, 160px);
+		font-size: clamp(var(--h-type-clock), 14vw, 160px); /* literal ok: scales with the screen */
 		font-weight: 600;
 		line-height: 1;
 		letter-spacing: -4px;
@@ -140,7 +140,7 @@
 	}
 
 	.date {
-		font-size: 20px;
+		font-size: var(--h-type-title);
 		margin-top: 18px;
 		letter-spacing: 0.2px;
 		color: rgb(var(--h-line-rgb) / calc(var(--screensaver-brightness) * 0.75));

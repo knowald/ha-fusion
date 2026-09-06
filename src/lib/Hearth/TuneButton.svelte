@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -21,7 +22,7 @@
 		onpointerdown={(event) => event.stopPropagation()}
 		onpointerup={(event) => event.stopPropagation()}
 	>
-		<Icon name={icon} size={19} />
+		<Icon name={icon} size={ICON.control} />
 	</button>
 </span>
 
@@ -33,7 +34,7 @@
 
 	.tune {
 		position: relative;
-		z-index: 1;
+		z-index: var(--h-layer-raised);
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -48,8 +49,8 @@
 		font: inherit;
 		touch-action: manipulation;
 		transition:
-			background 120ms ease,
-			color 120ms ease;
+			background var(--h-motion-fast) ease,
+			color var(--h-motion-fast) ease;
 	}
 
 	.tune:hover {
@@ -68,6 +69,6 @@
 		top: 50%;
 		right: 4px;
 		transform: translateY(-50%);
-		z-index: 2;
+		z-index: calc(var(--h-layer-raised) + 1);
 	}
 </style>

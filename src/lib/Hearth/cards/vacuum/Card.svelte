@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';
@@ -73,7 +74,7 @@
 		}
 	}}
 >
-	<Icon name="robot_2" size={26} color="var(--h-accent-dim-text)" />
+	<Icon name="robot_2" size={ICON.tile} color="var(--h-accent-dim-text)" />
 	<div class="info">
 		<div class="name">{entity?.attributes?.friendly_name ?? 'Vacuum'}</div>
 		<div class="status">{status}</div>
@@ -91,11 +92,11 @@
 			}}
 			onkeydown={(event) => event.stopPropagation()}
 		>
-			<Icon name={running ? 'stop' : 'play_arrow'} size={18} />
+			<Icon name={running ? 'stop' : 'play_arrow'} size={ICON.control} />
 			{running ? 'Stop' : 'Clean'}
 		</button>
 	{/if}
-	<Icon name="chevron_right" size={21} color="var(--h-icon)" />
+	<Icon name="chevron_right" size={ICON.control} color="var(--h-icon)" />
 </div>
 
 {#if popoverOpen && row && card.entity}
@@ -135,13 +136,13 @@
 	}
 
 	.name {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 600;
 		color: var(--h-text-2);
 	}
 
 	.status {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 	}
 
@@ -154,7 +155,7 @@
 		padding: 10px 16px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		background: rgb(var(--h-accent-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-accent-text);

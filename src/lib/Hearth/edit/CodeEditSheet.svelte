@@ -75,13 +75,13 @@
 
 <style>
 	.hint {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
 	}
 
 	.error {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-bad-text);
 		margin-top: 10px;
 	}

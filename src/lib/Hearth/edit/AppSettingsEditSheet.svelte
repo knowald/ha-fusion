@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -135,7 +136,7 @@
 								<option value={option.value}>{option.label}</option>
 							{/each}
 						</select>
-						<Icon name="expand_more" size={18} />
+						<Icon name="expand_more" size={ICON.control} />
 					</span>
 				</div>
 			{/if}
@@ -212,23 +213,23 @@
 				class="row action pressable"
 				onclick={() => editor.set({ kind: 'customCss' })}
 			>
-				<Icon name="css" size={18} />
+				<Icon name="css" size={ICON.control} />
 				<div class="row-main">
 					<div class="row-label">{$lang('hearth_custom_css')}</div>
 					<div class="row-sub">{$lang('hearth_custom_css_sub')}</div>
 				</div>
-				<Icon name="chevron_right" size={20} />
+				<Icon name="chevron_right" size={ICON.control} />
 			</button>
 			<button type="button" class="row action pressable" onclick={openClassicDashboard}>
-				<Icon name="grid_view" size={18} />
+				<Icon name="grid_view" size={ICON.control} />
 				<div class="row-main">
 					<div class="row-label">{$lang('hearth_classic_dashboard')}</div>
 					<div class="row-sub">{$lang('hearth_back_to_the_original_ha_fusion')}</div>
 				</div>
-				<Icon name="chevron_right" size={20} />
+				<Icon name="chevron_right" size={ICON.control} />
 			</button>
 			<button type="button" class="row action danger pressable" onclick={handleLogout}>
-				<Icon name="logout" size={18} />
+				<Icon name="logout" size={ICON.control} />
 				<div class="row-main">
 					<div class="row-label">{$lang('log_out')}</div>
 					<div class="row-sub">{$lang('hearth_clears_the_home_assistant_session')}</div>
@@ -250,7 +251,7 @@
 
 	.section-note,
 	.error {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 	}
 
@@ -290,18 +291,18 @@
 	}
 
 	.row-label {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-2);
 	}
 
 	.row-sub {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		margin-top: 2px;
 	}
 
 	.row-value {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 	}
 
@@ -333,7 +334,7 @@
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		color: var(--h-text-2);
 		font: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		padding: 8px 12px;
 		outline: none;
 	}
@@ -352,7 +353,7 @@
 		height: 30px;
 		padding: 0;
 		border: 0;
-		border-radius: 15px;
+		border-radius: var(--h-radius-sm);
 		cursor: pointer;
 		position: relative;
 		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
@@ -364,17 +365,17 @@
 
 	.knob {
 		position: absolute;
-		top: 3px;
-		left: 3px;
+		top: 4px;
+		left: 4px;
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
 		background: var(--h-icon);
-		transition: left 0.2s;
+		transition: left var(--h-motion-base);
 	}
 
 	.switch.on .knob {
-		left: 25px;
+		left: 24px;
 		background: var(--h-on-accent);
 	}
 </style>

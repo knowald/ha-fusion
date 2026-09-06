@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/core/ha/entities';
@@ -53,7 +54,7 @@
 <div class="overlay" onclick={onclose} role="presentation" use:layer={onclose}>
 	<div class="panel" onclick={(event) => event.stopPropagation()} role="presentation">
 		<div class="search">
-			<Icon name="search" size={20} />
+			<Icon name="search" size={ICON.control} />
 			<input
 				type="text"
 				bind:value={query}
@@ -67,7 +68,7 @@
 				role="button"
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, onclose)}
-				><Icon name="close" size={22} /></span
+				><Icon name="close" size={ICON.control} /></span
 			>
 		</div>
 		<div class="list">
@@ -80,7 +81,9 @@
 					tabindex="0"
 					onkeydown={(event) => activateOnKeyboard(event, () => pick(entry.entityId))}
 				>
-					<span class="row-icon"><Icon name={domainIcon(entry.entityId)} size={20} /></span>
+					<span class="row-icon"
+						><Icon name={domainIcon(entry.entityId)} size={ICON.control} /></span
+					>
 					<span class="row-text">
 						<span class="row-name">{entry.name}</span>
 						<span class="row-id">{entry.entityId}</span>
@@ -104,7 +107,7 @@
 	.overlay {
 		position: fixed;
 		inset: 0;
-		z-index: 80;
+		z-index: var(--h-layer-picker);
 		background: var(--h-overlay);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
@@ -121,15 +124,15 @@
 		background: radial-gradient(620px 420px at 25% -10%, var(--h-sheet-0), var(--h-sheet-1) 60%);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xl);
-		padding: 22px 26px;
-		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+		padding: 22px 28px;
+		box-shadow: 0 30px 80px var(--h-scrim);
 	}
 
 	.search {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 0 13px;
+		padding: 0 14px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
@@ -144,12 +147,12 @@
 	.search input {
 		flex: 1;
 		min-width: 0;
-		padding: 11px 0;
+		padding: 12px 0;
 		border: none;
 		background: none;
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		outline: none;
 	}
 
@@ -179,7 +182,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		padding: 9px 10px;
+		padding: 10px 10px;
 		border-radius: var(--h-radius-xs);
 		cursor: pointer;
 	}
@@ -202,7 +205,7 @@
 	}
 
 	.row-name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-2);
 		white-space: nowrap;
 		overflow: hidden;
@@ -211,7 +214,7 @@
 
 	.row-id {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-5);
 		white-space: nowrap;
 		overflow: hidden;
@@ -220,7 +223,7 @@
 
 	.row-state {
 		max-width: 90px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 		white-space: nowrap;
 		overflow: hidden;
@@ -229,7 +232,7 @@
 
 	.hint {
 		padding: 12px 10px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		text-align: center;
 	}

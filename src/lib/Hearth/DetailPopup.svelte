@@ -85,7 +85,7 @@
 <style>
 	.state-line {
 		margin-top: 6px;
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		color: var(--h-text-3);
 	}
 
@@ -109,7 +109,7 @@
 
 	.count {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-6);
 	}
 
@@ -131,7 +131,7 @@
 	.entity-id {
 		margin-top: 16px;
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-6);
 		overflow-wrap: anywhere;
 	}

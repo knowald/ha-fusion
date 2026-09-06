@@ -406,4 +406,73 @@ export function isNightState(state: string | undefined, config?: DayNightSwitch)
 	return NIGHT_STATES.has(current);
 }
 
+/*
+ * Structural tokens: the type scale, spacing steps, extra radii, layer order,
+ * motion and the focus ring. Unlike THEME_VARS these are not user knobs; they
+ * exist so every component reads the same scale and the token guard
+ * (scripts/check-style-tokens.mjs) can refuse literals.
+ */
+export const TYPE_SCALE: Record<string, number> = {
+	caption: 10,
+	label: 11,
+	small: 12,
+	secondary: 13,
+	body: 14,
+	emphasis: 15,
+	subtitle: 18,
+	title: 20,
+	headline: 22,
+	stat: 24,
+	'display-sm': 30,
+	display: 34,
+	hero: 44,
+	clock: 80
+};
+
+export const SPACE_SCALE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 40];
+
+/** Layer order, matching the stack in src/lib/ui/layers.ts from bottom to top. */
+export const LAYERS: Record<string, number> = {
+	raised: 1,
+	chip: 5,
+	'grid-header': 6,
+	bar: 30,
+	toast: 40,
+	popover: 45,
+	popup: 50,
+	search: 55,
+	sheet: 60,
+	'sheet-popover': 70,
+	picker: 80,
+	confirm: 90,
+	screensaver: 100
+};
+
+export const STRUCTURE_CSS = [
+	...Object.entries(TYPE_SCALE).map(([name, px]) => `--h-type-${name}: ${px}px;`),
+	...SPACE_SCALE.map((px) => `--h-space-${px}: ${px}px;`),
+	'--h-radius-hair: 4px;',
+	'--h-radius-tight: 8px;',
+	'--h-radius-pill: 999px;',
+	...Object.entries(LAYERS).map(([name, z]) => `--h-layer-${name}: ${z};`),
+	'--h-motion-fast: 120ms;',
+	'--h-motion-base: 200ms;',
+	'--h-motion-slow: 300ms;',
+	'--h-motion-theme: 600ms;',
+	'--h-ease: ease;',
+	'--h-focus-ring: 2px solid var(--h-accent-text);',
+	// surfaces drawn over artwork or photos: fixed dark scrims and light ink,
+	// independent of the theme so they read on any album cover
+	'--h-art-scrim-1: rgba(20, 14, 9, 0.55);',
+	'--h-art-scrim-2: rgba(20, 14, 9, 0.75);',
+	'--h-art-scrim-3: rgba(20, 14, 9, 0.88);',
+	'--h-on-art-1: #f3ebe1;',
+	'--h-on-art-2: #cdbfae;',
+	'--h-on-art-3: #a99a89;',
+	'--h-on-art-line: rgba(255, 238, 220, 0.12);',
+	'--h-on-art-fill: rgba(255, 238, 220, 0.08);',
+	'--h-scrim: rgba(0, 0, 0, 0.55);',
+	'--h-shadow-layer: 0 24px 80px rgba(0, 0, 0, 0.6);'
+].join(' ');
+
 export const SWATCH_COLORS = ['#f4c879', '#f0925f', '#e0788a', '#b39ddb', '#9fc7d8', '#a6cdb2'];
