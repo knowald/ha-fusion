@@ -1,5 +1,5 @@
 import type { RailWidget } from '../../types';
-import { normalizeHeight, trimmedOrUndefined } from '../../normalizers';
+import { normalizeEmbedUrl, normalizeHeight } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
 
@@ -12,7 +12,7 @@ export const iframeWidget: WidgetDescriptor<IframeWidget> = {
 	sub: 'hearth_widget_iframe_sub',
 	icon: 'web',
 	normalize: (widget) => ({
-		url: trimmedOrUndefined(widget.url),
+		url: normalizeEmbedUrl(widget.url),
 		height: normalizeHeight(widget.height)
 	}),
 	needsConfiguration: (widget) => !widget.url,

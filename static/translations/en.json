@@ -915,6 +915,7 @@
 	"hearth_template_hint": "Jinja rendered by Home Assistant, markdown allowed.",
 	"hearth_template_error": "Template error",
 	"hearth_url": "URL",
+	"hearth_embed_url_hint": "Use an http(s) address or a path on this server, such as /local/page.html.",
 	"hearth_height_px": "Height in px",
 	"hearth_no_notifications": "No notifications",
 	"hearth_dismiss": "Dismiss",

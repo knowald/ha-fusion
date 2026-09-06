@@ -3,6 +3,7 @@
 	import type { WidgetEditorProps } from '../types';
 	import type { IframeWidget } from './descriptor';
 	import TextField from '../../edit/TextField.svelte';
+	import { normalizeEmbedUrl } from '../../normalizers';
 
 	let { initial: initialProp, onchange }: WidgetEditorProps<IframeWidget> = $props();
 
@@ -13,16 +14,20 @@
 	let url = $state(initial?.url ?? '');
 	let height = $state(initial?.height ? String(initial.height) : '');
 
+	let urlValid = $derived(!url.trim() || normalizeEmbedUrl(url) !== undefined);
+
 	$effect(() => {
 		const heightValue = parseInt(height, 10);
 		onchange({
 			fields: {
-				url: url.trim() || undefined,
+				url: normalizeEmbedUrl(url),
 				height: Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined
-			}
+			},
+			valid: urlValid
 		});
 	});
 </script>
 
 <TextField label={$lang('hearth_url')} bind:value={url} placeholder="https://" />
+{#if !urlValid}<div class="field-error">{$lang('hearth_embed_url_hint')}</div>{/if}
 <TextField label={$lang('hearth_height_px')} bind:value={height} placeholder="150" />
