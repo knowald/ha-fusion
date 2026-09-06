@@ -1,3 +1,4 @@
+import * as v from 'valibot';
 import type { OverviewCard } from '../../types';
 import { isRecord } from '../../normalizers';
 import type { CardDescriptor } from '../types';
@@ -24,6 +25,9 @@ export const fusionCard: CardDescriptor<FusionCard> = {
 	normalize: (card) => ({ config: isRecord(card.config) ? card.config : undefined }),
 	// an embed without its entity draws the original "Unknown" tile; keep the
 	// placeholder until it has one (the spacer needs none)
+	schema: v.looseObject({
+		config: v.optional(v.record(v.string(), v.unknown(), 'must be a mapping'))
+	}),
 	needsConfiguration: (card) =>
 		!card.config?.type ||
 		(card.config.type !== 'empty' && !card.config.entity_id && !card.config.entities),

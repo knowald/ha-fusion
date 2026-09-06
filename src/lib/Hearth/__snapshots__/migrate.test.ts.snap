@@ -12,7 +12,10 @@ exports[`migrateHearthConfig > lifts a 2026.7 preview file to the current format
     {
       "city": "Wroclaw",
       "hide_mobile": undefined,
+      "hour_format": undefined,
       "id": "clock",
+      "show_seconds": undefined,
+      "timezone": undefined,
       "type": "clock",
       "visibility": undefined,
     },

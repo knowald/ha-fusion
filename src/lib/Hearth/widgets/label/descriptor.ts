@@ -1,6 +1,8 @@
+import * as v from 'valibot';
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
+import { OptionalText, OptionalFlag } from '../../schema';
 
 export type LabelWidget = Extract<RailWidget, { type: 'label' }>;
 
@@ -14,6 +16,7 @@ export const labelWidget: WidgetDescriptor<LabelWidget> = {
 		text: typeof widget.text === 'string' && widget.text.trim() ? widget.text : undefined,
 		divider: widget.divider === true ? true : undefined
 	}),
+	schema: v.looseObject({ text: OptionalText, divider: OptionalFlag }),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

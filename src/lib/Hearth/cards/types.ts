@@ -63,7 +63,7 @@ export interface CardDescriptor<T extends OverviewCard = OverviewCard> {
 	 * Structural rules for the type's own fields, checked before a YAML edit is
 	 * applied. Use a loose object so unknown extension keys pass.
 	 */
-	schema?: GenericSchema;
+	schema: GenericSchema;
 	/** True while the card has nothing to render yet and should show the setup placeholder. */
 	needsConfiguration: (card: T) => boolean;
 	/** Every entity id the card refers to, for attention and search. */

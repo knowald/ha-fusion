@@ -37,7 +37,7 @@ export interface WidgetDescriptor<T extends RailWidget = RailWidget> {
 	icon: string;
 	normalize?: (raw: Record<string, any>) => Partial<T>;
 	/** Structural rules for the type's own fields; a loose object so extension keys pass. */
-	schema?: GenericSchema;
+	schema: GenericSchema;
 	needsConfiguration?: (widget: T) => boolean;
 	/**
 	 * Absent for layout-only widgets such as the spacer, which the rail draws

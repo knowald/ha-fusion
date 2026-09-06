@@ -6,6 +6,7 @@ describe('normalizeEmbedUrl', () => {
 		expect(normalizeEmbedUrl(' https://example.com/a?b=1 ')).toBe('https://example.com/a?b=1');
 		expect(normalizeEmbedUrl('http://192.168.1.2:8123/x')).toBe('http://192.168.1.2:8123/x');
 		expect(normalizeEmbedUrl('/local/page.html')).toBe('/local/page.html');
+		expect(normalizeEmbedUrl('about:blank')).toBe('about:blank');
 	});
 
 	it('drops other schemes and protocol-relative addresses', () => {
