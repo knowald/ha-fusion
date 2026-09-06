@@ -13,22 +13,22 @@ export async function openEntityModal(entity_id: string, name?: string) {
 
 	switch (getDomain(entity_id)) {
 		case 'light':
-			openModal(() => import('$lib/legacy/Modal/LightModal.svelte'), { sel });
+			openModal(() => import('../Modal/LightModal.svelte'), { sel });
 			break;
 
 		case 'input_boolean':
 		case 'remote':
 		case 'siren':
 		case 'switch':
-			openModal(() => import('$lib/legacy/Modal/SwitchModal.svelte'), { sel });
+			openModal(() => import('../Modal/SwitchModal.svelte'), { sel });
 			break;
 
 		case 'script':
-			openModal(() => import('$lib/legacy/Modal/ScriptModal.svelte'), { sel });
+			openModal(() => import('../Modal/ScriptModal.svelte'), { sel });
 			break;
 
 		case 'automation':
-			openModal(() => import('$lib/legacy/Modal/AutomationModal.svelte'), { sel });
+			openModal(() => import('../Modal/AutomationModal.svelte'), { sel });
 			break;
 
 		case 'calendar': {
@@ -39,7 +39,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 					: (await import('weekstart')).getWeekStartByLocale(language)
 			);
 			calendarView.set(localStorage.getItem('calendar'));
-			openModal(() => import('$lib/legacy/Modal/CalendarModal.svelte'), { sel });
+			openModal(() => import('../Modal/CalendarModal.svelte'), { sel });
 			break;
 		}
 
@@ -60,112 +60,112 @@ export async function openEntityModal(entity_id: string, name?: string) {
 		case 'person':
 		case 'zone':
 		case 'input_button':
-			openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
+			openModal(() => import('../Modal/SensorModal.svelte'), { sel });
 			break;
 
 		case 'update':
-			openModal(() => import('$lib/legacy/Modal/UpdateModal.svelte'), { sel });
+			openModal(() => import('../Modal/UpdateModal.svelte'), { sel });
 			break;
 
 		case 'input_number':
 		case 'number':
-			openModal(() => import('$lib/legacy/Modal/InputNumberModal.svelte'), { sel });
+			openModal(() => import('../Modal/InputNumberModal.svelte'), { sel });
 			break;
 
 		case 'input_datetime':
 		case 'datetime':
-			openModal(() => import('$lib/legacy/Modal/InputDateModal.svelte'), { sel });
+			openModal(() => import('../Modal/InputDateModal.svelte'), { sel });
 			break;
 
 		case 'input_select':
 		case 'select':
-			openModal(() => import('$lib/legacy/Modal/InputSelectModal.svelte'), { sel });
+			openModal(() => import('../Modal/InputSelectModal.svelte'), { sel });
 			break;
 
 		case 'input_text':
 		case 'text':
-			openModal(() => import('$lib/legacy/Modal/InputTextModal.svelte'), { sel });
+			openModal(() => import('../Modal/InputTextModal.svelte'), { sel });
 			break;
 
 		case 'timer':
-			openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel });
+			openModal(() => import('../Modal/TimerModal.svelte'), { sel });
 			break;
 
 		case 'vacuum':
-			openModal(() => import('$lib/legacy/Modal/VacuumModal.svelte'), { sel });
+			openModal(() => import('../Modal/VacuumModal.svelte'), { sel });
 			break;
 
 		case 'lawn_mower':
-			openModal(() => import('$lib/legacy/Modal/LawnMowerModal.svelte'), { sel });
+			openModal(() => import('../Modal/LawnMowerModal.svelte'), { sel });
 			break;
 
 		case 'valve':
-			openModal(() => import('$lib/legacy/Modal/ValveModal.svelte'), { sel });
+			openModal(() => import('../Modal/ValveModal.svelte'), { sel });
 			break;
 
 		case 'image':
-			openModal(() => import('$lib/legacy/Modal/ImageModal.svelte'), { sel });
+			openModal(() => import('../Modal/ImageModal.svelte'), { sel });
 			break;
 
 		case 'todo':
-			openModal(() => import('$lib/legacy/Modal/TodoModal.svelte'), { sel });
+			openModal(() => import('../Modal/TodoModal.svelte'), { sel });
 			break;
 
 		case 'counter':
-			openModal(() => import('$lib/legacy/Modal/CounterModal.svelte'), { sel });
+			openModal(() => import('../Modal/CounterModal.svelte'), { sel });
 			break;
 
 		case 'alarm_control_panel':
-			openModal(() => import('$lib/legacy/Modal/AlarmControlPanelModal.svelte'), { sel });
+			openModal(() => import('../Modal/AlarmControlPanelModal.svelte'), { sel });
 			break;
 
 		case 'lock':
-			openModal(() => import('$lib/legacy/Modal/LockModal.svelte'), { sel });
+			openModal(() => import('../Modal/LockModal.svelte'), { sel });
 			break;
 
 		case 'climate':
-			openModal(() => import('$lib/legacy/Modal/ClimateModal.svelte'), { sel });
+			openModal(() => import('../Modal/ClimateModal.svelte'), { sel });
 			break;
 
 		case 'camera':
-			openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
+			openModal(() => import('../Modal/CameraModal.svelte'), { sel });
 			break;
 
 		case 'water_heater':
-			openModal(() => import('$lib/legacy/Modal/WaterHeaterModal.svelte'), { sel });
+			openModal(() => import('../Modal/WaterHeaterModal.svelte'), { sel });
 			break;
 
 		case 'humidifier':
-			openModal(() => import('$lib/legacy/Modal/HumidifierModal.svelte'), { sel });
+			openModal(() => import('../Modal/HumidifierModal.svelte'), { sel });
 			break;
 
 		case 'media_player':
-			openModal(() => import('$lib/legacy/Modal/MediaPlayer.svelte'), { selected: sel });
+			openModal(() => import('../Modal/MediaPlayer.svelte'), { selected: sel });
 			break;
 
 		case 'group':
-			openModal(() => import('$lib/legacy/Modal/GroupModal.svelte'), { sel });
+			openModal(() => import('../Modal/GroupModal.svelte'), { sel });
 			break;
 
 		case 'device_tracker': {
 			if (get(states)?.[entity_id]?.attributes?.source_type === 'gps') {
-				openModal(() => import('$lib/legacy/Modal/DeviceTrackerModal.svelte'), { sel });
+				openModal(() => import('../Modal/DeviceTrackerModal.svelte'), { sel });
 			} else {
-				openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
+				openModal(() => import('../Modal/SensorModal.svelte'), { sel });
 			}
 			break;
 		}
 
 		case 'cover':
-			openModal(() => import('$lib/legacy/Modal/CoverModal.svelte'), { selected: sel });
+			openModal(() => import('../Modal/CoverModal.svelte'), { selected: sel });
 			break;
 
 		case 'fan':
-			openModal(() => import('$lib/legacy/Modal/FanModal.svelte'), { selected: sel });
+			openModal(() => import('../Modal/FanModal.svelte'), { selected: sel });
 			break;
 
 		default:
-			openModal(() => import('$lib/legacy/Modal/Unknown.svelte'), { selected: sel });
+			openModal(() => import('../Modal/Unknown.svelte'), { selected: sel });
 			break;
 	}
 }

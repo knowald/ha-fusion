@@ -5,7 +5,7 @@
 	import { clockTimeOptions } from './clock';
 	import { startDataRefresh } from './refresh';
 	import { hearthConfig, hearthEditMode, sensorNumber } from './store';
-	import { openEntityModal } from '../legacy/bridge/entityModals';
+	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import Icon from './Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'calendar' }> } = $props();

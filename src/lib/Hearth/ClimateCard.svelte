@@ -11,7 +11,7 @@
 		setClimateHvacMode,
 		setClimateTemperature
 	} from './store';
-	import { openEntityModal } from '../legacy/bridge/entityModals';
+	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
 

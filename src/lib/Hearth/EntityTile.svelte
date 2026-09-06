@@ -16,7 +16,7 @@
 		sensorNumber,
 		toggleEntity
 	} from './store';
-	import { openEntityModal } from '../legacy/bridge/entityModals';
+	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';
 	import LightTile from './LightTile.svelte';

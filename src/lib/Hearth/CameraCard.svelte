@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Camera from '$lib/legacy/Main/Camera.svelte';
+	import { LegacyCamera as Camera } from '$lib/legacy/bridge/camera';
 	import type { OverviewCard } from './config';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'camera' }> } = $props();
