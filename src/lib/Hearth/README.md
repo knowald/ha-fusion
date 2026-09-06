@@ -217,6 +217,22 @@ switching on the domain string.
   mounted, and `FusionCard.svelte` sets `pointer-events: none` on the embed so it
   cannot open its own editor. Both halves are needed; either alone leaves a gap.
 
+## Component anatomy
+
+Each family has one anatomy; an instance that needs something else adds a
+descriptor flag rather than its own styling.
+
+| Family                                                                    | Regions, top to bottom or left to right                                                                                                                         | States it must render                                                                        |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Tile (`EntityTile`, `LightTile`, `BlindTile`, `StatTile`)                 | Icon tile, name, state line; slider fill behind the content for lights and covers; tune button or edit handle in the reserved right column (`--tile-pad-right`) | off, on/active, pending pulse, unavailable (dimmed, no controls), readonly, pressed, editing |
+| Card (`cards/*`)                                                          | Section title row with count or group actions, body, `ConfigurationPlaceholder` when unconfigured                                                               | normal, needs setup, filling vs sized, editing (chip straddles the top edge)                 |
+| Rail widget (`widgets/*`)                                                 | Optional mono label, body, dividers only through the label widget                                                                                               | normal, needs setup, hidden on mobile, editing                                               |
+| Popup (`ControlPopup` + `*Popup`, `DetailPopup`)                          | Header: icon tile, name, caption, optional toggle, close; sections with mono labels; slider recipe (`PopupSlider`); action rows                                 | loading, empty (`EmptyState`), unavailable, bottom sheet under 700 px                        |
+| Edit sheet (`edit/EditSheet`)                                             | Title bar with Done and Close (and move arrows), body fields in `editor-fields.css` recipes, footer with Remove                                                 | full height under 820 px, preview after fields                                               |
+| Transient layer (popover, confirm, search, toasts, edit bar, screensaver) | One scrim (`--h-scrim`), one shadow (`--h-shadow-layer`), one radius per level                                                                                  | stacked through `ui/layers.ts`                                                               |
+
+Empty and loading copy goes through `EmptyState.svelte` and `LoadingState.svelte`.
+
 ## Interaction
 
 One table for every entity, read from `core/domains`. A tile never invents its own gesture.
