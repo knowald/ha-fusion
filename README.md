@@ -103,7 +103,7 @@ These work when a port is exposed via the add-on config or Docker. They are unav
 
 - `?room=<id>` - open a specific page by id on load.
 - `?theme=<preset id>` - preview a built-in theme preset without touching the config.
-- `?menu=false` - hide the edit pencil. Useful for wall-mounted tablets where you want to prevent edits.
+- `?menu=false` - hide the edit pencil on wall-mounted tablets. It does not lock editing: the keyboard shortcuts still work and an active edit session stays reachable.
 
 The classic dashboard keeps `?view=Name` and `?menu=false`.
 

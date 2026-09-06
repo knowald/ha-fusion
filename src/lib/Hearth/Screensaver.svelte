@@ -5,10 +5,17 @@
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { hearthConfig } from './store';
 	import { clockTimeOptions, validTimeZone } from './clock';
+	import { pushLayer } from '$lib/ui/layers';
 
 	let { minutes = 10 }: { minutes?: number } = $props();
 
 	let active = $state(false);
+
+	// while showing, the screensaver is the top layer: Escape dismisses it
+	// instead of whatever sheet it covers
+	$effect(() => {
+		if (active) return pushLayer(() => (active = false));
+	});
 	let now = $state(new Date());
 	let overlay: HTMLElement | undefined = $state();
 

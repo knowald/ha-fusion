@@ -105,15 +105,19 @@ export function cancelEdit() {
 }
 
 export const saveState = writable<'idle' | 'saved' | 'conflict' | 'error'>('idle');
+/** Why the last save failed, from the server when it said. */
+export const saveFailure = writable<string | null>(null);
 let savedToastTimer: ReturnType<typeof setTimeout>;
 
 /** Save and surface the outcome through saveState instead of throwing. */
 export async function saveWithFeedback(force = false): Promise<void> {
 	saveState.set('idle');
+	saveFailure.set(null);
 	try {
 		await saveEdit(force);
 	} catch (error) {
 		console.error(error);
+		saveFailure.set(error instanceof Error ? error.message : String(error));
 		saveState.set('error');
 	}
 }
@@ -138,7 +142,8 @@ export async function saveEdit(force = false): Promise<boolean> {
 	}
 	if (!response.ok) {
 		saveState.set('error');
-		throw new Error(`save failed: ${response.status}`);
+		const detail = (await response.text().catch(() => '')).trim();
+		throw new Error(detail || `save failed with status ${response.status}`);
 	}
 	const { revision } = await response.json();
 	hearthRevision.set(revision);

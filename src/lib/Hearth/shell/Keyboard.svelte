@@ -10,7 +10,7 @@
 	import { layerDepth } from '$lib/ui/layers';
 
 	/** Global shortcuts: f for search, cmd/ctrl+s and cmd/ctrl+z while editing. */
-	let { searchOpen, onsearch }: { searchOpen: boolean; onsearch: () => void } = $props();
+	let { onsearch }: { onsearch: () => void } = $props();
 
 	function handleKeydown(event: KeyboardEvent) {
 		const target = event.target as HTMLElement;
@@ -20,7 +20,6 @@
 			!typing &&
 			!$hearthEditMode &&
 			$hearthConfig.rail.some((widget) => widget.type === 'search') &&
-			!searchOpen &&
 			!$layerDepth &&
 			event.key === 'f' &&
 			!event.metaKey &&

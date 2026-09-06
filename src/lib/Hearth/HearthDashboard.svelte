@@ -108,7 +108,7 @@
 	});
 </script>
 
-<Keyboard searchOpen={showSearch} onsearch={() => (showSearch = true)} />
+<Keyboard onsearch={() => (showSearch = true)} />
 <ThemeStyle {presetOverride} />
 
 <section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
