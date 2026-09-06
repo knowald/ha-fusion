@@ -1,6 +1,7 @@
 import type {
 	HearthConfig,
 	HearthRoom,
+	HearthTheme,
 	OverviewCard,
 	OverviewItem,
 	OverviewStack,
@@ -35,6 +36,14 @@ const VALID_RAIL_WIDGET_TYPES = new Set<string>(RAIL_WIDGET_TYPES.map(({ type })
  * discard or repair. The visual YAML editor uses this before Apply so a typo
  * cannot silently remove a card, widget or entity reference.
  */
+/** Token maps are string to string; other values (arrays, numbers, nested maps) are dropped. */
+function normalizeTheme(raw: unknown): HearthTheme | undefined {
+	if (!isRecord(raw)) return undefined;
+	return Object.fromEntries(
+		Object.entries(raw).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+	);
+}
+
 export function hearthConfigIssues(raw: unknown): string[] {
 	if (!isRecord(raw)) return ['Configuration must be a YAML mapping'];
 
@@ -282,8 +291,8 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 
 	return {
 		...extensions,
-		theme: isRecord(config.theme) ? config.theme : undefined,
-		theme_night: isRecord(config.theme_night) ? config.theme_night : undefined,
+		theme: normalizeTheme(config.theme),
+		theme_night: normalizeTheme(config.theme_night),
 		day_night: dayNight,
 		rail,
 		rooms,

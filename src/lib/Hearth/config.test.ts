@@ -250,7 +250,7 @@ describe('wall tablet settings', () => {
 			padding_y: -4,
 			screensaver_minutes: Infinity,
 			theme: ['not', 'a', 'mapping'],
-			theme_night: { accent: '#fff' }
+			theme_night: { accent: '#fff', nested: { no: true }, size: 3 }
 		});
 		expect(config.padding_x).toBe(13);
 		expect(config.padding_y).toBeUndefined();
