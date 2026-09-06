@@ -2,12 +2,18 @@ import { get } from 'svelte/store';
 import { health } from '$lib/core/ha/connection';
 import { describe, expect, it, vi } from 'vitest';
 import {
+	canUndo,
+	cancelEdit,
 	confirmRequestedAction,
+	enterEditMode,
+	hearthConfig,
+	hearthEditMode,
 	hearthRevision,
 	requestConfirmation,
 	requestedConfirmation,
 	saveEdit,
-	saveState
+	saveState,
+	updateConfig
 } from './store';
 import { activeSceneIndex } from '$lib/core/domains/scene';
 import { blindPositionFor } from '$lib/core/domains/cover';
@@ -140,6 +146,32 @@ describe('saveEdit conflicts', () => {
 			await saveEdit(true);
 			const body = JSON.parse(String(fetchMock.mock.calls[1][1].body));
 			expect(body).toMatchObject({ revision: 3, force: true });
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it('keeps editing with history when the config changed while the save was in flight', async () => {
+		hearthConfig.set({ rail: [], rooms: [] } as any);
+		hearthRevision.set(1);
+		enterEditMode();
+		let respond: (response: Response) => void = () => {};
+		const fetchMock = vi.fn(() => new Promise<Response>((resolve) => (respond = resolve)));
+		vi.stubGlobal('fetch', fetchMock);
+		try {
+			const saving = saveEdit();
+			expect(saveEdit()).toBe(saving);
+			updateConfig((config) => {
+				config.rooms.push({ id: 'late', name: 'Late', cards: [] } as any);
+			});
+			respond(new Response(JSON.stringify({ revision: 2 }), { status: 200 }));
+			expect(await saving).toBe(true);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(get(hearthRevision)).toBe(2);
+			expect(get(hearthEditMode)).toBe(true);
+			expect(get(canUndo)).toBe(true);
+			cancelEdit();
+			expect(get(hearthConfig).rooms).toEqual([]);
 		} finally {
 			vi.unstubAllGlobals();
 		}
