@@ -3,11 +3,11 @@
 		editor,
 		hearthConfig,
 		hearthEditMode,
-		openPopovers,
 		redoConfig,
 		saveWithFeedback,
 		undoConfig
 	} from '../store';
+	import { layerDepth } from '$lib/ui/layers';
 
 	/** Global shortcuts: f for search, cmd/ctrl+s and cmd/ctrl+z while editing. */
 	let { searchOpen, onsearch }: { searchOpen: boolean; onsearch: () => void } = $props();
@@ -21,7 +21,7 @@
 			!$hearthEditMode &&
 			$hearthConfig.rail.some((widget) => widget.type === 'search') &&
 			!searchOpen &&
-			!$openPopovers &&
+			!$layerDepth &&
 			event.key === 'f' &&
 			!event.metaKey &&
 			!event.ctrlKey &&

@@ -2,6 +2,7 @@
 	import { lang } from '$lib/core/i18n';
 	import { confirmRequestedAction, dismissConfirmation, requestedConfirmation } from '../store';
 	import Icon from '../Icon.svelte';
+	import { layer } from '$lib/ui/layers';
 </script>
 
 {#if $requestedConfirmation}
@@ -16,6 +17,7 @@
 			tabindex="-1"
 			aria-modal="true"
 			aria-labelledby="hearth-confirm-title"
+			use:layer={dismissConfirmation}
 		>
 			<Icon name="warning" size={28} color="var(--h-bad-text)" />
 			<div class="confirm-copy">

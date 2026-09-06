@@ -8,6 +8,7 @@
 	import { buildProposal, type HearthProposal } from './proposal';
 	import { fetchRegistry } from '$lib/core/ha/registry';
 	import { hearthNeedsSetup, updateConfig } from './store';
+	import { layer } from '$lib/ui/layers';
 
 	let { onclose }: { onclose: () => void } = $props();
 
@@ -109,21 +110,13 @@
 		hearthNeedsSetup.set(false);
 		onclose();
 	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			onclose();
-		}
-	}
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 <div
 	class="overlay"
 	role="presentation"
 	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+	use:layer={onclose}
 >
 	<div class="panel" role="dialog" aria-modal="true" aria-label={$lang('hearth_import')}>
 		<div class="header">
