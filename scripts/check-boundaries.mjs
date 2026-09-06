@@ -68,6 +68,8 @@ const IMPORT_PATTERN =
 	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]|@import\s+(?:url\()?['"]([^'"]+)['"]/g;
 
 function resolveTarget(fromFile, specifier) {
+	// SvelteKit generates ./$types next to every route; it is not a layer
+	if (specifier === './$types') return null;
 	if (specifier.startsWith('$lib/')) return posix.join('src/lib', specifier.slice(5));
 	if (specifier.startsWith('./') || specifier.startsWith('../')) {
 		return posix.normalize(posix.join(posix.dirname(fromFile), specifier));

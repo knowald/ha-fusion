@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { selectedLanguage } from '$lib/core/i18n';
 import { attentionItems, configEntityIds } from './attention';
 import type { HearthConfig } from './config';
+import type { HassEntities } from 'home-assistant-js-websocket';
 
 const config = {
 	rail: [],
@@ -33,7 +34,7 @@ describe('attention', () => {
 		const states = {
 			'sensor.hall': { entity_id: 'sensor.hall', state: 'unavailable', last_changed: hoursAgo(3) },
 			'light.desk': { entity_id: 'light.desk', state: 'on', last_changed: hoursAgo(3) }
-		} as any;
+		} as unknown as HassEntities;
 		selectedLanguage.set('en');
 		expect(attentionItems(config, states).map((item) => item.detail)).toEqual([
 			expect.stringMatching(/3 hours ago$/)

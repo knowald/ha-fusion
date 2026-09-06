@@ -32,6 +32,7 @@ import {
 } from '$lib/core/ha/entities';
 import { lightViewFor } from '$lib/core/domains/light';
 import { formatGroupSummary } from './groupSummary';
+import type { HearthConfig, HearthRoom } from './config';
 
 describe('Hearth store view helpers', () => {
 	it('distinguishes missing, unknown, unavailable and available entities', () => {
@@ -152,7 +153,7 @@ describe('saveEdit conflicts', () => {
 	});
 
 	it('keeps editing with history when the config changed while the save was in flight', async () => {
-		hearthConfig.set({ rail: [], rooms: [] } as any);
+		hearthConfig.set({ rail: [], rooms: [] } as unknown as HearthConfig);
 		hearthRevision.set(1);
 		enterEditMode();
 		let respond: (response: Response) => void = () => {};
@@ -162,7 +163,7 @@ describe('saveEdit conflicts', () => {
 			const saving = saveEdit();
 			expect(saveEdit()).toBe(saving);
 			updateConfig((config) => {
-				config.rooms.push({ id: 'late', name: 'Late', cards: [] } as any);
+				config.rooms.push({ id: 'late', name: 'Late', cards: [] } as unknown as HearthRoom);
 			});
 			respond(new Response(JSON.stringify({ revision: 2 }), { status: 200 }));
 			expect(await saving).toBe(true);

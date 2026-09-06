@@ -17,7 +17,7 @@
 		"check:watch": "npm run check -- --watch",
 		"test": "vitest run --coverage",
 		"test:e2e": "playwright test",
-		"lint": "prettier --check . && eslint . --max-warnings 119",
+		"lint": "prettier --check . && eslint . --max-warnings 118",
 		"format": "prettier --write .",
 		"matrix": "playwright test --config playwright.matrix.config.ts",
 		"style:inventory": "node scripts/style-inventory.mjs",
