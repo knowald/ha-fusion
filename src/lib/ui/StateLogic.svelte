@@ -11,12 +11,13 @@
 		contentWidth = undefined,
 		entity_id
 	}: {
-		selected: any;
+		// the original dashboard's item config; only attribute and marquee are read
+		selected: ({ attribute?: string; marquee?: boolean } & Record<string, unknown>) | undefined;
 		contentWidth?: number;
 		entity_id: string | undefined;
 	} = $props();
 
-	let entity: HassEntity = $state(undefined as any);
+	let entity = $state<HassEntity | undefined>(undefined);
 
 	$effect(() => {
 		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated)
@@ -103,7 +104,7 @@
 	{:else if entityState === ''}
 		{@html '&nbsp;'}
 	{:else}
-		{attributes?.mode === 'password' ? entityState.replace(/./g, '•') : entityState}
+		{attributes?.mode === 'password' ? entityState?.replace(/./g, '•') : entityState}
 	{/if}
 
 	<!-- Timestamp  -->

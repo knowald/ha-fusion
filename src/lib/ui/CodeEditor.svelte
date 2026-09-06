@@ -20,10 +20,10 @@
 		onchange = undefined
 	}: {
 		type: string;
-		value: any;
+		value: string;
 		transitionend: boolean;
-		autocompleteList?: any;
-		init?: any;
+		autocompleteList?: string[];
+		init?: string;
 		reloadView?: boolean | undefined;
 		onchange?: ((value: string) => void) | undefined;
 	} = $props();
@@ -162,7 +162,7 @@
 				return true;
 			}),
 			autocompletion({
-				override: [completeFromList(autocompleteList)],
+				override: [completeFromList(autocompleteList ?? [])],
 				maxRenderedOptions: 2000,
 				activateOnTyping: false
 			}),
@@ -188,12 +188,13 @@
 				const diagnostics: Diagnostic[] = [];
 				try {
 					js_yamlModule.load(view.state.doc.toString());
-				} catch (error: any) {
-					const from = error.mark?.position || 0;
+				} catch (error) {
+					const failure = error as { mark?: { position?: number }; message?: string };
+					const from = failure.mark?.position || 0;
 					diagnostics.push({
 						from: from,
 						to: from,
-						message: error.message,
+						message: failure.message ?? 'Invalid YAML',
 						severity: 'error'
 					});
 				}

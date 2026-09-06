@@ -171,7 +171,7 @@ export async function authentication(configuration: Configuration, hooks: Connec
 
 		trackSubscription(
 			conn.subscribeMessage(
-				(message: any) => {
+				(message: { variables?: { trigger?: { event?: { data?: { event?: unknown } } } } }) => {
 					const trigger = message?.variables?.trigger?.event?.data?.event;
 					if (typeof trigger !== 'string') return;
 					event.set(trigger);
