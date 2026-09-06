@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import type { SliderUpdateMode } from '$lib/Types';
+	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import { PRESS_RIPPLE } from './config';
 	import { domainDescriptor, domainIcon, entityIsReadout } from '$lib/core/domains';
 	import { getTogglableService } from '$lib/core/ha/entities';
@@ -136,7 +136,11 @@
 				<div class="name">{label}</div>
 				<div class="state" class:on={on && available}>
 					{#if available}
-						<StateLogic entity_id={entity} selected={{ entity_id: entity }} />
+						<StateLogic
+							editing={$hearthEditMode}
+							entity_id={entity}
+							selected={{ entity_id: entity }}
+						/>
 					{:else if availability === 'missing'}
 						{$lang('hearth_missing_entity')}
 					{:else}

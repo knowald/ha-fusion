@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
-	import { getSupport } from '$lib/Utils';
+	import { getSupport } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from './config';
 	import { callEntityService } from '$lib/core/ha/commands';
 	import { setFanSpeed } from '$lib/core/domains/fan';

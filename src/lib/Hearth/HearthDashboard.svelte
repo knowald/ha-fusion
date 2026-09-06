@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { editMode as fusionEditMode } from '$lib/Stores';
+	import { mirrorLegacyEditMode } from '$lib/legacy/bridge/editMode';
 	import { THEME_PRESETS, type HearthTheme } from '$lib/core/theme';
 	import {
 		currentRoom,
@@ -26,13 +26,7 @@
 	let showSetupWizard = $state(false);
 	let showSearch = $state(false);
 
-	// Fusion embeds still consult the legacy edit-mode store before sending
-	// services. Mirror Hearth's mode while this route is mounted so embedded
-	// objects obey the same safety boundary as native Hearth controls.
-	$effect(() => {
-		fusionEditMode.set($hearthEditMode);
-		return () => fusionEditMode.set(false);
-	});
+	$effect(() => mirrorLegacyEditMode($hearthEditMode));
 
 	// the selected page, or the first one when it was renamed away or deleted
 	let activeRoomId = $derived(

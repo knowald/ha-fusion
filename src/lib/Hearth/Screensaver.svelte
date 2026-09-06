@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { motion } from '$lib/Stores';
+	import { motion } from '$lib/core/app/motion';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { hearthConfig } from './store';
 	import { clockTimeOptions, validTimeZone } from './clock';

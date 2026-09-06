@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { horizontalDrag } from './drag';
-	import type { SliderUpdateMode } from '$lib/Types';
+	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import Icon from './Icon.svelte';
 
 	let {

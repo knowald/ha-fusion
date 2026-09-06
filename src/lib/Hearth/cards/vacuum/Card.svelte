@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';
 	import type { OverviewCard } from '../../config';

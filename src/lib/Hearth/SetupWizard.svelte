@@ -2,7 +2,7 @@
 	import { connection } from '$lib/core/ha/connection';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
 	import { buildProposal, type HearthProposal } from './proposal';

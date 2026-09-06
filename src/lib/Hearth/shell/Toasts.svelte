@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { motion } from '$lib/Stores';
+	import { motion } from '$lib/core/app/motion';
 	import { connected } from '$lib/core/ha/connection';
 	import { commandFailure, dismissCommandFailure } from '$lib/core/ha/commands';
 	import { lang } from '$lib/core/i18n';

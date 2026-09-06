@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { timer } from '$lib/Stores';
+	import { timer } from '$lib/core/app/clock';
 	import { states } from '$lib/core/ha/entities';
 	import { callEntityService } from '$lib/core/ha/commands';
 	import { hearthEditMode } from '../../store';

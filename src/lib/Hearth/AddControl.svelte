@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { activateOnKeyboard } from './interaction';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from './config';
 	import Icon from './Icon.svelte';
 

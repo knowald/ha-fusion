@@ -1,5 +1,5 @@
 import type { Action } from 'svelte/action';
-import type { SliderUpdateMode } from '$lib/Types';
+import type { SliderUpdateMode } from '$lib/core/app/configuration';
 
 interface DragOptions {
 	/** Updates the preview. `commit` says whether device state should also be sent. */
@@ -117,4 +117,4 @@ export const horizontalDrag: Action<HTMLElement, DragOptions> = (node, options) 
 	};
 };
 
-export { onDndReceive } from '$lib/Actions/sortable';
+export { onDndReceive } from '$lib/ui/actions/sortable';

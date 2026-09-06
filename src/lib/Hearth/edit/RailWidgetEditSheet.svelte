@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { activateOnKeyboard } from '../interaction';
 	import type { RailWidget, VisibilityCondition } from '../types';
 	import { normalizeVisibility, PRESS_RIPPLE, slugify, uniqueId } from '../config';
