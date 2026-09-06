@@ -1,8 +1,8 @@
 import { get } from 'svelte/store';
-import { callService } from 'home-assistant-js-websocket';
-import { connection, services } from '$lib/core/ha/connection';
+import { services } from '$lib/core/ha/connection';
 import { states } from '$lib/core/ha/entities';
 import { callEntityService } from '$lib/core/ha/commands';
+import { callServiceForResult } from '$lib/core/ha/history';
 
 export interface QueueTrack {
 	name: string;
@@ -24,13 +24,9 @@ export function hasSpotifyPlus(attributes: Record<string, unknown>): boolean {
 	return typeof attributes.sp_user_id === 'string';
 }
 
-async function spotifyPlusCall(name: string, data: Record<string, unknown>): Promise<any> {
-	const conn = get(connection);
-	if (!conn) return null;
-	const response = (await callService(conn, 'spotifyplus', name, data, undefined, true)) as {
-		response?: { result?: unknown };
-	};
-	return response?.response?.result ?? null;
+/** A SpotifyPlus lookup; the integration answers with a loosely shaped mapping. */
+function spotifyPlusCall(name: string, data: Record<string, unknown>): Promise<any> {
+	return callServiceForResult('spotifyplus', name, data);
 }
 
 export async function fetchMediaQueue(entityId: string): Promise<QueueTrack[] | null> {

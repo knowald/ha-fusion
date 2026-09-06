@@ -1,7 +1,49 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cachedData, startDataRefresh } from './history';
+import { callService } from 'home-assistant-js-websocket';
+import type { Connection } from 'home-assistant-js-websocket';
+import { connection, health } from './connection';
+import { cachedData, callServiceForResult, startDataRefresh } from './history';
 
-afterEach(() => vi.useRealTimers());
+vi.mock('home-assistant-js-websocket', async (importOriginal) => ({
+	...(await importOriginal<typeof import('home-assistant-js-websocket')>()),
+	callService: vi.fn()
+}));
+
+afterEach(() => {
+	vi.useRealTimers();
+	vi.clearAllMocks();
+	connection.set(undefined as unknown as Connection);
+	health.set('lost');
+});
+
+describe('callServiceForResult', () => {
+	it('returns the service result and null when there is none', async () => {
+		connection.set({} as Connection);
+		health.set('connected');
+		vi.mocked(callService).mockResolvedValueOnce({ response: { result: { queue: [] } } } as never);
+		expect(await callServiceForResult('spotifyplus', 'get_player_queue_info', {})).toEqual({
+			queue: []
+		});
+		vi.mocked(callService).mockResolvedValueOnce(undefined as never);
+		expect(await callServiceForResult('spotifyplus', 'get_player_queue_info', {})).toBeNull();
+		expect(callService).toHaveBeenLastCalledWith(
+			{},
+			'spotifyplus',
+			'get_player_queue_info',
+			{},
+			undefined,
+			true
+		);
+	});
+
+	it('throws instead of asking while the websocket is down', async () => {
+		await expect(callServiceForResult('spotifyplus', 'x', {})).rejects.toThrow(/Not connected/);
+		connection.set({} as Connection);
+		health.set('degraded');
+		await expect(callServiceForResult('spotifyplus', 'x', {})).rejects.toThrow(/Not connected/);
+		expect(callService).not.toHaveBeenCalled();
+	});
+});
 
 describe('startDataRefresh', () => {
 	it('retains the last value across failures and stops after cleanup', async () => {

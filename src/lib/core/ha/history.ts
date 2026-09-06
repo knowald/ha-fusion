@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
-import type { Connection } from 'home-assistant-js-websocket';
-import { connection } from './connection';
+import { callService, type Connection } from 'home-assistant-js-websocket';
+import { connected, connection } from './connection';
 
 /*
  * Read-side Home Assistant calls: recorder statistics, state history,
@@ -17,6 +17,26 @@ function requireConnection(): Connection {
 	const conn = get(connection);
 	if (!conn) throw new Error('Not connected to Home Assistant');
 	return conn;
+}
+
+/**
+ * Calls a service that answers with data (SpotifyPlus queue and library
+ * lookups, for example) and returns its result, null when it has none. A
+ * read, not a device command: nothing goes pending and nothing is gated by
+ * edit mode. Throws while the websocket is down so callers can tell "no
+ * data" from "could not ask".
+ */
+export async function callServiceForResult(
+	domain: string,
+	service: string,
+	data: Record<string, unknown>
+): Promise<unknown> {
+	const conn = requireConnection();
+	// the connection object survives reconnects; `connected` is the truth
+	if (!get(connected)) throw new Error('Not connected to Home Assistant');
+	const response = (await callService(conn, domain, service, data, undefined, true)) as
+		{ response?: { result?: unknown } } | undefined;
+	return response?.response?.result ?? null;
 }
 
 export type StatisticPeriod = '5minute' | 'hour' | 'day' | 'week' | 'month';
