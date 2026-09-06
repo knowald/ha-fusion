@@ -3,7 +3,7 @@
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getDomain, getName } from '$lib/Utils';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';

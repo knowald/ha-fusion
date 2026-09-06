@@ -14,11 +14,11 @@
 	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import { getName } from '$lib/Utils';
 	import { openModal, modals } from '$lib/Modals';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import { base } from '$app/paths';
 	import { callService, type HassEntities, type HassEntity } from 'home-assistant-js-websocket';
 	import { onMount, untrack } from 'svelte';
-	import Progress from '$lib/Components/Progress.svelte';
+	import Progress from '$lib/legacy/Components/Progress.svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut, expoOut } from 'svelte/easing';
 	import Ripple from '$lib/Actions/ripple';
@@ -409,7 +409,7 @@
 
 					<div style="overflow: hidden; text-overflow: ellipsis;">
 						{#if sel?.marquee === true && contentWidth && contentWidth > 394 && !$editMode}
-							{#await import('$lib/Components/Marquee.svelte')}
+							{#await import('$lib/ui/Marquee.svelte')}
 								loading
 							{:then Marquee}
 								<Marquee.default>
@@ -463,7 +463,7 @@
 
 					<div style="overflow: hidden; text-overflow: ellipsis;">
 						{#if sel?.marquee === true && contentWidth && contentWidth > 394 && !$editMode}
-							{#await import('$lib/Components/Marquee.svelte')}
+							{#await import('$lib/ui/Marquee.svelte')}
 								loading
 							{:then Marquee}
 								<Marquee.default>

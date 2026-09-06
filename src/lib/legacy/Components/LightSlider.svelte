@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connection } from '$lib/Stores';
 	import type { SliderUpdateMode } from '$lib/Types';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
 

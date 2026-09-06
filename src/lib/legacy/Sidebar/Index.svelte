@@ -200,7 +200,7 @@
 	style:transition="padding {$motion}ms ease"
 >
 	{#if $editMode}
-		{#await import('$lib/Components/ResizeHandle.svelte') then ResizeHandle}
+		{#await import('$lib/legacy/Components/ResizeHandle.svelte') then ResizeHandle}
 			<ResizeHandle.default />
 		{/await}
 	{/if}

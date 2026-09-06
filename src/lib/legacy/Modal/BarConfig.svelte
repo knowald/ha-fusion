@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import Bar from '$lib/legacy/Sidebar/Bar.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { getName } from '$lib/Utils';

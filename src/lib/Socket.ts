@@ -76,7 +76,7 @@ export async function authentication(configuration: Configuration) {
 		} else if (navigator.userAgent.includes('Home Assistant')) {
 			if (!tokenPromptOpen) {
 				tokenPromptOpen = true;
-				openModal(() => import('$lib/Components/TokenModal.svelte'));
+				openModal(() => import('$lib/legacy/Modal/TokenModal.svelte'));
 			}
 			connected.set(false);
 			// This is not a successful authentication: callers must retain their

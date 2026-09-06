@@ -2,7 +2,7 @@
 	import { entityList, lang, ripple, states, updateDashboard } from '$lib/Stores';
 	import { tick } from 'svelte';
 	import Sensor from '$lib/legacy/Sidebar/Sensor.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';

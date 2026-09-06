@@ -2,7 +2,7 @@
 	import { states, connection, lang, ripple, selectedLanguage } from '$lib/Stores';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
 	import Icon from '@iconify/svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName, getSupport } from '$lib/Utils';

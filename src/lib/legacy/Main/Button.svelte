@@ -1,6 +1,6 @@
 <script lang="ts">
 	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import {
 		connection,
 		editMode,

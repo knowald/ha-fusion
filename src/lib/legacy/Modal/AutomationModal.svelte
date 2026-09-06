@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, connection, lang, timer, selectedLanguage, ripple, motion } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
@@ -10,7 +10,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 

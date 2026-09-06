@@ -40,7 +40,7 @@
 {:else if media_title && entityState === 'playing'}
 	{@const title = `<span title=${media_title}>${media_title}</span>`}
 	{#if selected?.marquee === true && contentWidth && contentWidth > 153 && !$editMode}
-		{#await import('$lib/Components/Marquee.svelte')}
+		{#await import('$lib/ui/Marquee.svelte')}
 			{@html title}
 		{:then Marquee}
 			<Marquee.default>
@@ -114,7 +114,7 @@
 	<!-- State  -->
 {:else if entityState}
 	{#if selected?.marquee && contentWidth && contentWidth > 153 && !$editMode}
-		{#await import('$lib/Components/Marquee.svelte') then Marquee}
+		{#await import('$lib/ui/Marquee.svelte') then Marquee}
 			<Marquee.default>
 				{@html $lang(entityState)}
 

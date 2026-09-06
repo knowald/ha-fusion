@@ -10,7 +10,7 @@
 		updateDashboard
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import { relativeTime, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';

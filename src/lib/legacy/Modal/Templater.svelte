@@ -19,7 +19,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import { closeAllModals, closeModal } from '$lib/Modals';
 	import { slide } from 'svelte/transition';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import * as parser from 'js-yaml';
 	import { subscribeServices } from 'home-assistant-js-websocket';
 

@@ -3,7 +3,7 @@
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import { onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';

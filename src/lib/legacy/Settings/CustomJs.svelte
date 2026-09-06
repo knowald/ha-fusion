@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { customJs, lang } from '$lib/Stores';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 </script>
 
 <div class="container">

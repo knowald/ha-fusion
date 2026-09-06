@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { states, lang, ripple, connection, motion } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { callService } from 'home-assistant-js-websocket';
 	import { onDestroy } from 'svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 
