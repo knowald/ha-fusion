@@ -4,19 +4,28 @@
 	import { lang } from '$lib/core/i18n';
 	import { persistentNotifications } from '$lib/core/ha/connection';
 	import { service } from '$lib/core/ha/commands';
+	import { loadMarkdownRenderer } from '../../markdown';
 	import Icon from '../../Icon.svelte';
 
 	let entries = $derived(Object.entries($persistentNotifications ?? {}));
-	// markdown rendering loads on demand; most rails never show a notification
-	let rendered = $state<Record<string, string>>({});
+	// rendered HTML per notification, keyed by id and remembered with the
+	// message it came from so an updated message under the same id re-renders
+	let rendered = $state<Record<string, { message: string; html: string }>>({});
 	$effect(() => {
-		const pending = entries.filter(([id]) => !(id in rendered));
-		if (!pending.length) return;
-		import('marked').then(({ marked }) => {
-			for (const [id, notification] of pending) {
-				rendered[id] = marked.parse(notification.message ?? '') as string;
-			}
+		const pending = entries
+			.map(([id, notification]) => [id, notification.message ?? ''] as const)
+			.filter(([id, message]) => rendered[id]?.message !== message);
+		const stale = Object.keys(rendered).filter((id) => !(id in ($persistentNotifications ?? {})));
+		if (!pending.length && !stale.length) return;
+		let cancelled = false;
+		loadMarkdownRenderer().then((render) => {
+			if (cancelled) return;
+			for (const id of stale) delete rendered[id];
+			for (const [id, message] of pending) rendered[id] = { message, html: render(message) };
 		});
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	function dismiss(id: string) {
@@ -29,7 +38,11 @@
 		<div class="item">
 			<div class="body">
 				{#if notification.title}<div class="title">{notification.title}</div>{/if}
-				<div class="message">{@html rendered[id] ?? notification.message ?? ''}</div>
+				{#if rendered[id]?.message === (notification.message ?? '')}
+					<div class="message">{@html rendered[id].html}</div>
+				{:else}
+					<div class="message">{notification.message ?? ''}</div>
+				{/if}
 			</div>
 			<button
 				type="button"
