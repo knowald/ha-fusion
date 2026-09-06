@@ -38,7 +38,7 @@ export default tseslint.config(
 	},
 	{
 		// user-facing copy in the rework layers goes through $lang()
-		files: ['src/lib/Hearth/**/*.svelte', 'src/lib/ui/**/*.svelte'],
+		files: ['src/lib/Hearth/**/*.svelte', 'src/lib/ui/**/*.svelte', 'src/routes/+page.svelte'],
 		plugins: { hearth: { rules: { 'no-bare-text': noBareText } } },
 		rules: { 'hearth/no-bare-text': 'error' }
 	},

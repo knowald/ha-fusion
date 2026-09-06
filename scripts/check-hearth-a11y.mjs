@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { compile, preprocess } from 'svelte/compiler';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
@@ -10,13 +10,16 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
  * deleted.
  */
 
-const ROOTS = ['src/lib/Hearth', 'src/lib/ui', 'src/routes/hearth'];
+// the dashboard's real entry is the root page; /hearth only redirects there
+const ROOTS = ['src/lib/Hearth', 'src/lib/ui', 'src/routes/hearth', 'src/routes/+page.svelte'];
 
-async function* svelteFiles(dir) {
-	for (const entry of await readdir(dir, { withFileTypes: true })) {
-		const path = join(dir, entry.name);
-		if (entry.isDirectory()) yield* svelteFiles(path);
-		else if (entry.name.endsWith('.svelte')) yield path;
+async function* svelteFiles(path) {
+	if ((await stat(path)).isFile()) {
+		if (path.endsWith('.svelte')) yield path;
+		return;
+	}
+	for (const entry of await readdir(path, { withFileTypes: true })) {
+		yield* svelteFiles(join(path, entry.name));
 	}
 }
 
