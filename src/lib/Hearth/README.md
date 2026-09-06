@@ -18,13 +18,15 @@ What this means in practice:
   build refuses to load instead of being normalized into loss.
 - Anything exported from this directory can change without notice. Nothing here
   is a public API.
-- The original dashboard remains the default. Hearth is opt-in.
+- Hearth is the dashboard at `/`. The original dashboard is served at
+  `/classic` while `classic: true` is set in `data/configuration.yaml`, for
+  one release cycle.
 
-## Enabling it
+## Routes
 
-Set `hearth: true` in `data/configuration.yaml`. That adds a Hearth button to
-the original dashboard's drawer (`src/lib/legacy/Drawer/Index.svelte`). The route is
-served at `/hearth` regardless of the flag.
+Hearth is served at `/`; `/hearth` redirects there for old bookmarks. The
+original dashboard answers at `/classic` only when `classic: true` is set in
+`data/configuration.yaml`, and its drawer keeps a button back to `/`.
 
 On first load with no `data/hearth.yaml`, the setup wizard opens automatically
 and proposes a starting layout built from the Home Assistant area, device and

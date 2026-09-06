@@ -10,15 +10,16 @@ ha-fusion was created by [matt8707](https://github.com/matt8707). This repositor
 
 ## Features
 
-- Drag-and-drop editor for views, sections and sidebar, saved to plain YAML
-- Buttons and modals for most Home Assistant domains: lights, covers, climate, media players, cameras, vacuums, locks, timers and more
-- Optimistic updates: buttons reflect the new state on tap, before the Home Assistant round-trip completes
-- Slide horizontally across a light button to set brightness
-- Sidebar widgets: weather, forecast, graphs, camera, iframe, date and time, templates, notifications
-- Horizontal and vertical stacks, including nested stacks for two-dimensional layouts
-- Spotify player widgets with playback controls, quick-play shortcuts and a media browser
-- Themes, custom CSS, and translations for over 60 languages
+- Hearth, a wall-panel dashboard built from pages, cards and a rail of widgets, edited in place and saved to `data/hearth.yaml`
+- Cards for entity grids, sensors with history, media players with Spotify quick play, climate, cameras, images, picture elements, scenes, vacuums, days-since counters and whichever player is active
+- Rail widgets for the clock, weather, navigation, search, energy, running activities, calendar, status, charts, templates, timers, notifications and web pages
+- A detail sheet for every entity domain: switches, locks, numbers, selects, timers, alarms, thermostats, water heaters, humidifiers, valves, mowers, updates and more
+- Optimistic updates, drag-to-dim lights and covers, long-press for controls, a screensaver and wake lock for wall tablets
+- Availability shown honestly: an unreachable or missing entity never renders as "off", and failed commands are reported
+- Themes with a day and night switch, custom CSS, translations for over 60 languages
 - Runs as a Home Assistant add-on (with Ingress) or as a standalone Docker container
+
+The original ha-fusion dashboard (`data/dashboard.yaml`) is still included at `/classic` for one release cycle; see [Dashboards](#dashboards).
 
 ## Requirements
 
@@ -74,12 +75,18 @@ docker run -d \
 
 </details>
 
+## Dashboards
+
+Hearth is served at `/`. On first load with no `data/hearth.yaml`, a setup wizard proposes pages from your Home Assistant areas and entities; everything is then editable in place with the pencil in the corner, or as YAML from the settings sheet.
+
+The original dashboard is served at `/classic` while `classic: true` is set in `data/configuration.yaml`. It reads `data/dashboard.yaml` as before and will be removed in a later release; rebuild its views as Hearth pages before then. `/hearth` redirects to `/` for old bookmarks.
+
 ## Migrating from the original project
 
-Dashboards are fully compatible: `dashboard.yaml`, `configuration.yaml` and custom CSS carry over unchanged. Keep your existing data directory or add-on configuration and switch the source:
+Data directories are compatible: `configuration.yaml`, `dashboard.yaml` (for `/classic`) and custom CSS carry over unchanged. Keep your existing data directory or add-on configuration and switch the source:
 
 - **Add-on**: add the repository <https://github.com/knowald/addon-ha-fusion> (see [Add-on](#add-on)) and install ha-fusion from it. Home Assistant treats it as a separate add-on with its own data directory, so files do not move over automatically: copy `dashboard.yaml`, `configuration.yaml` and any custom CSS from the old add-on's data directory into the new one (`/mnt/data/supervisor/addons/data/<id>_ha_fusion/`, reachable with the Advanced SSH & Web Terminal add-on with protection mode disabled), then remove the old add-on.
-- **Docker**: change the image from `ghcr.io/matt8707/ha-fusion` to `ghcr.io/knowald/ha-fusion` and keep the same `/app/data` volume mount.
+- **Docker**: change the image from `ghcr.io/matt8707/ha-fusion` to `ghcr.io/knowald/ha-fusion` and keep the same `/app/data` volume mount. Images are published for amd64 and arm64.
 
 ## Configuration
 
@@ -94,18 +101,21 @@ Set these environment variables (in the add-on config, the compose file, or `.en
 
 These work when a port is exposed via the add-on config or Docker. They are unavailable behind Ingress, which cannot read query strings.
 
-- `?view=Bedroom` - load a specific view by name on page load.
-- `?menu=false` - hide the menu button. Useful for wall-mounted tablets where you want to prevent edits.
+- `?room=<id>` - open a specific page by id on load.
+- `?theme=<preset id>` - preview a built-in theme preset without touching the config.
+- `?menu=false` - hide the edit pencil. Useful for wall-mounted tablets where you want to prevent edits.
+
+The classic dashboard keeps `?view=Name` and `?menu=false`.
 
 ### Keyboard shortcuts
 
-| Key                 | Action |
-| ------------------- | ------ |
-| **f**               | filter |
-| **esc**             | exit   |
-| **cmd + s**         | save   |
-| **cmd + z**         | undo   |
-| **cmd + shift + z** | redo   |
+| Key                 | Action                                  |
+| ------------------- | --------------------------------------- |
+| **f**               | search (when a search widget is placed) |
+| **esc**             | close                                   |
+| **cmd + s**         | save (edit mode)                        |
+| **cmd + z**         | undo (edit mode)                        |
+| **cmd + shift + z** | redo (edit mode)                        |
 
 ## Development
 
@@ -124,10 +134,17 @@ cp .env.example .env   # then set HASS_URL
 pnpm dev -- --open
 
 # checks
-pnpm check    # type checking
-pnpm lint     # prettier + eslint
-pnpm format   # apply prettier
+pnpm check              # type checking
+pnpm lint               # prettier + eslint, including the bare-text rule
+pnpm test               # unit and component tests with a coverage floor
+pnpm build && pnpm test:e2e   # browser smoke test against a scripted Home Assistant
+pnpm check:boundaries   # import layering
+pnpm check:bundle       # per-route bundle budget (after a build)
+pnpm format             # apply prettier
 ```
+
+The layout of the code, the card and widget registries and the migration
+rules are described in `src/lib/Hearth/README.md`.
 
 ### Logs
 

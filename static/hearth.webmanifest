@@ -1,7 +1,7 @@
 {
 	"name": "Hearth",
 	"short_name": "Hearth",
-	"start_url": "/hearth",
+	"start_url": "/",
 	"display": "fullscreen",
 	"orientation": "landscape",
 	"background_color": "#16110c",

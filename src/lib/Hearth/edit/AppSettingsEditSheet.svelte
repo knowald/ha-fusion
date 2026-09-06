@@ -107,7 +107,7 @@
 	}
 
 	function openClassicDashboard() {
-		location.assign(`${base}/`);
+		location.assign(`${base}/classic`);
 	}
 
 	function handleLogout() {

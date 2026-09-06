@@ -32,7 +32,13 @@ async function dragAcross(page: Page, tile: Locator, from: number, to: number) {
 
 test.beforeEach(async ({ page, request }) => {
 	await request.post(`${FAKE_HASS}/_test/reset`);
+	await page.goto('/');
+	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
+});
+
+test('redirects the old /hearth path to the dashboard', async ({ page }) => {
 	await page.goto('/hearth');
+	await expect(page).toHaveURL(/\/$/);
 	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
 });
 

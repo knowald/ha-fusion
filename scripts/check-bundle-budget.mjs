@@ -19,8 +19,8 @@ const APP_ENTRY = '.svelte-kit/generated/client-optimized/app.js';
 
 // gzipped kilobytes; raise deliberately, never to make a red build green
 const BUDGETS = {
-	'routes/hearth/+page.svelte': { js: 190, css: 24 },
-	'routes/+page.svelte': { js: 80, css: 8 }
+	'routes/+page.svelte': { js: 190, css: 24 },
+	'routes/classic/+page.svelte': { js: 80, css: 8 }
 };
 
 const manifest = JSON.parse(await readFile(MANIFEST, 'utf8'));
