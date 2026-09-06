@@ -19,10 +19,12 @@ export default mergeConfig(
 				reporter: ['text-summary'],
 				// a floor, not a target: raise it as coverage grows, never lower it
 				thresholds: {
-					lines: 15,
-					functions: 11,
-					branches: 14,
-					statements: 13
+					lines: 16,
+					functions: 12,
+					branches: 15,
+					statements: 13,
+					// the overlay stack is small and everything above it depends on it
+					'src/lib/ui/layers.ts': { lines: 90, branches: 80 }
 				}
 			}
 		}

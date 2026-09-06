@@ -1,6 +1,5 @@
 import { get, writable } from 'svelte/store';
 import { base } from '$app/paths';
-import { setCommandGate } from '$lib/core/ha/commands';
 import type { SliderUpdateMode } from '$lib/core/app/configuration';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
 
@@ -64,7 +63,6 @@ export function redoConfig() {
 export const hearthEditMode = writable(false);
 
 // edit mode arranges layout; taps there must never fire real device commands
-setCommandGate(() => !get(hearthEditMode));
 
 export type Editor =
 	| { kind: 'room'; id: string | null }

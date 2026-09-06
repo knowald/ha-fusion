@@ -79,10 +79,11 @@
 			return;
 		} else if (domain === 'lock') {
 			const unlocking = stateObj?.state === 'locked';
+			const verb = $lang(unlocking ? 'hearth_unlock' : 'hearth_lock');
 			requestConfirmation({
-				title: unlocking ? 'Unlock door?' : 'Lock door?',
-				message: `${unlocking ? 'Unlock' : 'Lock'} ${label}?`,
-				confirmLabel: unlocking ? 'Unlock' : 'Lock',
+				title: $lang(unlocking ? 'hearth_unlock_door_question' : 'hearth_lock_door_question'),
+				message: `${verb} ${label}?`,
+				confirmLabel: verb,
 				action: () => toggleEntity(entity)
 			});
 		} else if (tapSurface === 'toggle') {

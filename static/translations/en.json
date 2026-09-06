@@ -945,5 +945,17 @@
 	"hearth_custom_css_hint": "Saved straight to disk and applied on the next load.",
 	"hearth_loading": "Loading...",
 	"hearth_height_hint_fill": "Without it the card fills the rest of its column.",
-	"hearth_height_hint_embed": "Without it the embed keeps its own height."
+	"hearth_height_hint_embed": "Without it the embed keeps its own height.",
+	"hearth_dimmable_light": "Dimmable light",
+	"hearth_window_covering": "Window covering",
+	"hearth_ceiling_fan": "Ceiling fan",
+	"hearth_media_player": "Media player",
+	"hearth_last_24_hours": "Last 24 hours",
+	"hearth_lock_door_question": "Lock door?",
+	"hearth_unlock_door_question": "Unlock door?",
+	"hearth_loading_home_assistant": "Loading Home Assistant...",
+	"hearth_connecting_to_home_assistant": "Connecting to Home Assistant...",
+	"hearth_appears_after_first_snapshot": "Hearth will appear after the first entity snapshot arrives.",
+	"detected": "Detected",
+	"clear": "Clear"
 }
