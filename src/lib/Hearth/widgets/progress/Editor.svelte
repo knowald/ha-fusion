@@ -84,12 +84,12 @@
 	label={$lang('hearth_after_completion')}
 	bind:value={completionDelay}
 	options={[
-		{ value: '0', label: 'Hide immediately' },
-		{ value: '5', label: 'Hide after 5 minutes' },
-		{ value: '15', label: 'Hide after 15 minutes' },
-		{ value: '30', label: 'Hide after 30 minutes' },
-		{ value: '60', label: 'Hide after 1 hour' },
-		{ value: '-1', label: 'Keep until tapped' }
+		{ value: '0', label: $lang('hearth_hide_immediately') },
+		{ value: '5', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '5') },
+		{ value: '15', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '15') },
+		{ value: '30', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '30') },
+		{ value: '60', label: $lang('hearth_hide_after_1_hour') },
+		{ value: '-1', label: $lang('hearth_keep_until_tapped') }
 	]}
 />
 <div class="hint">

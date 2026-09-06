@@ -69,10 +69,10 @@
 		label={$lang('hearth_fill_leftover_height')}
 		bind:value={fill}
 		options={[
-			{ value: '', label: 'No, size to content' },
-			{ value: '1', label: 'Yes, one share' },
-			{ value: '2', label: 'Yes, double share' },
-			{ value: '3', label: 'Yes, triple share' }
+			{ value: '', label: $lang('hearth_fill_none') },
+			{ value: '1', label: $lang('hearth_fill_one') },
+			{ value: '2', label: $lang('hearth_fill_double') },
+			{ value: '3', label: $lang('hearth_fill_triple') }
 		]}
 	/>
 </EditSheet>

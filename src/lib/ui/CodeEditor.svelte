@@ -194,7 +194,7 @@
 					diagnostics.push({
 						from: from,
 						to: from,
-						message: failure.message ?? 'Invalid YAML',
+						message: failure.message ?? 'Invalid YAML', // copy ok: yaml diagnostic
 						severity: 'error'
 					});
 				}

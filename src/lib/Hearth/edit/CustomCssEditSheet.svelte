@@ -36,14 +36,14 @@
 				body: JSON.stringify({ content: value })
 			});
 			if (!response.ok) {
-				error = `Save failed [${response.status}]`;
+				error = `${$lang('hearth_save_failed')} [${response.status}]`;
 				return;
 			}
 			// the stylesheet is read once at boot; a reload applies the new file
 			location.reload();
 		} catch (failure) {
 			console.error(failure);
-			error = 'Save failed';
+			error = $lang('hearth_save_failed');
 		} finally {
 			saving = false;
 		}

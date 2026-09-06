@@ -1,8 +1,12 @@
 /*
  * Flags user-facing text written directly into a Svelte template instead of
- * going through $lang(). Applies to text nodes and to the attributes that
- * render as copy (label, title, aria-label and friends). Placeholders are
- * exempt: they show example values, not copy.
+ * going through $lang(). Applies to text nodes, to the attributes that render
+ * as copy (label, title, aria-label and friends), and to string literals in
+ * expressions and TypeScript helpers that read as a sentence: two or more
+ * words in a row. Placeholders are exempt: they show example values, not copy.
+ * Diagnostics (thrown errors, console output) and technical strings (entity
+ * ids, CSS, URLs, templates) are data, not copy. A literal that is copy for a
+ * reason the rule cannot see carries a same-line `// copy ok: <reason>`.
  */
 
 const COPY_ATTRIBUTES = new Set([
@@ -35,6 +39,61 @@ function isCopy(text) {
 	return true;
 }
 
+// a sentence: two words in a row, which no identifier, key or unit contains
+const SENTENCE = /[A-Za-z]{2,}[ ,.!?;:]+[A-Za-z]{2,}/;
+
+function isSentence(raw) {
+	const text = raw.trim();
+	if (!SENTENCE.test(text)) return false;
+	// html, media queries and yaml samples are data
+	if (/^[<(]|^[a-z_]+:\s/.test(text)) return false;
+	// templates, css, urls, paths, entity ids and link relations are data
+	if (
+		/\{\{|\}\}|:\/\/|^[a-z0-9_.:/#%*-]+$|^[.#[]|, \.|\b(px|em|rem|vh|vw|solid|calc|var)\(?\b|^noopener/.test(
+			text
+		)
+	) {
+		return false;
+	}
+	return true;
+}
+
+// literals under these are diagnostics or identifiers, not copy
+function isDataContext(node) {
+	for (let parent = node.parent; parent; parent = parent.parent) {
+		if (parent.type === 'ImportDeclaration' || parent.type === 'ImportExpression') return true;
+		if (parent.type === 'ThrowStatement') return true;
+		if (parent.type === 'NewExpression' && /Error$/.test(parent.callee?.name ?? '')) return true;
+		if (parent.type === 'CallExpression') {
+			const callee = parent.callee;
+			// an error subclass passing its message up
+			if (callee?.type === 'Super') return true;
+			if (callee?.type === 'MemberExpression') {
+				const object = callee.object?.name;
+				// console output, valibot schema messages and YAML issue lines are
+				// diagnostics that quote paths and YAML terms, not product copy
+				if (object === 'console' || object === 'v' || object === 'issues') return true;
+			}
+			// $lang('key') and translation lookups take keys
+			if (callee?.name === '$lang' || callee?.name === 'lang') return true;
+		}
+		// placeholders show example values
+		if (parent.type === 'SvelteAttribute' && parent.key?.name === 'placeholder') return true;
+		if (parent.type === 'TSLiteralType' || parent.type === 'TSEnumMember') return true;
+		if (parent.type === 'Property' && (parent.key === node || parent.key?.name === 'placeholder')) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function exemptedByComment(context, node) {
+	const line = node.loc.end.line;
+	return context.sourceCode
+		.getAllComments()
+		.some((comment) => comment.loc.start.line === line && /copy ok/.test(comment.value));
+}
+
 export default {
 	meta: {
 		type: 'problem',
@@ -49,6 +108,17 @@ export default {
 				}
 				if (!isCopy(node.value)) return;
 				context.report({ node, message: `Bare text "${node.value.trim()}": use $lang()` });
+			},
+			Literal(node) {
+				if (typeof node.value !== 'string' || !isSentence(node.value)) return;
+				if (isDataContext(node) || exemptedByComment(context, node)) return;
+				context.report({ node, message: `Bare copy "${node.value.trim()}": use $lang()` });
+			},
+			TemplateLiteral(node) {
+				const text = node.quasis.map((quasi) => quasi.value.cooked ?? '').join(' ');
+				if (!isSentence(text)) return;
+				if (isDataContext(node) || exemptedByComment(context, node)) return;
+				context.report({ node, message: `Bare copy "${text.trim()}": use $lang()` });
 			},
 			SvelteAttribute(node) {
 				const key = node.key?.name;

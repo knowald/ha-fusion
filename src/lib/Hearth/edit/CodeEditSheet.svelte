@@ -18,7 +18,7 @@
 			// scalars and arrays parse fine but would normalize to the default
 			// config, silently wiping the layout - only a mapping is acceptable
 			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-				return 'Configuration must be a YAML mapping';
+				return 'Configuration must be a YAML mapping'; // copy ok: yaml diagnostic
 			}
 			// pasted older files are lifted first, so their shapes are judged
 			// after migration rather than reported as unknown types
@@ -26,7 +26,7 @@
 			return issues.length ? issues.slice(0, 5).join('; ') : null;
 		} catch (parseError) {
 			if (parseError instanceof ConfigTooNewError) return parseError.message;
-			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML';
+			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML'; // copy ok: yaml diagnostic
 		}
 	});
 

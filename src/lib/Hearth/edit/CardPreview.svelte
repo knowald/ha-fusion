@@ -32,7 +32,7 @@
 				onclick={() => (reorder = !reorder)}
 			>
 				<Icon name="drag_indicator" size={ICON.inline} />
-				{reorder ? 'Finish reorder' : 'Reorder'}
+				{$lang(reorder ? 'hearth_finish_reorder' : 'hearth_reorder')}
 			</button>
 		{/if}
 	</div>

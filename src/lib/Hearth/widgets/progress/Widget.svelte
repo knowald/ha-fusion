@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { ICON } from '../../iconSizes';
 	import { browser } from '$app/environment';
 	import { states } from '$lib/core/ha/entities';
@@ -122,7 +123,7 @@
 		class:completed
 		type={completed && !$hearthEditMode ? 'button' : undefined}
 		role={completed && !$hearthEditMode ? undefined : 'status'}
-		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
+		title={completed && !$hearthEditMode ? $lang('hearth_tap_to_dismiss') : undefined}
 		onclick={completed && !$hearthEditMode ? dismissCompletion : undefined}
 	>
 		<Icon name={widget.icon || 'autorenew'} size={ICON.control} color="var(--h-cool-icon)" />

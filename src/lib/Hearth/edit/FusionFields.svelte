@@ -71,7 +71,7 @@
 			{ key: 'size', label: 'size', control: 'numeric' }
 		],
 		time: [
-			{ key: 'hour12', label: '12-hour clock', control: 'check' },
+			{ key: 'hour12', label: 'hearth_12_hour_clock', control: 'check' },
 			{ key: 'seconds', label: 'hearth_show_seconds', control: 'check' }
 		],
 		date: [
