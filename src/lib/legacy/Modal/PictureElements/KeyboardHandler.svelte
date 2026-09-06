@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 
 	let { konva }: { konva: KonvaEditor } = $props();
 

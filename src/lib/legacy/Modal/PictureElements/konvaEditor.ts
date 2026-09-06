@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { KonvaBase } from '$lib/Modal/PictureElements/konvaBase';
+import { KonvaBase } from '$lib/legacy/Modal/PictureElements/konvaBase';
 import { get } from 'svelte/store';
 import { states, konvaStore, konvaImageCache } from '$lib/Stores';
 import { tick } from 'svelte';

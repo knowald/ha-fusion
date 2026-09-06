@@ -4,7 +4,7 @@ import { konvaImageCache, states } from '$lib/Stores';
 import type { HassEntities } from 'home-assistant-js-websocket';
 import { getIcon, loadIcon, type IconifyIcon } from '@iconify/svelte';
 import type { ContainerConfig } from 'konva/lib/Container';
-import { icons } from '$lib/Modal/PictureElements/icons';
+import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 import { computeIcon } from './computeIcon';
 
 /**

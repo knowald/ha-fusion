@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { KonvaViewer } from '$lib/Modal/PictureElements/konvaViewer';
+	import type { KonvaViewer } from '$lib/legacy/Modal/PictureElements/konvaViewer';
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { dashboard, editMode, itemHeight } from '$lib/Stores';
 	import { openModal } from '$lib/Modals';
 	import type { Dashboard } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
-	import { icons } from '$lib/Modal/PictureElements/icons';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 
 	let { sel }: { sel: any } = $props();
 
@@ -19,7 +19,7 @@
 	onMount(async () => {
 		if (konva) return;
 
-		const { KonvaViewer } = await import('$lib/Modal/PictureElements/konvaViewer');
+		const { KonvaViewer } = await import('$lib/legacy/Modal/PictureElements/konvaViewer');
 
 		if (canvas) {
 			konva = new KonvaViewer(canvas, {
@@ -63,7 +63,7 @@
 
 		// import in parallel
 		const [PictureElementsConfig] = await Promise.all([
-			import('$lib/Modal/PictureElements/PictureElementsConfig.svelte'),
+			import('$lib/legacy/Modal/PictureElements/PictureElementsConfig.svelte'),
 			loadIcons(Object.values(icons))
 		]);
 

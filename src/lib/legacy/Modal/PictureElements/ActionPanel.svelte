@@ -3,9 +3,9 @@
 	import { callService, subscribeServices } from 'home-assistant-js-websocket';
 	import { onMount } from 'svelte';
 	import type { ShapeConfig } from 'konva/lib/Shape';
-	import { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import Icon from '@iconify/svelte';
-	import { icons } from '$lib/Modal/PictureElements/icons';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 	import { slide } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
 

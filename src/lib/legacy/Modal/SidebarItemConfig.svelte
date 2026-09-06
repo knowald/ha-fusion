@@ -268,7 +268,7 @@
 
 		switch (selected?.type) {
 			case 'time':
-				openModal(() => import('$lib/Modal/TimeConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/TimeConfig.svelte'), { sel: selected });
 				break;
 
 			case 'date':
@@ -280,21 +280,21 @@
 				break;
 
 			case 'sensor':
-				openModal(() => import('$lib/Modal/SensorConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/SensorConfig.svelte'), {
 					sel: selected,
 					demo: $demo.sensor
 				});
 				break;
 
 			case 'weather':
-				openModal(() => import('$lib/Modal/WeatherConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/WeatherConfig.svelte'), {
 					sel: selected,
 					demo: $demo.weather
 				});
 				break;
 
 			case 'weather_forecast':
-				openModal(() => import('$lib/Modal/WeatherForecastConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/WeatherForecastConfig.svelte'), {
 					sel: selected,
 					demo: $demo.weather_forecast
 				});
@@ -333,15 +333,15 @@
 				break;
 
 			case 'navigate':
-				openModal(() => import('$lib/Modal/NavigateConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/NavigateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'notifications':
-				openModal(() => import('$lib/Modal/NotificationsConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/NotificationsConfig.svelte'), { sel: selected });
 				break;
 
 			case 'radial':
-				openModal(() => import('$lib/Modal/RadialConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/RadialConfig.svelte'), {
 					sel: selected,
 					demo: $demo.radial
 				});
@@ -355,18 +355,18 @@
 				break;
 
 			case 'template':
-				openModal(() => import('$lib/Modal/TemplateConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/TemplateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'timer':
-				openModal(() => import('$lib/Modal/TimerConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/TimerConfig.svelte'), {
 					sel: selected,
 					demo: $demo.timer
 				});
 				break;
 
 			default:
-				openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel: selected });
 		}
 	}
 

@@ -40,7 +40,7 @@
 		<div class="button-toggle-container">
 			<button
 				onclick={() => {
-					openModal(() => import('$lib/Modal/YoutubeModal.svelte'), {});
+					openModal(() => import('$lib/legacy/Modal/YoutubeModal.svelte'), {});
 				}}
 				>{$lang('configure')}
 			</button>

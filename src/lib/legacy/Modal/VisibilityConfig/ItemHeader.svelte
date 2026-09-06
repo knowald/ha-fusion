@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { lang } from '$lib/Stores';
-	import EvaluateCondition from '$lib/Modal/VisibilityConfig/EvaluateCondition.svelte';
-	import CollapseButton from '$lib/Modal/VisibilityConfig/CollapseButton.svelte';
-	import RemoveButton from '$lib/Modal/VisibilityConfig/RemoveButton.svelte';
+	import EvaluateCondition from '$lib/legacy/Modal/VisibilityConfig/EvaluateCondition.svelte';
+	import CollapseButton from '$lib/legacy/Modal/VisibilityConfig/CollapseButton.svelte';
+	import RemoveButton from '$lib/legacy/Modal/VisibilityConfig/RemoveButton.svelte';
 	import type { Condition } from '$lib/Types';
 
 	let {

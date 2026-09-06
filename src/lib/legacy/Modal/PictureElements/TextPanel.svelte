@@ -2,11 +2,11 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { expoOut } from 'svelte/easing';
-	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import Icon from '@iconify/svelte';
-	import { icons } from '$lib/Modal/PictureElements/icons';
-	import { getFontList } from '$lib/Modal/PictureElements/fonts';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
+	import { getFontList } from '$lib/legacy/Modal/PictureElements/fonts';
 
 	let {
 		konva,

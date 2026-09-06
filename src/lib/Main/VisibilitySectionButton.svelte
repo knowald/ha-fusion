@@ -13,7 +13,7 @@
 	 * Opens visibility configuration
 	 */
 	function handleClick() {
-		openModal(() => import('$lib/Modal/VisibilityConfig/Index.svelte'), {
+		openModal(() => import('$lib/legacy/Modal/VisibilityConfig/Index.svelte'), {
 			sel: section
 		});
 	}

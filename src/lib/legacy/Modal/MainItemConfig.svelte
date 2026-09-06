@@ -62,7 +62,7 @@
 		// picture elements config, need to be loaded before click but can be deferred to onmount
 		const [iconifyModule, iconsModule] = await Promise.all([
 			import('@iconify/svelte'),
-			import('$lib/Modal/PictureElements/icons')
+			import('$lib/legacy/Modal/PictureElements/icons')
 		]);
 
 		loadIcons = iconifyModule.loadIcons;
@@ -194,7 +194,7 @@
 				break;
 			case 'spotify_player':
 			case 'spotify_player_large':
-				openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/SpotifyPlayerConfig.svelte'), {
 					sel: selected
 				});
 				break;
@@ -218,7 +218,7 @@
 			case 'picture_elements': {
 				loadIcons(Object.values(icons));
 
-				openModal(() => import('$lib/Modal/PictureElements/PictureElementsConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/PictureElements/PictureElementsConfig.svelte'), {
 					sel: selected
 				});
 
@@ -229,7 +229,7 @@
 				openModal(() => import('$lib/legacy/Modal/EmptyConfig.svelte'), { sel: selected });
 				break;
 			default:
-				openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/MainItemConfig.svelte'), { sel: selected });
 		}
 	}
 

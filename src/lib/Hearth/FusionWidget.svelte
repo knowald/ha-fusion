@@ -34,7 +34,7 @@
 		if (item?.type === 'camera') {
 			openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel: item });
 		} else if (item?.type === 'timer') {
-			openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel: item });
+			openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel: item });
 		}
 	}
 

@@ -12,7 +12,7 @@
 	 */
 	async function handleClick() {
 		if (!$disableMenuButton) {
-			openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/MainItemConfig.svelte'), { sel });
 
 			await tick();
 

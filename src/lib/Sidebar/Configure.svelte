@@ -15,7 +15,7 @@
 	 */
 	async function handleClick() {
 		if (!$editMode && !$disableMenuButton) {
-			openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel });
 
 			await tick();
 

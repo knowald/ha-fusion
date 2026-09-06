@@ -6,7 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import SpotifyShortcutsConfig from '$lib/Modal/SpotifyShortcutsConfig.svelte';
+	import SpotifyShortcutsConfig from '$lib/legacy/Modal/SpotifyShortcutsConfig.svelte';
 
 	let {
 		isOpen,

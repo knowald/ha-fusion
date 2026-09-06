@@ -19,7 +19,7 @@
 	 */
 	function handleClick() {
 		if (view) {
-			openModal(() => import('$lib/Modal/ViewConfig.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/ViewConfig.svelte'), {
 				sel: view
 			});
 		}
