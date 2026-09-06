@@ -147,7 +147,7 @@
 		/* one tile per row while editing: the handle column would otherwise
 		   truncate every name */
 		.grid.editing {
-			--min-tile-width: 220px;
+			grid-template-columns: 1fr;
 		}
 
 		.grid.editing :global(.entity-slot) {
