@@ -108,6 +108,17 @@ export const saveState = writable<'idle' | 'saved' | 'conflict' | 'error'>('idle
 let savedToastTimer: ReturnType<typeof setTimeout>;
 
 /** Returns false on a revision conflict (another tab saved first). */
+/** Save and surface the outcome through saveState instead of throwing. */
+export async function saveWithFeedback(force = false): Promise<void> {
+	saveState.set('idle');
+	try {
+		await saveEdit(force);
+	} catch (error) {
+		console.error(error);
+		saveState.set('error');
+	}
+}
+
 export async function saveEdit(force = false): Promise<boolean> {
 	const loadError = get(hearthLoadError);
 	if (loadError) {
