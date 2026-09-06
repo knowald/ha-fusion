@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { connected, connection } from '$lib/core/ha/connection';
+	import { connected } from '$lib/core/ha/connection';
+	import { subscribeTemplate } from '$lib/core/ha/history';
 	import type { TemplateWidget } from './descriptor';
 
 	let { widget }: { widget: TemplateWidget } = $props();
@@ -10,22 +11,15 @@
 
 	// Home Assistant pushes a new render whenever a referenced state changes
 	$effect(() => {
-		const conn = $connection;
 		const template = widget.template;
-		if (!template || !$connected || !conn) return;
+		if (!template || !$connected) return;
 		let unsubscribe: (() => void) | undefined;
 		let cancelled = false;
-		conn
-			.subscribeMessage(
-				async (response: { result?: string }) => {
-					if (typeof response?.result === 'string') {
-						const { marked } = await import('marked');
-						html = marked.parse(response.result) as string;
-						error = null;
-					}
-				},
-				{ type: 'render_template', template }
-			)
+		subscribeTemplate(template, async (result) => {
+			const { marked } = await import('marked');
+			html = marked.parse(result) as string;
+			error = null;
+		})
 			.then((stop) => {
 				if (cancelled) stop();
 				else unsubscribe = stop;

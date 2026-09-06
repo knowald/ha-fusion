@@ -957,5 +957,8 @@
 	"hearth_connecting_to_home_assistant": "Connecting to Home Assistant...",
 	"hearth_appears_after_first_snapshot": "Hearth will appear after the first entity snapshot arrives.",
 	"detected": "Detected",
-	"clear": "Clear"
+	"clear": "Clear",
+	"hearth_search_all_icons": "Search all icons",
+	"hearth_search_entities": "Search entities",
+	"hearth_material_symbols_name": "Material Symbols name"
 }

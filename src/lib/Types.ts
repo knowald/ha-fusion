@@ -51,9 +51,7 @@ export interface Condition {
 	collapsed?: boolean;
 }
 
-export interface Translations {
-	[key: string]: string;
-}
+export type { Translations } from '$lib/core/i18n';
 
 // dashboard.yaml
 

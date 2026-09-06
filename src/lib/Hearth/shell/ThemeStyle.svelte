@@ -1,13 +1,8 @@
 <script lang="ts">
 	import { motion } from '$lib/core/app/motion';
 	import { states } from '$lib/core/ha/entities';
-	import {
-		isNightState,
-		THEME_BRIDGE_CSS,
-		THEME_DEFAULTS,
-		themeStyle,
-		type HearthTheme
-	} from '$lib/core/theme';
+	import { isNightState, THEME_DEFAULTS, themeStyle, type HearthTheme } from '$lib/core/theme';
+	import { THEME_BRIDGE_CSS } from '$lib/legacy/bridge/themeBridge';
 	import { editedThemeSlot, editor, hearthConfig, hearthEditMode } from '../store';
 
 	/** A display-only preset from ?theme=, replacing the stored theme without touching the config. */
