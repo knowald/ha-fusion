@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import { closePopup, editor, popup } from './store';
+	import { closePopup, popup } from './store';
+	import { pushLayer } from '$lib/ui/layers';
 	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
 	import { lightViewFor, toggleLight } from '$lib/core/domains/light';
 	import BlindPopup from './BlindPopup.svelte';
@@ -31,16 +32,10 @@
 		};
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		// an edit sheet stacks above the popup and owns Escape while open
-		if (event.key === 'Escape' && $popup && !$editor) {
-			event.stopPropagation();
-			closePopup();
-		}
-	}
+	$effect(() => {
+		if ($popup) return pushLayer(closePopup);
+	});
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 {#if $popup}
 	<div class="overlay" onclick={closePopup} role="presentation">

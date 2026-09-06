@@ -7,6 +7,7 @@
 	import { currentRoom, hearthConfig } from './store';
 	import { openEntityDetail } from '$lib/Hearth/details';
 	import Icon from './Icon.svelte';
+	import { layer } from '$lib/ui/layers';
 
 	let { onclose }: { onclose: () => void } = $props();
 
@@ -94,10 +95,7 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			onclose();
-		} else if (event.key === 'ArrowDown') {
+		if (event.key === 'ArrowDown') {
 			event.preventDefault();
 			if (results.length) activeIndex = (activeIndex + 1) % results.length;
 		} else if (event.key === 'ArrowUp') {
@@ -111,14 +109,13 @@
 	}
 </script>
 
-<!-- capture phase: mirrors edit/EntityPicker.svelte so Escape reliably closes
-	this overlay first regardless of what else is listening on the window -->
-<svelte:window onkeydowncapture={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div
 	class="overlay"
 	role="presentation"
 	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+	use:layer={onclose}
 >
 	<div class="panel" role="dialog" aria-modal="true" aria-label={$lang('search')}>
 		<div class="search">

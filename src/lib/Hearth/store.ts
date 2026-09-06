@@ -167,10 +167,6 @@ export type Popup = {
 
 export const popup = writable<Popup | null>(null);
 
-// open anchored popovers (collapsed groups); window-level shortcuts check this
-// so they cannot open another layer on top of one
-export const openPopovers = writable(0);
-
 export interface RequestedConfirmation {
 	title: string;
 	message: string;
