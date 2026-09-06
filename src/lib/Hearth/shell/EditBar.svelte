@@ -14,6 +14,7 @@
 		redoConfig,
 		requestConfirmation,
 		saveState,
+		saveFailure,
 		saveWithFeedback,
 		undoConfig
 	} from '../store';
@@ -82,7 +83,9 @@
 				{$lang('hearth_reload')}
 			</button>
 		{:else if $saveState === 'error'}
-			<span class="save-error">{$lang('hearth_save_failed')}</span>
+			<span class="save-error">
+				{$lang('hearth_save_failed')}{#if $saveFailure}: {$saveFailure}{/if}
+			</span>
 		{/if}
 		<button
 			type="button"

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { motion, autocompleteOpen, ripple, dragging } from '$lib/Stores';
+	import { motion, ripple, dragging } from '$lib/Stores';
 	import { onMount, onDestroy } from 'svelte';
 	import { modals, closeModal } from '$lib/Modals';
 	import { fly, scale } from 'svelte/transition';
@@ -164,12 +164,10 @@
 		}
 	}
 
-	function handleKeydown(event: any) {
-		if (event.key === 'Escape') {
-			if (!$autocompleteOpen && !$dragging) {
-				closeModal();
-			}
-		}
+	// Escape is handled by the layer stack (see $lib/Modals); only the drag
+	// guard remains here because the stack cannot know about it
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && $dragging) event.stopImmediatePropagation();
 	}
 </script>
 

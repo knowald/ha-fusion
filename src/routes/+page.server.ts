@@ -34,8 +34,13 @@ export async function load({ request }): Promise<{
 	hearthRevision: number;
 	translations: Translations;
 }> {
-	const configuration =
-		((await loadYaml('./data/configuration.yaml')) as Configuration | undefined) ?? {};
+	let configuration: Configuration = {};
+	try {
+		configuration =
+			((await loadYaml('./data/configuration.yaml')) as Configuration | undefined) ?? {};
+	} catch (error) {
+		console.error('configuration.yaml could not be read, using defaults:', error);
+	}
 	let hearth: unknown;
 	let hearthError: string | null = null;
 	try {

@@ -3,6 +3,7 @@
 	import { entityIds } from '$lib/core/ha/entities';
 	import * as parser from 'js-yaml';
 	import { editor, hearthConfig, updateConfig } from '../store';
+	import { ConfigTooNewError, migrateHearthConfig } from '../migrate';
 	import { hearthConfigIssues, normalizeHearthConfig } from '../normalize';
 	import EditSheet from './EditSheet.svelte';
 
@@ -19,9 +20,12 @@
 			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
 				return 'Configuration must be a YAML mapping';
 			}
-			const issues = hearthConfigIssues(parsed);
+			// pasted older files are lifted first, so their shapes are judged
+			// after migration rather than reported as unknown types
+			const issues = hearthConfigIssues(migrateHearthConfig(parsed));
 			return issues.length ? issues.slice(0, 5).join('; ') : null;
 		} catch (parseError) {
+			if (parseError instanceof ConfigTooNewError) return parseError.message;
 			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML';
 		}
 	});

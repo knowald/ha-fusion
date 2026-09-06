@@ -263,6 +263,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 	const extensions = { ...config };
 	for (const key of [
 		'version',
+		'revision',
 		'theme',
 		'theme_night',
 		'day_night',
