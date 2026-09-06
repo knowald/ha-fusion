@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { LegacyCamera as Camera } from '$lib/legacy/bridge/camera';
+	import { loadLegacyCamera } from '$lib/legacy/bridge/camera';
 	import type { OverviewCard } from '../../config';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'camera' }> } = $props();
@@ -12,13 +12,15 @@
 	{/if}
 	{#if card.entity}
 		<div class="camera">
-			<Camera
-				sel={{ id: card.id, type: 'camera', entity_id: card.entity, stream: card.stream } as any}
-				responsive={true}
-				muted={true}
-				controls={false}
-				allowEditStream={true}
-			/>
+			{#await loadLegacyCamera() then Camera}
+				<Camera.default
+					sel={{ id: card.id, type: 'camera', entity_id: card.entity, stream: card.stream } as any}
+					responsive={true}
+					muted={true}
+					controls={false}
+					allowEditStream={true}
+				/>
+			{/await}
 		</div>
 	{:else}
 		<div class="placeholder">{$lang('hearth_pick_a_camera_entity_in_the')}</div>

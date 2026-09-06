@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
 import type { Component } from 'svelte';
 import { states, getDomain } from '$lib/core/ha/entities';
-import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 import { popup } from '../store';
 
 export interface DetailProps {
@@ -65,7 +64,10 @@ export function openEntityDetail(entityId: string, name?: string) {
 	const entity = get(states)?.[entityId];
 	const gpsTracker = domain === 'device_tracker' && entity?.attributes?.source_type === 'gps';
 	if ((domain && LEGACY_DETAIL_DOMAINS.has(domain)) || gpsTracker) {
-		openEntityModal(entityId, name);
+		// the bridge drags the original stores along; load it only for these
+		void import('$lib/legacy/bridge/entityModals').then((bridge) =>
+			bridge.openEntityModal(entityId, name)
+		);
 		return;
 	}
 	popup.set({
