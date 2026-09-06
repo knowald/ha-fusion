@@ -169,7 +169,7 @@
 	"hearth_command_failed": "Command failed",
 	"hearth_config_changed": "Configuration changed elsewhere",
 	"hearth_config_unreadable": "Hearth configuration is unreadable",
-	"hearth_connection_lost": "Home Assistant connection lost. Reconnecting…",
+	"hearth_connection_lost": "Home Assistant connection lost. Reconnecting...",
 	"hearth_dismiss_screensaver": "Dismiss screensaver",
 	"hearth_edit_configuration": "Edit Hearth configuration",
 	"hearth_good_afternoon": "Good afternoon",
@@ -960,5 +960,6 @@
 	"clear": "Clear",
 	"hearth_search_all_icons": "Search all icons",
 	"hearth_search_entities": "Search entities",
-	"hearth_material_symbols_name": "Material Symbols name"
+	"hearth_material_symbols_name": "Material Symbols name",
+	"hearth_page": "Page"
 }
