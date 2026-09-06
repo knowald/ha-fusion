@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Ripple from '$lib/ui/actions/ripple';
-	import { connected, connection } from '$lib/core/ha/connection';
+	import { connected } from '$lib/core/ha/connection';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE, type RailWidget } from '../../config';
 	import { clockTimeOptions } from '../../clock';
-	import { startDataRefresh } from '$lib/core/ha/history';
+	import { fetchCalendarEvents, startDataRefresh, type CalendarEvent } from '$lib/core/ha/history';
 	import { hearthConfig, hearthEditMode } from '../../store';
 	import { sensorNumber } from '$lib/core/ha/entities';
 	import { openEntityDetail } from '$lib/Hearth/details';
@@ -19,7 +19,7 @@
 		allDay: boolean;
 	}
 
-	function parseEvent(event: any): NextEvent | null {
+	function parseEvent(event: CalendarEvent): NextEvent | null {
 		// calendar.get_events returns ISO strings, with all-day events using a
 		// date-only value. Retain support for the object form used by some older
 		// calendar clients as well.
@@ -47,25 +47,18 @@
 	});
 
 	$effect(() => {
-		const conn = $connection;
 		const entities = widget.entities ?? [];
 		const lookaheadHours = widget.lookahead_hours ?? 24;
-		if (!$connected || !conn || !entities.length) return;
+		if (!$connected || !entities.length) return;
 
 		async function fetchNext() {
-			const result: any = await conn.sendMessagePromise({
-				type: 'call_service',
-				domain: 'calendar',
-				service: 'get_events',
-				target: { entity_id: entities },
-				service_data: {
-					start_date_time: new Date().toISOString(),
-					end_date_time: new Date(Date.now() + lookaheadHours * 3600 * 1000).toISOString()
-				},
-				return_response: true
-			});
-			const events: NextEvent[] = Object.values(result?.response ?? {})
-				.flatMap((calendar: any) => calendar?.events ?? [])
+			const events: NextEvent[] = (
+				await fetchCalendarEvents(
+					entities,
+					new Date(),
+					new Date(Date.now() + lookaheadHours * 3600 * 1000)
+				)
+			)
 				.map(parseEvent)
 				.filter((event): event is NextEvent => event !== null)
 				.sort((a, b) => a.start.getTime() - b.start.getTime());

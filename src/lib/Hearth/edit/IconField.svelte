@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { layer } from '$lib/ui/layers';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -8,7 +9,7 @@
 	let {
 		label,
 		value = $bindable(''),
-		placeholder = 'Material Symbols name'
+		placeholder = undefined
 	}: { label: string; value?: string; placeholder?: string } = $props();
 
 	// shown when no filter is typed - the full set is thousands of icons, so
@@ -175,7 +176,12 @@
 		<span class="preview" class:empty={!value.trim()}>
 			<Icon name={value.trim() || 'category'} size={20} />
 		</span>
-		<input type="text" bind:value {placeholder} spellcheck="false" />
+		<input
+			type="text"
+			bind:value
+			placeholder={placeholder ?? $lang('hearth_material_symbols_name')}
+			spellcheck="false"
+		/>
 		<span
 			class="expand pressable"
 			use:Ripple={PRESS_RIPPLE}
@@ -188,13 +194,13 @@
 		</span>
 	</div>
 	{#if expanded}
-		<div class="picker">
+		<div class="picker" use:layer={() => (expanded = false)}>
 			<input
 				class="filter"
 				type="text"
 				bind:value={filter}
 				oninput={() => (limit = PAGE_SIZE)}
-				placeholder="Search all icons"
+				placeholder={$lang('hearth_search_all_icons')}
 				spellcheck="false"
 			/>
 			<div class="grid">

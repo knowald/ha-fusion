@@ -13,7 +13,7 @@
 		"check:watch": "npm run check -- --watch",
 		"test": "vitest run --coverage",
 		"test:e2e": "playwright test",
-		"lint": "prettier --check . && eslint . --max-warnings 127",
+		"lint": "prettier --check . && eslint . --max-warnings 119",
 		"format": "prettier --write ."
 	},
 	"devDependencies": {

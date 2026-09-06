@@ -57,7 +57,7 @@
 			<input
 				type="text"
 				bind:value={query}
-				placeholder="Search entities"
+				placeholder={$lang('hearth_search_entities')}
 				spellcheck="false"
 				use:focusOnMount
 			/>

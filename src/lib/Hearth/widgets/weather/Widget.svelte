@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { connection } from '$lib/core/ha/connection';
+	import { connected } from '$lib/core/ha/connection';
+	import { subscribeForecast } from '$lib/core/ha/history';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import Icon from '../../Icon.svelte';
@@ -46,30 +47,19 @@
 	let forecast = $state<ForecastDay[]>([]);
 
 	$effect(() => {
-		const conn = $connection;
 		const entityId = weatherEntity;
 		const locale = $selectedLanguage;
 		forecast = [];
-		if (!conn || !entityId) return;
+		if (!$connected || !entityId) return;
 
 		let cancelled = false;
-		let unsubscribe: (() => Promise<void>) | undefined;
-		conn
-			.subscribeMessage(
-				(message: { forecast?: { datetime: string; temperature: number }[] }) => {
-					forecast = (message?.forecast ?? []).slice(1, 4).map((day) => ({
-						day: new Date(day.datetime)
-							.toLocaleDateString(locale, { weekday: 'short' })
-							.toUpperCase(),
-						temp: `${Math.round(day.temperature)}°`
-					}));
-				},
-				{
-					type: 'weather/subscribe_forecast',
-					entity_id: entityId,
-					forecast_type: 'daily'
-				}
-			)
+		let unsubscribe: (() => void) | undefined;
+		subscribeForecast(entityId, 'daily', (days) => {
+			forecast = days.slice(1, 4).map((day) => ({
+				day: new Date(day.datetime).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
+				temp: `${Math.round(day.temperature ?? 0)}°`
+			}));
+		})
 			.then((unsub) => {
 				if (cancelled) unsub();
 				else unsubscribe = unsub;

@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { connected, connection } from '$lib/core/ha/connection';
+	import { connected } from '$lib/core/ha/connection';
 	import { states, sensorNumber, entityActive } from '$lib/core/ha/entities';
-	import { cachedData, startDataRefresh } from '$lib/core/ha/history';
+	import {
+		cachedData,
+		fetchStateHistory,
+		fetchStatisticSeries,
+		startDataRefresh
+	} from '$lib/core/ha/history';
 	import type { ChartWidget } from './descriptor';
 	import { applyMath, PERIOD_MS } from './math';
 
@@ -22,25 +27,19 @@
 	/* line: hourly means (or daily for long periods) from the recorder */
 	let points = $state<number[] | null>(null);
 	$effect(() => {
-		const conn = $connection;
-		if (style !== 'line' || !entity || !$connected || !conn) return;
+		if (style !== 'line' || !entity || !$connected) return;
 		const span = PERIOD_MS[period];
 		const bucket = period === 'hour' ? '5minute' : period === 'day' ? 'hour' : 'day';
 		return startDataRefresh(
 			() =>
 				cachedData(`chart:${entity}:${period}`, async () => {
-					const result: any = await conn.sendMessagePromise({
-						type: 'recorder/statistics_during_period',
-						start_time: new Date(Date.now() - span).toISOString(),
-						end_time: new Date().toISOString(),
-						statistic_ids: [entity],
-						period: bucket
-					});
-					const values: number[] = (result?.[entity] ?? [])
-						.map((item: { mean?: number; state?: number }) => item.mean ?? item.state)
-						.filter((entry: unknown): entry is number => typeof entry === 'number')
-						.map((entry: number) => applyMath(entry, widget.math));
-					return values.length < 2 ? null : values;
+					const values = await fetchStatisticSeries(
+						entity,
+						new Date(Date.now() - span),
+						new Date(),
+						bucket
+					);
+					return values?.map((entry) => applyMath(entry, widget.math)) ?? null;
 				}),
 			(values) => (points = values)
 		);
@@ -70,22 +69,14 @@
 	}
 	let segments = $state<Segment[] | null>(null);
 	$effect(() => {
-		const conn = $connection;
-		if (style !== 'history' || !entity || !$connected || !conn) return;
+		if (style !== 'history' || !entity || !$connected) return;
 		const span = PERIOD_MS[period];
 		return startDataRefresh(
 			() =>
 				cachedData(`history:${entity}:${period}`, async () => {
 					const start = Date.now() - span;
-					const result: any = await conn.sendMessagePromise({
-						type: 'history/history_during_period',
-						start_time: new Date(start).toISOString(),
-						end_time: new Date().toISOString(),
-						entity_ids: [entity],
-						minimal_response: true,
-						no_attributes: true
-					});
-					const changes: { s: string; lu: number }[] = result?.[entity] ?? [];
+					const changes =
+						(await fetchStateHistory([entity], new Date(start), new Date()))[entity] ?? [];
 					if (!changes.length) return [] as Segment[];
 					return changes.map((change, index) => {
 						const from = Math.max(start, change.lu * 1000);

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { connected, connection } from '$lib/core/ha/connection';
+	import { connected } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
 	import type { RailWidget } from '../../config';
-	import { startDataRefresh } from '$lib/core/ha/history';
+	import { fetchStatistics, startDataRefresh } from '$lib/core/ha/history';
 	import { sensorNumber } from '$lib/core/ha/entities';
 	import Icon from '../../Icon.svelte';
 
@@ -18,21 +18,16 @@
 	});
 
 	$effect(() => {
-		const conn = $connection;
 		const entityId = widget.entity;
-		if (!$connected || !conn || !entityId) return;
+		if (!$connected || !entityId) return;
+		// narrowed here; the closure below would see string | undefined again
+		const statisticId: string = entityId;
 
 		async function fetchToday() {
 			const now = new Date();
 			const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-			const result: any = await conn.sendMessagePromise({
-				type: 'recorder/statistics_during_period',
-				start_time: start.toISOString(),
-				end_time: new Date().toISOString(),
-				statistic_ids: [entityId],
-				period: 'hour'
-			});
-			const rows: { change?: number; sum?: number }[] = result?.[entityId!] ?? [];
+			const rows =
+				(await fetchStatistics([statisticId], start, new Date(), 'hour'))[statisticId] ?? [];
 			// energy statistics carry per-period change; fall back to sum deltas
 			let previousSum: number | undefined;
 			return rows.map((row) => {

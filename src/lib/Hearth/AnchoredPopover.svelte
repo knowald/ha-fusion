@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import { motion } from '$lib/core/app/motion';
 	import { getHearthInteractionMode } from './interaction';
+	import { clamp } from '$lib/core/ha/commands';
 	import { pushLayer } from '$lib/ui/layers';
 
 	let {
@@ -26,10 +27,6 @@
 		above: boolean;
 		tailed: boolean;
 	} | null>(null);
-
-	function clamp(value: number, min: number, max: number) {
-		return Math.max(min, Math.min(max, value));
-	}
 
 	/**
 	 * Pins the card to the anchor, on whichever side has room, clamped into the
