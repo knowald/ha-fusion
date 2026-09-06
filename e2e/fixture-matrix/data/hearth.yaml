@@ -12,6 +12,8 @@ theme_night:
   accent_text: '#d6ebf3'
   accent_dim_text: '#9fb8c4'
   on_accent: '#07141c'
+screensaver_minutes: 5
+screensaver_drift: true
 padding_x: 0
 padding_y: 0
 rail:
