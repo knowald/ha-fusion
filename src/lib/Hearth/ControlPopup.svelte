@@ -16,16 +16,18 @@
 	import { getDomain } from '$lib/core/ha/entities';
 
 	const meta = {
-		light: { icon: 'lightbulb', sub: 'Dimmable light' },
-		blind: { icon: 'blinds', sub: 'Window covering' },
-		fan: { icon: 'mode_fan', sub: 'Ceiling fan' },
-		media: { icon: 'music_note', sub: 'Media player' },
-		sensor: { icon: 'monitoring', sub: 'Last 24 hours' }
+		light: { icon: 'lightbulb', sub: 'hearth_dimmable_light' },
+		blind: { icon: 'blinds', sub: 'hearth_window_covering' },
+		fan: { icon: 'mode_fan', sub: 'hearth_ceiling_fan' },
+		media: { icon: 'music_note', sub: 'hearth_media_player' },
+		sensor: { icon: 'monitoring', sub: 'hearth_last_24_hours' }
 	};
 
 	// the detail sheet takes its icon and caption from the entity's domain
 	function headerFor(current: NonNullable<typeof $popup>) {
-		if (current.kind !== 'detail') return meta[current.kind];
+		if (current.kind !== 'detail') {
+			return { icon: meta[current.kind].icon, sub: $lang(meta[current.kind].sub) };
+		}
 		return {
 			icon: domainIcon(current.entity),
 			sub: (getDomain(current.entity) ?? '').replaceAll('_', ' ')

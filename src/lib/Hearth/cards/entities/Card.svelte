@@ -13,6 +13,7 @@
 	import { getHearthInteractionMode } from '../../interaction';
 	import { hearthEditMode, updateConfig } from '../../store';
 	import { entityGroupSummary } from '$lib/core/ha/entities';
+	import { formatGroupSummary } from '../../groupSummary';
 	import { setAllCovers } from '$lib/core/domains/cover';
 	import { turnAllOff } from '$lib/core/domains/light';
 	import AnchoredPopover from '../../AnchoredPopover.svelte';
@@ -40,9 +41,12 @@
 	});
 
 	let summary = $derived(
-		entityGroupSummary(
-			resolvedEntities.map((ref) => ref.entity),
-			$states
+		formatGroupSummary(
+			entityGroupSummary(
+				resolvedEntities.map((ref) => ref.entity),
+				$states
+			),
+			$lang
 		)
 	);
 	let summaryText = $derived(

@@ -25,6 +25,7 @@ import {
 	sensorNumber
 } from '$lib/core/ha/entities';
 import { lightViewFor } from '$lib/core/domains/light';
+import { formatGroupSummary } from './groupSummary';
 
 describe('Hearth store view helpers', () => {
 	it('distinguishes missing, unknown, unavailable and available entities', () => {
@@ -114,7 +115,11 @@ describe('Hearth store view helpers', () => {
 			'light.one': { state: 'on' },
 			'light.two': { state: 'unavailable' }
 		} as any);
-		expect(summary).toMatchObject({ text: '1 on', badge: '1 on' });
+		expect(summary).toMatchObject({ countable: true, active: 1, inactive: 0, activeWord: 'on' });
+		expect(formatGroupSummary(summary, (key) => key)).toMatchObject({
+			text: '1 on',
+			badge: '1 on'
+		});
 		expect(sensorNumber('12.5 °C')).toBe(12.5);
 		expect(sensorNumber('unavailable')).toBeNull();
 	});

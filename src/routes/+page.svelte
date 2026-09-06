@@ -8,16 +8,19 @@
 	import { configuration } from '$lib/core/app/configuration';
 	import { motion } from '$lib/core/app/motion';
 	import { connected } from '$lib/core/ha/connection';
-	import { selectedLanguage, translation } from '$lib/core/i18n';
+	import { lang, selectedLanguage, translation } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { startConnection, stopConnection } from '$lib/core/ha/connection';
+	import { setCommandGate } from '$lib/core/ha/commands';
+	import { get } from 'svelte/store';
 	import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
 	import { normalizeHearthConfig } from '$lib/Hearth/normalize';
 	import {
 		hearthConfig,
 		hearthLoadError,
 		hearthNeedsSetup,
-		hearthRevision
+		hearthRevision,
+		hearthEditMode
 	} from '$lib/Hearth/store';
 	import HearthDashboard from '$lib/Hearth/HearthDashboard.svelte';
 
@@ -53,7 +56,12 @@
 		if ($configuration?.token && browser) startConnection($configuration, connectionHooks);
 	});
 
-	onDestroy(stopConnection);
+	// taps arrange cards while the layout editor is open and must not reach a device
+	setCommandGate(() => !get(hearthEditMode));
+	onDestroy(() => {
+		stopConnection();
+		setCommandGate(() => true);
+	});
 </script>
 
 <svelte:head>
@@ -67,8 +75,10 @@
 {:else}
 	<section class="boot" aria-live="polite" aria-busy="true">
 		<div class="boot-mark" aria-hidden="true"></div>
-		<strong>{$connected ? 'Loading Home Assistant…' : 'Connecting to Home Assistant…'}</strong>
-		<span>Hearth will appear after the first entity snapshot arrives.</span>
+		<strong>
+			{$lang($connected ? 'hearth_loading_home_assistant' : 'hearth_connecting_to_home_assistant')}
+		</strong>
+		<span>{$lang('hearth_appears_after_first_snapshot')}</span>
 	</section>
 {/if}
 
