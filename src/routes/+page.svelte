@@ -1,75 +1,51 @@
 <script lang="ts">
-	import {
-		dashboard,
-		configuration,
-		editMode,
-		motion,
-		showDrawer,
-		translation,
-		drawerSearch,
-		focusSearch,
-		currentViewId,
-		selectedLanguage,
-		customJs,
-		filterDashboard,
-		disableMenuButton,
-		clickOriginatedFromMenu,
-		connection,
-		youtubeAddon
-	} from '$lib/Stores';
+	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
+	import '@fontsource-variable/geist-mono';
+	import '@fontsource-variable/hanken-grotesk';
+	import '@material-symbols/font-400/rounded.css';
+	import { onDestroy } from 'svelte';
+	import { configuration, motion } from '$lib/Stores';
+	import { connected } from '$lib/core/ha/connection';
+	import { selectedLanguage, translation } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import { startConnection, stopConnection } from '$lib/core/ha/connection';
 	import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
-	import { onDestroy, onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { modals } from '$lib/Modals';
-	import Theme from '$lib/legacy/Components/Theme.svelte';
+	import { normalizeHearthConfig } from '$lib/Hearth/normalize';
+	import {
+		hearthConfig,
+		hearthLoadError,
+		hearthNeedsSetup,
+		hearthRevision
+	} from '$lib/Hearth/store';
+	import HearthDashboard from '$lib/Hearth/HearthDashboard.svelte';
 
-	/**
-	 * Data from server-side load
-	 * function +page.server.ts
-	 */
 	let { data }: { data: any } = $props();
 
-	let altKeyPressed = $state(false);
+	const connectionHooks = { onTokenRequired: openTokenPrompt };
 
 	// one-time store seeding; `data` only changes on a full page load
 	// svelte-ignore state_referenced_locally
 	$configuration = data?.configuration;
 	// svelte-ignore state_referenced_locally
-	$dashboard = data?.dashboard;
+	$hearthConfig = normalizeHearthConfig(data?.hearth);
 	// svelte-ignore state_referenced_locally
-	$translation = data?.translations;
+	$hearthLoadError = data?.hearthError ?? null;
+	// svelte-ignore state_referenced_locally
+	$hearthNeedsSetup = data?.hearthNeedsSetup ?? false;
+	// svelte-ignore state_referenced_locally
+	$hearthRevision = data?.hearthRevision ?? 0;
+	// svelte-ignore state_referenced_locally
+	$translation = data?.translations ?? {};
 	// svelte-ignore state_referenced_locally
 	$selectedLanguage = data?.configuration?.locale || 'en';
+	if (browser) document.documentElement.lang = $selectedLanguage;
+
+	// motion:false in configuration.yaml disables transitions app-wide
 	// svelte-ignore state_referenced_locally
-	$customJs = data?.configuration?.custom_js;
-	// svelte-ignore state_referenced_locally
-	$youtubeAddon = data?.configuration?.addons?.youtube;
-	$currentViewId = $dashboard?.views?.[0]?.id;
+	if (data?.configuration?.motion === false) motion.set(0);
 
-	// svelte-ignore state_referenced_locally
-	const _motion = data?.configuration?.motion;
-	$motion = _motion === undefined || _motion === true ? $motion : 0;
-
-	/**
-	 * Computes the current view.
-	 *
-	 * filterDashboard is filtered from search input, else
-	 * find `$currentViewId` OR when dragging get `isDndShadowItem`
-	 */
-	let view = $derived(
-		$drawerSearch
-			? $filterDashboard
-			: $dashboard?.views?.find((view) => view?.id === $currentViewId) ||
-					$dashboard?.views?.find((view) => view?.isDndShadowItem)
-	);
-
-	const connectionHooks = { onTokenRequired: openTokenPrompt };
-
-	if (browser) {
-		document.documentElement.lang = $selectedLanguage || 'en';
-		startConnection($configuration, connectionHooks);
-	}
+	if (browser) startConnection($configuration, connectionHooks);
 
 	// reconnect when a long-lived access token is entered
 	$effect(() => {
@@ -77,178 +53,78 @@
 	});
 
 	onDestroy(stopConnection);
-
-	onMount(async () => {
-		/**
-		 * If the "menu" parameter in the URL is set to 'false'
-		 * Menu button is hidden and drawer is disabled.
-		 */
-		const menuParam = new URLSearchParams(window.location.search).get('menu');
-		$disableMenuButton = menuParam === 'false';
-
-		/**
-		 * Unregister service worker because it
-		 * interferes with MJPEG camera streams
-		 */
-		if ('serviceWorker' in navigator) {
-			try {
-				const registrations = await navigator.serviceWorker.getRegistrations();
-				for (const registration of registrations) {
-					await registration.unregister();
-				}
-			} catch (error) {
-				console.error('Error during service worker unregistration:', error);
-			}
-		}
-	});
-
-	/**
-	 * Toggles drawer visibility and resets
-	 * the `$clickOriginatedFromMenu` flag.
-	 */
-	function toggleDrawer() {
-		$showDrawer = !$showDrawer;
-		$clickOriginatedFromMenu = false;
-	}
-
-	/**
-	 * If in edit mode, toggle editMode by programmatically clicking `EditModeButton`
-	 * to trigger any potential confirm dialogs. Else toggle drawer normally.
-	 */
-	function handleClick() {
-		if ($editMode) {
-			$clickOriginatedFromMenu = true;
-			const button = document.querySelector('#editmode') as HTMLButtonElement;
-			button?.click();
-		} else {
-			toggleDrawer();
-		}
-	}
-
-	/**
-	 * Handles the keydown events for:
-	 * - 'Escape': Hides the search focus/hides the drawer.
-	 * - 'Alt': Copy item on drag-and-drop
-	 * - 'f': Shows drawer and/or focuses on the search field.
-	 */
-	function handleKeydown(event: KeyboardEvent) {
-		if ($modals.length) return;
-
-		// don't focus on underlying element
-		if (event.key === 'Escape' && !$editMode && document.activeElement) {
-			(document.activeElement as HTMLElement).blur();
-		}
-
-		if (event.key === 'Alt') {
-			altKeyPressed = true;
-		}
-
-		if (event.key === 'f' && !$disableMenuButton) {
-			if (!$showDrawer || !$focusSearch) {
-				$focusSearch = true;
-				if (!$showDrawer) $showDrawer = true;
-				event.preventDefault(); // prevent 'f'
-			}
-		} else if (event.key === 'Escape' && $showDrawer && !$editMode) {
-			$focusSearch = false;
-			if (!$drawerSearch) handleClick();
-			$drawerSearch = undefined;
-		}
-	}
-
-	/**
-	 * Handle Alt key press and release events for copy-on-drag
-	 */
-	function handleKeyup(event: KeyboardEvent) {
-		if (event.key === 'Alt') {
-			altKeyPressed = false;
-		}
-	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+<svelte:head>
+	<title>Hearth</title>
+	<link rel="manifest" href="{base}/hearth.webmanifest" />
+	<meta name="theme-color" content="#16110c" />
+</svelte:head>
 
-<!-- theme -->
-<Theme initial={data?.theme} />
+{#if $states}
+	<HearthDashboard />
+{:else}
+	<section class="boot" aria-live="polite" aria-busy="true">
+		<div class="boot-mark" aria-hidden="true"></div>
+		<strong>{$connected ? 'Loading Home Assistant…' : 'Connecting to Home Assistant…'}</strong>
+		<span>Hearth will appear after the first entity snapshot arrives.</span>
+	</section>
+{/if}
 
-<div
-	id="layout"
-	style:grid-template-columns="{$dashboard?.hide_sidebar || !$dashboard?.sidebar?.length
-		? '0'
-		: $dashboard?.sidebarWidth || 350}px auto"
-	style:grid-template-rows={$showDrawer ? 'auto auto 1fr' : '0fr auto 1fr'}
-	style:transition="grid-template-rows {$motion}ms ease, grid-template-columns {$motion}ms ease"
->
-	<!-- nav -->
-	{#await import('$lib/legacy/Main/Views.svelte') then Views}
-		<Views.default {view} />
+<!-- modules -->
+{#if $configuration?.custom_js}
+	{#await import('$lib/ui/CustomJs.svelte') then CustomJs}
+		<CustomJs.default />
 	{/await}
+{/if}
 
-	<!-- main -->
-	{#if view?.sections}
-		{#await import('$lib/legacy/Main/Index.svelte') then Main}
-			<Main.default {view} {altKeyPressed} />
-		{/await}
-	{:else if $connection}
-		{#await import('$lib/legacy/Main/Intro.svelte') then Intro}
-			<Intro.default {data} />
-		{/await}
-	{/if}
-
-	<!-- aside -->
-	{#await import('$lib/legacy/Sidebar/Index.svelte') then Sidebar}
-		<Sidebar.default {altKeyPressed} />
-	{/await}
-
-	<!-- menu -->
-	{#if !$disableMenuButton}
-		{#await import('$lib/legacy/Drawer/MenuButton.svelte') then MenuButton}
-			<MenuButton.default {handleClick} />
-		{/await}
-	{/if}
-
-	<!-- header -->
-	{#if $showDrawer}
-		{#await import('$lib/legacy/Drawer/Index.svelte') then Drawer}
-			<Drawer.default {view} {data} {toggleDrawer} />
-		{/await}
-	{/if}
-
-	<!-- modules -->
-	{#if $customJs}
-		{#await import('$lib/ui/CustomJs.svelte') then CustomJs}
-			<CustomJs.default />
-		{/await}
-	{/if}
-
-	<!-- custom css -->
-	{#await import('$lib/ui/CustomCss.svelte') then CustomCss}
-		<CustomCss.default />
-	{/await}
-</div>
+<!-- custom css -->
+{#await import('$lib/ui/CustomCss.svelte') then CustomCss}
+	<CustomCss.default />
+{/await}
 
 <style>
-	#layout {
+	.boot {
 		display: grid;
-		grid-template-areas:
-			'header header'
-			'aside nav'
-			'aside main';
-		min-height: 100vh;
-		overflow: hidden;
+		place-content: center;
+		justify-items: center;
+		gap: 12px;
+		width: 100%;
+		height: 100dvh;
+		padding: 24px;
+		background: #16110c;
+		color: #f6eee5;
+		font-family: 'Hanken Grotesk Variable', sans-serif;
+		text-align: center;
 	}
 
-	@media (max-width: 768px) {
-		#layout {
-			display: grid;
-			grid-template-areas:
-				'header header'
-				'aside aside'
-				'nav nav'
-				'main main';
-			min-height: 100vh;
-			overflow: hidden;
-			grid-template-rows: auto auto auto 1fr !important;
+	.boot-mark {
+		width: 36px;
+		height: 36px;
+		border: 3px solid rgba(240, 166, 61, 0.22);
+		border-top-color: #f0a63d;
+		border-radius: 50%;
+		animation: spin 900ms linear infinite;
+	}
+
+	.boot strong {
+		font-size: 20px;
+	}
+
+	.boot span {
+		font-size: 14px;
+		color: #a99b8b;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(1turn);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.boot-mark {
+			animation: none;
 		}
 	}
 </style>

@@ -13,6 +13,8 @@ export interface Configuration {
 	addons?: Addons;
 	token?: string;
 	hearth?: boolean;
+	// serves the original dashboard at /classic for one release cycle
+	classic?: boolean;
 }
 
 export interface Addons {

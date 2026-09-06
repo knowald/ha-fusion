@@ -5,10 +5,10 @@
 	import { base } from '$app/paths';
 </script>
 
-<!-- full page load on purpose: /hearth is a separate app shell, and under
+<!-- full page load on purpose: / is a separate app shell, and under
      ingress `base` is the per-installation prefix the router doesn't know -->
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- base-prefixed full page load -->
-<a class="button" href="{base}/hearth" data-sveltekit-reload use:Ripple={$ripple}>
+<a class="button" href="{base}/" data-sveltekit-reload use:Ripple={$ripple}>
 	<figure>
 		<Icon icon="mdi:fireplace" height="none" />
 	</figure>

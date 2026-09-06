@@ -16,13 +16,15 @@ const SRC = join(ROOT, 'src');
 const LAYERS = [
 	{
 		name: 'legacy',
-		match: ['src/lib/legacy/', 'src/routes/+page.svelte', 'src/routes/+page.server.ts'],
+		match: ['src/lib/legacy/', 'src/routes/classic/'],
 		allowed: ['core', 'ui', 'shared', 'bridge']
 	},
 	{
 		name: 'hearth',
 		match: [
 			'src/lib/Hearth/',
+			'src/routes/+page.svelte',
+			'src/routes/+page.server.ts',
 			'src/routes/hearth/',
 			'src/routes/_api/hearth_themes/',
 			'src/routes/_api/save_hearth/'
