@@ -23,3 +23,7 @@ logs
 /e2e/fixture/data/*
 !/e2e/fixture/data/configuration.yaml
 !/e2e/fixture/data/hearth.yaml
+/e2e/fixture-matrix/data/*
+!/e2e/fixture-matrix/data/configuration.yaml
+!/e2e/fixture-matrix/data/hearth.yaml
+/matrix-output
