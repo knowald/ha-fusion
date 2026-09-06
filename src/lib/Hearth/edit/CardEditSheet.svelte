@@ -88,7 +88,9 @@
 		// a new schema and intentionally leaves type-specific extensions behind.
 		return {
 			...(initial?.type === type ? initial : {}),
-			...draft.fields,
+			// snapshot: the draft is $state and its nested arrays are proxies,
+			// which the store's structuredClone cannot copy
+			...$state.snapshot(draft.fields),
 			id: cardId,
 			type,
 			...(descriptor.sizable
