@@ -2,6 +2,7 @@
 	import { lang } from '$lib/core/i18n';
 	import { connected } from '$lib/core/ha/connection';
 	import { subscribeTemplate } from '$lib/core/ha/history';
+	import { loadMarkdownRenderer } from '../../markdown';
 	import type { TemplateWidget } from './descriptor';
 
 	let { widget }: { widget: TemplateWidget } = $props();
@@ -16,8 +17,9 @@
 		let unsubscribe: (() => void) | undefined;
 		let cancelled = false;
 		subscribeTemplate(template, async (result) => {
-			const { marked } = await import('marked');
-			html = marked.parse(result) as string;
+			const render = await loadMarkdownRenderer();
+			if (cancelled) return;
+			html = render(result);
 			error = null;
 		})
 			.then((stop) => {
@@ -25,7 +27,7 @@
 				else unsubscribe = stop;
 			})
 			.catch((failure: { message?: string }) => {
-				error = failure?.message ?? 'template_error';
+				if (!cancelled) error = failure?.message ?? 'template_error';
 			});
 		return () => {
 			cancelled = true;

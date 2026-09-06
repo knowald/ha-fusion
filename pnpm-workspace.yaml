@@ -1,5 +1,8 @@
 allowBuilds:
   esbuild: true
 
+minimumReleaseAgeExclude:
+  - dompurify@3.4.15
+
 overrides:
   cookie@<0.7.0: '>=0.7.2'
