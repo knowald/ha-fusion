@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from './config';
 	import { domainIcon } from '$lib/core/domains';
 	import { currentRoom, hearthConfig } from './store';

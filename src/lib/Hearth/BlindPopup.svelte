@@ -2,9 +2,9 @@
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
-	import type { SliderUpdateMode } from '$lib/Types';
-	import { getSupport } from '$lib/Utils';
-	import Ripple from '$lib/Actions/ripple';
+	import type { SliderUpdateMode } from '$lib/core/app/configuration';
+	import { getSupport } from '$lib/core/ha/entities';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from './config';
 	import {
 		blindPositionFor,

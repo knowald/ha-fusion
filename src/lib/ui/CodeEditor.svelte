@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { autocompleteOpen, pasteContent } from '$lib/Stores';
+	import { autocompleteOpen, pasteContent } from './codeEditorState';
 	import { onMount, onDestroy } from 'svelte';
 	import { basicSetup } from 'codemirror';
 	import { EditorView, keymap } from '@codemirror/view';

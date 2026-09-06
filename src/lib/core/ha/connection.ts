@@ -18,7 +18,7 @@ import {
 	type HassConfig,
 	type HassServices
 } from 'home-assistant-js-websocket';
-import type { Configuration, PersistentNotification } from '$lib/Types';
+import type { Configuration, PersistentNotification } from '../app/configuration';
 import { states } from './entities';
 
 /*

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { config } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';

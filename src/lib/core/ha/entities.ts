@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket';
 import { domainDescriptor } from '../domains';
 
@@ -138,4 +138,19 @@ export function entityGroupSummary(
 		badge: active ? activeLabel : null,
 		activeLabel
 	};
+}
+
+/** Every known entity id, for pickers and editor autocompletion. */
+export const entityIds = derived(states, ($states) => Object.keys($states ?? {}));
+
+/** Which of the named feature bits are set in supported_features. */
+export function getSupport(
+	supportedFeatures: number | undefined,
+	features: Record<string, unknown>
+): Record<string, boolean> {
+	if (!supportedFeatures) return {};
+	return Object.entries(features).reduce((supports: Record<string, boolean>, [key, value]) => {
+		if (typeof value === 'number') supports[key] = (supportedFeatures & value) !== 0;
+		return supports;
+	}, {});
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { sortable } from '$lib/Actions/sortable';
+	import { sortable } from '$lib/ui/actions/sortable';
 	import type { EntityRef } from './config';
-	import type { SliderUpdateMode } from '$lib/Types';
+	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import { onDndReceive } from './drag';
 	import { hearthEditMode } from './store';
 	import EntityTile from './EntityTile.svelte';

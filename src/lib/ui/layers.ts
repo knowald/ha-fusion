@@ -1,4 +1,5 @@
-import { readable } from 'svelte/store';
+import { get, readable } from 'svelte/store';
+import { autocompleteOpen } from './codeEditorState';
 
 /*
  * One stack for everything that opens above the page: sheets, popups,
@@ -24,7 +25,9 @@ export const layerDepth = readable(0, (set) => {
 });
 
 function handleKeydown(event: KeyboardEvent) {
-	if (event.key !== 'Escape' || event.defaultPrevented) return;
+	if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing) return;
+	// an open completion list inside a code editor closes first
+	if (get(autocompleteOpen)) return;
 	const top = stack[stack.length - 1];
 	if (!top) return;
 	event.preventDefault();

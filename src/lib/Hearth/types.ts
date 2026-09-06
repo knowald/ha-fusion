@@ -1,5 +1,5 @@
 import type * as v from 'valibot';
-import type { SliderUpdateMode } from '$lib/Types';
+import type { SliderUpdateMode } from '$lib/core/app/configuration';
 import type {
 	EntityRefSchema,
 	MediaShortcutSchema,

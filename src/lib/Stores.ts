@@ -1,12 +1,5 @@
 import { writable, readable, derived, get } from 'svelte/store';
-import type {
-	Configuration,
-	Dashboard,
-	Template,
-	Views,
-	KonvaStore,
-	KonvaImageCache
-} from '$lib/Types';
+import type { Dashboard, Template, Views, KonvaStore, KonvaImageCache } from '$lib/Types';
 import { getName, getSelected } from './Utils';
 import { ACTIVE_STATES, states } from '$lib/core/ha/entities';
 
@@ -28,7 +21,7 @@ export { states } from '$lib/core/ha/entities';
 export { translation, selectedLanguage, lang } from '$lib/core/i18n';
 
 // user
-export const configuration = writable<Configuration>();
+export { configuration } from '$lib/core/app/configuration';
 export const dashboard = writable<Dashboard>();
 export const customJs = writable<boolean | undefined>();
 
@@ -80,7 +73,7 @@ export const clickOriginatedFromMenu = writable<boolean>(false);
 // global
 export const editMode = writable(false);
 export const showDrawer = writable(false);
-export const motion = writable(190);
+export { motion } from '$lib/core/app/motion';
 export const itemHeight = readable(61.35);
 
 // views
@@ -121,15 +114,7 @@ export function historyUpdater(func: () => void) {
 }
 
 // time/date
-export const timer = readable(new Date(), function start(set) {
-	const interval = setInterval(() => {
-		set(new Date());
-	}, 1000);
-	set(new Date());
-	return function stop() {
-		clearInterval(interval);
-	};
-});
+export { timer } from '$lib/core/app/clock';
 
 // ripple
 export const ripple = readable({
@@ -149,9 +134,8 @@ export const calendarFirstDay = writable<number>();
 export const dragging = writable<boolean>(false);
 
 // codemirror
-export const autocompleteOpen = writable(false);
-export const autocompleteList = derived(states, ($states) => Object.keys($states ?? {}));
-export const pasteContent = writable<string | undefined>();
+export { autocompleteOpen, pasteContent } from '$lib/ui/codeEditorState';
+export { entityIds as autocompleteList } from '$lib/core/ha/entities';
 
 // entity select
 export const entityList = derived(

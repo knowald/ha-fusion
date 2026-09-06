@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { sortable } from '$lib/Actions/sortable';
+	import { sortable } from '$lib/ui/actions/sortable';
 	import {
 		cloneOverviewItem,
 		findOverviewItemList,

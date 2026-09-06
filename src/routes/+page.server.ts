@@ -1,7 +1,8 @@
 import { readFile } from 'fs/promises';
 import { dev } from '$app/environment';
 import * as yaml from 'js-yaml';
-import type { Configuration, Translations } from '$lib/Types';
+import type { Configuration } from '$lib/core/app/configuration';
+import type { Translations } from '$lib/core/i18n';
 import { CONFIG_VERSION, configVersion } from '$lib/Hearth/migrate';
 import dotenv from 'dotenv';
 

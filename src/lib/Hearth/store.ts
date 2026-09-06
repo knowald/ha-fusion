@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { base } from '$app/paths';
 import { setCommandGate } from '$lib/core/ha/commands';
-import type { SliderUpdateMode } from '$lib/Types';
+import type { SliderUpdateMode } from '$lib/core/app/configuration';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
 
 /* configuration */

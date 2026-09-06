@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/core/ha/entities';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
 	import EntityPicker from './EntityPicker.svelte';

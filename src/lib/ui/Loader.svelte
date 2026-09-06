@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { motion } from '$lib/Stores';
+	import { motion } from '$lib/core/app/motion';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 

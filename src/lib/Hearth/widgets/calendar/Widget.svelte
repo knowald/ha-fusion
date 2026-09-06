@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { connected, connection } from '$lib/core/ha/connection';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';

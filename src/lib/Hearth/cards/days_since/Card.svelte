@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
-	import { timer } from '$lib/Stores';
+	import { timer } from '$lib/core/app/clock';
 	import { states } from '$lib/core/ha/entities';
 	import { callEntityService } from '$lib/core/ha/commands';
 	import { PRESS_RIPPLE } from '../../config';

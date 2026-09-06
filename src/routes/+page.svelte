@@ -5,7 +5,8 @@
 	import '@fontsource-variable/hanken-grotesk';
 	import '@material-symbols/font-400/rounded.css';
 	import { onDestroy } from 'svelte';
-	import { configuration, motion } from '$lib/Stores';
+	import { configuration } from '$lib/core/app/configuration';
+	import { motion } from '$lib/core/app/motion';
 	import { connected } from '$lib/core/ha/connection';
 	import { selectedLanguage, translation } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';

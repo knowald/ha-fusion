@@ -403,7 +403,11 @@
 						{:else if !media_artist && media_title}
 							{media_title}
 						{:else}
-							<StateLogic entity_id={current_media_player?.entity_id} selected={undefined} />
+							<StateLogic
+								editing={$editMode}
+								entity_id={current_media_player?.entity_id}
+								selected={undefined}
+							/>
 						{/if}
 					</div>
 
@@ -421,7 +425,11 @@
 									{:else if !media_artist && media_title}
 										{media_title}
 									{:else}
-										<StateLogic entity_id={current_media_player?.entity_id} selected={undefined} />
+										<StateLogic
+											editing={$editMode}
+											entity_id={current_media_player?.entity_id}
+											selected={undefined}
+										/>
 									{/if}
 									{@html '&nbsp;'.repeat(4)}
 								</Marquee.default>
@@ -435,7 +443,11 @@
 							{:else if !media_artist && media_title}
 								{media_title}
 							{:else}
-								<StateLogic entity_id={current_media_player?.entity_id} selected={undefined} />
+								<StateLogic
+									editing={$editMode}
+									entity_id={current_media_player?.entity_id}
+									selected={undefined}
+								/>
 							{/if}
 						{/if}
 					</div>
@@ -457,7 +469,7 @@
 								({entity_data?.aired?.split('-')?.[0]})
 							{/if}
 						{:else}
-							<StateLogic entity_id={sel?.entity_id} selected={sel} />
+							<StateLogic editing={$editMode} entity_id={sel?.entity_id} selected={sel} />
 						{/if}
 					</div>
 
@@ -475,7 +487,7 @@
 											({entity_data?.aired?.split('-')?.[0]})
 										{/if}
 									{:else}
-										<StateLogic entity_id={sel?.entity_id} selected={sel} />
+										<StateLogic editing={$editMode} entity_id={sel?.entity_id} selected={sel} />
 									{/if}
 									{@html '&nbsp;'.repeat(4)}
 								</Marquee.default>
@@ -490,7 +502,7 @@
 									({entity_data?.aired?.split('-')?.[0]})
 								{/if}
 							{:else}
-								<StateLogic entity_id={sel?.entity_id} selected={sel} />
+								<StateLogic editing={$editMode} entity_id={sel?.entity_id} selected={sel} />
 							{/if}
 						{/if}
 					</div>

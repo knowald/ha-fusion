@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
-	import { sortable } from '$lib/Actions/sortable';
+	import Ripple from '$lib/ui/actions/ripple';
+	import { sortable } from '$lib/ui/actions/sortable';
 	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../../config';
 	import type { HearthRoom } from '../../config';

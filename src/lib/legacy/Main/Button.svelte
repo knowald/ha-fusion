@@ -801,7 +801,7 @@
 					{:else if sel?.template?.set_state && template?.set_state?.output}
 						{@html sel?.template?.set_state && $lang(template?.set_state?.output)}
 					{:else}
-						<StateLogic {entity_id} selected={sel} {contentWidth} />
+						<StateLogic editing={$editMode} {entity_id} selected={sel} {contentWidth} />
 					{/if}
 				</div>
 			{:else}
@@ -811,7 +811,7 @@
 					{:else if sel?.template?.set_state && template?.set_state?.output}
 						{@html sel?.template?.set_state && $lang(template?.set_state?.output)}
 					{:else}
-						<StateLogic {entity_id} selected={sel} {contentWidth} />
+						<StateLogic editing={$editMode} {entity_id} selected={sel} {contentWidth} />
 					{/if}
 				</div>
 			{/if}

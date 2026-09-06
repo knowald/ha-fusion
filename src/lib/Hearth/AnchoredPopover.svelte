@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { motion } from '$lib/Stores';
+	import { motion } from '$lib/core/app/motion';
 	import { getHearthInteractionMode } from './interaction';
 	import { pushLayer } from '$lib/ui/layers';
 

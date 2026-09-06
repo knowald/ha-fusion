@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import type { SliderUpdateMode } from '$lib/Types';
+	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import { capitalize, PRESS_RIPPLE } from './config';
 	import { hearthEditMode, popup, requestConfirmation } from './store';
 	import { blindPositionFor, toggleBlind } from '$lib/core/domains/cover';

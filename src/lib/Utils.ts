@@ -1,6 +1,9 @@
 import type { HassEntity } from 'home-assistant-js-websocket';
 export { getDomain, getTogglableService } from '$lib/core/ha/entities';
 import { getDomain } from '$lib/core/ha/entities';
+
+export { getSupport } from '$lib/core/ha/entities';
+export { isTimestamp, relativeTime } from '$lib/core/i18n/time';
 import type { Dashboard, Section } from '$lib/Types';
 
 /**
@@ -139,70 +142,4 @@ export function generateId(data: Dashboard) {
 		id = Math.floor(Math.random() * 1e13 - 1e12) + 1e12;
 	}
 	return id;
-}
-
-/**
- * Check if given string is a timestamp
- * YYYY-MM-DDTHH:MM:SS
- */
-export function isTimestamp(state: string) {
-	// anchored: a state that merely contains a date-like run (a log line, an
-	// attribute dump) is not a timestamp, and treating it as one used to reach
-	// relativeTime with an unparseable value
-	const format = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-	return format.test(state) && !isNaN(new Date(state).getTime());
-}
-
-/**
- * Converts an ISO formatted timestamp
- * into a relative time string
- */
-export function relativeTime(timestamp: string, languageCode: string | undefined) {
-	const date = new Date(timestamp);
-
-	// an unparseable date used to make `diff` NaN, which walked the unit loop
-	// past its last entry and threw - taking down whatever render was in flight
-	if (isNaN(date.getTime())) {
-		console.error(`Invalid timestamp: ${timestamp}`);
-		return timestamp;
-	}
-
-	const formatter = new Intl.RelativeTimeFormat(languageCode, { numeric: 'auto' });
-
-	let index;
-
-	const units: any = [
-		['second', 60],
-		['minute', 60],
-		['hour', 24],
-		['day', 30],
-		['month', 12],
-		['year', Infinity]
-	];
-
-	const now = new Date();
-	const diff = (date.getTime() - now.getTime()) / 1000;
-
-	let diffUnit = Math.abs(diff);
-	for (index = 0; index < units.length - 1; index++) {
-		if (diffUnit < units[index][1]) break;
-		diffUnit /= units[index][1];
-	}
-
-	return formatter.format(Math.round(diffUnit) * (diff < 0 ? -1 : 1), units[index][0]);
-}
-
-/**
- * Returns an object of supported features
- */
-export function getSupport(
-	supported_features: number | undefined,
-	features: any
-): Record<string, boolean> {
-	if (!supported_features) return {};
-
-	return Object.entries(features).reduce((supports: Record<string, boolean>, [key, value]) => {
-		if (typeof value === 'number') supports[key] = (supported_features & value) !== 0;
-		return supports;
-	}, {});
 }
