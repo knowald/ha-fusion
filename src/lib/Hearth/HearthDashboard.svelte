@@ -250,10 +250,11 @@
 	}
 
 	@media (max-width: 900px) {
+		/* edge to edge: only the user's own padding and the device's safe area */
 		.layout {
 			grid-template-columns: 1fr;
-			padding: calc(8px + var(--h-pad-y)) calc(24px + var(--h-pad-x))
-				calc(24px + var(--h-pad-y) + env(safe-area-inset-bottom));
+			padding: calc(var(--h-pad-y) + env(safe-area-inset-top)) var(--h-pad-x)
+				calc(var(--h-pad-y) + env(safe-area-inset-bottom));
 			gap: 24px;
 			overflow-y: auto;
 		}
@@ -272,8 +273,8 @@
 		.main {
 			overflow-y: visible;
 			min-height: auto;
-			padding: 24px;
-			margin: -24px;
+			padding: 0;
+			margin: 0;
 		}
 
 		.rail-scroll {

@@ -140,6 +140,7 @@ test('adds a card and a widget from the galleries', async ({ page }) => {
 	await page.getByRole('button', { name: 'Add card' }).click();
 	const cardSheet = page.getByRole('dialog', { name: 'Add card' });
 	await expect(cardSheet).toBeVisible();
+	await cardSheet.getByRole('option', { name: /^Entities\b/ }).click();
 	await cardSheet.getByRole('button', { name: 'Done' }).click();
 	// a card without entities renders its setup placeholder
 	await expect(page.locator('.card-slot')).toHaveCount(3);
@@ -148,6 +149,7 @@ test('adds a card and a widget from the galleries', async ({ page }) => {
 	await page.getByRole('button', { name: 'Add widget' }).click();
 	const widgetSheet = page.getByRole('dialog', { name: 'Add widget' });
 	await expect(widgetSheet).toBeVisible();
+	await widgetSheet.getByRole('option', { name: /^Clock\b/ }).click();
 	await widgetSheet.getByRole('button', { name: 'Done' }).click();
 	await expect(widgetSheet).toBeHidden();
 	await page.getByRole('button', { name: 'Cancel', exact: true }).click();

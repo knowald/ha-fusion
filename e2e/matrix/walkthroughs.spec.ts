@@ -78,6 +78,7 @@ test('3. add a garage page with two switches, save', async ({ page }) => {
 		.click();
 	await page.getByRole('button', { name: 'Add card' }).click();
 	const cardSheet = page.getByRole('dialog', { name: 'Add card' });
+	await cardSheet.getByRole('option', { name: /^Entities\b/ }).click();
 	await cardSheet.getByLabel('Title').fill('Switches');
 	await cardSheet.getByRole('button', { name: 'Add entity' }).click();
 	await cardSheet.getByPlaceholder('entity_id').last().fill('switch.heater');
