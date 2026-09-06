@@ -18,6 +18,13 @@ export function normalizeFill(raw: unknown): number | undefined {
 }
 
 /** A card or widget height in px; anything unusable means "size to content". */
+/** A finite number at or above `min`, rounded to whole units; anything else is unset. */
+export function normalizeWholeNumber(raw: unknown, min: number): number | undefined {
+	return typeof raw === 'number' && Number.isFinite(raw) && raw >= min
+		? Math.round(raw)
+		: undefined;
+}
+
 export function normalizeHeight(raw: unknown): number | undefined {
 	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 40 ? Math.round(raw) : undefined;
 }
