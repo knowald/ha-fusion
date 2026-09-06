@@ -40,7 +40,7 @@
 				{#if $hearthEditMode || visible}
 					<div
 						class="widget"
-						class:spacer={widget.type === 'spacer' && !$hearthEditMode}
+						class:spacer={widget.type === 'spacer' && !widget.height}
 						class:spacer-visible={widget.type === 'spacer' && $hearthEditMode}
 						class:hide-mobile={widget.hide_mobile && !$hearthEditMode}
 						class:hide-mobile-editing={widget.hide_mobile && $hearthEditMode}
@@ -79,11 +79,15 @@
 	}
 
 	.widget.spacer {
+		display: flex;
+		flex-direction: column;
 		flex: 1;
 	}
 
+	/* room for the edit chip, even on a thin fixed gap */
 	.widget.spacer-visible {
-		flex: 1;
+		display: flex;
+		flex-direction: column;
 		min-height: 40px;
 	}
 

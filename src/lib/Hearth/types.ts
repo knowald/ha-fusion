@@ -58,7 +58,9 @@ type RailWidgetVariant =
 	| { id: string; type: 'weather'; entity?: string }
 	| { id: string; type: 'search' }
 	| { id: string; type: 'nav' }
-	| { id: string; type: 'spacer' }
+	// a gap in the rail: flexible (absorbs leftover height) unless height fixes
+	// it in px; line draws a divider across the middle of the gap
+	| { id: string; type: 'spacer'; line?: boolean; height?: number }
 	| { id: string; type: 'label'; text?: string; divider?: boolean }
 	// price is a static amount per kWh; price_entity overrides it when set
 	| {
