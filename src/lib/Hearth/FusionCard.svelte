@@ -8,15 +8,15 @@
 
 	// dynamic imports keep heavy embeds (Konva, Spotify) out of the base bundle
 	const components: Record<string, () => Promise<{ default: any }>> = {
-		button: () => import('$lib/Main/Button.svelte'),
-		entities: () => import('$lib/Main/Entities.svelte'),
-		camera: () => import('$lib/Main/Camera.svelte'),
-		picture_elements: () => import('$lib/Main/PictureElements.svelte'),
-		conditional_media: () => import('$lib/Main/ConditionalMedia.svelte'),
-		days_since: () => import('$lib/Main/DaysSince.svelte'),
-		spotify_player: () => import('$lib/Main/SpotifyPlayer.svelte'),
-		spotify_player_large: () => import('$lib/Main/SpotifyPlayer.svelte'),
-		empty: () => import('$lib/Main/Empty.svelte')
+		button: () => import('$lib/legacy/Main/Button.svelte'),
+		entities: () => import('$lib/legacy/Main/Entities.svelte'),
+		camera: () => import('$lib/legacy/Main/Camera.svelte'),
+		picture_elements: () => import('$lib/legacy/Main/PictureElements.svelte'),
+		conditional_media: () => import('$lib/legacy/Main/ConditionalMedia.svelte'),
+		days_since: () => import('$lib/legacy/Main/DaysSince.svelte'),
+		spotify_player: () => import('$lib/legacy/Main/SpotifyPlayer.svelte'),
+		spotify_player_large: () => import('$lib/legacy/Main/SpotifyPlayer.svelte'),
+		empty: () => import('$lib/legacy/Main/Empty.svelte')
 	};
 
 	let load = $derived(item?.type ? components[item.type] : undefined);

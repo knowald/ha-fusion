@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { configuration, editMode, history, historyIndex, motion } from '$lib/Stores';
-	import Separator from '$lib/Drawer/Separator.svelte';
+	import Separator from '$lib/legacy/Drawer/Separator.svelte';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import '$lib/Drawer/Drawer.css';
+	import '$lib/legacy/Drawer/Drawer.css';
 	import type { Configuration, Dashboard, Translations, ViewItem } from '$lib/Types';
 	import { loadIcons } from '@iconify/svelte';
 
@@ -52,38 +52,38 @@
 <header id="drawer" transition:slide|global={{ duration: $motion }}>
 	<div class:grid={!$editMode} class:grid-editmode={$editMode}>
 		<div class="edit">
-			{#await import('$lib/Drawer/EditModeButton.svelte') then EditModeButton}
+			{#await import('$lib/legacy/Drawer/EditModeButton.svelte') then EditModeButton}
 				<EditModeButton.default {modified} {toggleDrawer} />
 			{/await}
 		</div>
 
 		{#if $editMode}
 			<div class="add">
-				{#await import('$lib/Drawer/AddDropdown.svelte') then AddDropdown}
+				{#await import('$lib/legacy/Drawer/AddDropdown.svelte') then AddDropdown}
 					<AddDropdown.default {view} />
 				{/await}
 			</div>
 
 			<div class="appearance">
-				{#await import('$lib/Drawer/AppearanceButton.svelte') then AppearanceButton}
+				{#await import('$lib/legacy/Drawer/AppearanceButton.svelte') then AppearanceButton}
 					<AppearanceButton.default />
 				{/await}
 			</div>
 
 			<div class="history">
-				{#await import('$lib/Drawer/HistoryButtons.svelte') then HistoryButtons}
+				{#await import('$lib/legacy/Drawer/HistoryButtons.svelte') then HistoryButtons}
 					<HistoryButtons.default />
 				{/await}
 			</div>
 
 			<div class="save push">
-				{#await import('$lib/Drawer/SaveButton.svelte') then SaveButton}
+				{#await import('$lib/legacy/Drawer/SaveButton.svelte') then SaveButton}
 					<SaveButton.default {modified} />
 				{/await}
 			</div>
 		{:else}
 			<div class="code">
-				{#await import('$lib/Drawer/CodeButton.svelte') then CodeButton}
+				{#await import('$lib/legacy/Drawer/CodeButton.svelte') then CodeButton}
 					<CodeButton.default />
 				{/await}
 			</div>
@@ -91,27 +91,27 @@
 			<Separator />
 
 			<div class="search">
-				{#await import('$lib/Drawer/SearchInput.svelte') then SearchInput}
+				{#await import('$lib/legacy/Drawer/SearchInput.svelte') then SearchInput}
 					<SearchInput.default />
 				{/await}
 			</div>
 
 			{#if $configuration?.hearth}
 				<div class="hearth">
-					{#await import('$lib/Drawer/HearthButton.svelte') then HearthButton}
+					{#await import('$lib/legacy/Drawer/HearthButton.svelte') then HearthButton}
 						<HearthButton.default />
 					{/await}
 				</div>
 			{/if}
 
 			<div class="settings push">
-				{#await import('$lib/Drawer/SettingsButton.svelte') then SettingsButton}
+				{#await import('$lib/legacy/Drawer/SettingsButton.svelte') then SettingsButton}
 					<SettingsButton.default {data} />
 				{/await}
 			</div>
 
 			<!-- {#if chrome}
-				{#await import('$lib/Drawer/SayButton.svelte') then SayButton}
+				{#await import('$lib/legacy/Drawer/SayButton.svelte') then SayButton}
 					<SayButton.default />
 				{/await}
 			{/if} -->

@@ -12,7 +12,7 @@
 	import Icon from '@iconify/svelte';
 	import { openModal } from '$lib/Modals';
 	import Ripple from '$lib/Actions/ripple';
-	import SpotifyShortcuts from '$lib/Main/SpotifyShortcuts.svelte';
+	import SpotifyShortcuts from '$lib/legacy/Main/SpotifyShortcuts.svelte';
 	import { onMount, untrack } from 'svelte';
 
 	let {

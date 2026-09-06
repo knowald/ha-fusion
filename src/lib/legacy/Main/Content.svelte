@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Button from '$lib/Main/Button.svelte';
-	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
-	import PictureElements from '$lib/Main/PictureElements.svelte';
-	import Camera from '$lib/Main/Camera.svelte';
-	import Configure from '$lib/Main/Configure.svelte';
-	import Empty from '$lib/Main/Empty.svelte';
-	import DaysSince from '$lib/Main/DaysSince.svelte';
-	import Entities from '$lib/Main/Entities.svelte';
-	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
+	import Button from '$lib/legacy/Main/Button.svelte';
+	import ConditionalMedia from '$lib/legacy/Main/ConditionalMedia.svelte';
+	import PictureElements from '$lib/legacy/Main/PictureElements.svelte';
+	import Camera from '$lib/legacy/Main/Camera.svelte';
+	import Configure from '$lib/legacy/Main/Configure.svelte';
+	import Empty from '$lib/legacy/Main/Empty.svelte';
+	import DaysSince from '$lib/legacy/Main/DaysSince.svelte';
+	import Entities from '$lib/legacy/Main/Entities.svelte';
+	import SpotifyPlayer from '$lib/legacy/Main/SpotifyPlayer.svelte';
 
 	let { item, sectionName = undefined }: { item: any; sectionName?: string } = $props();
 </script>
