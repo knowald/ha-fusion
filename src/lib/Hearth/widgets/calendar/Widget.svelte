@@ -3,6 +3,7 @@
 	import Ripple from '$lib/ui/actions/ripple';
 	import { connected } from '$lib/core/ha/connection';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { parseLocalDate } from '$lib/core/i18n/time';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE, type RailWidget } from '../../config';
 	import { clockTimeOptions } from '../../clock';
@@ -27,7 +28,7 @@
 		const rawStart = event?.start;
 		const startValue =
 			typeof rawStart === 'string' ? rawStart : (rawStart?.dateTime ?? rawStart?.date);
-		const start = new Date(startValue ?? NaN);
+		const start = startValue ? parseLocalDate(startValue) : new Date(NaN);
 		if (Number.isNaN(start.getTime())) return null;
 
 		return {
@@ -163,9 +164,12 @@
 	}
 
 	.chevron {
-		display: flex;
-		align-items: center;
-		padding: 4px;
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		margin: -10px -6px -10px 0;
+		padding: 0;
 		border-radius: 50%;
 		cursor: pointer;
 		border: 0;
