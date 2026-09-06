@@ -2,7 +2,6 @@ import type { RailWidget } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type TimerWidget = Extract<RailWidget, { type: 'timer' }>;
 
@@ -18,5 +17,5 @@ export const timerWidget: WidgetDescriptor<TimerWidget> = {
 	}),
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

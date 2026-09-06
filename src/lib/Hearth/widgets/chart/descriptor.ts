@@ -2,7 +2,6 @@ import type { RailWidget } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type ChartWidget = Extract<RailWidget, { type: 'chart' }>;
 
@@ -26,5 +25,5 @@ export const chartWidget: WidgetDescriptor<ChartWidget> = {
 	}),
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

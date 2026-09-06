@@ -138,7 +138,9 @@
 
 			{#key type}
 				{#if descriptor.editor}
-					<descriptor.editor initial={editorInitial} onchange={(next) => (draft = next)} />
+					{#await descriptor.editor() then Editor}
+						<Editor.default initial={editorInitial} onchange={(next) => (draft = next)} />
+					{/await}
 				{/if}
 			{/key}
 

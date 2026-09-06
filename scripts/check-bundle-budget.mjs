@@ -19,7 +19,7 @@ const APP_ENTRY = '.svelte-kit/generated/client-optimized/app.js';
 
 // gzipped kilobytes; raise deliberately, never to make a red build green
 const BUDGETS = {
-	'routes/+page.svelte': { js: 190, css: 24 },
+	'routes/+page.svelte': { js: 150, css: 20 },
 	'routes/classic/+page.svelte': { js: 80, css: 8 }
 };
 

@@ -10,7 +10,6 @@
 		hearthNeedsSetup
 	} from './store';
 	import ControlPopup from './ControlPopup.svelte';
-	import EditorHost from './edit/EditorHost.svelte';
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
 	import Screensaver from './Screensaver.svelte';
@@ -122,7 +121,12 @@
 		</main>
 	</div>
 	<ControlPopup />
-	<EditorHost />
+	{#if $hearthEditMode}
+		<!-- the edit sheets and their editors load with edit mode, not the dashboard -->
+		{#await import('./edit/EditorHost.svelte') then EditorHost}
+			<EditorHost.default />
+		{/await}
+	{/if}
 	{#if showSearch}
 		<SearchOverlay onclose={() => (showSearch = false)} />
 	{/if}

@@ -4,7 +4,6 @@ import type { EntityRef, OverviewCard } from '../../types';
 import { normalizeEntityRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type EntitiesCard = Extract<OverviewCard, { type: 'entities' }>;
 
@@ -45,5 +44,5 @@ export const entitiesCard: CardDescriptor<EntitiesCard> = {
 		...(card.summary_entity ? [card.summary_entity] : [])
 	],
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };
