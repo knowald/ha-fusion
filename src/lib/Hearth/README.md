@@ -1,8 +1,5 @@
 # Hearth
 
-Conventions for automated agents working in this directory are in
-[AGENTS.md](AGENTS.md).
-
 Hearth is a second dashboard implementation living alongside the original one. It
 is in preview: the route works and is usable day to day, but the configuration
 format and the internal APIs in this directory are not stable yet.
