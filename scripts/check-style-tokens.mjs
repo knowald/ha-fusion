@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 
 /*
@@ -10,18 +10,22 @@ import { join, relative, resolve } from 'node:path';
  */
 
 const ROOT = resolve(import.meta.dirname, '..');
-const DIRS = ['src/lib/Hearth', 'src/lib/ui'].map((dir) => join(ROOT, dir));
+const ROOTS = ['src/lib/Hearth', 'src/lib/ui', 'src/routes/+page.svelte'].map((path) =>
+	join(ROOT, path)
+);
 
 const SPACE_SCALE = new Set([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 40]);
 const SPACING_PROPERTY =
 	/^(padding|margin|gap|row-gap|column-gap|inset|top|right|bottom|left)(-[a-z]+)?$/;
 const EXEMPT = /literal ok:/;
 
-async function* walk(dir) {
-	for (const entry of await readdir(dir, { withFileTypes: true })) {
-		const path = join(dir, entry.name);
-		if (entry.isDirectory()) yield* walk(path);
-		else if (/\.(svelte|css)$/.test(entry.name)) yield path;
+async function* walk(path) {
+	if ((await stat(path)).isFile()) {
+		if (/\.(svelte|css)$/.test(path)) yield path;
+		return;
+	}
+	for (const entry of await readdir(path, { withFileTypes: true })) {
+		yield* walk(join(path, entry.name));
 	}
 }
 
@@ -85,8 +89,8 @@ function check(file, source, block) {
 	}
 }
 
-for (const dir of DIRS) {
-	for await (const absolute of walk(dir)) {
+for (const root of ROOTS) {
+	for await (const absolute of walk(root)) {
 		const file = relative(ROOT, absolute);
 		const source = await readFile(absolute, 'utf8');
 		for (const block of styleBlocks(source, file)) check(file, source, block);

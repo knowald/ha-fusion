@@ -23,8 +23,9 @@
 		hearthEditMode
 	} from '$lib/Hearth/store';
 	import HearthDashboard from '$lib/Hearth/HearthDashboard.svelte';
+	import type { PageData } from './$types';
 
-	let { data }: { data: any } = $props();
+	let { data }: { data: PageData } = $props();
 
 	const connectionHooks = { onTokenRequired: openTokenPrompt };
 
@@ -72,6 +73,7 @@
 </script>
 
 <svelte:head>
+	<!-- eslint-disable-next-line hearth/no-bare-text -- product name, not copy -->
 	<title>Hearth</title>
 	<link rel="manifest" href="{base}/hearth.webmanifest" />
 	<meta name="theme-color" content="#16110c" />
@@ -110,8 +112,9 @@
 		width: 100%;
 		height: 100dvh;
 		padding: 24px;
-		background: #16110c;
-		color: #f6eee5;
+		/* the boot splash shows before ThemeStyle mounts, so no tokens exist yet */
+		background: #16110c; /* literal ok: pre-theme boot splash */
+		color: #f6eee5; /* literal ok: pre-theme boot splash */
 		font-family: 'Hanken Grotesk Variable', sans-serif;
 		text-align: center;
 	}
@@ -119,19 +122,19 @@
 	.boot-mark {
 		width: 36px;
 		height: 36px;
-		border: 3px solid rgba(240, 166, 61, 0.22);
-		border-top-color: #f0a63d;
+		border: 3px solid rgba(240, 166, 61, 0.22); /* literal ok: pre-theme boot splash */
+		border-top-color: #f0a63d; /* literal ok: pre-theme boot splash */
 		border-radius: 50%;
 		animation: spin 900ms linear infinite;
 	}
 
 	.boot strong {
-		font-size: 20px;
+		font-size: 20px; /* literal ok: pre-theme boot splash */
 	}
 
 	.boot span {
-		font-size: 14px;
-		color: #a99b8b;
+		font-size: 14px; /* literal ok: pre-theme boot splash */
+		color: #a99b8b; /* literal ok: pre-theme boot splash */
 	}
 
 	@keyframes spin {
