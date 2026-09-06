@@ -1,5 +1,8 @@
 # Hearth
 
+Conventions for automated agents working in this directory are in
+[AGENTS.md](AGENTS.md).
+
 Hearth is a second dashboard implementation living alongside the original one. It
 is in preview: the route works and is usable day to day, but the configuration
 format and the internal APIs in this directory are not stable yet.
@@ -97,17 +100,15 @@ manages the `revision` counter used for conflict detection.
 `padding_y`).
 
 A page is called a room in the type and YAML key, and a page in the UI. These
-mean the same thing; Home Assistant calls it an area.
+mean the same thing. Home Assistant areas are only the starting point the
+layout proposal builds pages from; a configured page need not match an area.
 
-### Card types
+### Card and rail widget types
 
-`entities`, `header`, `temperature`, `media`, `vacuum`, `camera`, `image`,
-`climate`, `scenes`, `fusion`.
-
-### Rail widget types
-
-`clock`, `weather`, `search`, `nav`, `spacer`, `label`, `energy`, `progress`,
-`calendar`, `status`, `entity`, `fusion`.
+The registries are the inventory: `cards/index.ts` lists every card type and
+`widgets/index.ts` every rail widget type, each with its directory under
+`cards/<type>/` or `widgets/<type>/`. A type that is not registered does not
+compile, so the lists there cannot drift.
 
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
@@ -214,8 +215,9 @@ switching on the domain string.
 - **Edit mode.** `hearthEditMode` suppresses device commands. Embedded fusion
   objects consult the original dashboard's `editMode` store instead, so
   `HearthDashboard.svelte` mirrors Hearth's mode into it while the route is
-  mounted, and `FusionCard.svelte` sets `pointer-events: none` on the embed so it
-  cannot open its own editor. Both halves are needed; either alone leaves a gap.
+  mounted, and `cards/fusion/Card.svelte` sets `pointer-events: none` on the
+  embed so it cannot open its own editor. Both halves are needed; either alone
+  leaves a gap.
 
 ## Component anatomy
 
@@ -247,7 +249,7 @@ One table for every entity, read from `core/domains`. A tile never invents its o
 | `controls` domains (climate, camera, image, alarm, calendar, water heater, valve, update, todo, counter, lawn mower, GPS tracker)                      | Detail sheet                                                         | Detail sheet                     | -                                            |
 | `readout` domains (sensor, binary_sensor, person, weather, sun, ...)                                                                                   | Numeric readings open their 24 h history; anything else does nothing | Same                             | -                                            |
 
-Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; every command shows the pending pulse until the state confirms it or the failure toast reports it; a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
+Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
 
 ## Copy and translation
 
@@ -260,15 +262,15 @@ cannot ship untranslated. Placeholders show example values and are exempt.
 
 ## Tests
 
-`npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,
-`store`, `drag`, `refresh`, `registry`, `visibility`, `clock`,
-`configurationState`, `fusionFields`, the type registries) and the core
+`pnpm test` (vitest, jsdom, with coverage). Pure modules (`config`, `store`,
+`drag`, `visibility`, `clock`, `attention`, `normalizers`, `markdown`,
+`migrate`, `proposal`, `fusionFields`, the type registries) and the core
 modules have unit tests. Components have render tests through `@testing-library/svelte`, named
 `*.svelte.test.ts` next to the component; `testing.ts` holds the entity
 fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
 and `core` that only moves up.
 
-`npm run test:e2e` (Playwright, Chromium) boots the production build from
+`pnpm test:e2e` (Playwright, Chromium) boots the production build from
 `e2e/fixture` against the scripted Home Assistant in `e2e/fake-hass.mjs` and
 drives the touch surfaces: tap, brightness drag, cancelled drag, long press.
-Run `npm run build` first.
+Run `pnpm build` first.
