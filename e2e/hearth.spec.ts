@@ -40,10 +40,18 @@ test.beforeEach(async ({ page, request }) => {
 	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
 });
 
+test('the edit toggle sits inside the viewport', async ({ page }) => {
+	await expect(page.getByRole('button', { name: 'Edit Hearth configuration' })).toBeInViewport();
+});
+
 test('redirects the old /hearth path to the dashboard', async ({ page }) => {
 	await page.goto('/hearth');
 	await expect(page).toHaveURL(/\/$/);
 	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
+});
+
+test('the edit toggle sits inside the viewport', async ({ page }) => {
+	await expect(page.getByRole('button', { name: 'Edit Hearth configuration' })).toBeInViewport();
 });
 
 test('boots against the entity snapshot and shows live state', async ({ page }) => {
