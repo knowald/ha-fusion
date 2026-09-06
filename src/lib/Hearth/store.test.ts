@@ -1,4 +1,5 @@
 import { get } from 'svelte/store';
+import type { HassEntities } from 'home-assistant-js-websocket';
 import { health } from '$lib/core/ha/connection';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -28,7 +29,8 @@ import {
 	entityActiveFor,
 	entityAvailability,
 	entityGroupSummary,
-	sensorNumber
+	sensorNumber,
+	states
 } from '$lib/core/ha/entities';
 import { lightViewFor } from '$lib/core/domains/light';
 import { formatGroupSummary } from './groupSummary';
@@ -72,6 +74,22 @@ describe('Hearth store view helpers', () => {
 				'active:light.desk': 1
 			})
 		).toMatchObject({ on: true });
+	});
+
+	it('refuses commands for unavailable or unknown-to-HA entities before they leave', () => {
+		health.set('connected');
+		states.set({
+			'light.dead': { entity_id: 'light.dead', state: 'unavailable', attributes: {} }
+		} as unknown as HassEntities);
+		callEntityService('light', 'toggle', 'light.dead');
+		expect(get(commandFailure)).toMatchObject({ detail: 'light.dead is unavailable' });
+		callEntityService('light', 'toggle', 'light.gone');
+		expect(get(commandFailure)).toMatchObject({
+			detail: 'light.gone is not known to Home Assistant'
+		});
+		expect(get(pendingEntities)).toEqual({});
+		dismissCommandFailure();
+		states.set(undefined as unknown as HassEntities);
 	});
 
 	it('surfaces commands attempted while Home Assistant is disconnected', () => {

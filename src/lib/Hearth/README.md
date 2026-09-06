@@ -254,7 +254,7 @@ One table for every entity, read from `core/domains`. A tile never invents its o
 | `controls` domains (climate, camera, image, alarm, calendar, water heater, valve, update, todo, counter, lawn mower, GPS tracker)                      | Detail sheet                                                         | Detail sheet                     | -                                            |
 | `readout` domains (sensor, binary_sensor, person, weather, sun, ...)                                                                                   | Numeric readings open their 24 h history; anything else does nothing | Same                             | -                                            |
 
-Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
+Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls, and `callEntityService` refuses a command to an unavailable or unknown-to-HA entity with a failure toast, whatever surface sent it; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
 
 ## Copy and translation
 
