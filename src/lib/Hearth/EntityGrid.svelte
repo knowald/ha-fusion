@@ -118,10 +118,16 @@
 		height: 100%;
 	}
 
+	/* tiles leave room on the right for the handle while editing */
+	.grid.editing :global(.entity-slot) {
+		--tile-pad-right: 48px;
+	}
+
 	.entity-drag-handle {
 		position: absolute;
-		top: 8px;
+		top: 50%;
 		right: 8px;
+		transform: translateY(-50%);
 		z-index: var(--h-layer-grid-header);
 		display: flex;
 		padding: 6px;
@@ -135,5 +141,16 @@
 
 	.entity-slot:global(.sortable-ghost) {
 		opacity: 0.35;
+	}
+
+	@media (max-width: 900px) {
+		.grid.editing :global(.entity-slot) {
+			--tile-pad-right: 40px;
+		}
+
+		.entity-drag-handle {
+			right: 6px;
+			padding: 4px;
+		}
 	}
 </style>

@@ -22,7 +22,11 @@ export const fusionCard: CardDescriptor<FusionCard> = {
 	sizable: true,
 	heightHint: 'hearth_height_hint_embed',
 	normalize: (card) => ({ config: isRecord(card.config) ? card.config : undefined }),
-	needsConfiguration: (card) => !card.config?.type,
+	// an embed without its entity draws the original "Unknown" tile; keep the
+	// placeholder until it has one (the spacer needs none)
+	needsConfiguration: (card) =>
+		!card.config?.type ||
+		(card.config.type !== 'empty' && !card.config.entity_id && !card.config.entities),
 	entityIds: (card) => (typeof card.config?.entity_id === 'string' ? [card.config.entity_id] : []),
 	component: Card,
 	editor: () => import('./Editor.svelte')

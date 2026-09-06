@@ -47,7 +47,7 @@
 			<div class="stat-verdict" data-tone={verdict.tone}>{verdict.label}</div>
 		{/if}
 	</div>
-	<div class="stat-value">
+	<div class="stat-value" class:muted={value === null}>
 		{display}{#if unit && value !== null}<span class="stat-unit" class:tight={unit === '%'}
 				>{unit}</span
 			>{/if}
@@ -82,7 +82,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		margin: 0;
-		padding: 14px;
+		padding: 14px var(--tile-pad-right, 14px) 14px 14px;
 		border: 0;
 		border-radius: var(--h-radius-sm);
 		background: var(--h-inset);
@@ -185,5 +185,10 @@
 		bottom: -4px;
 		width: 1px;
 		background: rgb(var(--h-line-rgb) / calc(0.22 * var(--h-line-scale)));
+	}
+	/* an unavailable or missing entity reads as a note, not a reading */
+	.stat-value.muted {
+		font-size: var(--h-type-emphasis);
+		color: var(--h-text-5);
 	}
 </style>

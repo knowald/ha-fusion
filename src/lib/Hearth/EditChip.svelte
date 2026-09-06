@@ -33,10 +33,11 @@
 </div>
 
 <style>
+	/* straddles the top edge so it covers a border, not a title */
 	.chip {
 		position: absolute;
-		top: 10px;
-		right: 10px;
+		top: -12px;
+		right: 12px;
 		z-index: var(--h-layer-chip);
 		display: flex;
 		align-items: center;
@@ -62,5 +63,14 @@
 
 	.pencil:hover {
 		color: var(--h-accent-text);
+	}
+
+	@media (max-width: 900px) {
+		.chip {
+			top: -10px;
+			right: 8px;
+			padding: 4px 6px;
+			gap: 2px;
+		}
 	}
 </style>

@@ -75,4 +75,9 @@
 		color: var(--h-text-5);
 		margin-top: 2px;
 	}
+	@media (max-width: 900px) {
+		.clock {
+			font-size: var(--h-type-hero);
+		}
+	}
 </style>

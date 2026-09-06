@@ -18,6 +18,7 @@
 	import ConfirmDialog from './shell/ConfirmDialog.svelte';
 	import EditBar from './shell/EditBar.svelte';
 	import Keyboard from './shell/Keyboard.svelte';
+	import PhoneNav from './shell/PhoneNav.svelte';
 	import ThemeStyle from './shell/ThemeStyle.svelte';
 	import Toasts from './shell/Toasts.svelte';
 	import { wakeLock } from './wakeLock';
@@ -112,7 +113,8 @@
 <ThemeStyle {presetOverride} />
 
 <section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
-	<div class="layout">
+	<div class="layout" class:editing={$hearthEditMode}>
+		<PhoneNav onsearch={() => (showSearch = true)} />
 		<div class="rail-scroll">
 			<Rail onsearch={() => (showSearch = true)} />
 		</div>
@@ -168,6 +170,8 @@
 		flex-direction: column;
 		padding: 32px;
 		margin: -32px;
+		/* room for the floating edit toggle over the rail's foot */
+		padding-bottom: 80px; /* literal ok: toggle height plus margin */
 	}
 
 	/* Filling cards absorb leftover height, but unexpected runtime overflow
@@ -236,12 +240,27 @@
 		display: none;
 	}
 
+	/* one ring for every keyboard-focused control; components never reset it */
+	.frame :global(:focus-visible) {
+		outline: var(--h-focus-ring);
+		outline-offset: 2px;
+	}
+
 	@media (max-width: 900px) {
 		.layout {
 			grid-template-columns: 1fr;
-			padding: calc(24px + var(--h-pad-y)) calc(24px + var(--h-pad-x));
+			padding: calc(8px + var(--h-pad-y)) calc(24px + var(--h-pad-x))
+				calc(24px + var(--h-pad-y) + env(safe-area-inset-bottom));
 			gap: 24px;
 			overflow-y: auto;
+		}
+
+		/* the edit bar floats over the scroll container; leave room under the
+		   last widget so nothing hides behind it */
+		.layout.editing {
+			padding-bottom: calc(
+				112px + var(--h-pad-y) + env(safe-area-inset-bottom)
+			); /* literal ok: edit bar height plus margin */
 		}
 
 		.rail-scroll,

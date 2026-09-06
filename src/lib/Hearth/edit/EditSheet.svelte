@@ -288,7 +288,7 @@
 		border-color: var(--h-bad-text);
 	}
 
-	@media (max-width: 700px) {
+	@media (max-width: 820px) {
 		.overlay {
 			align-items: stretch;
 			padding: 8px;

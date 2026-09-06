@@ -51,9 +51,6 @@
 	let iconColor = $derived(
 		!available ? 'var(--h-icon-dim)' : on ? 'var(--h-accent-icon)' : 'var(--h-icon-dim)'
 	);
-	let fanSpeed = $derived(
-		domain === 'fan' && on ? Math.round(stateObj?.attributes?.percentage ?? 0) : null
-	);
 
 	let bareModal = $derived(entityIsReadout(entity, stateObj));
 	// what a tap earns: a command, a history chart, a domain modal - or, for a
@@ -148,7 +145,6 @@
 					{:else}
 						{$lang(availability)}
 					{/if}
-					{#if fanSpeed !== null}<span class="speed">· {fanSpeed}%</span>{/if}
 				</div>
 			</div>
 		</div>
@@ -167,7 +163,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 16px 16px;
+		padding: 16px var(--tile-pad-right, 16px) 16px 16px;
 		border-radius: var(--h-radius-md);
 		/* pan-y, not none: the horizontal gesture stays ours while a vertical
 		   swipe still scrolls the page or an enclosing popover */
@@ -181,10 +177,6 @@
 
 	.tile.pressable {
 		cursor: pointer;
-	}
-
-	.speed {
-		margin-left: 0.3em;
 	}
 
 	.tile.compact {

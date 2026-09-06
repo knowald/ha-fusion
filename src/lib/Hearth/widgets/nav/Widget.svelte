@@ -98,7 +98,7 @@
 	}
 
 	/* phones: rooms become a horizontal chip row instead of a tall list */
-	@media (max-width: 700px) {
+	@media (max-width: 820px) {
 		.divider {
 			margin: 16px 0;
 		}

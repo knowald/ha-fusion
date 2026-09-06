@@ -24,7 +24,10 @@ export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 	sub: 'hearth_widget_fusion_sub',
 	icon: 'widgets',
 	normalize: (widget) => ({ height: normalizeHeight(widget.height) }),
-	needsConfiguration: (widget) => !widget.config?.type,
+	needsConfiguration: (widget) =>
+		!widget.config?.type ||
+		(['sensor', 'camera', 'image', 'weather', 'weather_forecast'].includes(widget.config.type) &&
+			!widget.config.entity_id),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };
