@@ -113,11 +113,18 @@ export function getGraphEntity(
 	callback: (id: string | undefined) => void
 ) {
 	if (states === undefined) return;
-	connection.subscribe(async (conn: Connection) => {
+	// the store fires synchronously on subscribe, so the unsubscribe handle may
+	// not exist yet inside the callback; the flag covers that first call
+	let handled = false;
+	let unsubscribe: (() => void) | undefined = undefined;
+	unsubscribe = connection.subscribe(async (conn: Connection) => {
 		if (!conn) {
 			callback(undefined);
 			return;
 		}
+		if (handled) return;
+		handled = true;
+		unsubscribe?.();
 		try {
 			const [listStatistics, validateStatistics]: [any, any] = await Promise.all([
 				conn.sendMessagePromise({ type: 'recorder/list_statistic_ids' }),
@@ -147,6 +154,7 @@ export function getGraphEntity(
 			callback(undefined);
 		}
 	});
+	if (handled) unsubscribe?.();
 }
 
 /**
