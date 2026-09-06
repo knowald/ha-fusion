@@ -5,6 +5,9 @@
 	import { persistentNotifications } from '$lib/core/ha/connection';
 	import { service } from '$lib/core/ha/commands';
 	import { loadMarkdownRenderer } from '../../markdown';
+	import type { NotificationsWidget } from './descriptor';
+
+	let { widget }: { widget: NotificationsWidget } = $props();
 	import Icon from '../../Icon.svelte';
 
 	let entries = $derived(Object.entries($persistentNotifications ?? {}));
@@ -33,7 +36,7 @@
 	}
 </script>
 
-<div class="notifications">
+<div class="notifications" data-widget={widget.id}>
 	{#each entries as [id, notification] (id)}
 		<div class="item">
 			<div class="body">

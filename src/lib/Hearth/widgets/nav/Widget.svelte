@@ -7,9 +7,12 @@
 	import type { HearthRoom } from '../../config';
 	import { currentRoom, editor, hearthConfig, hearthEditMode, updateConfig } from '../../store';
 	import Icon from '../../Icon.svelte';
+	import type { NavWidget } from './descriptor';
+
+	let { widget }: { widget: NavWidget } = $props();
 </script>
 
-<div class="rooms-label">{$lang('hearth_pages')}</div>
+<div class="rooms-label" data-widget={widget.id}>{$lang('hearth_pages')}</div>
 
 <div
 	class="room-list"
