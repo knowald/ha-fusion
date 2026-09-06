@@ -285,7 +285,7 @@
 	 */
 	async function handleClickEvent() {
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/ButtonConfig.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/ButtonConfig.svelte'), {
 				demo: entity_id,
 				sel,
 				sectionName
@@ -304,7 +304,7 @@
 		switch (getDomain(sel?.entity_id)) {
 			// light
 			case 'light':
-				openModal(() => import('$lib/Modal/LightModal.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/LightModal.svelte'), {
 					sel: sel
 				});
 				break;
@@ -324,7 +324,7 @@
 
 			// automation
 			case 'automation':
-				openModal(() => import('$lib/Modal/AutomationModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/AutomationModal.svelte'), { sel });
 				break;
 
 			// calendar
@@ -338,7 +338,7 @@
 				// set calendar view type
 				$calendarView = localStorage.getItem('calendar');
 
-				openModal(() => import('$lib/Modal/CalendarModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/CalendarModal.svelte'), { sel });
 				break;
 			}
 
@@ -371,25 +371,25 @@
 			// number
 			case 'input_number':
 			case 'number':
-				openModal(() => import('$lib/Modal/InputNumberModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/InputNumberModal.svelte'), { sel });
 				break;
 
 			// date
 			case 'input_datetime':
 			case 'datetime':
-				openModal(() => import('$lib/Modal/InputDateModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/InputDateModal.svelte'), { sel });
 				break;
 
 			// select
 			case 'input_select':
 			case 'select':
-				openModal(() => import('$lib/Modal/InputSelectModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/InputSelectModal.svelte'), { sel });
 				break;
 
 			// text
 			case 'input_text':
 			case 'text':
-				openModal(() => import('$lib/Modal/InputTextModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/InputTextModal.svelte'), { sel });
 				break;
 
 			case 'timer':
@@ -401,7 +401,7 @@
 				break;
 
 			case 'lawn_mower':
-				openModal(() => import('$lib/Modal/LawnMowerModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/LawnMowerModal.svelte'), { sel });
 				break;
 
 			case 'valve':
@@ -409,7 +409,7 @@
 				break;
 
 			case 'image':
-				openModal(() => import('$lib/Modal/ImageModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/ImageModal.svelte'), { sel });
 				break;
 
 			case 'todo':
@@ -417,23 +417,23 @@
 				break;
 
 			case 'counter':
-				openModal(() => import('$lib/Modal/CounterModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/CounterModal.svelte'), { sel });
 				break;
 
 			case 'alarm_control_panel':
-				openModal(() => import('$lib/Modal/AlarmControlPanelModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/AlarmControlPanelModal.svelte'), { sel });
 				break;
 
 			case 'lock':
-				openModal(() => import('$lib/Modal/LockModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/LockModal.svelte'), { sel });
 				break;
 
 			case 'climate':
-				openModal(() => import('$lib/Modal/ClimateModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/ClimateModal.svelte'), { sel });
 				break;
 
 			case 'camera':
-				openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
 				break;
 
 			case 'water_heater':
@@ -441,7 +441,7 @@
 				break;
 
 			case 'humidifier':
-				openModal(() => import('$lib/Modal/HumidifierModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/HumidifierModal.svelte'), { sel });
 				break;
 
 			case 'media_player':
@@ -451,12 +451,12 @@
 				break;
 
 			case 'group':
-				openModal(() => import('$lib/Modal/GroupModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/GroupModal.svelte'), { sel });
 				break;
 
 			case 'device_tracker': {
 				if ($states?.[sel?.entity_id]?.attributes?.source_type === 'gps') {
-					openModal(() => import('$lib/Modal/DeviceTrackerModal.svelte'), { sel });
+					openModal(() => import('$lib/legacy/Modal/DeviceTrackerModal.svelte'), { sel });
 				} else {
 					openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
 				}
@@ -464,13 +464,13 @@
 			}
 
 			case 'cover':
-				openModal(() => import('$lib/Modal/CoverModal.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/CoverModal.svelte'), {
 					selected: sel
 				});
 				break;
 
 			case 'fan':
-				openModal(() => import('$lib/Modal/FanModal.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/FanModal.svelte'), {
 					selected: sel
 				});
 				break;
@@ -488,17 +488,17 @@
 	 */
 	async function handlePointerEvent() {
 		if ($editMode) {
-			await import('$lib/Modal/ButtonConfig.svelte');
+			await import('$lib/legacy/Modal/ButtonConfig.svelte');
 		} else {
 			switch (getDomain(sel?.entity_id)) {
 				case 'light':
-					await import('$lib/Modal/LightModal.svelte');
+					await import('$lib/legacy/Modal/LightModal.svelte');
 					break;
 				case 'switch':
 					await import('$lib/Modal/SwitchModal.svelte');
 					break;
 				case 'climate':
-					await import('$lib/Modal/ClimateModal.svelte');
+					await import('$lib/legacy/Modal/ClimateModal.svelte');
 					break;
 				case 'media_player':
 					await import('$lib/Modal/MediaPlayer.svelte');

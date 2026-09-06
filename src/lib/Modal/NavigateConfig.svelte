@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Navigate from '$lib/Sidebar/Navigate.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import type { NavigateItem } from '$lib/Types';

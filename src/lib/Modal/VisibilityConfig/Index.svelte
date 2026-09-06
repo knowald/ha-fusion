@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dashboard, dragging, lang, motion, record, refreshDashboard, ripple } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { sortable } from '$lib/Actions/sortable';
 	import AddConditionButtons from '$lib/Modal/VisibilityConfig/AddConditionButtons.svelte';
 	import StateCondition from '$lib/Modal/VisibilityConfig/StateCondition.svelte';

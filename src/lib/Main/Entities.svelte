@@ -38,7 +38,7 @@
 
 	function handleClick() {
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/EntitiesConfig.svelte'), { sel, sectionName });
+			openModal(() => import('$lib/legacy/Modal/EntitiesConfig.svelte'), { sel, sectionName });
 		}
 	}
 </script>

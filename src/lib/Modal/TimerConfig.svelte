@@ -2,7 +2,7 @@
 	import { lang, ripple, entityList } from '$lib/Stores';
 	import Timer from '$lib/Sidebar/Timer.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { TimerItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 

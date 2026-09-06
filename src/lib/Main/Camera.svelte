@@ -82,9 +82,9 @@
 		if (responsive) return;
 
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/CameraConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/CameraConfig.svelte'), { sel });
 		} else {
-			openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
 		}
 	}
 </script>

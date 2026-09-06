@@ -1,0 +1,122 @@
+<script lang="ts">
+	import { lang, ripple, motion, record, updateDashboard } from '$lib/Stores';
+	import Divider from '$lib/Sidebar/Divider.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import type { SidebarItem } from '$lib/Types';
+	import Ripple from '$lib/Actions/ripple';
+	import { updateObj } from '$lib/Utils';
+	import InputClear from '$lib/Components/InputClear.svelte';
+	import { onDestroy } from 'svelte';
+
+	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();
+
+	let size = $state(sel?.size);
+
+	const defaultValue = '50';
+
+	function set(key: string, event?: any) {
+		sel = updateDashboard(sel, (live) => updateObj(live, key, event));
+	}
+
+	function handleChange(event: any) {
+		const target = event?.target;
+		if (!target?.value) return;
+		set('size', Number(event?.target?.value));
+	}
+
+	onDestroy(() => {
+		if (sel?.mode !== 'empty') {
+			// clear all
+			set('mode');
+			set('size');
+			size = undefined;
+		}
+		$record();
+	});
+</script>
+
+{#if isOpen}
+	<Modal>
+		{#snippet title()}<h1>{$lang('divider')}</h1>{/snippet}
+
+		<h2>{$lang('preview')}</h2>
+
+		<div class="preview" style:transition="height {$motion}ms ease">
+			<Divider mode={sel?.mode} size={sel?.size} {defaultValue} />
+		</div>
+
+		<div class="button-container">
+			<button class:selected={!sel?.mode} onclick={() => set('mode')} use:Ripple={$ripple}>
+				{$lang('divider')}
+			</button>
+
+			<button
+				class:selected={sel?.mode === 'empty'}
+				onclick={() => set('mode', 'empty')}
+				use:Ripple={$ripple}
+			>
+				{$lang('empty')}
+			</button>
+		</div>
+
+		{#if sel?.mode === 'empty'}
+			<h2>{$lang('size')}</h2>
+
+			<InputClear
+				condition={size}
+				onclear={() => {
+					set('size');
+					size = undefined;
+				}}
+			>
+				{#snippet children(padding)}
+					<input
+						min="20"
+						max="999"
+						type="number"
+						class="input"
+						bind:value={size}
+						placeholder={defaultValue}
+						onchange={handleChange}
+						autocomplete="off"
+						spellcheck="false"
+						style:padding
+					/>
+				{/snippet}
+			</InputClear>
+		{/if}
+
+		<h2>{$lang('mobile')}</h2>
+
+		<div class="button-container">
+			<button
+				class:selected={sel?.hide_mobile !== true}
+				onclick={() => set('hide_mobile')}
+				use:Ripple={$ripple}
+			>
+				{$lang('visible')}
+			</button>
+
+			<button
+				class:selected={sel?.hide_mobile === true}
+				onclick={() => set('hide_mobile', true)}
+				use:Ripple={$ripple}
+			>
+				{$lang('hidden')}
+			</button>
+		</div>
+
+		<ConfigButtons {sel} />
+	</Modal>
+{/if}
+
+<style>
+	.preview {
+		margin-bottom: 1rem;
+	}
+
+	input[type='number'] {
+		color-scheme: dark;
+	}
+</style>

@@ -29,13 +29,13 @@
 
 	function handleClick() {
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/DaysSinceConfig.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/DaysSinceConfig.svelte'), {
 				sel,
 				sectionName
 			});
 		} else {
 			// Open the modal for viewing/resetting
-			openModal(() => import('$lib/Modal/DaysSinceModal.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/DaysSinceModal.svelte'), {
 				sel
 			});
 		}

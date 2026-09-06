@@ -13,7 +13,7 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import type { SidebarItem } from '$lib/Types';
 	import {
 		getGraphEntity,
@@ -24,7 +24,7 @@
 		getHistoryEntity,
 		getWeatherEntity,
 		getWeatherForecastEntity
-	} from '$lib/Modal/getRandomEntity';
+	} from '$lib/legacy/Modal/getRandomEntity';
 
 	import Bar from '$lib/Sidebar/Bar.svelte';
 	import Sensor from '$lib/Sidebar/Sensor.svelte';
@@ -41,7 +41,7 @@
 	import Graph from '$lib/Sidebar/Graph.svelte';
 	import Template from '$lib/Sidebar/Template.svelte';
 	import Timer from '$lib/Sidebar/Timer.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Notifications from '$lib/Sidebar/Notifications.svelte';
 	import Ripple from '$lib/Actions/ripple';
@@ -272,11 +272,11 @@
 				break;
 
 			case 'date':
-				openModal(() => import('$lib/Modal/DateConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/DateConfig.svelte'), { sel: selected });
 				break;
 
 			case 'divider':
-				openModal(() => import('$lib/Modal/DividerConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/DividerConfig.svelte'), { sel: selected });
 				break;
 
 			case 'sensor':
@@ -301,32 +301,32 @@
 				break;
 
 			case 'camera':
-				openModal(() => import('$lib/Modal/CameraConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/CameraConfig.svelte'), {
 					sel: selected,
 					demo: $demo.camera
 				});
 				break;
 
 			case 'image':
-				openModal(() => import('$lib/Modal/ImageConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/ImageConfig.svelte'), {
 					sel: selected,
 					demo: imageData
 				});
 				break;
 
 			case 'iframe':
-				openModal(() => import('$lib/Modal/IframeConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/IframeConfig.svelte'), { sel: selected });
 				break;
 
 			case 'history':
-				openModal(() => import('$lib/Modal/HistoryConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/HistoryConfig.svelte'), {
 					sel: selected,
 					demo: $demo.history
 				});
 				break;
 
 			case 'bar':
-				openModal(() => import('$lib/Modal/BarConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/BarConfig.svelte'), {
 					sel: selected,
 					demo: $demo.bar
 				});
@@ -348,7 +348,7 @@
 				break;
 
 			case 'graph':
-				openModal(() => import('$lib/Modal/GraphConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/GraphConfig.svelte'), {
 					sel: selected,
 					demo: $demo.graph
 				});

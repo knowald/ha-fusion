@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { connection, lang, ripple, services } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';

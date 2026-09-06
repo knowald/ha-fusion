@@ -278,7 +278,7 @@
 		if ($modals?.length > 0) return;
 
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/ConditionalMediaConfig.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/ConditionalMediaConfig.svelte'), {
 				sel
 			});
 		} else {

@@ -9,7 +9,7 @@
 	 */
 	async function handleClick() {
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/EmptyConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/EmptyConfig.svelte'), { sel });
 		}
 	}
 </script>

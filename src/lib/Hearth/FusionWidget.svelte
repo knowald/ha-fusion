@@ -32,7 +32,7 @@
 	function handleClick() {
 		if ($hearthEditMode) return;
 		if (item?.type === 'camera') {
-			openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel: item });
+			openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel: item });
 		} else if (item?.type === 'timer') {
 			openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel: item });
 		}

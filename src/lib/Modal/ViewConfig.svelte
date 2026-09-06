@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import Ripple from '$lib/Actions/ripple';

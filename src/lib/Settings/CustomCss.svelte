@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
 	import { openModal } from '$lib/Modals';
-	import CustomCssModal from '$lib/Modal/CustomCssModal.svelte';
+	import CustomCssModal from '$lib/legacy/Modal/CustomCssModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
 	async function openEditor() {

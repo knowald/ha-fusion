@@ -2,7 +2,7 @@
 	import { lang, autocompleteList, ripple } from '$lib/Stores';
 	import Template from '$lib/Sidebar/Template.svelte';
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { TemplateItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 
