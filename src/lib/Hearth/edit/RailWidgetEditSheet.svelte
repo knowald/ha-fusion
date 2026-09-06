@@ -41,10 +41,6 @@
 		conditionsOpen = false;
 	}
 
-	function scrollSelectedIntoView(node: HTMLElement, selected: boolean) {
-		if (selected) node.scrollIntoView({ block: 'nearest' });
-	}
-
 	function close() {
 		editor.set(null);
 	}

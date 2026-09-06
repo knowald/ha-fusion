@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import type {
