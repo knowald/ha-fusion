@@ -61,7 +61,7 @@
 		// unknown extension keys survive a no-op edit; a type switch starts fresh
 		return {
 			...(initial?.type === type ? initial : {}),
-			...draft.fields,
+			...$state.snapshot(draft.fields),
 			id,
 			type,
 			hide_mobile: hideMobile || undefined,

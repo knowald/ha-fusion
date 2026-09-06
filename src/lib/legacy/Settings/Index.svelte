@@ -76,6 +76,7 @@
 			// hearth preview opt-in is yaml-only; carry it through the full-file
 			// rewrite so saving settings doesn't drop it
 			if ($configuration.hearth) json.hearth = true;
+			if ($configuration.classic) json.classic = true;
 
 			if (!formMotion) {
 				$motion = 0;

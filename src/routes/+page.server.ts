@@ -51,6 +51,9 @@ export async function load({ request }): Promise<{
 				: 'Hearth configuration could not be loaded';
 	}
 
+	// the client normalizes whatever it gets; a file that failed above would
+	// throw there instead of showing the load error
+	if (hearthError) hearth = undefined;
 	const rawRevision = (hearth as Record<string, unknown> | undefined)?.revision;
 	const hearthRevision = typeof rawRevision === 'number' ? rawRevision : 0;
 	const hearthKeys = hearthError

@@ -1,7 +1,14 @@
 import { get } from 'svelte/store';
 import { health } from '$lib/core/ha/connection';
-import { describe, expect, it } from 'vitest';
-import { confirmRequestedAction, requestConfirmation, requestedConfirmation } from './store';
+import { describe, expect, it, vi } from 'vitest';
+import {
+	confirmRequestedAction,
+	hearthRevision,
+	requestConfirmation,
+	requestedConfirmation,
+	saveEdit,
+	saveState
+} from './store';
 import { activeSceneIndex } from '$lib/core/domains/scene';
 import { blindPositionFor } from '$lib/core/domains/cover';
 import {
@@ -110,5 +117,26 @@ describe('Hearth store view helpers', () => {
 		expect(summary).toMatchObject({ text: '1 on', badge: '1 on' });
 		expect(sensorNumber('12.5 °C')).toBe(12.5);
 		expect(sensorNumber('unavailable')).toBeNull();
+	});
+});
+
+describe('saveEdit conflicts', () => {
+	it('keeps the local revision after a 409 so a plain retry conflicts again', async () => {
+		hearthRevision.set(3);
+		const fetchMock = vi.fn(
+			async (_url: string, init: RequestInit) =>
+				new Response(JSON.stringify({ revision: 7, sent: init.body }), { status: 409 })
+		);
+		vi.stubGlobal('fetch', fetchMock);
+		try {
+			expect(await saveEdit()).toBe(false);
+			expect(get(saveState)).toBe('conflict');
+			expect(get(hearthRevision)).toBe(3);
+			await saveEdit(true);
+			const body = JSON.parse(String(fetchMock.mock.calls[1][1].body));
+			expect(body).toMatchObject({ revision: 3, force: true });
+		} finally {
+			vi.unstubAllGlobals();
+		}
 	});
 });
