@@ -1,6 +1,7 @@
 import { get } from 'svelte/store';
 import type { HassEntities } from 'home-assistant-js-websocket';
-import { lang } from '$lib/core/i18n';
+import { lang, selectedLanguage } from '$lib/core/i18n';
+import { relativeTime } from '$lib/core/i18n/time';
 import { UNAVAILABLE_STATES } from '$lib/core/ha/entities';
 import { isStack, type HearthConfig } from './config';
 import { cardEntityIds } from './cards';
@@ -27,12 +28,9 @@ export interface AttentionItem {
 
 function relativeSince(iso: string | undefined): string | null {
 	if (!iso) return null;
-	const minutes = Math.round((Date.now() - Date.parse(iso)) / 60_000);
-	if (!Number.isFinite(minutes) || minutes < 1) return null;
-	if (minutes < 60) return `${minutes} min ago`;
-	const hours = Math.round(minutes / 60);
-	if (hours < 48) return `${hours} h ago`;
-	return `${Math.round(hours / 24)} days ago`;
+	const elapsed = Date.now() - Date.parse(iso);
+	if (!Number.isFinite(elapsed) || elapsed < 60_000) return null;
+	return relativeTime(iso, get(selectedLanguage));
 }
 
 /**
