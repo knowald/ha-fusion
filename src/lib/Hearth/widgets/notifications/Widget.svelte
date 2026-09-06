@@ -94,8 +94,11 @@
 
 	.dismiss {
 		flex: none;
-		width: 28px;
-		height: 28px;
+		width: 44px;
+		height: 44px;
+		/* the glyph stays small; the negative margins keep the row as tight as
+		   before while the tap target grows to 44px */
+		margin: -8px -8px -8px 0;
 		border: 0;
 		border-radius: 50%;
 		background: none;
