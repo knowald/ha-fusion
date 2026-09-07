@@ -100,7 +100,11 @@
 		searchPlaceholder={$lang('hearth_search_widgets')}
 		noMatch={$lang('hearth_no_widgets_match')}
 		bind:open={typeOpen}
-		onselect={(value) => (type = value as RailWidget['type'])}
+		onselect={(value) => {
+			type = value as RailWidget['type'];
+			// option-free types have no editor to replace a stale draft
+			draft = { fields: {} as WidgetDraft<RailWidget>['fields'] };
+		}}
 	/>
 	<div class="rail-editor editor-layout" class:hidden={typeOpen}>
 		<div class="config editor-fields">

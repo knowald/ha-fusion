@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { numberFromInput } from './numbers';
 	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
@@ -89,7 +90,7 @@
 	function setBound(index: number, key: 'above' | 'below', text: string) {
 		const condition = value[index];
 		if (!('entity' in condition)) return;
-		const parsed = parseFloat(text);
+		const parsed = numberFromInput(text);
 		if (Number.isFinite(parsed)) condition[key] = parsed;
 		else delete condition[key];
 	}

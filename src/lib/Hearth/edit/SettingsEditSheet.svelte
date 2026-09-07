@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from './numbers';
 	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
@@ -33,7 +34,7 @@
 	];
 
 	function setScreensaver(value: string) {
-		const minutes = parseInt(value);
+		const minutes = integerFromInput(value);
 		updateConfig((config) => {
 			config.screensaver_minutes = minutes > 0 ? minutes : undefined;
 		});
@@ -46,7 +47,7 @@
 	}
 
 	function setScreensaverBrightness(value: string) {
-		const brightness = parseInt(value);
+		const brightness = integerFromInput(value);
 		updateConfig((config) => {
 			config.screensaver_brightness = brightness === 32 ? undefined : brightness;
 		});
@@ -59,7 +60,7 @@
 	}
 
 	function setPadding(axis: 'padding_x' | 'padding_y', value: string) {
-		const pixels = Math.round(parseFloat(value));
+		const pixels = integerFromInput(value);
 		updateConfig((config) => {
 			config[axis] = Number.isFinite(pixels) && pixels > 0 ? Math.min(pixels, 300) : undefined;
 		});

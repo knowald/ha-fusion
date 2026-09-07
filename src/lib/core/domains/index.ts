@@ -149,7 +149,7 @@ const DESCRIPTORS: DomainDescriptor[] = [
 		domain: 'button',
 		icon: 'radio_button_checked',
 		tap: 'toggle',
-		toggleService: toggle('button')
+		toggleService: () => 'button.press'
 	},
 	{
 		domain: 'input_button',

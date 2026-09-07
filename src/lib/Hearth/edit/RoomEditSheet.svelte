@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from './numbers';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import { moveItem, resizeCardColumns, slugify, uniqueId } from '../config';
@@ -30,7 +31,7 @@
 	}
 
 	function done() {
-		const columnCount = parseInt(columns, 10);
+		const columnCount = integerFromInput(columns);
 		const roomColumns =
 			Number.isFinite(columnCount) && columnCount >= 1 && columnCount <= 3
 				? columnCount

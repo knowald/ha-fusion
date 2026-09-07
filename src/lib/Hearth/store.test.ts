@@ -29,6 +29,7 @@ import {
 	entityActiveFor,
 	entityAvailability,
 	entityGroupSummary,
+	getTogglableService,
 	sensorNumber,
 	states
 } from '$lib/core/ha/entities';
@@ -74,6 +75,15 @@ describe('Hearth store view helpers', () => {
 				'active:light.desk': 1
 			})
 		).toMatchObject({ on: true });
+	});
+
+	it('presses buttons instead of toggling them', () => {
+		expect(getTogglableService({ entity_id: 'button.restart', state: 'unknown' } as never)).toBe(
+			'button.press'
+		);
+		expect(getTogglableService({ entity_id: 'input_button.ping', state: 'unknown' } as never)).toBe(
+			'input_button.press'
+		);
 	});
 
 	it('reads only whole numeric states and treats every known active state as active', () => {

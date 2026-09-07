@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import type { EntityRef } from '../../types';
@@ -107,7 +108,7 @@
 	}
 
 	$effect(() => {
-		const columnCount = parseInt(columns, 10);
+		const columnCount = integerFromInput(columns);
 		onchange({
 			fields: {
 				title: title.trim() || undefined,

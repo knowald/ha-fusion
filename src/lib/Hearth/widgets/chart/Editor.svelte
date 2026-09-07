@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { ChartWidget } from './descriptor';
@@ -20,7 +21,7 @@
 	let stroke = $state(initial?.stroke ? String(initial.stroke) : '');
 
 	$effect(() => {
-		const strokeValue = parseInt(stroke, 10);
+		const strokeValue = integerFromInput(stroke);
 		onchange({
 			fields: {
 				entity: entity.trim() || undefined,
