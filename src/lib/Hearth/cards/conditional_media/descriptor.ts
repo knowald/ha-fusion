@@ -24,7 +24,7 @@ export const conditionalMediaCard: CardDescriptor<ConditionalMediaCard> = {
 				: undefined
 	}),
 	schema: v.looseObject({
-		media_players: v.array(EntityIdSchema, 'must be a list of entity ids'),
+		media_players: v.optional(v.array(EntityIdSchema, 'must be a list of entity ids')),
 		timeout: optionalNumberAtLeast(0)
 	}),
 	needsConfiguration: (card) => card.media_players.length === 0,

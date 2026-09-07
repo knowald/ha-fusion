@@ -183,8 +183,11 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 					name: 'Home',
 					icon: 'home',
 					hide_header: true,
-					// only fix the column count while it is a supported one
-					columns: raw.overview.length <= 3 ? Math.max(1, raw.overview.length) : undefined,
+					// a flat card list is one column; only a list of columns fixes the count
+					columns:
+						raw.overview.every((entry: unknown) => Array.isArray(entry)) && raw.overview.length <= 3
+							? Math.max(1, raw.overview.length)
+							: undefined,
 					cards: raw.overview
 				},
 				0
@@ -202,6 +205,41 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 		];
 		if (!rooms.length)
 			rooms.push({ id: 'home', name: 'Home', icon: 'home', hide_header: true, cards: [[]] });
+	}
+
+	// v1 named the home widgets at the root; they become a weather widget and
+	// cards on the home page rather than vanishing with the keys below
+	if (typeof raw.weather_entity === 'string') {
+		const weather = rail.find((widget: unknown) => isRecord(widget) && widget.type === 'weather');
+		if (weather) weather.entity ??= raw.weather_entity;
+		else rail.splice(1, 0, { id: 'weather', type: 'weather', entity: raw.weather_entity });
+	}
+	const rootCards: Record<string, unknown>[] = [];
+	if (typeof raw.average_temperature_entity === 'string') {
+		rootCards.push({
+			id: 'temperature',
+			type: 'temperature',
+			entity: raw.average_temperature_entity
+		});
+	}
+	if (raw.pm25_entity || raw.humidity_entity || Array.isArray(raw.filters)) {
+		rootCards.push(migrateCard({ id: 'air', type: 'air', ...raw }));
+	}
+	if (typeof raw.media_entity === 'string') {
+		rootCards.push({ id: 'media', type: 'media', entity: raw.media_entity });
+	}
+	if (typeof raw.vacuum_entity === 'string') {
+		rootCards.push({ id: 'vacuum', type: 'vacuum', entity: raw.vacuum_entity });
+	}
+	if (rootCards.length) {
+		if (!rooms.length) {
+			rooms.push({ id: 'home', name: 'Home', icon: 'home', hide_header: true, cards: [[]] });
+		}
+		const home = rooms[0];
+		const present = new Set(
+			home.cards.flat().map((card: unknown) => (isRecord(card) ? card.id : undefined))
+		);
+		home.cards[0].push(...rootCards.filter((card) => !present.has(card.id)));
 	}
 
 	const next: Record<string, any> = { ...raw, rail, rooms };
@@ -414,6 +452,15 @@ export function configVersion(raw: unknown): number {
  */
 export function migrateHearthConfig(raw: unknown): unknown {
 	if (!isRecord(raw)) return raw;
+	if (
+		raw.version !== undefined &&
+		!(Number.isInteger(raw.version) && (raw.version as number) >= 0)
+	) {
+		// treating "4" or 4.5 as version 0 would run every migration over a current file
+		throw new Error(
+			`Hearth configuration version must be a whole number, got ${JSON.stringify(raw.version)}`
+		);
+	}
 	const version = configVersion(raw);
 	if (version > CONFIG_VERSION) throw new ConfigTooNewError(version);
 	let config: Record<string, any> = { ...raw };

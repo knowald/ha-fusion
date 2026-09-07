@@ -54,7 +54,7 @@ export const entitiesCard: CardDescriptor<EntitiesCard> = {
 		icon: OptionalText,
 		summary: OptionalText,
 		summary_entity: OptionalEntityId,
-		entities: EntityRefListSchema
+		entities: v.optional(EntityRefListSchema)
 	}),
 	needsConfiguration: (card) => card.entities.length === 0 && !card.wildcard?.trim(),
 	entityIds: (card) => [
