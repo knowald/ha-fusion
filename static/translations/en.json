@@ -1030,5 +1030,6 @@
 	"hearth_loading_icon_list": "Loading icon list",
 	"hearth_scrollable_default": "Scrollable (default)",
 	"hearth_fill_the_screen": "Fill the screen",
-	"hearth_search_all_icons_count": "Type to search all {count} icons"
+	"hearth_search_all_icons_count": "Type to search all {count} icons",
+	"hearth_choose_entity": "Choose an entity"
 }

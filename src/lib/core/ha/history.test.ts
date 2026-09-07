@@ -39,9 +39,13 @@ describe('callServiceForResult', () => {
 	it('throws instead of asking while the websocket is down', async () => {
 		await expect(callServiceForResult('spotifyplus', 'x', {})).rejects.toThrow(/Not connected/);
 		connection.set({} as Connection);
-		health.set('degraded');
+		health.set('lost');
 		await expect(callServiceForResult('spotifyplus', 'x', {})).rejects.toThrow(/Not connected/);
 		expect(callService).not.toHaveBeenCalled();
+		// a degraded socket (one stale subscription) still carries requests
+		health.set('degraded');
+		vi.mocked(callService).mockResolvedValueOnce({ response: { result: 1 } } as never);
+		expect(await callServiceForResult('spotifyplus', 'x', {})).toBe(1);
 	});
 });
 
@@ -66,6 +70,16 @@ describe('startDataRefresh', () => {
 		stop();
 		await vi.advanceTimersByTimeAsync(1000);
 		expect(load).toHaveBeenCalledTimes(3);
+	});
+
+	it('shares one in-flight load between concurrent callers', async () => {
+		let resolve: (value: string) => void = () => {};
+		const load = vi.fn(() => new Promise<string>((done) => (resolve = done)));
+		const first = cachedData('shared:series', load, 1000);
+		const second = cachedData('shared:series', load, 1000);
+		resolve('points');
+		expect(await Promise.all([first, second])).toEqual(['points', 'points']);
+		expect(load).toHaveBeenCalledOnce();
 	});
 
 	it('reuses recorder data across component remounts within the TTL', async () => {

@@ -119,6 +119,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-pressed={alwaysVisible}
 					onclick={setAlwaysVisible}
 					onkeydown={(event) => activateOnKeyboard(event, setAlwaysVisible)}
 				>
@@ -131,6 +132,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-pressed={hideMobile}
 					onclick={() => (hideMobile = !hideMobile)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (hideMobile = !hideMobile))}
 				>
@@ -143,6 +145,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-expanded={conditionsOpen}
 					onclick={() => (conditionsOpen = !conditionsOpen)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (conditionsOpen = !conditionsOpen))}
 				>

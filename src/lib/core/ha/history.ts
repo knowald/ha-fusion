@@ -1,6 +1,7 @@
 import { get } from 'svelte/store';
 import { callService, type Connection } from 'home-assistant-js-websocket';
-import { connected, connection } from './connection';
+import { connection } from './connection';
+import { socketOpen } from './commands';
 
 /*
  * Read-side Home Assistant calls: recorder statistics, state history,
@@ -32,8 +33,8 @@ export async function callServiceForResult(
 	data: Record<string, unknown>
 ): Promise<unknown> {
 	const conn = requireConnection();
-	// the connection object survives reconnects; `connected` is the truth
-	if (!get(connected)) throw new Error('Not connected to Home Assistant');
+	// the connection object survives reconnects; health is the truth
+	if (!socketOpen()) throw new Error('Not connected to Home Assistant');
 	const response = (await callService(conn, domain, service, data, undefined, true)) as
 		{ response?: { result?: unknown } } | undefined;
 	return response?.response?.result ?? null;
@@ -163,6 +164,7 @@ export function subscribeForecast(
 }
 
 const dataCache = new Map<string, { expires: number; value: unknown }>();
+const inFlight = new Map<string, Promise<unknown>>();
 
 /** Short-lived cross-mount cache for expensive recorder queries. */
 export async function cachedData<T>(key: string, load: () => Promise<T>, ttl = 60_000): Promise<T> {
@@ -172,9 +174,22 @@ export async function cachedData<T>(key: string, load: () => Promise<T>, ttl = 6
 	}
 	const cached = dataCache.get(key);
 	if (cached) return cached.value as T;
-	const value = await load();
-	dataCache.set(key, { expires: Date.now() + ttl, value });
-	return value;
+	const pending = inFlight.get(key);
+	if (pending) return pending as Promise<T>;
+	// two surfaces asking for the same series at once share one request
+	const request = load().then(
+		(value) => {
+			dataCache.set(key, { expires: Date.now() + ttl, value });
+			inFlight.delete(key);
+			return value;
+		},
+		(error) => {
+			inFlight.delete(key);
+			throw error;
+		}
+	);
+	inFlight.set(key, request);
+	return request;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { get, writable } from 'svelte/store';
 import { callService, type HassEntity } from 'home-assistant-js-websocket';
-import { connected, connection } from './connection';
+import { connection, health } from './connection';
 import { entityControllable, states } from './entities';
 
 /*
@@ -168,13 +168,19 @@ function reportCommandFailure(entityId: string | null, error: unknown) {
 
 /* sending */
 
+/** Whether the websocket can carry a message right now. */
+export function socketOpen(): boolean {
+	const $health = get(health);
+	return $health === 'connected' || $health === 'degraded';
+}
+
 export function service(domain: string, name: string, data: Record<string, unknown>) {
 	if (!commandsAllowed()) return;
 	const entityId = typeof data.entity_id === 'string' ? data.entity_id : null;
 	const conn = get(connection);
-	// the connection object survives reconnects, so `connected` is the
-	// authoritative guard during a dropped websocket
-	if (!conn || !get(connected)) {
+	// the connection object survives reconnects, so health is the guard: a
+	// degraded socket (one stale subscription) still carries commands
+	if (!conn || !socketOpen()) {
 		reportCommandFailure(entityId, new Error('Not connected to Home Assistant'));
 		return;
 	}

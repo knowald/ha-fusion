@@ -51,8 +51,19 @@
 	}
 </script>
 
-<div class="overlay" onclick={onclose} role="presentation" use:layer={onclose}>
-	<div class="panel" onclick={(event) => event.stopPropagation()} role="presentation">
+<div
+	class="overlay"
+	onclick={(event) => event.target === event.currentTarget && onclose()}
+	role="presentation"
+	use:layer={onclose}
+>
+	<div
+		class="panel"
+		role="dialog"
+		aria-modal="true"
+		aria-label={$lang('hearth_choose_entity')}
+		tabindex="-1"
+	>
 		<div class="search">
 			<Icon name="search" size={ICON.control} />
 			<input

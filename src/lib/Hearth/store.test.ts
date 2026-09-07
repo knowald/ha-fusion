@@ -76,6 +76,17 @@ describe('Hearth store view helpers', () => {
 		).toMatchObject({ on: true });
 	});
 
+	it('reads only whole numeric states and treats every known active state as active', () => {
+		expect(sensorNumber('12abc')).toBeNull();
+		expect(sensorNumber(' 12.5 ')).toBe(12.5);
+		expect(sensorNumber('12.5 °C')).toBe(12.5);
+		expect(sensorNumber('-3')).toBe(-3);
+		expect(sensorNumber('')).toBeNull();
+		expect(entityActive('water_heater.tank', { state: 'eco', attributes: {} } as never)).toBe(true);
+		expect(entityActive('unknown_domain.x', { state: 'heat', attributes: {} } as never)).toBe(true);
+		expect(entityActive('unknown_domain.x', { state: 'off', attributes: {} } as never)).toBe(false);
+	});
+
 	it('refuses commands for unavailable or unknown-to-HA entities before they leave', () => {
 		health.set('connected');
 		states.set({

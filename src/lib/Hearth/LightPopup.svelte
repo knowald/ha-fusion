@@ -149,6 +149,8 @@
 				onclick={() => setLightColor(entity, swatch)}
 				role="button"
 				tabindex="0"
+				aria-label={`${$lang('color')} ${swatch}`}
+				aria-pressed={swatchSelected(swatch)}
 				onkeydown={(event) => activateOnKeyboard(event, () => setLightColor(entity, swatch))}
 			></div>
 		{/each}

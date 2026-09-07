@@ -62,7 +62,7 @@
 	{/if}
 {/snippet}
 
-{#if tappable}
+{#if tappable && !$hearthEditMode}
 	<div
 		class="fusion"
 		class:sized={widget.height}
