@@ -17,7 +17,7 @@
 	let paddingX = $derived($hearthConfig.padding_x ?? 0);
 	let paddingY = $derived($hearthConfig.padding_y ?? 0);
 
-	const SCREENSAVER_OPTIONS = [
+	let SCREENSAVER_OPTIONS = $derived([
 		{ value: '0', label: $lang('off') },
 		{ value: '1', label: $lang('hearth_after_1_minute') },
 		{ value: '5', label: $lang('hearth_after_5_minutes') },
@@ -25,13 +25,13 @@
 		{ value: '15', label: $lang('hearth_after_15_minutes') },
 		{ value: '30', label: $lang('hearth_after_30_minutes') },
 		{ value: '60', label: $lang('hearth_after_1_hour') }
-	];
-	const SCREENSAVER_BRIGHTNESS_OPTIONS = [
+	]);
+	let SCREENSAVER_BRIGHTNESS_OPTIONS = $derived([
 		{ value: '18', label: $lang('hearth_very_dim') },
 		{ value: '32', label: $lang('hearth_dim') },
 		{ value: '50', label: $lang('fan_speed_medium') },
 		{ value: '75', label: $lang('hearth_bright') }
-	];
+	]);
 
 	function setScreensaver(value: string) {
 		const minutes = integerFromInput(value);

@@ -22,7 +22,7 @@
 		if ($hearthEditMode || !entityControllable($states?.[ref.entity])) return;
 		const name = sceneName(ref);
 		requestConfirmation({
-			title: `Activate ${name}?`,
+			title: $lang('hearth_activate_scene_confirm').replace('{name}', name),
 			message: $lang('hearth_scenes_may_change_several_devices_at'),
 			confirmLabel: $lang('hearth_activate'),
 			action: () => activateScene(ref.entity)
@@ -58,7 +58,8 @@
 					/>
 					<span class="scene-name">{sceneName(ref)}</span>
 					{#if bar && (active || ref.caption)}
-						<span class="scene-caption">{active ? 'active' : ref.caption}</span>
+						<span class="scene-caption">{active ? $lang('active').toLowerCase() : ref.caption}</span
+						>
 					{/if}
 				</button>
 			{/each}

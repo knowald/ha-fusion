@@ -51,24 +51,24 @@
 		if ($connection && status === 'disconnected') load();
 	});
 
-	function count(value: number, noun: string) {
-		return `${value} ${noun}${value === 1 ? '' : 's'}`;
+	function count(value: number, one: string, many: string) {
+		return $lang(value === 1 ? one : many).replace('{count}', String(value));
 	}
 
-	/** Entity refs across a proposed page's cards, by card title. */
-	function cardEntities(room: HearthRoom, title: string) {
+	/** Entity refs across a proposed page's cards, by the id suffix the proposal assigns. */
+	function cardEntities(room: HearthRoom, suffix: string) {
 		return room.cards
 			.flat()
-			.filter((item) => !isStack(item) && item.type === 'entities' && item.title === title)
+			.filter((item) => !isStack(item) && item.type === 'entities' && item.id.endsWith(suffix))
 			.flatMap((item) => (!isStack(item) && item.type === 'entities' ? item.entities : []));
 	}
 
 	function summarize(room: HearthRoom) {
-		const lighting = cardEntities(room, 'Lighting').length;
-		const devices = cardEntities(room, 'Devices').length;
+		const lighting = cardEntities(room, '-lighting').length;
+		const devices = cardEntities(room, '-devices').length;
 		return [
-			...(lighting ? [count(lighting, 'light')] : []),
-			...(devices ? [count(devices, 'device')] : [])
+			...(lighting ? [count(lighting, 'hearth_one_light', 'hearth_n_lights')] : []),
+			...(devices ? [count(devices, 'hearth_one_device', 'hearth_n_devices')] : [])
 		].join(', ');
 	}
 
@@ -152,7 +152,9 @@
 					<span class="row-icon"><Icon name="today" size={ICON.control} /></span>
 					<span class="row-text">
 						<span class="row-name">{$lang('hearth_today_glanceables')}</span>
-						<span class="row-summary">{count(glanceableCount, 'suggestion')}</span>
+						<span class="row-summary"
+							>{count(glanceableCount, 'hearth_one_suggestion', 'hearth_n_suggestions')}</span
+						>
 					</span>
 				</label>
 			{/if}

@@ -328,7 +328,9 @@
 								<div class="row-text">
 									<div class="row-name">{playlist.name}</div>
 									{#if playlist.trackCount !== null}
-										<div class="row-sub">{playlist.trackCount} songs</div>
+										<div class="row-sub">
+											{$lang('hearth_n_songs').replace('{count}', String(playlist.trackCount))}
+										</div>
 									{/if}
 								</div>
 								{#if currentContext === playlist.uri}

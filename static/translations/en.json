@@ -1031,5 +1031,15 @@
 	"hearth_scrollable_default": "Scrollable (default)",
 	"hearth_fill_the_screen": "Fill the screen",
 	"hearth_search_all_icons_count": "Type to search all {count} icons",
-	"hearth_choose_entity": "Choose an entity"
+	"hearth_choose_entity": "Choose an entity",
+	"hearth_activate_scene_confirm": "Activate {name}?",
+	"hearth_last_seen_at": "Last seen {time}",
+	"hearth_one_light": "1 light",
+	"hearth_n_lights": "{count} lights",
+	"hearth_one_device": "1 device",
+	"hearth_n_devices": "{count} devices",
+	"hearth_one_suggestion": "1 suggestion",
+	"hearth_n_suggestions": "{count} suggestions",
+	"hearth_n_songs": "{count} songs",
+	"hearth_entity_offline": "{name} offline"
 }

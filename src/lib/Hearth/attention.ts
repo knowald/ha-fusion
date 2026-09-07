@@ -90,7 +90,9 @@ export function attentionItems(
 			return {
 				entity: entityId,
 				name: entity?.attributes?.friendly_name ?? entityId,
-				detail: since ? `${get(lang)('hearth_last_seen')} ${since}` : get(lang)('hearth_offline')
+				detail: since
+					? get(lang)('hearth_last_seen_at').replace('{time}', since)
+					: get(lang)('hearth_offline')
 			};
 		});
 }

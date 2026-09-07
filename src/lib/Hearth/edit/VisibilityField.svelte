@@ -17,13 +17,13 @@
 
 	type RowType = 'entity' | 'numeric' | 'media' | 'or';
 
-	const TYPE_OPTIONS = [
+	let TYPE_OPTIONS = $derived([
 		{ value: 'entity', label: $lang('hearth_entity_state') },
 		{ value: 'numeric', label: $lang('hearth_numeric_state') },
 		{ value: 'media', label: $lang('hearth_media_query') },
 		// an or-group inside an or-group adds nothing; keep the tree one level deep
 		...(nested ? [] : [{ value: 'or', label: $lang('hearth_any_of') }])
-	];
+	]);
 
 	function rowType(condition: VisibilityCondition): RowType {
 		if ('media' in condition) return 'media';

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { ICON } from '../../iconSizes';
 	import { states } from '$lib/core/ha/entities';
 	import { hearthConfig } from '../../store';
@@ -30,7 +31,9 @@
 		<div class="attention-row">
 			<Icon name="cloud_off" size={ICON.control} color="var(--h-accent-dim-text)" />
 			<div class="attention-copy">
-				<div class="attention-title">{item.name} offline</div>
+				<div class="attention-title">
+					{$lang('hearth_entity_offline').replace('{name}', item.name)}
+				</div>
 				<div class="attention-detail">{item.detail}</div>
 			</div>
 		</div>
