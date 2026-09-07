@@ -31,16 +31,18 @@
 		if (style !== 'line' || !entity || !$connected) return;
 		const span = PERIOD_MS[period];
 		const bucket = period === 'hour' ? '5minute' : period === 'day' ? 'hour' : 'day';
+		// read synchronously so a changed expression reruns the effect and misses the old cache
+		const math = widget.math ?? '';
 		return startDataRefresh(
 			() =>
-				cachedData(`chart:${entity}:${period}`, async () => {
+				cachedData(`chart:${entity}:${period}:${math}`, async () => {
 					const values = await fetchStatisticSeries(
 						entity,
 						new Date(Date.now() - span),
 						new Date(),
 						bucket
 					);
-					return values?.map((entry) => applyMath(entry, widget.math)) ?? null;
+					return values?.map((entry) => applyMath(entry, math)) ?? null;
 				}),
 			(values) => (points = values)
 		);

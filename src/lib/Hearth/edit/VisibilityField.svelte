@@ -81,7 +81,12 @@
 		else condition.state = text;
 	}
 
+	// what the user typed, so "-" and "20." survive until the number is complete
+	let drafts = $state<Record<string, string>>({});
+
 	function boundValue(index: number, key: 'above' | 'below'): string {
+		const draft = drafts[`${index}:${key}`];
+		if (draft !== undefined) return draft;
 		const condition = value[index];
 		const bound = 'entity' in condition ? condition[key] : undefined;
 		return typeof bound === 'number' ? String(bound) : '';
@@ -90,9 +95,10 @@
 	function setBound(index: number, key: 'above' | 'below', text: string) {
 		const condition = value[index];
 		if (!('entity' in condition)) return;
+		drafts[`${index}:${key}`] = text;
 		const parsed = numberFromInput(text);
 		if (Number.isFinite(parsed)) condition[key] = parsed;
-		else delete condition[key];
+		else if (!text.trim()) delete condition[key];
 	}
 
 	function mediaValue(index: number): string {

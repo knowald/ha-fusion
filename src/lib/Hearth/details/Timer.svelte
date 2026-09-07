@@ -10,6 +10,8 @@
 	let timerState = $derived(stateObj?.state);
 	// svelte-ignore state_referenced_locally
 	let duration = $state<string>(stateObj?.attributes?.duration ?? '0:05:00');
+	// timer.start takes H:MM:SS, MM:SS or plain seconds
+	let durationValid = $derived(/^(\d+(:[0-5]\d){1,2}|\d+)$/.test(duration.trim()));
 
 	// the server sends finishes_at while active; count down from it locally
 	let remaining = $derived.by(() => {
@@ -36,7 +38,9 @@
 		type="button"
 		class="segment"
 		class:active={timerState === 'active'}
-		onclick={() => callEntityService('timer', 'start', entity, { duration })}
+		disabled={!durationValid}
+		onclick={() =>
+			durationValid && callEntityService('timer', 'start', entity, { duration: duration.trim() })}
 	>
 		{$lang('hearth_start')}
 	</button>

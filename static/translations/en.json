@@ -1041,5 +1041,6 @@
 	"hearth_one_suggestion": "1 suggestion",
 	"hearth_n_suggestions": "{count} suggestions",
 	"hearth_n_songs": "{count} songs",
-	"hearth_entity_offline": "{name} offline"
+	"hearth_entity_offline": "{name} offline",
+	"hearth_could_not_load_file": "The current file could not be loaded, so saving is off."
 }

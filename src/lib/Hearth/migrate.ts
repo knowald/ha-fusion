@@ -403,7 +403,7 @@ function toNativeEmbeds(raw: Record<string, any>): Record<string, any> {
 					...(typeof config.template === 'string' ? { template: config.template } : {})
 				};
 			case 'timer':
-				return { ...base, type: 'timer', ...entity };
+				return { ...base, type: 'timer', ...entity, ...name };
 			case 'notifications':
 				return { ...base, type: 'notifications' };
 			case 'iframe': {
