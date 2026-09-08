@@ -43,7 +43,9 @@
 		[
 			$lang(statusKeys[entity?.state ?? ''] ?? 'unavailable'),
 			...(battery !== null ? [`${Math.round(battery)}%`] : []),
-			...(bin !== null ? [`bin ${Math.round(bin)}%`] : [])
+			...(bin !== null
+				? [$lang('hearth_bin_percent').replace('{percent}', String(Math.round(bin)))]
+				: [])
 		].join(' · ')
 	);
 	let row = $state<HTMLElement | undefined>();

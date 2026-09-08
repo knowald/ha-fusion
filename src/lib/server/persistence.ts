@@ -17,7 +17,8 @@ import * as yaml from 'js-yaml';
 const BACKUP_KEEP = 10;
 
 function backupDirectory(file: string) {
-	return join(dirname(file), 'backups');
+	// one directory per document: hearth.yaml and hearth.yml never share retention
+	return join(dirname(file), 'backups', basename(file));
 }
 
 function backupStem(file: string) {

@@ -17,7 +17,8 @@ afterEach(async () => {
 	await rm(directory, { recursive: true, force: true });
 });
 
-const backups = async () => (await readdir(join(directory, 'backups')).catch(() => [])).sort();
+const backups = async (name = 'hearth.yaml') =>
+	(await readdir(join(directory, 'backups', name)).catch(() => [])).sort();
 
 describe('saveYamlDocument', () => {
 	it('writes the document with server-owned keys first and no backup on the first save', async () => {
@@ -38,7 +39,9 @@ describe('saveYamlDocument', () => {
 		const names = await backups();
 		expect(names).toHaveLength(1);
 		expect(names[0]).toMatch(/^hearth-\d+-r1\.yaml$/);
-		expect(await readFile(join(directory, 'backups', names[0]), 'utf8')).toContain('name: one');
+		expect(await readFile(join(directory, 'backups', 'hearth.yaml', names[0]), 'utf8')).toContain(
+			'name: one'
+		);
 	});
 
 	it('serializes concurrent saves so every accepted one leaves its own backup', async () => {
@@ -54,6 +57,16 @@ describe('saveYamlDocument', () => {
 			'hearth-r2.yaml',
 			'hearth-r3.yaml'
 		]);
+	});
+
+	it('keeps documents with the same stem apart', async () => {
+		const sibling = join(directory, 'hearth.yml');
+		await saveYamlDocument({ file, body: { name: 'yaml one' }, revision: 0 });
+		await saveYamlDocument({ file, body: { name: 'yaml two' }, revision: 1 });
+		await saveYamlDocument({ file: sibling, body: { name: 'yml one' }, revision: 0 });
+		await saveYamlDocument({ file: sibling, body: { name: 'yml two' }, revision: 1 });
+		expect(await backups('hearth.yaml')).toHaveLength(1);
+		expect(await backups('hearth.yml')).toHaveLength(1);
 	});
 
 	it('keeps the ten newest backups', async () => {

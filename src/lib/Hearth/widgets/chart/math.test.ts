@@ -9,6 +9,8 @@ describe('chart math', () => {
 		expect(evaluate('10 % 4 + x / 2', 3)).toBe(3.5);
 		expect(evaluate('(x - 32) * 5 / 9', 212)).toBe(100);
 		expect(evaluate('.5 + x', 1)).toBe(1.5);
+		expect(evaluate('1. + x', 1)).toBe(2);
+		expect(applyMath(3, 'x * 2.')).toBe(6);
 	});
 
 	it('rejects anything that is not arithmetic', () => {

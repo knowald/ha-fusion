@@ -200,6 +200,7 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 	if (!Array.isArray(rail)) {
 		rail = [
 			{ id: 'clock', type: 'clock', ...(raw.city ? { city: raw.city } : {}) },
+			{ id: 'divider', type: 'spacer', line: true, height: 24 },
 			{ id: 'nav', type: 'nav' },
 			{ id: 'spacer', type: 'spacer' }
 		];

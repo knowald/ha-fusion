@@ -46,6 +46,24 @@
 		onclose();
 	}
 
+	// aria-modal promises focus stays inside; the layer stack handles Escape and
+	// restores the opener, so only Tab needs cycling here
+	function trapTab(event: KeyboardEvent) {
+		if (event.key !== 'Tab') return;
+		const panel = event.currentTarget as HTMLElement;
+		const focusable = [...panel.querySelectorAll<HTMLElement>('input, [tabindex="0"]')];
+		if (!focusable.length) return;
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		if (event.shiftKey && document.activeElement === first) {
+			event.preventDefault();
+			last.focus();
+		} else if (!event.shiftKey && document.activeElement === last) {
+			event.preventDefault();
+			first.focus();
+		}
+	}
+
 	function focusOnMount(node: HTMLInputElement) {
 		node.focus();
 	}
@@ -63,6 +81,7 @@
 		aria-modal="true"
 		aria-label={$lang('hearth_choose_entity')}
 		tabindex="-1"
+		onkeydown={trapTab}
 	>
 		<div class="search">
 			<Icon name="search" size={ICON.control} />

@@ -98,7 +98,12 @@ function trackSubscription(subscription: Promise<unknown>, channel: string) {
 	});
 }
 
-export async function authentication(configuration: Configuration, hooks: ConnectionHooks = {}) {
+export async function authentication(
+	configuration: Configuration,
+	hooks: ConnectionHooks = {},
+	/** False once a newer startConnection took over; the result is then discarded. */
+	isCurrent: () => boolean = () => true
+) {
 	if (!configuration?.hassUrl) {
 		health.set('lost');
 		throw new Error('Home Assistant URL is not configured');
@@ -139,6 +144,11 @@ export async function authentication(configuration: Configuration, hooks: Connec
 		}
 
 		const conn = await createConnection({ auth });
+		if (!isCurrent()) {
+			// a newer configuration is connecting; this socket must not become the app's
+			conn.close();
+			return;
+		}
 		tokenPromptShown = false;
 		connection.set(conn);
 
@@ -271,7 +281,7 @@ export function startConnection(configuration: Configuration, hooks: ConnectionH
 		if (connecting || run !== currentRun) return;
 		connecting = true;
 		try {
-			await authentication(configuration, hooks);
+			await authentication(configuration, hooks, () => run === currentRun);
 			if (run === currentRun) stopConnection();
 		} catch {
 			// retried on the interval

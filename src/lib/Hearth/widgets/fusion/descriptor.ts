@@ -35,7 +35,11 @@ export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 		!FUSION_WIDGET_TYPES.some((option) => option.value === widget.config?.type) ||
 		(['sensor', 'camera', 'image', 'weather', 'weather_forecast'].includes(widget.config.type) &&
 			!widget.config.entity_id),
-	entityIds: () => [],
+	entityIds: (widget) =>
+		typeof widget.config?.entity_id === 'string' &&
+		['sensor', 'camera', 'image', 'weather', 'weather_forecast'].includes(widget.config.type)
+			? [widget.config.entity_id]
+			: [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };
