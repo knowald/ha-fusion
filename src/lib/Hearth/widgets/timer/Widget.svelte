@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { timer } from '$lib/core/app/clock';
 	import { states } from '$lib/core/ha/entities';
@@ -50,7 +51,7 @@
 		aria-label={timerState === 'active' ? $lang('hearth_pause') : $lang('hearth_start')}
 		onclick={primary}
 	>
-		<Icon name={timerState === 'active' ? 'pause' : 'play_arrow'} size={20} fill />
+		<Icon name={timerState === 'active' ? 'pause' : 'play_arrow'} size={ICON.control} fill />
 	</button>
 	<div class="text">
 		<div class="name">{label}</div>
@@ -63,7 +64,7 @@
 			aria-label={$lang('hearth_cancel')}
 			onclick={() => callEntityService('timer', 'cancel', entity)}
 		>
-			<Icon name="close" size={18} />
+			<Icon name="close" size={ICON.control} />
 		</button>
 	{/if}
 </div>
@@ -100,12 +101,12 @@
 	}
 
 	.name {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 	}
 
 	.count {
-		font-size: 20px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		font-variant-numeric: tabular-nums;
 		color: var(--h-text-1);

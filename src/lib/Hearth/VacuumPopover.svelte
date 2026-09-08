@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { onDestroy } from 'svelte';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -140,7 +141,7 @@
 				<div class="glyphs">
 					<Icon
 						name={mode.icon ?? 'cleaning_services'}
-						size={21}
+						size={ICON.control}
 						color="var(--h-accent-dim-text)"
 					/>
 					{#if mode.default}<span class="tag">{$lang('hearth_default')}</span>{/if}
@@ -161,7 +162,7 @@
 
 {#if launched}
 	<div class="undo">
-		<Icon name="check_circle" size={19} color="var(--h-good)" />
+		<Icon name="check_circle" size={ICON.control} color="var(--h-good)" />
 		<div class="undo-text">
 			<div class="undo-title">{$lang('hearth_starting')} {modeName(launched.mode)}</div>
 			{#if modeMeta(launched.mode)}
@@ -184,7 +185,7 @@
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => run(action)}
 			>
-				<Icon name={action.icon} size={20} fill={action.primary} />
+				<Icon name={action.icon} size={ICON.control} fill={action.primary} />
 				{action.label}
 			</button>
 		{/each}
@@ -198,15 +199,15 @@
 
 	.title {
 		color: var(--h-text-1);
-		font-size: 19px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
 		letter-spacing: -0.2px;
 	}
 
 	.status {
-		margin-top: 5px;
+		margin-top: 6px;
 		color: var(--h-text-4);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 	}
 
 	.modes {
@@ -248,7 +249,7 @@
 	.tag {
 		color: var(--h-text-4);
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.2px;
 	}
 
@@ -256,7 +257,7 @@
 		margin-top: 10px;
 		overflow: hidden;
 		color: var(--h-text-2);
-		font-size: 14.5px;
+		font-size: var(--h-type-emphasis);
 		font-weight: 600;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -267,14 +268,14 @@
 		align-items: baseline;
 		justify-content: space-between;
 		gap: 8px;
-		margin-top: 3px;
+		margin-top: 4px;
 		min-height: 15px;
 	}
 
 	.detail {
 		overflow: hidden;
 		color: var(--h-text-5);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
@@ -283,7 +284,7 @@
 		flex: none;
 		color: var(--h-text-4);
 		font-family: var(--h-font-mono);
-		font-size: 10.5px;
+		font-size: var(--h-type-label);
 	}
 
 	.empty {
@@ -292,7 +293,7 @@
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.14 * var(--h-line-scale)));
 		border-radius: var(--h-radius-sm);
 		color: var(--h-text-6);
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		text-align: center;
 	}
 
@@ -301,7 +302,7 @@
 		align-items: center;
 		gap: 12px;
 		margin-top: 12px;
-		padding: 13px 15px;
+		padding: 14px 16px;
 		border: 1px solid color-mix(in srgb, var(--h-good) 30%, transparent);
 		border-radius: var(--h-radius-sm);
 		background: color-mix(in srgb, var(--h-good) 12%, transparent);
@@ -314,24 +315,24 @@
 
 	.undo-title {
 		color: var(--h-text-2);
-		font-size: 13.5px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 	}
 
 	.undo-detail {
 		margin-top: 2px;
 		color: var(--h-good-text);
-		font-size: 11.5px;
+		font-size: var(--h-type-small);
 	}
 
 	.undo-action {
 		flex: none;
-		padding: 7px 13px;
+		padding: 8px 14px;
 		border: none;
-		border-radius: 999px;
+		border-radius: var(--h-radius-pill);
 		background: rgb(var(--h-surface-rgb) / calc(0.09 * var(--h-fill-scale)));
 		color: var(--h-text-2);
-		font-size: 12.5px;
+		font-size: var(--h-type-secondary);
 		font-weight: 600;
 	}
 
@@ -348,7 +349,7 @@
 		justify-content: center;
 		gap: 8px;
 		padding: 14px 12px;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		white-space: nowrap;
 	}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import type { Snippet } from 'svelte';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
@@ -59,7 +60,7 @@
 		<div class="header">
 			{#if onback}
 				<button type="button" class="icon-button" aria-label={$lang('back')} onclick={onback}>
-					<Icon name="arrow_back" size={24} />
+					<Icon name="arrow_back" size={ICON.tile} />
 				</button>
 			{/if}
 			<div class="title">{title}</div>
@@ -72,7 +73,7 @@
 							title={$lang('hearth_move_up')}
 							onclick={onmoveup}
 						>
-							<Icon name="arrow_upward" size={20} />
+							<Icon name="arrow_upward" size={ICON.control} />
 						</button>
 					{/if}
 					{#if onmovedown}
@@ -82,7 +83,7 @@
 							title={$lang('hearth_move_down')}
 							onclick={onmovedown}
 						>
-							<Icon name="arrow_downward" size={20} />
+							<Icon name="arrow_downward" size={ICON.control} />
 						</button>
 					{/if}
 				</div>
@@ -102,7 +103,7 @@
 				aria-label={$lang('hearth_close')}
 				onclick={onclose}
 			>
-				<Icon name="close" size={24} />
+				<Icon name="close" size={ICON.tile} />
 			</button>
 		</div>
 		<div class="body" class:split>
@@ -130,7 +131,7 @@
 	.overlay {
 		position: absolute;
 		inset: 0;
-		z-index: 60;
+		z-index: var(--h-layer-sheet);
 		background: var(--h-overlay);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
@@ -147,7 +148,7 @@
 		background: radial-gradient(680px 440px at 25% -10%, var(--h-sheet-0), var(--h-sheet-1) 60%);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
 		border-radius: var(--h-radius-xl);
-		box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+		box-shadow: 0 30px 80px var(--h-scrim);
 		overflow: hidden;
 	}
 
@@ -166,7 +167,7 @@
 
 	.title {
 		flex: 1;
-		font-size: 22px;
+		font-size: var(--h-type-headline);
 		font-weight: 600;
 		letter-spacing: -0.3px;
 		color: var(--h-text-1);
@@ -186,7 +187,7 @@
 		cursor: pointer;
 		padding: 8px;
 		border-radius: var(--h-radius-xs);
-		transition: transform 120ms ease;
+		transition: transform var(--h-motion-fast) ease;
 		border: 0;
 		background: none;
 		font: inherit;
@@ -260,7 +261,7 @@
 		border: 1px solid transparent;
 		padding: 12px 22px;
 		border-radius: var(--h-radius-xs);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		cursor: pointer;
 		user-select: none;
@@ -304,7 +305,7 @@
 		}
 
 		.title {
-			font-size: 19px;
+			font-size: var(--h-type-title);
 		}
 
 		.body {

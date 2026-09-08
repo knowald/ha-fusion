@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { layer } from '$lib/ui/layers';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
@@ -174,7 +175,7 @@
 	<span class="field-label">{label}</span>
 	<div class="input-row">
 		<span class="preview" class:empty={!value.trim()}>
-			<Icon name={value.trim() || 'category'} size={20} />
+			<Icon name={value.trim() || 'category'} size={ICON.control} />
 		</span>
 		<input
 			type="text"
@@ -190,7 +191,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, toggle)}
 		>
-			<Icon name={expanded ? 'expand_less' : 'apps'} size={20} />
+			<Icon name={expanded ? 'expand_less' : 'apps'} size={ICON.control} />
 		</span>
 	</div>
 	{#if expanded}
@@ -215,7 +216,7 @@
 						tabindex="0"
 						onkeydown={(event) => activateOnKeyboard(event, () => pick(name))}
 					>
-						<Icon {name} size={22} />
+						<Icon {name} size={ICON.control} />
 					</span>
 				{:else}
 					<div class="hint">{$lang('hearth_no_matching_icons')}</div>
@@ -247,7 +248,7 @@
 	.field-label {
 		display: block;
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		text-transform: uppercase;
 		color: var(--h-label);
@@ -282,12 +283,12 @@
 	.input-row input {
 		flex: 1;
 		min-width: 0;
-		padding: 11px 0;
+		padding: 12px 0;
 		border: none;
 		background: none;
 		color: var(--h-text-2);
 		font-family: var(--h-font-mono);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		outline: none;
 	}
 
@@ -317,13 +318,13 @@
 
 	.filter {
 		width: 100%;
-		padding: 8px 11px;
+		padding: 8px 12px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		outline: none;
 	}
 
@@ -365,7 +366,7 @@
 	.hint {
 		grid-column: 1 / -1;
 		padding: 10px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		text-align: center;
 	}
@@ -380,7 +381,7 @@
 		background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 		color: var(--h-text-3);
 		font-family: inherit;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		cursor: pointer;
 	}
 

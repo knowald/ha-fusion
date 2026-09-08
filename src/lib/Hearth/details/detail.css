@@ -6,7 +6,7 @@
 .detail .label {
 	margin: 20px 0 8px;
 	font-family: var(--h-font-mono);
-	font-size: 11px;
+	font-size: var(--h-type-label);
 	letter-spacing: 2px;
 	text-transform: uppercase;
 	color: var(--h-label);
@@ -27,7 +27,7 @@
 	background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
 	color: var(--h-text-3);
 	font: inherit;
-	font-size: 14px;
+	font-size: var(--h-type-body);
 	text-align: center;
 	cursor: pointer;
 }
@@ -56,14 +56,14 @@
 }
 
 .detail .stepper .value {
-	font-size: 40px;
+	font-size: var(--h-type-hero);
 	font-weight: 600;
 	letter-spacing: -1px;
 	color: var(--h-text-1);
 }
 
 .detail .stepper .unit {
-	font-size: 16px;
+	font-size: var(--h-type-subtitle);
 	color: var(--h-text-3);
 	margin-left: 6px;
 }
@@ -97,7 +97,7 @@
 	background: var(--h-inset);
 	color: var(--h-text-1);
 	font: inherit;
-	font-size: 15px;
+	font-size: var(--h-type-emphasis);
 }
 
 .detail input[type='range'] {
@@ -111,7 +111,7 @@
 	gap: 12px;
 	padding: 10px 0;
 	border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-	font-size: 14px;
+	font-size: var(--h-type-body);
 	color: var(--h-text-3);
 }
 
@@ -124,7 +124,7 @@
 
 .detail .note {
 	margin-top: 12px;
-	font-size: 13px;
+	font-size: var(--h-type-secondary);
 	color: var(--h-text-6);
 }
 

@@ -112,6 +112,31 @@ mean the same thing; Home Assistant calls it an area.
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
 
+## Design tokens
+
+Every Hearth style reads from tokens on `:root`, injected by `shell/ThemeStyle.svelte`.
+`scripts/check-style-tokens.mjs` (run by `pnpm check:style` and in CI) refuses
+literal colours, font sizes, radii, z-index values and transition durations, and
+spacing values off the scale. A declaration may opt out with a same-line
+`/* literal ok: <reason> */` comment; keep those rare.
+
+| Token family | Values                                                                                                              | Notes                                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Colour       | `--h-*` theme knobs from `core/theme` (`THEME_VARS`)                                                                | User-themable. Surfaces over artwork use the fixed `--h-art-scrim-*`, `--h-on-art-*` set; scrims use `--h-scrim`. |
+| Type         | `--h-type-{caption,label,small,secondary,body,emphasis,subtitle,title,headline,stat,display-sm,display,hero,clock}` | 10 to 80 px. Mono is for labels, ids and numbers, with tracking.                                                  |
+| Spacing      | even pixels: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 40                                                 | Written as literals; the guard checks scale membership.                                                           |
+| Radius       | `--h-radius-{hair,tight,xs,sm,md,card,lg,xl,pill}` and `50%`                                                        | `xs` to `xl` are theme knobs scaled by the radius factor.                                                         |
+| Layers       | `--h-layer-{raised,chip,grid-header,bar,toast,popover,popup,search,sheet,sheet-popover,picker,confirm,screensaver}` | Same order as the stack in `ui/layers.ts`. Offsets: `calc(var(--h-layer-x) + 1)`.                                 |
+| Motion       | `--h-motion-{fast,base,slow,theme}` (120, 200, 300, 600 ms), `--h-ease`                                             | `$motion` from settings still zeroes durations.                                                                   |
+| Focus        | `--h-focus-ring`                                                                                                    | Applied by `.frame :global(:focus-visible)`.                                                                      |
+| Icons        | `ICON.{inline,control,tile,hero,display}` from `iconSizes.ts` (16, 20, 24, 32, 48)                                  | Pass to `Icon.svelte`; the glyph is `aria-hidden`, the control carries the name.                                  |
+
+Shared state pieces: `EmptyState.svelte` for "nothing here" and `LoadingState.svelte`
+for "still fetching". `ConfigurationPlaceholder.svelte` stays the setup placeholder.
+
+`pnpm style:inventory` prints the distinct literal values per family; the counts
+are the review's progress metric.
+
 ## Boundaries
 
 The original dashboard lives under `src/lib/legacy`. Hearth may import from it

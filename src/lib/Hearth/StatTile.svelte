@@ -99,7 +99,7 @@
 	}
 
 	.stat-label {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 		white-space: nowrap;
 		overflow: hidden;
@@ -107,7 +107,7 @@
 	}
 
 	.stat-value {
-		font-size: 24px;
+		font-size: var(--h-type-stat);
 		font-weight: 600;
 		color: var(--h-text-1);
 		margin-top: 4px;
@@ -115,7 +115,7 @@
 
 	.stat-unit {
 		margin-left: 0.3em;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 		font-weight: 400;
 	}
@@ -134,7 +134,7 @@
 
 	.stat-verdict {
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.2px;
 		flex: none;
 	}
@@ -154,9 +154,9 @@
 	.band-track {
 		position: relative;
 		height: 4px;
-		border-radius: 99px;
+		border-radius: var(--h-radius-pill);
 		background: rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		margin-top: 11px;
+		margin-top: 12px;
 	}
 
 	.band-fill {
@@ -164,7 +164,7 @@
 		left: 0;
 		top: 0;
 		bottom: 0;
-		border-radius: 99px;
+		border-radius: var(--h-radius-pill);
 	}
 
 	.band-fill[data-tone='good'] {
@@ -181,8 +181,8 @@
 
 	.band-tick {
 		position: absolute;
-		top: -3px;
-		bottom: -3px;
+		top: -4px;
+		bottom: -4px;
 		width: 1px;
 		background: rgb(var(--h-line-rgb) / calc(0.22 * var(--h-line-scale)));
 	}

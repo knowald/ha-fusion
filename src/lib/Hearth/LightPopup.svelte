@@ -190,7 +190,7 @@
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		cursor: pointer;
 	}
@@ -204,7 +204,7 @@
 
 	.color-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 	}
@@ -213,14 +213,14 @@
 		display: flex;
 		gap: 4px;
 		padding: 4px;
-		border-radius: 11px;
+		border-radius: var(--h-radius-xs);
 		background: var(--h-track);
 	}
 
 	.tab {
 		padding: 8px 14px;
-		border-radius: 8px;
-		font-size: 13px;
+		border-radius: var(--h-radius-tight);
+		font-size: var(--h-type-secondary);
 		cursor: pointer;
 		color: var(--h-icon);
 	}
@@ -236,7 +236,8 @@
 		height: 44px;
 		border-radius: var(--h-radius-sm);
 		overflow: hidden;
-		background: linear-gradient(90deg, #ff9d4d, #ffc98a, #fff0dc, #eef4ff, #c9ddff);
+		background: linear-gradient(90deg, #ff9d4d, #ffc98a, #fff0dc, #eef4ff, #c9ddff)
+			/* literal ok: colour temperature gradient is a physical scale */;
 		cursor: pointer;
 		touch-action: none;
 		user-select: none;
@@ -248,9 +249,11 @@
 		top: 4px;
 		bottom: 4px;
 		width: 18px;
-		border-radius: 9px;
-		background: rgba(255, 255, 255, 0.95);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+		border-radius: var(--h-radius-tight);
+		background: rgba(255, 255, 255, 0.95)
+			/* literal ok: colour temperature gradient is a physical scale */;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4)
+			/* literal ok: colour temperature gradient is a physical scale */;
 		border: 2px solid var(--h-sheet-0);
 	}
 
@@ -258,7 +261,7 @@
 		display: flex;
 		justify-content: space-between;
 		margin-top: 8px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-icon);
 	}
 
@@ -297,7 +300,7 @@
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-3);
 		cursor: pointer;
 	}

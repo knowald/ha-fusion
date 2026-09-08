@@ -24,13 +24,13 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		z-index: 3;
+		z-index: calc(var(--h-layer-raised) + 2);
 	}
 
 	svg {
 		-webkit-animation: rotate 2s linear infinite;
 		animation: rotate 2s linear infinite;
-		z-index: 2;
+		z-index: calc(var(--h-layer-raised) + 1);
 		width: 8em;
 		height: 8em;
 		fill: none;

@@ -63,7 +63,7 @@ test('every card type opens its editor and lands on the page', async ({ page }) 
 		await expect(sheet).toBeVisible();
 		await sheet.getByRole('button', { name: /CARD TYPE/ }).click();
 		const gallery = page.getByRole('dialog', { name: 'Change card type' });
-		await gallery.getByRole('button', { name: new RegExp(`^\\S+ ${name} `) }).click();
+		await gallery.getByRole('button', { name: new RegExp(`^${name}\\b`) }).click();
 		await expect(gallery).toBeHidden();
 		await sheet.getByRole('button', { name: 'Done' }).click();
 		await expect(sheet).toBeHidden();
@@ -78,7 +78,7 @@ test('every widget type opens its editor and lands in the rail', async ({ page }
 		await page.getByRole('button', { name: 'Add widget' }).click();
 		const sheet = page.getByRole('dialog', { name: 'Add widget' });
 		await expect(sheet).toBeVisible();
-		await sheet.getByRole('button', { name: new RegExp(`^\\S+ ${name} `) }).click();
+		await sheet.getByRole('button', { name: new RegExp(`^${name}\\b`) }).click();
 		await sheet.getByRole('button', { name: 'Done' }).click();
 		await expect(sheet).toBeHidden();
 	}

@@ -147,7 +147,7 @@
 <style>
 	.label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 22px 0 10px;
@@ -162,9 +162,9 @@
 	.segment {
 		flex: 1;
 		text-align: center;
-		padding: 15px 0;
+		padding: 16px 0;
 		border-radius: var(--h-radius-xs);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		cursor: pointer;
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));

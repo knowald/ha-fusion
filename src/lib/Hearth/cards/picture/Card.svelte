@@ -41,7 +41,7 @@
 <style>
 	.section-title {
 		margin-bottom: 10px;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-weight: 500;
 		letter-spacing: 0.5px;
 		color: var(--h-text-4);

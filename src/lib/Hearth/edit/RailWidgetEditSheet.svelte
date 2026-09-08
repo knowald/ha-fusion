@@ -1,4 +1,6 @@
 <script lang="ts">
+	import EmptyState from '../EmptyState.svelte';
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -109,7 +111,7 @@
 	<div class="rail-editor">
 		<div class="gallery">
 			<label class="search">
-				<Icon name="search" size={17} />
+				<Icon name="search" size={ICON.inline} />
 				<input type="text" bind:value={search} placeholder="Search widgets" spellcheck="false" />
 			</label>
 			{#each filteredGallery as kind (kind.type)}
@@ -123,14 +125,14 @@
 					onclick={() => (type = kind.type)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (type = kind.type))}
 				>
-					<span class="kind-icon"><Icon name={kind.icon} size={20} /></span>
+					<span class="kind-icon"><Icon name={kind.icon} size={ICON.control} /></span>
 					<div>
 						<div class="kind-name">{$lang(kind.name)}</div>
 						<div class="kind-sub">{$lang(kind.sub)}</div>
 					</div>
 				</div>
 			{:else}
-				<div class="no-results">{$lang('hearth_no_widgets_match')}</div>
+				<EmptyState inline text={$lang('hearth_no_widgets_match')} />
 			{/each}
 		</div>
 		<div class="config editor-fields">
@@ -160,7 +162,7 @@
 					onclick={setAlwaysVisible}
 					onkeydown={(event) => activateOnKeyboard(event, setAlwaysVisible)}
 				>
-					<Icon name="visibility" size={16} />
+					<Icon name="visibility" size={ICON.inline} />
 					{$lang('hearth_always_visible')}
 				</span>
 				<span
@@ -172,7 +174,7 @@
 					onclick={() => (hideMobile = !hideMobile)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (hideMobile = !hideMobile))}
 				>
-					<Icon name="smartphone" size={16} />
+					<Icon name="smartphone" size={ICON.inline} />
 					{$lang('hearth_hide_on_mobile')}
 				</span>
 				<span
@@ -184,7 +186,7 @@
 					onclick={() => (conditionsOpen = !conditionsOpen)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (conditionsOpen = !conditionsOpen))}
 				>
-					<Icon name="rule" size={16} />
+					<Icon name="rule" size={ICON.inline} />
 					{$lang('conditions')}{visibility.length ? ` (${visibility.length})` : ''}
 				</span>
 			</div>
@@ -218,9 +220,9 @@
 		flex: none;
 		display: flex;
 		align-items: center;
-		gap: 9px;
-		padding: 9px 12px;
-		border-radius: 11px;
+		gap: 10px;
+		padding: 10px 12px;
+		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		color: var(--h-text-6);
 		margin-bottom: 8px;
@@ -233,7 +235,7 @@
 		background: none;
 		outline: none;
 		font-family: inherit;
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-2);
 	}
 
@@ -248,8 +250,8 @@
 		flex: none;
 		display: flex;
 		align-items: center;
-		gap: 11px;
-		padding: 11px 12px;
+		gap: 12px;
+		padding: 12px 12px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid transparent;
 		color: var(--h-text-3);
@@ -263,12 +265,12 @@
 	}
 
 	.kind-name {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 500;
 	}
 
 	.kind-sub {
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		color: var(--h-text-6);
 	}
 
@@ -286,17 +288,10 @@
 		font-weight: 600;
 	}
 
-	.no-results {
-		padding: 12px;
-		font-size: 13px;
-		color: var(--h-text-6);
-		text-align: center;
-	}
-
 	.config {
 		flex: 1;
 		min-width: 0;
-		padding: 20px 28px 26px;
+		padding: 20px 28px 28px;
 		overflow-y: auto;
 	}
 
@@ -309,7 +304,7 @@
 	}
 
 	.preview-note {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-6);
 		text-align: center;
 	}
@@ -325,11 +320,11 @@
 	.chip {
 		display: flex;
 		align-items: center;
-		gap: 7px;
-		padding: 8px 13px;
-		border-radius: 20px;
+		gap: 8px;
+		padding: 8px 14px;
+		border-radius: var(--h-radius-card);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 		cursor: pointer;
 		user-select: none;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
@@ -93,7 +94,7 @@
 			aria-label={$lang('hearth_setup')}
 			onclick={onsetup}
 		>
-			<Icon name="auto_awesome" size={20} />
+			<Icon name="auto_awesome" size={ICON.control} />
 		</button>
 		<button
 			type="button"
@@ -101,7 +102,7 @@
 			aria-label={$lang('settings')}
 			onclick={() => editor.set({ kind: 'settings' })}
 		>
-			<Icon name="settings" size={20} />
+			<Icon name="settings" size={ICON.control} />
 		</button>
 		<button
 			type="button"
@@ -109,7 +110,7 @@
 			aria-label={$lang('theme')}
 			onclick={() => editor.set({ kind: 'theme' })}
 		>
-			<Icon name="palette" size={20} />
+			<Icon name="palette" size={ICON.control} />
 		</button>
 		<button
 			type="button"
@@ -118,7 +119,7 @@
 			aria-label={$lang('undo')}
 			onclick={undoConfig}
 		>
-			<Icon name="undo" size={20} />
+			<Icon name="undo" size={ICON.control} />
 		</button>
 		<button
 			type="button"
@@ -127,7 +128,7 @@
 			aria-label={$lang('hearth_redo')}
 			onclick={redoConfig}
 		>
-			<Icon name="redo" size={20} />
+			<Icon name="redo" size={ICON.control} />
 		</button>
 		<button
 			type="button"
@@ -149,7 +150,7 @@
 		aria-label={$lang('hearth_edit_configuration')}
 		onclick={enterEditMode}
 	>
-		<Icon name="edit" size={18} />
+		<Icon name="edit" size={ICON.control} />
 		<span>{$lang('hearth_edit_configuration')}</span>
 	</button>
 {/if}
@@ -160,14 +161,14 @@
 		position: absolute;
 		left: calc(14px + var(--h-pad-x));
 		bottom: calc(14px + var(--h-pad-y));
-		z-index: 30;
+		z-index: var(--h-layer-bar);
 		display: flex;
 		align-items: center;
-		gap: 9px;
-		padding: 11px 15px;
+		gap: 10px;
+		padding: 12px 16px;
 		border-radius: var(--h-radius-sm);
 		color: var(--h-text-4);
-		font-size: 13.5px;
+		font-size: var(--h-type-body);
 		cursor: pointer;
 		opacity: 0.75;
 		border: 0;
@@ -186,7 +187,7 @@
 		bottom: calc(18px + var(--h-pad-y));
 		left: 50%;
 		transform: translateX(-50%);
-		z-index: 40;
+		z-index: var(--h-layer-toast);
 		display: flex;
 		align-items: center;
 		gap: 10px;
@@ -194,11 +195,11 @@
 		border-radius: var(--h-radius-md);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+		box-shadow: 0 20px 60px var(--h-scrim);
 	}
 
 	.save-error {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-bad-text);
 		padding: 0 8px;
 	}
@@ -221,7 +222,7 @@
 	.bar-button {
 		padding: 10px 20px;
 		border-radius: var(--h-radius-xs);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		cursor: pointer;
 		color: var(--h-text-3);

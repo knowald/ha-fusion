@@ -40,7 +40,7 @@
 
 <style>
 	.fusion {
-		font-size: 1rem;
+		font-size: var(--h-type-subtitle);
 		border-radius: var(--h-radius-md);
 		overflow: hidden;
 	}
@@ -64,7 +64,7 @@
 		border-radius: var(--h-radius-md);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		text-align: center;
 	}
 </style>

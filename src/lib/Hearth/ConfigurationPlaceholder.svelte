@@ -50,13 +50,13 @@
 	}
 
 	strong {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		color: var(--h-text-4);
 	}
 
 	span {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 	}
 </style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import EmptyState from './EmptyState.svelte';
 	import { lang } from '$lib/core/i18n';
 	import { connected } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
@@ -93,7 +94,7 @@
 		>
 	</div>
 {:else}
-	<div class="no-history">{$lang('hearth_no_recorded_history_for_the_last')}</div>
+	<EmptyState icon="show_chart" text={$lang('hearth_no_recorded_history_for_the_last')} />
 {/if}
 
 <style>
@@ -105,14 +106,14 @@
 	}
 
 	.value {
-		font-size: 44px;
+		font-size: var(--h-type-hero);
 		font-weight: 600;
 		letter-spacing: -1.5px;
 		color: var(--h-text-1);
 	}
 
 	.unit {
-		font-size: 17px;
+		font-size: var(--h-type-subtitle);
 		color: var(--h-text-3);
 	}
 
@@ -129,18 +130,8 @@
 		justify-content: space-between;
 		margin-top: 8px;
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 1.4px;
 		color: var(--h-text-6);
-	}
-
-	.no-history {
-		margin-top: 18px;
-		padding: 18px;
-		border-radius: var(--h-radius-sm);
-		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		color: var(--h-text-6);
-		font-size: 13px;
-		text-align: center;
 	}
 </style>

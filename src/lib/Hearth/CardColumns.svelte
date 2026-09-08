@@ -269,7 +269,7 @@
 	.overview {
 		display: grid;
 		grid-template-columns: repeat(var(--overview-columns, 2), 1fr);
-		gap: 30px;
+		gap: 32px;
 	}
 
 	/* grow into the page's leftover height. It has to be flex-grow: the grid is a
@@ -391,7 +391,7 @@
 
 	.group-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		text-transform: uppercase;
 		color: var(--h-label);

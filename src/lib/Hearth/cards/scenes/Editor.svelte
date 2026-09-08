@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { ScenesCard } from './descriptor';
@@ -114,7 +115,7 @@
 			onclick={() => scenes.splice(refIndex, 1)}
 			onkeydown={(event) => activateOnKeyboard(event, () => scenes.splice(refIndex, 1))}
 		>
-			<Icon name="delete" size={20} />
+			<Icon name="delete" size={ICON.control} />
 		</span>
 	</div>
 {/each}
@@ -128,6 +129,6 @@
 	onclick={addScene}
 	onkeydown={(event) => activateOnKeyboard(event, addScene)}
 >
-	<Icon name="add" size={18} />
+	<Icon name="add" size={ICON.control} />
 	<span>{$lang('hearth_add_scene')}</span>
 </div>

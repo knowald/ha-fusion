@@ -5,7 +5,7 @@
 
 .editor-fields .group-label {
 	font-family: var(--h-font-mono);
-	font-size: 11px;
+	font-size: var(--h-type-label);
 	letter-spacing: 2px;
 	color: var(--h-label);
 	margin: 18px 0 10px;
@@ -19,7 +19,7 @@
 	padding: 10px 4px;
 	border-radius: var(--h-radius-xs);
 	color: var(--h-text-5);
-	font-size: 13px;
+	font-size: var(--h-type-secondary);
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
@@ -68,11 +68,11 @@
 
 .editor-fields .entities-count {
 	padding: 2px 6px;
-	border-radius: 999px;
+	border-radius: var(--h-radius-pill);
 	background: rgb(var(--h-surface-rgb) / calc(0.07 * var(--h-fill-scale)));
 	color: var(--h-text-6);
 	font-family: var(--h-font-mono);
-	font-size: 10px;
+	font-size: var(--h-type-caption);
 }
 
 .editor-fields .entities-section-toggle > .mi {
@@ -102,9 +102,9 @@
 	display: flex;
 	align-items: center;
 	flex: 1;
-	gap: 7px;
+	gap: 8px;
 	min-width: 0;
-	padding: 5px;
+	padding: 6px;
 	border: 0;
 	background: none;
 	color: var(--h-icon);
@@ -128,13 +128,13 @@
 
 .editor-fields .entity-row-copy strong {
 	color: var(--h-text-3);
-	font-size: 13px;
+	font-size: var(--h-type-secondary);
 	font-weight: 550;
 }
 
 .editor-fields .entity-row-copy small {
 	color: var(--h-text-6);
-	font-size: 10.5px;
+	font-size: var(--h-type-label);
 }
 
 .editor-fields .entity-row-actions {
@@ -160,7 +160,7 @@
 }
 
 .editor-fields .entity-row-fields {
-	padding: 0 12px 8px 39px;
+	padding: 0 12px 8px 40px;
 	border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.05 * var(--h-line-scale)));
 }
 
@@ -188,7 +188,7 @@
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	font-size: 14px;
+	font-size: var(--h-type-body);
 	color: var(--h-text-3);
 	margin: 4px 0 10px;
 	cursor: pointer;
@@ -209,7 +209,7 @@
 	border-radius: var(--h-radius-xs);
 	border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 	color: var(--h-text-6);
-	font-size: 14px;
+	font-size: var(--h-type-body);
 	cursor: pointer;
 }
 
@@ -218,7 +218,7 @@
 }
 
 .editor-fields .hint {
-	font-size: 12px;
+	font-size: var(--h-type-small);
 	color: var(--h-text-6);
 	margin: 4px 0 12px;
 }
@@ -239,7 +239,7 @@
 }
 
 .editor-fields .field-error {
-	font-size: 12px;
+	font-size: var(--h-type-small);
 	color: var(--h-bad-text);
 	margin: -8px 0 14px;
 }

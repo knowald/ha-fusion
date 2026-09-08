@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { confirmRequestedAction, dismissConfirmation, requestedConfirmation } from '../store';
 	import Icon from '../Icon.svelte';
@@ -19,7 +20,7 @@
 			aria-labelledby="hearth-confirm-title"
 			use:layer={dismissConfirmation}
 		>
-			<Icon name="warning" size={28} color="var(--h-bad-text)" />
+			<Icon name="warning" size={ICON.tile} color="var(--h-bad-text)" />
 			<div class="confirm-copy">
 				<strong id="hearth-confirm-title">{$requestedConfirmation.title}</strong>
 				<span>{$requestedConfirmation.message}</span>
@@ -40,11 +41,11 @@
 	.confirm-backdrop {
 		position: absolute;
 		inset: 0;
-		z-index: 90;
+		z-index: var(--h-layer-confirm);
 		display: grid;
 		place-items: center;
 		padding: 20px;
-		background: rgba(0, 0, 0, 0.58);
+		background: var(--h-scrim);
 		backdrop-filter: blur(8px);
 	}
 
@@ -57,22 +58,22 @@
 		border-radius: var(--h-radius-lg);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-bad-rgb) / 0.48);
-		box-shadow: 0 24px 80px rgba(0, 0, 0, 0.62);
+		box-shadow: 0 24px 80px var(--h-scrim);
 	}
 
 	.confirm-copy {
 		display: flex;
 		flex-direction: column;
-		gap: 5px;
+		gap: 6px;
 	}
 
 	.confirm-copy strong {
-		font-size: 18px;
+		font-size: var(--h-type-subtitle);
 		color: var(--h-text-1);
 	}
 
 	.confirm-copy span {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-4);
 	}
 
@@ -86,7 +87,7 @@
 
 	.confirm-button {
 		min-height: 44px;
-		padding: 9px 18px;
+		padding: 10px 18px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / 0.15);
 		background: rgb(var(--h-surface-rgb) / 0.08);

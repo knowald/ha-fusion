@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { browser } from '$app/environment';
 	import { states } from '$lib/core/ha/entities';
 	import { capitalize, type RailWidget } from '../../config';
@@ -127,7 +128,7 @@
 		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
 		onclick={completed && !$hearthEditMode ? dismissCompletion : undefined}
 	>
-		<Icon name={widget.icon || 'autorenew'} size={20} color="var(--h-cool-icon)" />
+		<Icon name={widget.icon || 'autorenew'} size={ICON.control} color="var(--h-cool-icon)" />
 		<div class="body">
 			<div class="text">
 				{widget.name || 'Activity'}{status !== undefined ? ` · ${capitalize(status)}` : ''}
@@ -182,7 +183,7 @@
 	}
 
 	.text {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-weight: 500;
 		color: var(--h-text-2);
 		white-space: nowrap;
@@ -192,7 +193,7 @@
 
 	.track {
 		height: 3px;
-		border-radius: 2px;
+		border-radius: var(--h-radius-hair);
 		background: rgb(var(--h-surface-rgb) / calc(0.12 * var(--h-fill-scale)));
 		margin-top: 6px;
 		overflow: hidden;
@@ -200,20 +201,20 @@
 
 	.fill {
 		height: 100%;
-		border-radius: 2px;
+		border-radius: var(--h-radius-hair);
 		background: var(--h-cool-icon);
 	}
 
 	.remaining {
 		font-family: var(--h-font-mono);
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-cool-light);
 		white-space: nowrap;
 	}
 
 	.dismiss {
 		color: var(--h-text-3);
-		font-size: 18px;
+		font-size: var(--h-type-subtitle);
 		line-height: 1;
 	}
 </style>

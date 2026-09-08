@@ -37,7 +37,7 @@
 	.field-label {
 		display: block;
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		text-transform: uppercase;
 		color: var(--h-label);
@@ -46,13 +46,13 @@
 
 	textarea {
 		width: 100%;
-		padding: 11px 13px;
+		padding: 12px 14px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: var(--h-font-mono);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		line-height: 1.5;
 		outline: none;
 		resize: vertical;
@@ -70,7 +70,7 @@
 	.error {
 		display: block;
 		margin-top: 6px;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-bad-text);
 	}
 </style>

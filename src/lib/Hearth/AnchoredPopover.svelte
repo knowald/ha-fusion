@@ -131,19 +131,19 @@
 	.scrim {
 		position: fixed;
 		inset: 0;
-		z-index: 45;
-		background: rgb(0 0 0 / 0.42);
+		z-index: var(--h-layer-popover);
+		background: var(--h-scrim);
 	}
 
 	.card {
 		position: fixed;
-		z-index: 46;
+		z-index: calc(var(--h-layer-popover) + 1);
 		width: min(420px, calc(100vw - 28px));
 		padding: 16px;
 		border-radius: var(--h-radius-card);
 		background: linear-gradient(180deg, var(--h-sheet-0), var(--h-sheet-1));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.13 * var(--h-line-scale)));
-		box-shadow: 0 26px 60px rgb(0 0 0 / 0.6);
+		box-shadow: 0 26px 60px var(--h-scrim);
 	}
 
 	/* the tail sits on .card, so scrolling belongs to an inner element */
@@ -167,7 +167,7 @@
 		content: '';
 		position: absolute;
 		left: var(--tail-left);
-		top: -7px;
+		top: -8px;
 		width: 14px;
 		height: 14px;
 		background: var(--h-sheet-0);
@@ -178,7 +178,7 @@
 
 	.card.above.tailed::before {
 		top: auto;
-		bottom: -7px;
+		bottom: -8px;
 		background: var(--h-sheet-1);
 		border-left: none;
 		border-top: none;
@@ -188,10 +188,10 @@
 
 	/* Interactive card previews live inside the editor's z-index layer. */
 	.scrim.elevated {
-		z-index: 70;
+		z-index: var(--h-layer-sheet-popover);
 	}
 
 	.card.elevated {
-		z-index: 71;
+		z-index: calc(var(--h-layer-sheet-popover) + 1);
 	}
 </style>

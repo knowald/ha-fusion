@@ -16,7 +16,7 @@
 
 	.section-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		text-transform: uppercase;
 		color: var(--h-text-6);

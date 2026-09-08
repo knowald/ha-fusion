@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { connected } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
@@ -75,7 +76,7 @@
 
 <div class="card">
 	<div class="header">
-		<Icon name="bolt" size={18} color="rgb(var(--h-accent-rgb))" fill />
+		<Icon name="bolt" size={ICON.control} color="rgb(var(--h-accent-rgb))" fill />
 		<span class="title">{$lang('hearth_energy')}</span>
 		<span class="reading">
 			{#if total !== null}
@@ -120,7 +121,7 @@
 	}
 
 	.title {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-3);
 	}
 
@@ -128,17 +129,17 @@
 		margin-left: auto;
 		display: flex;
 		align-items: baseline;
-		gap: 5px;
+		gap: 6px;
 	}
 
 	.value {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		color: var(--h-text-1);
 	}
 
 	.cost {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-5);
 	}
 
@@ -152,6 +153,6 @@
 
 	.bar {
 		flex: 1;
-		border-radius: 3px;
+		border-radius: var(--h-radius-hair);
 	}
 </style>

@@ -56,7 +56,7 @@
 
 <style>
 	.clock {
-		font-size: 80px;
+		font-size: var(--h-type-clock);
 		font-weight: 600;
 		line-height: 0.9;
 		letter-spacing: -3px;
@@ -64,14 +64,14 @@
 	}
 
 	.date {
-		font-size: 15px;
+		font-size: var(--h-type-emphasis);
 		color: var(--h-text-4);
 		margin-top: 10px;
 		letter-spacing: 0.2px;
 	}
 
 	.greeting {
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-5);
 		margin-top: 2px;
 	}

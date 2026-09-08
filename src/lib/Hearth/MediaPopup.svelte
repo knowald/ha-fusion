@@ -1,4 +1,7 @@
 <script lang="ts">
+	import LoadingState from './LoadingState.svelte';
+	import EmptyState from './EmptyState.svelte';
+	import { ICON } from './iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
@@ -189,7 +192,7 @@
 	<div class="content">
 		<div class="stage">
 			<div class="source-row">
-				<Icon name="graphic_eq" size={18} color="var(--h-media)" />
+				<Icon name="graphic_eq" size={ICON.control} color="var(--h-media)" />
 				<span class="source-label">{sourceLine}</span>
 			</div>
 			<div class="track">
@@ -223,7 +226,7 @@
 							onkeydown={(event) =>
 								activateOnKeyboard(event, () => setMediaShuffle(entity, !attributes.shuffle))}
 						>
-							<Icon name="shuffle" size={20} />
+							<Icon name="shuffle" size={ICON.control} />
 						</span>
 					{/if}
 					{#if supports(FEATURE.previousTrack)}
@@ -235,7 +238,7 @@
 							onkeydown={(event) =>
 								activateOnKeyboard(event, () => skipMediaTrack(entity, 'previous'))}
 						>
-							<Icon name="skip_previous" size={30} />
+							<Icon name="skip_previous" size={ICON.hero} />
 						</span>
 					{/if}
 					{#if supports(FEATURE.play) || supports(FEATURE.pause)}
@@ -247,7 +250,7 @@
 							tabindex="0"
 							onkeydown={(event) => activateOnKeyboard(event, () => toggleMediaPlayback(entity))}
 						>
-							<Icon name={playing ? 'pause_circle' : 'play_circle'} size={54} fill />
+							<Icon name={playing ? 'pause_circle' : 'play_circle'} size={ICON.display} fill />
 						</span>
 					{/if}
 					{#if supports(FEATURE.nextTrack)}
@@ -258,7 +261,7 @@
 							tabindex="0"
 							onkeydown={(event) => activateOnKeyboard(event, () => skipMediaTrack(entity, 'next'))}
 						>
-							<Icon name="skip_next" size={30} />
+							<Icon name="skip_next" size={ICON.hero} />
 						</span>
 					{/if}
 					{#if supports(FEATURE.repeatSet)}
@@ -270,7 +273,10 @@
 							tabindex="0"
 							onkeydown={(event) => activateOnKeyboard(event, () => cycleMediaRepeat(entity))}
 						>
-							<Icon name={attributes.repeat === 'one' ? 'repeat_one' : 'repeat'} size={20} />
+							<Icon
+								name={attributes.repeat === 'one' ? 'repeat_one' : 'repeat'}
+								size={ICON.control}
+							/>
 						</span>
 					{/if}
 				</div>
@@ -292,7 +298,7 @@
 					{#if !spotify}
 						<div class="panel-empty">{$lang('hearth_queue_not_available_for_this_player')}</div>
 					{:else if queue === null}
-						<div class="panel-empty">{$lang('hearth_loading_queue')}</div>
+						<LoadingState inline text={$lang('hearth_loading_queue')} />
 					{:else if queue.length === 0}
 						<div class="panel-empty">{$lang('hearth_queue_is_empty')}</div>
 					{:else}
@@ -305,9 +311,9 @@
 					{/if}
 				{:else if pane === 'playlists'}
 					{#if playlists === null}
-						<div class="panel-empty">{$lang('hearth_loading_playlists')}</div>
+						<LoadingState inline text={$lang('hearth_loading_playlists')} />
 					{:else if playlists.length === 0}
-						<div class="panel-empty">{$lang('hearth_no_playlists_found')}</div>
+						<EmptyState inline text={$lang('hearth_no_playlists_found')} />
 					{:else}
 						{#each playlists as playlist (playlist.uri)}
 							<div
@@ -329,7 +335,7 @@
 									{/if}
 								</div>
 								{#if currentContext === playlist.uri}
-									<Icon name="equalizer" size={18} color="var(--h-media)" fill />
+									<Icon name="equalizer" size={ICON.control} color="var(--h-media)" fill />
 								{/if}
 							</div>
 						{/each}
@@ -348,9 +354,9 @@
 						{/each}
 					</div>
 					{#if library[libraryKind] === null}
-						<div class="panel-empty">{$lang('hearth_loading_library')}</div>
+						<LoadingState inline text={$lang('hearth_loading_library')} />
 					{:else if library[libraryKind]?.length === 0}
-						<div class="panel-empty">{$lang('hearth_no_library_items')}</div>
+						<EmptyState inline text={$lang('hearth_no_library_items')} />
 					{:else}
 						{#each library[libraryKind] ?? [] as item (item.uri)}
 							<div
@@ -383,14 +389,14 @@
 						>
 							<Icon
 								name="speaker"
-								size={20}
+								size={ICON.control}
 								color={source === attributes.source ? 'var(--h-media)' : undefined}
 							/>
 							<div class="row-text">
 								<div class="row-name">{source}</div>
 							</div>
 							{#if source === attributes.source}
-								<Icon name="check_circle" size={19} color="var(--h-media)" fill />
+								<Icon name="check_circle" size={ICON.control} color="var(--h-media)" fill />
 							{/if}
 						</div>
 					{/each}
@@ -399,7 +405,7 @@
 			<div class="divider"></div>
 			{#if supports(FEATURE.volumeSet)}
 				<div class="volume">
-					<Icon name="volume_up" size={16} />
+					<Icon name="volume_up" size={ICON.inline} />
 					<div
 						class="volume-bar"
 						use:horizontalDrag={{
@@ -423,7 +429,7 @@
 						tabindex="0"
 						onkeydown={(event) => activateOnKeyboard(event, openPlaylists)}
 					>
-						<Icon name="queue_music" size={15} />
+						<Icon name="queue_music" size={ICON.inline} />
 						{$lang('playlists')}
 					</div>
 					<div
@@ -434,7 +440,7 @@
 						tabindex="0"
 						onkeydown={(event) => activateOnKeyboard(event, openLibrary)}
 					>
-						<Icon name="library_music" size={18} />
+						<Icon name="library_music" size={ICON.control} />
 						{$lang('hearth_library')}
 					</div>
 				{/if}
@@ -448,7 +454,7 @@
 						onkeydown={(event) =>
 							activateOnKeyboard(event, () => (pane = pane === 'speakers' ? 'queue' : 'speakers'))}
 					>
-						<Icon name="speaker" size={15} />
+						<Icon name="speaker" size={ICON.inline} />
 						<span class="chip-label">{attributes.source ?? 'Speaker'}</span>
 					</div>
 				{/if}
@@ -463,7 +469,7 @@
 		tabindex="0"
 		onkeydown={(event) => activateOnKeyboard(event, closePopup)}
 	>
-		<Icon name="close" size={24} />
+		<Icon name="close" size={ICON.tile} />
 	</span>
 </div>
 
@@ -475,8 +481,8 @@
 		position: relative;
 		overflow: hidden;
 		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.18 * var(--h-accent-scale)));
-		box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-		color: #f3ebe1;
+		box-shadow: 0 40px 100px var(--h-scrim);
+		color: var(--h-on-art-1);
 	}
 
 	.art {
@@ -502,16 +508,16 @@
 		inset: 0;
 		background: linear-gradient(
 			90deg,
-			rgba(20, 14, 9, 0.88) 0%,
-			rgba(20, 14, 9, 0.55) 45%,
-			rgba(20, 14, 9, 0.75) 100%
+			var(--h-art-scrim-3) 0%,
+			var(--h-art-scrim-1) 45%,
+			var(--h-art-scrim-2) 100%
 		);
 	}
 
 	.content {
 		position: absolute;
 		inset: 0;
-		padding: 28px 30px;
+		padding: 28px 32px;
 		display: flex;
 		gap: 22px;
 	}
@@ -530,8 +536,8 @@
 	}
 
 	.source-label {
-		font-size: 13px;
-		color: #cdbfae;
+		font-size: var(--h-type-secondary);
+		color: var(--h-on-art-2);
 	}
 
 	.track {
@@ -539,9 +545,9 @@
 	}
 
 	.title {
-		font-size: 34px;
+		font-size: var(--h-type-display);
 		font-weight: 600;
-		color: #fff;
+		color: var(--h-on-art-1);
 		letter-spacing: -0.5px;
 		white-space: nowrap;
 		overflow: hidden;
@@ -549,8 +555,8 @@
 	}
 
 	.artist {
-		font-size: 16px;
-		color: #cdbfae;
+		font-size: var(--h-type-subtitle);
+		color: var(--h-on-art-2);
 		margin-top: 4px;
 		white-space: nowrap;
 		overflow: hidden;
@@ -574,15 +580,15 @@
 		left: 0;
 		right: 0;
 		height: 4px;
-		border-radius: 2px;
-		background: rgba(255, 255, 255, 0.22);
+		border-radius: var(--h-radius-hair);
+		background: var(--h-on-art-line);
 	}
 
 	.progress-fill {
 		position: absolute;
 		left: 0;
 		height: 4px;
-		border-radius: 2px;
+		border-radius: var(--h-radius-hair);
 		background: var(--h-media);
 	}
 
@@ -591,7 +597,7 @@
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		background: #fff;
+		background: var(--h-on-art-1);
 		box-shadow: 0 0 0 4px color-mix(in srgb, var(--h-media) 25%, transparent);
 	}
 
@@ -600,20 +606,20 @@
 		justify-content: space-between;
 		margin-top: 2px;
 		font-family: var(--h-font-mono);
-		font-size: 11px;
-		color: #a99a89;
+		font-size: var(--h-type-label);
+		color: var(--h-on-art-3);
 	}
 
 	.transport {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 26px;
+		gap: 28px;
 		margin-top: 8px;
 	}
 
 	.mode {
-		color: #a99a89;
+		color: var(--h-on-art-3);
 		cursor: pointer;
 	}
 
@@ -622,21 +628,21 @@
 	}
 
 	.skip {
-		color: #e6dbcb;
+		color: var(--h-on-art-1);
 		cursor: pointer;
 	}
 
 	.play {
-		color: #fff;
+		color: var(--h-on-art-1);
 		cursor: pointer;
 	}
 
 	.panel {
 		width: 280px;
 		flex: none;
-		border-radius: 18px;
-		background: rgba(20, 14, 9, 0.55);
-		border: 1px solid rgba(255, 238, 220, 0.1);
+		border-radius: var(--h-radius-md);
+		background: var(--h-art-scrim-1);
+		border: 1px solid var(--h-on-art-line);
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
 		padding: 16px 14px;
@@ -647,9 +653,9 @@
 
 	.panel-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
-		color: #a08c6e;
+		color: var(--h-on-art-3);
 		padding: 0 8px 8px;
 	}
 
@@ -661,67 +667,61 @@
 		flex-direction: column;
 	}
 
-	.panel-empty {
-		font-size: 13px;
-		color: #8c8073;
-		padding: 7px 8px;
-	}
-
 	.queue-item {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 7px 8px;
-		border-radius: 9px;
+		padding: 8px 8px;
+		border-radius: var(--h-radius-tight);
 	}
 
 	.queue-item.next {
-		background: rgba(255, 238, 220, 0.05);
+		background: var(--h-on-art-fill);
 	}
 
 	.queue-name {
 		flex: 1;
-		font-size: 13px;
-		color: #b6a795;
+		font-size: var(--h-type-secondary);
+		color: var(--h-on-art-2);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.queue-item.next .queue-name {
-		color: #e6dbcb;
+		color: var(--h-on-art-1);
 	}
 
 	.queue-time {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
-		color: #7d7264;
+		font-size: var(--h-type-label);
+		color: var(--h-on-art-3);
 	}
 
 	.row {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 7px 8px;
-		border-radius: 10px;
+		padding: 8px 8px;
+		border-radius: var(--h-radius-tight);
 		cursor: pointer;
-		color: #9a8d7d;
+		color: var(--h-on-art-3);
 	}
 
 	.row:hover {
-		background: rgba(255, 238, 220, 0.05);
+		background: var(--h-on-art-fill);
 	}
 
 	.row-art {
 		width: 34px;
 		height: 34px;
-		border-radius: 8px;
+		border-radius: var(--h-radius-tight);
 		flex: none;
 		object-fit: cover;
 	}
 
 	.row-art.empty {
-		background: rgba(255, 238, 220, 0.08);
+		background: var(--h-on-art-fill);
 	}
 
 	.row-text {
@@ -730,22 +730,22 @@
 	}
 
 	.row-name {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		font-weight: 500;
-		color: #cdbfae;
+		color: var(--h-on-art-2);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.row-sub {
-		font-size: 11px;
-		color: #8c8073;
+		font-size: var(--h-type-label);
+		color: var(--h-on-art-3);
 	}
 
 	.divider {
 		height: 1px;
-		background: rgba(255, 238, 220, 0.09);
+		background: var(--h-on-art-fill);
 		margin: 12px 2px 0;
 	}
 
@@ -754,7 +754,7 @@
 		align-items: center;
 		gap: 10px;
 		padding: 14px 4px 8px;
-		color: #8c8073;
+		color: var(--h-on-art-3);
 	}
 
 	.volume-bar {
@@ -774,15 +774,15 @@
 		left: 0;
 		right: 0;
 		height: 4px;
-		border-radius: 2px;
-		background: rgba(255, 255, 255, 0.16);
+		border-radius: var(--h-radius-hair);
+		background: var(--h-on-art-line);
 	}
 
 	.volume-fill {
 		position: absolute;
 		left: 0;
 		height: 4px;
-		border-radius: 2px;
+		border-radius: var(--h-radius-hair);
 		background: rgb(var(--h-accent-rgb) / calc(0.75 * var(--h-accent-scale)));
 	}
 
@@ -791,12 +791,12 @@
 		width: 10px;
 		height: 10px;
 		border-radius: 50%;
-		background: #e6dbcb;
+		background: var(--h-on-art-1);
 	}
 
 	.volume-value {
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		width: 18px;
 		text-align: right;
 	}
@@ -816,11 +816,11 @@
 	.kind-chip {
 		padding: 6px 12px;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.12 * var(--h-line-scale)));
-		border-radius: 999px;
+		border-radius: var(--h-radius-pill);
 		background: none;
 		color: var(--h-text-4);
 		font: inherit;
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		cursor: pointer;
 	}
 
@@ -836,22 +836,22 @@
 		align-items: center;
 		justify-content: center;
 		gap: 6px;
-		padding: 9px;
-		border-radius: 11px;
-		border: 1px solid rgba(255, 238, 220, 0.14);
-		font-size: 12px;
-		color: #cdbfae;
+		padding: 10px;
+		border-radius: var(--h-radius-xs);
+		border: 1px solid var(--h-on-art-line);
+		font-size: var(--h-type-small);
+		color: var(--h-on-art-2);
 		cursor: pointer;
 	}
 
 	.chip.open {
-		background: rgba(255, 238, 220, 0.08);
+		background: var(--h-on-art-fill);
 	}
 
 	.chip.speaker {
 		background: color-mix(in srgb, var(--h-media) 10%, transparent);
 		border-color: color-mix(in srgb, var(--h-media) 25%, transparent);
-		color: color-mix(in srgb, var(--h-media) 55%, #cdbfae);
+		color: color-mix(in srgb, var(--h-media) 55%, var(--h-on-art-2));
 	}
 
 	.chip.speaker.open {
@@ -868,7 +868,7 @@
 		position: absolute;
 		top: 22px;
 		right: 24px;
-		color: #cdbfae;
+		color: var(--h-on-art-2);
 		cursor: pointer;
 	}
 </style>

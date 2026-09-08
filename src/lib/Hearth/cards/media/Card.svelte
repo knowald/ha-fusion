@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { horizontalDrag } from '../../drag';
@@ -120,7 +121,7 @@
 					aria-label={playing ? 'Pause' : 'Play'}
 					onclick={() => card.entity && toggleMediaPlayback(card.entity)}
 				>
-					<Icon name={playing ? 'pause' : 'play_arrow'} size={26} fill />
+					<Icon name={playing ? 'pause' : 'play_arrow'} size={ICON.tile} fill />
 				</button>
 			{/if}
 		</div>
@@ -177,14 +178,14 @@
 	.scrim {
 		position: absolute;
 		inset: 0;
-		background: linear-gradient(180deg, rgba(22, 17, 12, 0) 35%, rgba(22, 17, 12, 0.92));
+		background: linear-gradient(180deg, transparent 35%, var(--h-art-scrim-3));
 	}
 
 	.tune-wrap {
 		position: absolute;
 		top: 14px;
 		right: 16px;
-		color: #fff;
+		color: var(--h-on-art-1);
 	}
 
 	.controls {
@@ -211,27 +212,27 @@
 
 	.kicker {
 		font-family: var(--h-font-mono);
-		font-size: 10px;
+		font-size: var(--h-type-caption);
 		letter-spacing: 2px;
 		color: var(--h-accent-dim-text);
-		margin-bottom: 7px;
+		margin-bottom: 8px;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.title {
-		font-size: 20px;
+		font-size: var(--h-type-title);
 		font-weight: 600;
-		color: #fff;
+		color: var(--h-on-art-1);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
 	.artist {
-		font-size: 13px;
-		color: rgba(255, 255, 255, 0.72);
+		font-size: var(--h-type-secondary);
+		color: var(--h-on-art-1);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -245,7 +246,7 @@
 		border: 0;
 		padding: 0;
 		font: inherit;
-		border-radius: 99px;
+		border-radius: var(--h-radius-pill);
 		background: rgb(var(--h-surface-rgb));
 		color: var(--h-bg-1);
 		display: flex;
@@ -271,15 +272,15 @@
 		left: 0;
 		right: 0;
 		height: 4px;
-		border-radius: 2px;
-		background: rgba(255, 255, 255, 0.2);
+		border-radius: var(--h-radius-hair);
+		background: var(--h-on-art-line);
 	}
 
 	.progress-fill {
 		position: absolute;
 		left: 0;
 		height: 4px;
-		border-radius: 2px;
+		border-radius: var(--h-radius-hair);
 		background: var(--h-accent-deep);
 	}
 
@@ -295,8 +296,8 @@
 		display: flex;
 		justify-content: space-between;
 		margin-top: 6px;
-		font-size: 11px;
-		color: rgba(255, 255, 255, 0.72);
+		font-size: var(--h-type-label);
+		color: var(--h-on-art-1);
 		font-family: var(--h-font-mono);
 	}
 </style>

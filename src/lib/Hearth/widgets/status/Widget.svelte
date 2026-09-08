@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { states } from '$lib/core/ha/entities';
 	import { hearthConfig } from '../../store';
 	import { attentionItems } from '../../attention';
@@ -27,7 +28,7 @@
 {#if autoMode}
 	{#each attention as item (item.entity)}
 		<div class="attention-row">
-			<Icon name="cloud_off" size={20} color="var(--h-accent-dim-text)" />
+			<Icon name="cloud_off" size={ICON.control} color="var(--h-accent-dim-text)" />
 			<div class="attention-copy">
 				<div class="attention-title">{item.name} offline</div>
 				<div class="attention-detail">{item.detail}</div>
@@ -36,7 +37,7 @@
 	{/each}
 {:else}
 	<div class="status-pill">
-		<Icon name={icon} size={20} color="var(--h-good)" />
+		<Icon name={icon} size={ICON.control} color="var(--h-good)" />
 		<span class="pill-text">{label}</span>
 	</div>
 {/if}
@@ -53,14 +54,14 @@
 	}
 
 	.pill-text {
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		color: var(--h-text-4);
 	}
 
 	.attention-row {
 		display: flex;
 		align-items: center;
-		gap: 13px;
+		gap: 14px;
 		padding: 14px 16px;
 		border-radius: var(--h-radius-sm);
 		background: rgb(var(--h-accent-rgb) / calc(0.08 * var(--h-accent-scale)));
@@ -74,7 +75,7 @@
 	}
 
 	.attention-title {
-		font-size: 13.5px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		color: var(--h-accent-text);
 		white-space: nowrap;
@@ -83,7 +84,7 @@
 	}
 
 	.attention-detail {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-accent-dim-text);
 		margin-top: 2px;
 	}

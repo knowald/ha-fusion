@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -52,7 +53,7 @@
 					})(event)
 				)}
 		>
-			<Icon name="search" size={18} />
+			<Icon name="search" size={ICON.control} />
 		</span>
 	</span>
 	<datalist id="entities-{uid}">
@@ -79,7 +80,7 @@
 	.field-label {
 		display: block;
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		text-transform: uppercase;
 		color: var(--h-label);
@@ -93,13 +94,13 @@
 
 	input {
 		width: 100%;
-		padding: 11px 40px 11px 13px;
+		padding: 12px 40px 12px 14px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: var(--h-font-mono);
-		font-size: 13px;
+		font-size: var(--h-type-secondary);
 		outline: none;
 	}
 

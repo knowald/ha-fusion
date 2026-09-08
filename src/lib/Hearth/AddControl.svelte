@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from './iconSizes';
 	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from './config';
@@ -15,7 +16,7 @@
 	tabindex="0"
 	onkeydown={(event) => activateOnKeyboard(event, onadd)}
 >
-	<Icon name="add" size={20} />
+	<Icon name="add" size={ICON.control} />
 	<span>{label}</span>
 </div>
 
@@ -25,12 +26,12 @@
 		align-items: center;
 		justify-content: center;
 		gap: 8px;
-		padding: 15px 16px;
+		padding: 16px 16px;
 		min-height: 58px;
 		border-radius: var(--h-radius-md);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-6);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		cursor: pointer;
 		user-select: none;
 		-webkit-user-select: none;

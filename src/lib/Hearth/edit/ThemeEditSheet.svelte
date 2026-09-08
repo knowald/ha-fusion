@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { base } from '$app/paths';
@@ -216,7 +217,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('day'))}
 		>
-			<Icon name="light_mode" size={18} />
+			<Icon name="light_mode" size={ICON.control} />
 			<span>{$lang('day')}</span>
 		</div>
 		<div
@@ -227,7 +228,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => selectSlot('night'))}
 		>
-			<Icon name="dark_mode" size={18} />
+			<Icon name="dark_mode" size={ICON.control} />
 			<span>{$lang('alarm_modes_armed_night')}</span>
 			{#if !nightEnabled}<span class="slot-note">{$lang('hearth_off')}</span>{/if}
 		</div>
@@ -348,7 +349,7 @@
 								})(event)
 							)}
 					>
-						<Icon name="delete" size={18} />
+						<Icon name="delete" size={ICON.control} />
 					</span>
 				</div>
 			{/each}
@@ -448,11 +449,11 @@
 		align-items: center;
 		justify-content: center;
 		gap: 8px;
-		padding: 11px 12px;
+		padding: 12px 12px;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-4);
 		cursor: pointer;
 	}
@@ -465,14 +466,14 @@
 
 	.slot-note {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 1px;
 		color: var(--h-text-6);
 	}
 
 	.group-label {
 		font-family: var(--h-font-mono);
-		font-size: 11px;
+		font-size: var(--h-type-label);
 		letter-spacing: 2px;
 		color: var(--h-label);
 		margin: 4px 0 10px;
@@ -489,11 +490,11 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 9px 12px;
+		padding: 10px 12px;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		cursor: pointer;
 	}
@@ -501,7 +502,7 @@
 	.preview {
 		width: 22px;
 		height: 22px;
-		border-radius: 7px;
+		border-radius: var(--h-radius-tight);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.2 * var(--h-line-scale)));
 		flex: none;
 	}
@@ -514,7 +515,7 @@
 	}
 
 	.hint {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-text-6);
 		margin: 4px 0 12px;
 	}
@@ -525,7 +526,7 @@
 		border-radius: var(--h-radius-xs);
 		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
 		color: var(--h-text-5);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		cursor: pointer;
 	}
 
@@ -541,13 +542,13 @@
 
 	.save-row input {
 		flex: 1;
-		padding: 11px 13px;
+		padding: 12px 14px;
 		border-radius: var(--h-radius-xs);
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
 		background: var(--h-track);
 		color: var(--h-text-2);
 		font-family: inherit;
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		outline: none;
 		min-width: 0;
 	}
@@ -566,7 +567,7 @@
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-accent-rgb) / calc(0.16 * var(--h-accent-scale)));
 		color: var(--h-accent-text);
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		font-weight: 600;
 		display: flex;
 		align-items: center;
@@ -589,11 +590,11 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		padding: 9px 12px;
+		padding: 10px 12px;
 		border-radius: var(--h-radius-xs);
 		background: rgb(var(--h-surface-rgb) / calc(0.06 * var(--h-fill-scale)));
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		font-size: 14px;
+		font-size: var(--h-type-body);
 		color: var(--h-text-3);
 		cursor: pointer;
 	}
@@ -608,7 +609,7 @@
 		height: 14px;
 		border-radius: 50%;
 		border: 1px solid rgb(var(--h-line-rgb) / calc(0.25 * var(--h-line-scale)));
-		margin-left: -5px;
+		margin-left: -6px;
 	}
 
 	.dot:first-child {
@@ -633,7 +634,7 @@
 	}
 
 	.error {
-		font-size: 12px;
+		font-size: var(--h-type-small);
 		color: var(--h-bad-text);
 		margin-bottom: 10px;
 	}

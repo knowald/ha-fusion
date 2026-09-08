@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
 	import type { CardEditorProps } from '../types';
@@ -75,7 +76,7 @@
 			onclick={() => shortcuts.splice(index, 1)}
 			onkeydown={(event) => activateOnKeyboard(event, () => shortcuts.splice(index, 1))}
 		>
-			<Icon name="delete" size={20} />
+			<Icon name="delete" size={ICON.control} />
 		</span>
 	</div>
 {/each}
@@ -86,6 +87,6 @@
 	onclick={addShortcut}
 	onkeydown={(event) => activateOnKeyboard(event, addShortcut)}
 >
-	<Icon name="add" size={18} />
+	<Icon name="add" size={ICON.control} />
 	<span>{$lang('hearth_add_shortcut')}</span>
 </div>
