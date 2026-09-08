@@ -126,19 +126,24 @@ means deleting its bridge module.
 Every card type is one folder under `cards/` with three parts, registered by
 one line in `cards/index.ts`:
 
-- `descriptor.ts` - the `CardDescriptor`: gallery label and icon, the
-  type-specific `normalize` rule for raw YAML, optional `issues` for the YAML
-  editor, `needsConfiguration` for the setup placeholder, `entityIds` for
-  attention and search, and layout flags (`fillByDefault`, `sizable`,
-  `previewReorder`).
+- `descriptor.ts` - the `CardDescriptor`: translation keys for the gallery
+  (`label`, `name`, `sub`) and an icon, the mandatory `normalize` rule that
+  coerces every typed field of a raw YAML card, an optional valibot `schema`
+  for the YAML editor, `needsConfiguration` for the setup placeholder,
+  `entityIds` for attention and search, layout flags (`fillByDefault`,
+  `sizable`, `stretchMinHeight`, `heightHint`) and preview flags
+  (`previewReorder`, `previewInteractive`). `editor` is a loader
+  (`() => import('./Editor.svelte')`) so editors stay out of the dashboard bundle.
 - `Card.svelte` - renders `{ card }`.
 - `Editor.svelte` - the type-specific form. It receives `initial` (the card of
   this type being edited, or undefined) and calls `onchange({ fields, valid })`
   whenever a field changes; the shell adds id, type, fill, height and
   visibility. An editor may export `applyPreviewReorder` for the live preview.
 
-The card's type shape lives in the `OverviewCardVariant` union in `types.ts`.
-`typeRegistry.test.ts` fails when a registered descriptor is missing a part.
+The card's type shape lives in the `OverviewCardVariant` union in `types.ts`;
+`cards/index.ts` fails to compile when a union member has no descriptor or a
+descriptor has no union member. `typeRegistry.test.ts` fails when a descriptor
+is missing a part or its translation keys are absent from `en.json`.
 
 Rail widgets follow the same shape under `widgets/`, registered in
 `widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only

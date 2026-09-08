@@ -1,7 +1,6 @@
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type ProgressWidget = Extract<RailWidget, { type: 'progress' }>;
 
@@ -29,5 +28,5 @@ export const progressWidget: WidgetDescriptor<ProgressWidget> = {
 	}),
 	needsConfiguration: (widget) => !widget.status_entity,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

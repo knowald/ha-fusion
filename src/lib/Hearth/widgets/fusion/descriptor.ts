@@ -2,7 +2,6 @@ import type { RailWidget } from '../../types';
 import { normalizeHeight } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type FusionWidget = Extract<RailWidget, { type: 'fusion' }>;
 
@@ -27,5 +26,5 @@ export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 	normalize: (widget) => ({ height: normalizeHeight(widget.height) }),
 	needsConfiguration: (widget) => !widget.config?.type,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

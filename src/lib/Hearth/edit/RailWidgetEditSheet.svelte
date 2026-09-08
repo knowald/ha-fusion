@@ -59,9 +59,15 @@
 
 	function buildWidget(id: string): RailWidget {
 		// unknown extension keys survive a no-op edit; a type switch starts fresh
-		return {
+		const fields = {
 			...(initial?.type === type ? initial : {}),
-			...$state.snapshot(draft.fields),
+			...$state.snapshot(draft.fields)
+		};
+		return {
+			...fields,
+			// the editor loads on demand; normalizing gives the preview typed
+			// defaults until it reports its fields
+			...(descriptor.normalize?.(fields) ?? {}),
 			id,
 			type,
 			hide_mobile: hideMobile || undefined,
@@ -138,7 +144,9 @@
 
 			{#key type}
 				{#if descriptor.editor}
-					<descriptor.editor initial={editorInitial} onchange={(next) => (draft = next)} />
+					{#await descriptor.editor() then Editor}
+						<Editor.default initial={editorInitial} onchange={(next) => (draft = next)} />
+					{/await}
 				{/if}
 			{/key}
 

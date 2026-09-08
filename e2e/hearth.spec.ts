@@ -1,6 +1,10 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { load as parseYaml } from 'js-yaml';
 import { expect, test, type APIRequestContext, type Locator, type Page } from '@playwright/test';
 
 const FAKE_HASS = 'http://127.0.0.1:8124';
+const HEARTH_FILE = new URL('./fixture/data/hearth.yaml', import.meta.url);
+const HEARTH_FIXTURE = readFileSync(HEARTH_FILE, 'utf8');
 
 interface ServiceCall {
 	domain: string;
@@ -34,6 +38,10 @@ test.beforeEach(async ({ page, request }) => {
 	await request.post(`${FAKE_HASS}/_test/reset`);
 	await page.goto('/');
 	await expect(page.getByRole('button', { name: /Desk lamp/ })).toBeVisible();
+});
+
+test('the edit toggle sits inside the viewport', async ({ page }) => {
+	await expect(page.getByRole('button', { name: 'Edit Hearth configuration' })).toBeInViewport();
 });
 
 test('redirects the old /hearth path to the dashboard', async ({ page }) => {
@@ -103,4 +111,79 @@ test('a long press opens the light sheet and Escape closes it', async ({ page })
 	await expect(toggle).toBeVisible();
 	await page.keyboard.press('Escape');
 	await expect(toggle).toBeHidden();
+});
+
+test('edit mode loads the card editor on demand', async ({ page }) => {
+	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();
+	await page
+		.locator('.card-slot', { hasText: 'Lights' })
+		.getByRole('button', { name: 'Edit' })
+		.click();
+	const sheet = page.getByRole('dialog', { name: 'Edit card' });
+	await expect(sheet).toBeVisible();
+	await expect(sheet.getByLabel('Title')).toHaveValue('Lights');
+	await page.keyboard.press('Escape');
+	await expect(sheet).toBeHidden();
+});
+
+async function openCardEditor(page: Page, title: string) {
+	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();
+	await page
+		.locator('.card-slot', { hasText: title })
+		.getByRole('button', { name: 'Edit' })
+		.click();
+	return page.getByRole('dialog', { name: 'Edit card' });
+}
+
+test('adds a card and a widget from the galleries', async ({ page }) => {
+	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();
+	await page.getByRole('button', { name: 'Add card' }).click();
+	const cardSheet = page.getByRole('dialog', { name: 'Add card' });
+	await expect(cardSheet).toBeVisible();
+	await cardSheet.getByRole('button', { name: 'Done' }).click();
+	// a card without entities renders its setup placeholder
+	await expect(page.locator('.card-slot')).toHaveCount(3);
+	await expect(page.getByText('Configure Entities')).toBeVisible();
+
+	await page.getByRole('button', { name: 'Add widget' }).click();
+	const widgetSheet = page.getByRole('dialog', { name: 'Add widget' });
+	await expect(widgetSheet).toBeVisible();
+	await widgetSheet.getByRole('button', { name: 'Done' }).click();
+	await expect(widgetSheet).toBeHidden();
+	await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+});
+
+test.describe('saving', () => {
+	// saves land in the fixture directory; put the file back after each test
+	test.afterEach(() => writeFileSync(HEARTH_FILE, HEARTH_FIXTURE));
+
+	test('a saved edit survives a reload', async ({ page }) => {
+		const sheet = await openCardEditor(page, 'Lights');
+		await sheet.getByLabel('Title').fill('Lamps');
+		await sheet.getByRole('button', { name: 'Done' }).click();
+		await page.getByRole('button', { name: 'Save', exact: true }).click();
+		await expect(page.getByText('Saved')).toBeVisible();
+		await page.reload();
+		await expect(page.getByText('Lamps')).toBeVisible();
+	});
+
+	test('a save from another tab is reported and can be overwritten', async ({ page, request }) => {
+		const sheet = await openCardEditor(page, 'Lights');
+		await sheet.getByLabel('Title').fill('Mine');
+		await sheet.getByRole('button', { name: 'Done' }).click();
+
+		const other = parseYaml(HEARTH_FIXTURE) as { revision: number } & Record<string, unknown>;
+		const { revision, ...config } = other;
+		await request.post('/_api/save_hearth', {
+			data: { revision, config: { ...config, padding_x: 7 } }
+		});
+
+		await page.getByRole('button', { name: 'Save', exact: true }).click();
+		await expect(page.getByText('Configuration changed elsewhere')).toBeVisible();
+		await page.getByRole('button', { name: 'Overwrite' }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: 'Overwrite' }).click();
+		await expect(page.getByText('Saved')).toBeVisible();
+		await page.reload();
+		await expect(page.getByText('Mine')).toBeVisible();
+	});
 });

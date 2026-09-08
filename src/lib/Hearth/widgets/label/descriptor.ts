@@ -1,7 +1,6 @@
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type LabelWidget = Extract<RailWidget, { type: 'label' }>;
 
@@ -16,5 +15,5 @@ export const labelWidget: WidgetDescriptor<LabelWidget> = {
 		divider: widget.divider === true ? true : undefined
 	}),
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

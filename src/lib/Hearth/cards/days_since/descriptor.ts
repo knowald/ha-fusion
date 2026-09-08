@@ -2,7 +2,6 @@ import type { OverviewCard } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type DaysSinceCard = Extract<OverviewCard, { type: 'days_since' }>;
 
@@ -20,5 +19,5 @@ export const daysSinceCard: CardDescriptor<DaysSinceCard> = {
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

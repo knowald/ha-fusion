@@ -13,7 +13,6 @@
 	let languages = $state<{ value: string; label: string }[]>([]);
 	let locale = $state($selectedLanguage || 'en');
 	let reduceMotion = $state($motion === 0);
-	let youtube = $state($configuration?.addons?.youtube ?? false);
 	let maptilerKey = $state($configuration?.addons?.maptiler?.apikey ?? '');
 	let token = $state($configuration?.token ?? '');
 	let customJs = $state($configuration?.custom_js ?? false);
@@ -58,7 +57,6 @@
 			locale,
 			addons: {
 				...($configuration?.addons ?? {}),
-				youtube,
 				maptiler: { ...($configuration?.addons?.maptiler ?? {}), apikey: maptilerKey }
 			}
 		};
@@ -151,20 +149,6 @@
 					aria-pressed={reduceMotion}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (reduceMotion = !reduceMotion)}
-				>
-					<span class="knob"></span>
-				</button>
-			</div>
-			<div class="row">
-				<div class="row-main"><div class="row-label">{$lang('hearth_youtube_add_on')}</div></div>
-				<button
-					type="button"
-					class="switch pressable"
-					class:on={youtube}
-					aria-label={$lang('hearth_youtube_add_on')}
-					aria-pressed={youtube}
-					use:Ripple={PRESS_RIPPLE}
-					onclick={() => (youtube = !youtube)}
 				>
 					<span class="knob"></span>
 				</button>

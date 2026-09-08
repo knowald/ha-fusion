@@ -86,11 +86,17 @@
 		const fillValue = fill === '' ? undefined : Number(fill);
 		// Unknown extension keys survive a no-op form edit. Switching type starts
 		// a new schema and intentionally leaves type-specific extensions behind.
-		return {
+		// snapshot: the draft is $state and its nested arrays are proxies,
+		// which the store's structuredClone cannot copy
+		const fields = {
 			...(initial?.type === type ? initial : {}),
-			// snapshot: the draft is $state and its nested arrays are proxies,
-			// which the store's structuredClone cannot copy
-			...$state.snapshot(draft.fields),
+			...$state.snapshot(draft.fields)
+		};
+		return {
+			...fields,
+			// the editor loads on demand and reports its fields a beat after the
+			// preview first renders; normalizing fills typed defaults until then
+			...descriptor.normalize(fields),
 			id: cardId,
 			type,
 			...(descriptor.sizable
@@ -163,11 +169,13 @@
 
 			<!-- keyed so a type switch mounts a fresh editor with fresh field state -->
 			{#key type}
-				<descriptor.editor
-					bind:this={editorRef}
-					initial={editorInitial}
-					onchange={(next) => (draft = next)}
-				/>
+				{#await descriptor.editor() then Editor}
+					<Editor.default
+						bind:this={editorRef}
+						initial={editorInitial}
+						onchange={(next) => (draft = next)}
+					/>
+				{/await}
 			{/key}
 
 			<FormSection title={$lang('hearth_layout')}>
@@ -193,9 +201,7 @@
 						placeholder="240"
 					/>
 					<div class="hint">
-						{type === 'fusion'
-							? 'Without it the embed keeps its own height.'
-							: 'Without it the card fills the rest of its column.'}
+						{$lang(descriptor.heightHint ?? 'hearth_height_hint_fill')}
 					</div>
 				{/if}
 

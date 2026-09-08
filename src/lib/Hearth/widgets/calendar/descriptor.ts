@@ -1,7 +1,6 @@
 import type { RailWidget } from '../../types';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
-import Editor from './Editor.svelte';
 
 export type CalendarWidget = Extract<RailWidget, { type: 'calendar' }>;
 
@@ -18,5 +17,5 @@ export const calendarWidget: WidgetDescriptor<CalendarWidget> = {
 	}),
 	needsConfiguration: (widget) => !widget.entities?.length,
 	component: Widget,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

@@ -101,17 +101,35 @@ export function summaryWords(entityId: string, entity: HassEntity | undefined): 
  * agree - a mixed group says on/off. `badge` is the active half alone, for the
  * popover header.
  */
+export interface EntityGroupSummary {
+	/** Every entity in the group, countable or not. */
+	total: number;
+	/** False when no entity's domain counts; the caller then reports the size. */
+	countable: boolean;
+	active: number;
+	inactive: number;
+	/** Translation keys for the active and inactive halves, e.g. on/off, open/closed. */
+	activeWord: string;
+	inactiveWord: string;
+}
+
 export function entityGroupSummary(
 	entityIds: string[],
 	$states: HassEntities | undefined
-): { text: string; badge: string | null; activeLabel: string } {
+): EntityGroupSummary {
 	// eligible by domain, so the wording holds before any state has arrived
 	const eligible = entityIds.filter(
 		(entityId) => domainDescriptor(getDomain(entityId)).countable === true
 	);
 	if (!eligible.length) {
-		const size = `${entityIds.length} ${entityIds.length === 1 ? 'entity' : 'entities'}`;
-		return { text: size, badge: null, activeLabel: size };
+		return {
+			total: entityIds.length,
+			countable: false,
+			active: 0,
+			inactive: 0,
+			activeWord: 'on',
+			inactiveWord: 'off'
+		};
 	}
 	// counted only where the state says something: an unavailable or not yet
 	// loaded entity is neither active nor inactive
@@ -126,17 +144,13 @@ export function entityGroupSummary(
 		? words[0]
 		: (['on', 'off'] as [string, string]);
 	const active = countable.filter((entityId) => entityActive(entityId, $states?.[entityId])).length;
-	const inactive = countable.length - active;
-	const activeLabel = `${active} ${activeWord}`;
-	const parts = [
-		...(active ? [activeLabel] : []),
-		...(inactive ? [`${inactive} ${inactiveWord}`] : [])
-	];
-	// nothing countable yet: still say it in the group's own words
 	return {
-		text: parts.length ? parts.join(' · ') : activeLabel,
-		badge: active ? activeLabel : null,
-		activeLabel
+		total: entityIds.length,
+		countable: true,
+		active,
+		inactive: countable.length - active,
+		activeWord,
+		inactiveWord
 	};
 }
 

@@ -14,7 +14,7 @@
 	let load = $derived(item?.type ? components[item.type] : undefined);
 
 	// same non-edit interactions the original sidebar offers
-	let tappable = $derived(item?.type === 'camera' || item?.type === 'timer');
+	let tappable = $derived(item?.type === 'camera');
 	function handleClick() {
 		if ($hearthEditMode) return;
 		openFusionWidgetModal(item);
@@ -23,8 +23,6 @@
 	// mirrors the per-type prop spreading in Sidebar/Index.svelte
 	let embedProps = $derived.by((): Record<string, any> => {
 		switch (item?.type) {
-			case 'bar':
-				return { entity_id: item.entity_id, name: item.name, math: item.math, id: item.id };
 			case 'date':
 				return {
 					short_day: item.short_day,
@@ -34,21 +32,8 @@
 				};
 			case 'divider':
 				return { mode: item.mode, size: item.size };
-			case 'graph':
-				return {
-					entity_id: item.entity_id,
-					name: item.name,
-					period: item.period,
-					stroke: item.stroke
-				};
-			case 'history':
-				return { entity_id: item.entity_id || '', period: item.period };
-			case 'iframe':
-				return { url: item.url, size: item.size };
 			case 'image':
 				return { entity_id: item.entity_id, url: item.url };
-			case 'radial':
-				return { entity_id: item.entity_id, name: item.name, strokeWidth: item.stroke };
 			case 'sensor':
 				return {
 					entity_id: item.entity_id,

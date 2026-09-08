@@ -4,7 +4,6 @@ import type { OverviewCard, VacuumModeRef } from '../../types';
 import { normalizeVacuumModeRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type VacuumCard = Extract<OverviewCard, { type: 'vacuum' }>;
 
@@ -13,6 +12,7 @@ export const vacuumCard: CardDescriptor<VacuumCard> = {
 	label: 'hearth_card_vacuum_label',
 	name: 'hearth_card_vacuum_name',
 	sub: 'hearth_card_vacuum_sub',
+	previewInteractive: true,
 	icon: 'robot_2',
 	normalize: (card) => ({
 		modes: (Array.isArray(card.modes) ? card.modes : [])
@@ -31,5 +31,5 @@ export const vacuumCard: CardDescriptor<VacuumCard> = {
 		...(card.bin_entity ? [card.bin_entity] : [])
 	],
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

@@ -19,8 +19,7 @@ import { vacuumCard } from './vacuum/descriptor';
 
 export type { CardDescriptor, CardDraft, CardEditorProps, CardFields } from './types';
 
-/** Every card type, in gallery order. Register a new type here and nowhere else. */
-export const CARD_TYPES: CardDescriptor<any>[] = [
+const REGISTERED = [
 	entitiesCard,
 	headerCard,
 	temperatureCard,
@@ -34,7 +33,17 @@ export const CARD_TYPES: CardDescriptor<any>[] = [
 	daysSinceCard,
 	conditionalMediaCard,
 	fusionCard
-];
+] as const;
+
+// a card shape in types.ts without a descriptor (or the reverse) fails here
+type RegisteredType = (typeof REGISTERED)[number]['type'];
+type Unregistered =
+	Exclude<OverviewCard['type'], RegisteredType> | Exclude<RegisteredType, OverviewCard['type']>;
+const everyCardTypeRegistered: [Unregistered] extends [never] ? true : never = true;
+void everyCardTypeRegistered;
+
+/** Every card type, in gallery order. Register a new type here and nowhere else. */
+export const CARD_TYPES: CardDescriptor<any>[] = [...REGISTERED];
 
 const BY_TYPE = new Map<string, CardDescriptor<any>>(CARD_TYPES.map((card) => [card.type, card]));
 

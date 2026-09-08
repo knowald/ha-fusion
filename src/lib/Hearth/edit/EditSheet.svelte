@@ -15,7 +15,7 @@
 		ondone,
 		doneDisabled = false,
 		onremove,
-		removeLabel = 'Remove',
+		removeLabel = undefined,
 		onmoveup,
 		onmovedown,
 		wide = false,
@@ -118,10 +118,8 @@
 					onclick={handleRemove}
 				>
 					{confirmRemove
-						? `${removeLabel} — ${$lang('hearth_are_you_sure')}`
-						: removeLabel === 'Remove'
-							? $lang('remove')
-							: removeLabel}
+						? `${removeLabel ?? $lang('remove')} - ${$lang('hearth_are_you_sure')}`
+						: (removeLabel ?? $lang('remove'))}
 				</button>
 			</div>
 		{/if}

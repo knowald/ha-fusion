@@ -3,7 +3,10 @@ import type { GenericSchema } from 'valibot';
 import type { EntityRef, OverviewCard } from '../types';
 
 /** The fields a card editor owns: everything but the id, type and the layout options the shell adds. */
-export type CardFields<T extends OverviewCard> = Omit<T, 'id' | 'type' | 'fill' | 'visibility'>;
+export type CardFields<T extends OverviewCard> = Omit<
+	T,
+	'id' | 'type' | 'fill' | 'height' | 'visibility'
+>;
 
 export interface CardDraft<T extends OverviewCard> {
 	fields: CardFields<T>;
@@ -44,8 +47,18 @@ export interface CardDescriptor<T extends OverviewCard = OverviewCard> {
 	sizable?: boolean;
 	/** The editor preview offers drag reordering of the card's entities. */
 	previewReorder?: boolean;
-	/** Type-specific field normalization for a raw YAML card; id, fill, height and visibility are handled by the caller. */
-	normalize?: (raw: Record<string, any>) => Partial<T>;
+	/** The editor preview responds to taps (the card has controls worth trying). */
+	previewInteractive?: boolean;
+	/** Smallest height in px a filling card may be squeezed to; the column default is 90. */
+	stretchMinHeight?: number;
+	/** Translation key explaining what an unset height means for this type. */
+	heightHint?: string;
+	/**
+	 * Type-specific field normalization for a raw YAML card; id, fill, height
+	 * and visibility are handled by the caller. Every typed field must be
+	 * coerced here, since raw YAML is spread into the card unchanged.
+	 */
+	normalize: (raw: Record<string, any>) => Partial<T>;
 	/**
 	 * Structural rules for the type's own fields, checked before a YAML edit is
 	 * applied. Use a loose object so unknown extension keys pass.
@@ -56,5 +69,11 @@ export interface CardDescriptor<T extends OverviewCard = OverviewCard> {
 	/** Every entity id the card refers to, for attention and search. */
 	entityIds: (card: T) => string[];
 	component: Component<CardComponentProps<T>>;
-	editor: Component<CardEditorProps<T>, { applyPreviewReorder?: (entities: EntityRef[]) => void }>;
+	/** Loaded when the edit sheet opens, so editors stay out of the dashboard bundle. */
+	editor: () => Promise<{ default: CardEditor<T> }>;
 }
+
+export type CardEditor<T extends OverviewCard = OverviewCard> = Component<
+	CardEditorProps<T>,
+	{ applyPreviewReorder?: (entities: EntityRef[]) => void }
+>;

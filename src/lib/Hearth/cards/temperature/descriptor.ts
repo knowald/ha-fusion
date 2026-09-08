@@ -2,7 +2,6 @@ import type { OverviewCard } from '../../types';
 import { normalizeVerdict, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type TemperatureCard = Extract<OverviewCard, { type: 'temperature' }>;
 
@@ -14,6 +13,7 @@ export const temperatureCard: CardDescriptor<TemperatureCard> = {
 	icon: 'monitoring',
 	fillByDefault: true,
 	sizable: true,
+	stretchMinHeight: 110,
 	normalize: (card) => ({
 		climate_entity: trimmedOrUndefined(card.climate_entity),
 		verdict: normalizeVerdict(card.verdict)
@@ -24,5 +24,5 @@ export const temperatureCard: CardDescriptor<TemperatureCard> = {
 		...(card.climate_entity ? [card.climate_entity] : [])
 	],
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

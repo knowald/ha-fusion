@@ -12,7 +12,7 @@
 		type OverviewItem,
 		type OverviewStack
 	} from './config';
-	import { fillWeight } from './cards';
+	import { fillWeight, cardDescriptor } from './cards';
 	import { onDndReceive } from './drag';
 	import { provideHearthInteractionMode } from './interaction';
 	import { editor, hearthConfig, hearthEditMode, updateConfig } from './store';
@@ -150,6 +150,9 @@
 					class="card-slot"
 					data-id={card.id}
 					data-card-type={card.type}
+					style:--card-min-height={cardDescriptor(card.type).stretchMinHeight
+						? `${cardDescriptor(card.type).stretchMinHeight}px`
+						: undefined}
 					class:stretch={fillWeight(card) > 0}
 					style:--card-fill={fillWeight(card)}
 					class:visibility-dimmed={$hearthEditMode && !visible}
@@ -351,15 +354,7 @@
 	.card-slot.stretch,
 	.stack-slot.stretch {
 		flex: var(--card-fill, 1) 1 auto;
-		min-height: 90px;
-	}
-
-	.card-slot.stretch[data-card-type='media'] {
-		min-height: 140px;
-	}
-
-	.card-slot.stretch[data-card-type='temperature'] {
-		min-height: 110px;
+		min-height: var(--card-min-height, 90px);
 	}
 
 	/* the card inside has to follow the slot rather than its own content */

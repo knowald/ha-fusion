@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { configuration, editMode, history, historyIndex, motion } from '$lib/Stores';
+	import { editMode, history, historyIndex, motion } from '$lib/Stores';
 	import Separator from '$lib/legacy/Drawer/Separator.svelte';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -96,13 +96,11 @@
 				{/await}
 			</div>
 
-			{#if $configuration?.hearth}
-				<div class="hearth">
-					{#await import('$lib/legacy/Drawer/HearthButton.svelte') then HearthButton}
-						<HearthButton.default />
-					{/await}
-				</div>
-			{/if}
+			<div class="hearth">
+				{#await import('$lib/legacy/Drawer/HearthButton.svelte') then HearthButton}
+					<HearthButton.default />
+				{/await}
+			</div>
 
 			<div class="settings push">
 				{#await import('$lib/legacy/Drawer/SettingsButton.svelte') then SettingsButton}

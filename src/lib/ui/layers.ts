@@ -54,11 +54,24 @@ export function pushLayer(close: () => void): () => void {
 /** Svelte action form: the node is a layer while mounted. */
 export function layer(node: HTMLElement, close: () => void) {
 	let current = close;
+	const opener = document.activeElement;
 	const release = pushLayer(() => current());
 	return {
 		update(next: () => void) {
 			current = next;
 		},
-		destroy: release
+		destroy() {
+			release();
+			// only when focus is still inside the closing layer (or lost): a
+			// click elsewhere already moved it and must win
+			const focused = document.activeElement;
+			if (
+				opener instanceof HTMLElement &&
+				opener.isConnected &&
+				(!focused || focused === document.body || node.contains(focused))
+			) {
+				opener.focus();
+			}
+		}
 	};
 }

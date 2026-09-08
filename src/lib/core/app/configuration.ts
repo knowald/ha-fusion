@@ -11,7 +11,6 @@ export interface Configuration {
 	motion?: boolean;
 	addons?: Addons;
 	token?: string;
-	hearth?: boolean;
 	// serves the original dashboard at /classic for one release cycle
 	classic?: boolean;
 }

@@ -10,7 +10,6 @@
 		hearthNeedsSetup
 	} from './store';
 	import ControlPopup from './ControlPopup.svelte';
-	import EditorHost from './edit/EditorHost.svelte';
 	import Rail from './Rail.svelte';
 	import RoomDetail from './RoomDetail.svelte';
 	import Screensaver from './Screensaver.svelte';
@@ -109,7 +108,7 @@
 	});
 </script>
 
-<Keyboard searchOpen={showSearch} onsearch={() => (showSearch = true)} />
+<Keyboard onsearch={() => (showSearch = true)} />
 <ThemeStyle {presetOverride} />
 
 <section class="frame" use:wakeLock={$hearthConfig.keep_screen_on ?? true}>
@@ -122,7 +121,12 @@
 		</main>
 	</div>
 	<ControlPopup />
-	<EditorHost />
+	{#if $hearthEditMode}
+		<!-- the edit sheets and their editors load with edit mode, not the dashboard -->
+		{#await import('./edit/EditorHost.svelte') then EditorHost}
+			<EditorHost.default />
+		{/await}
+	{/if}
 	{#if showSearch}
 		<SearchOverlay onclose={() => (showSearch = false)} />
 	{/if}
@@ -138,6 +142,40 @@
 </section>
 
 <style>
+	/* command sent, waiting for the entity to confirm */
+	.frame :global(.pending) {
+		animation: hearth-pending 1.1s ease-in-out infinite;
+	}
+
+	/* Theme changes animate only the composited dashboard backdrop. Descendant
+	   tokens switch atomically instead of forcing a four-property repaint of
+	   every node in the tree. */
+	:global(html.theme-fade) .frame {
+		transition:
+			background-color 600ms ease,
+			color 600ms ease;
+	}
+
+	/* scroll containers clip on both axes, which would crop the tiles' glow -
+	   the padding/negative-margin pair moves the clip edge outward. The offset
+	   matches the column gap so the widest glow (30px blur) fades out before
+	   the clip edge without either box painting into its neighbour's content. */
+	.rail-scroll {
+		min-height: 0;
+		overflow-y: auto;
+		scrollbar-width: none;
+		display: flex;
+		flex-direction: column;
+		padding: 30px;
+		margin: -30px;
+	}
+
+	/* Filling cards absorb leftover height, but unexpected runtime overflow
+	   remains scrollable instead of making controls unreachable. */
+	.main.fill {
+		overflow-y: auto;
+	}
+
 	.frame :global(.pressable:active) {
 		transform: scale(0.96);
 		filter: drop-shadow(0 0 9px rgb(var(--h-accent-rgb) / calc(0.45 * var(--h-accent-scale))));

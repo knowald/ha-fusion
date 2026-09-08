@@ -14,6 +14,7 @@
 		redoConfig,
 		requestConfirmation,
 		saveState,
+		saveFailure,
 		saveWithFeedback,
 		undoConfig
 	} from '../store';
@@ -82,7 +83,9 @@
 				{$lang('hearth_reload')}
 			</button>
 		{:else if $saveState === 'error'}
-			<span class="save-error">{$lang('hearth_save_failed')}</span>
+			<span class="save-error">
+				{$lang('hearth_save_failed')}{#if $saveFailure}: {$saveFailure}{/if}
+			</span>
 		{/if}
 		<button
 			type="button"
@@ -152,6 +155,26 @@
 {/if}
 
 <style>
+	/* a labeled row at the rail's foot rather than an anonymous floating pencil */
+	.edit-toggle {
+		position: absolute;
+		left: calc(14px + var(--h-pad-x));
+		bottom: calc(14px + var(--h-pad-y));
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		padding: 11px 15px;
+		border-radius: var(--h-radius-sm);
+		color: var(--h-text-4);
+		font-size: 13.5px;
+		cursor: pointer;
+		opacity: 0.75;
+		border: 0;
+		background: rgb(var(--h-surface-rgb) / calc(0.035 * var(--h-fill-scale)));
+		font-family: inherit;
+	}
+
 	.edit-toggle:hover {
 		opacity: 1;
 		color: var(--h-text-3);

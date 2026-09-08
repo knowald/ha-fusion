@@ -4,7 +4,6 @@ import { MediaShortcutSchema } from '../../schema';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import Editor from './Editor.svelte';
 
 export type MediaCard = Extract<OverviewCard, { type: 'media' }>;
 
@@ -16,6 +15,7 @@ export const mediaCard: CardDescriptor<MediaCard> = {
 	icon: 'music_note',
 	fillByDefault: true,
 	sizable: true,
+	stretchMinHeight: 140,
 	normalize: (card) => ({
 		shortcuts: Array.isArray(card.shortcuts)
 			? card.shortcuts
@@ -35,5 +35,5 @@ export const mediaCard: CardDescriptor<MediaCard> = {
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,
-	editor: Editor
+	editor: () => import('./Editor.svelte')
 };

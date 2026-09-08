@@ -45,5 +45,5 @@ export interface WidgetDescriptor<T extends RailWidget = RailWidget> {
 	 */
 	component?: Component<any>;
 	/** Absent for widgets with no options. */
-	editor?: Component<WidgetEditorProps<T>>;
+	editor?: () => Promise<{ default: Component<WidgetEditorProps<T>> }>;
 }

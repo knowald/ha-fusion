@@ -38,7 +38,6 @@
 		onchange({
 			fields: {
 				entity: entity.trim() || undefined,
-				height: initial?.height,
 				shortcuts: list.length ? list : undefined,
 				default_device: defaultDevice.trim() || undefined
 			}
