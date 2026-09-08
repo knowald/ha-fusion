@@ -2,7 +2,7 @@
 	import LoadingState from './LoadingState.svelte';
 	import EmptyState from './EmptyState.svelte';
 	import { ICON } from './iconSizes';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import { timer } from '$lib/core/app/clock';
@@ -331,7 +331,12 @@
 									<div class="row-name">{playlist.name}</div>
 									{#if playlist.trackCount !== null}
 										<div class="row-sub">
-											{$lang('hearth_n_songs').replace('{count}', String(playlist.trackCount))}
+											{fill(
+												$lang(playlist.trackCount === 1 ? 'hearth_one_song' : 'hearth_n_songs'),
+												{
+													count: String(playlist.trackCount)
+												}
+											)}
 										</div>
 									{/if}
 								</div>

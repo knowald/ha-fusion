@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ICON } from '../iconSizes';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { base } from '$app/paths';
 	import { get } from 'svelte/store';
@@ -175,7 +175,7 @@
 	}
 
 	async function deleteSavedTheme(saved: SavedTheme) {
-		if (!confirm($lang('hearth_delete_theme_confirm').replace('{name}', saved.name))) return;
+		if (!confirm(fill($lang('hearth_delete_theme_confirm'), { name: saved.name }))) return;
 		themesError = '';
 		try {
 			const response = await fetch(`${base}/_api/hearth_themes`, {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { entityControllable, states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';
@@ -22,7 +22,7 @@
 		if ($hearthEditMode || !entityControllable($states?.[ref.entity])) return;
 		const name = sceneName(ref);
 		requestConfirmation({
-			title: $lang('hearth_activate_scene_confirm').replace('{name}', name),
+			title: fill($lang('hearth_activate_scene_confirm'), { name: name }),
 			message: $lang('hearth_scenes_may_change_several_devices_at'),
 			confirmLabel: $lang('hearth_activate'),
 			action: () => activateScene(ref.entity)

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
@@ -44,7 +44,7 @@
 			$lang(statusKeys[entity?.state ?? ''] ?? 'unavailable'),
 			...(battery !== null ? [`${Math.round(battery)}%`] : []),
 			...(bin !== null
-				? [$lang('hearth_bin_percent').replace('{percent}', String(Math.round(bin)))]
+				? [fill($lang('hearth_bin_percent'), { percent: String(Math.round(bin)) })]
 				: [])
 		].join(' · ')
 	);

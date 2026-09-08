@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ICON } from './iconSizes';
 	import { connection } from '$lib/core/ha/connection';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
@@ -52,7 +52,7 @@
 	});
 
 	function count(value: number, one: string, many: string) {
-		return $lang(value === 1 ? one : many).replace('{count}', String(value));
+		return fill($lang(value === 1 ? one : many), { count: String(value) });
 	}
 
 	/** Entity refs across a proposed page's cards, by the id suffix the proposal assigns. */

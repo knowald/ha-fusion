@@ -2,7 +2,7 @@
 	import { ICON } from './iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import StateLogic from '$lib/ui/StateLogic.svelte';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/core/app/configuration';
 	import { PRESS_RIPPLE } from './config';
@@ -80,9 +80,10 @@
 			const verb = $lang(unlocking ? 'hearth_unlock' : 'hearth_lock');
 			requestConfirmation({
 				title: $lang(unlocking ? 'hearth_unlock_door_question' : 'hearth_lock_door_question'),
-				message: $lang(
-					unlocking ? 'hearth_unlock_confirm_message' : 'hearth_lock_confirm_message'
-				).replace('{label}', label),
+				message: fill(
+					$lang(unlocking ? 'hearth_unlock_confirm_message' : 'hearth_lock_confirm_message'),
+					{ label: label }
+				),
 				confirmLabel: verb,
 				action: () => toggleEntity(entity)
 			});

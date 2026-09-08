@@ -217,6 +217,9 @@
 	}
 	/* the edit bar sits along the bottom while editing; the toast moves above it */
 	.command-error.editing {
-		bottom: calc(104px + var(--h-pad-y)); /* literal ok: edit bar height plus its gap */
+		/* the same room the layout leaves for the edit bar */
+		bottom: calc(
+			112px + var(--h-pad-y) + env(safe-area-inset-bottom)
+		); /* literal ok: edit bar height plus margin */
 	}
 </style>

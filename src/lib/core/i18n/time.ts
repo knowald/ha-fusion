@@ -40,7 +40,9 @@ export function parseLocalDate(value: string): Date {
 	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
 	if (!dateOnly) return new Date(value);
 	const [year, month, day] = [Number(dateOnly[1]), Number(dateOnly[2]), Number(dateOnly[3])];
-	const date = new Date(year, month - 1, day);
+	// the constructor reads a two-digit year as 19xx; setFullYear does not
+	const date = new Date(2000, 0, 1);
+	date.setFullYear(year, month - 1, day);
 	// the constructor rolls February 31 into March; that is not the date named
 	const valid =
 		date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;

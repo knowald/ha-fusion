@@ -32,6 +32,7 @@
 	}
 
 	function setRowType(index: number, type: string) {
+		drafts = {};
 		value[index] =
 			type === 'media'
 				? { media: '' }
@@ -95,10 +96,15 @@
 	function setBound(index: number, key: 'above' | 'below', text: string) {
 		const condition = value[index];
 		if (!('entity' in condition)) return;
-		drafts[`${index}:${key}`] = text;
 		const parsed = numberFromInput(text);
-		if (Number.isFinite(parsed)) condition[key] = parsed;
-		else if (!text.trim()) delete condition[key];
+		if (Number.isFinite(parsed)) {
+			// a complete number renders from the condition; only partial text is kept
+			delete drafts[`${index}:${key}`];
+			condition[key] = parsed;
+		} else {
+			drafts[`${index}:${key}`] = text;
+			if (!text.trim()) delete condition[key];
+		}
 	}
 
 	function mediaValue(index: number): string {
@@ -116,6 +122,8 @@
 	}
 
 	function removeRow(index: number) {
+		// drafts are keyed by index; the rows below shift, so none of them may survive
+		drafts = {};
 		value.splice(index, 1);
 	}
 </script>

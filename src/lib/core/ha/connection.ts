@@ -297,6 +297,8 @@ export function startConnection(configuration: Configuration, hooks: ConnectionH
 export function stopConnection() {
 	if (retryTimer) clearInterval(retryTimer);
 	retryTimer = undefined;
+	// an attempt still awaiting createConnection sees a stale run and discards its socket
+	currentRun += 1;
 }
 
 /** The live connection, or undefined while booting. */

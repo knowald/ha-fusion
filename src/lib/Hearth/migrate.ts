@@ -238,7 +238,18 @@ function toCardPages(raw: Record<string, any>): Record<string, any> {
 		}
 		const home = rooms[0];
 		const present = new Set(
-			home.cards.flat().map((card: unknown) => (isRecord(card) ? card.id : undefined))
+			home.cards
+				.flat()
+				.flatMap((item: unknown) =>
+					isRecord(item)
+						? [
+								item.id,
+								...(Array.isArray(item.cards)
+									? item.cards.map((c: unknown) => (isRecord(c) ? c.id : undefined))
+									: [])
+							]
+						: []
+				)
 		);
 		home.cards[0].push(...rootCards.filter((card) => !present.has(card.id)));
 	}

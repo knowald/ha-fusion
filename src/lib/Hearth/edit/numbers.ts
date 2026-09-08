@@ -7,7 +7,8 @@ const NUMBER = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
 
 export function numberFromInput(value: string): number {
 	const trimmed = value.trim();
-	return NUMBER.test(trimmed) ? Number(trimmed) : NaN;
+	const parsed = NUMBER.test(trimmed) ? Number(trimmed) : NaN;
+	return Number.isFinite(parsed) ? parsed : NaN;
 }
 
 /** A whole number from an editor field; fractions round to the nearest unit. */

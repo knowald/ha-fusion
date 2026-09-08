@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import type { HassEntities } from 'home-assistant-js-websocket';
-import { lang, selectedLanguage } from '$lib/core/i18n';
+import { lang, selectedLanguage, fill } from '$lib/core/i18n';
 import { relativeTime } from '$lib/core/i18n/time';
 import { UNAVAILABLE_STATES } from '$lib/core/ha/entities';
 import { isStack, type HearthConfig, type VisibilityCondition } from './config';
@@ -91,7 +91,7 @@ export function attentionItems(
 				entity: entityId,
 				name: entity?.attributes?.friendly_name ?? entityId,
 				detail: since
-					? get(lang)('hearth_last_seen_at').replace('{time}', since)
+					? fill(get(lang)('hearth_last_seen_at'), { time: since })
 					: get(lang)('hearth_offline')
 			};
 		});

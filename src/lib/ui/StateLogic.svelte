@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { lang, selectedLanguage, fill } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { isTimestamp, relativeTime } from '$lib/core/i18n/time';
 	import { getDomain } from '$lib/core/ha/entities';
@@ -69,7 +69,7 @@
 {:else if getDomain(entity_id) === 'update'}
 	{#if attributes?.in_progress}
 		{typeof attributes?.in_progress === 'number'
-			? $lang('update_installing_progress').replace('{progress}', String(attributes?.in_progress))
+			? fill($lang('update_installing_progress'), { progress: String(attributes?.in_progress) })
 			: $lang('update_installing')}
 	{:else if entityState === 'on'}
 		{$lang('update_available')}

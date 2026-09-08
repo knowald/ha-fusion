@@ -3,7 +3,7 @@ import type { OverviewCard } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
-import { OptionalText } from '../../schema';
+import { EntityIdSchema, OptionalText } from '../../schema';
 
 export type DaysSinceCard = Extract<OverviewCard, { type: 'days_since' }>;
 
@@ -15,7 +15,7 @@ export const daysSinceCard: CardDescriptor<DaysSinceCard> = {
 	icon: 'event_repeat',
 	normalize: (card) => ({
 		// the reset writes input_datetime.set_datetime; any other domain cannot hold the date
-		entity: trimmedOrUndefined(card.entity)?.startsWith('input_datetime.')
+		entity: /^input_datetime\..+/.test(trimmedOrUndefined(card.entity) ?? '')
 			? trimmedOrUndefined(card.entity)
 			: undefined,
 		title: trimmedOrUndefined(card.title),
@@ -23,7 +23,7 @@ export const daysSinceCard: CardDescriptor<DaysSinceCard> = {
 	}),
 	schema: v.looseObject({
 		entity: v.optional(
-			v.pipe(v.string('must be text'), v.startsWith('input_datetime.', 'must be an input_datetime'))
+			v.pipe(EntityIdSchema, v.regex(/^input_datetime\..+/, 'must be an input_datetime'))
 		),
 		title: OptionalText,
 		icon: OptionalText
