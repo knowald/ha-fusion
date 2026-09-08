@@ -3,7 +3,7 @@
 	import type { EmptyItem } from '$lib/Types';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
-	import Empty from '$lib/Main/Empty.svelte';
+	import Empty from '$lib/legacy/Main/Empty.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: EmptyItem } = $props();
 </script>

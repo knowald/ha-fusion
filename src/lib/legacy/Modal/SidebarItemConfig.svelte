@@ -36,7 +36,7 @@
 	import WeatherForecast from '$lib/Sidebar/WeatherForecast.svelte';
 	import Iframe from '$lib/Sidebar/Iframe.svelte';
 	import Image from '$lib/Sidebar/Image.svelte';
-	import Camera from '$lib/Main/Camera.svelte';
+	import Camera from '$lib/legacy/Main/Camera.svelte';
 	import History from '$lib/Sidebar/History.svelte';
 	import Graph from '$lib/Sidebar/Graph.svelte';
 	import Template from '$lib/Sidebar/Template.svelte';

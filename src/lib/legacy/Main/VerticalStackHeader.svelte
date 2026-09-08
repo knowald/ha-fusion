@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { editMode, lang, motion } from '$lib/Stores';
 	import { slide } from 'svelte/transition';
-	import DragIndicator from '$lib/Main/DragIndicator.svelte';
-	import DeleteButton from '$lib/Main/DeleteButton.svelte';
-	import VisibilitySectionButton from '$lib/Main/VisibilitySectionButton.svelte';
+	import DragIndicator from '$lib/legacy/Main/DragIndicator.svelte';
+	import DeleteButton from '$lib/legacy/Main/DeleteButton.svelte';
+	import VisibilitySectionButton from '$lib/legacy/Main/VisibilitySectionButton.svelte';
 
 	let { view, section }: { view: any; section: any } = $props();
 </script>

@@ -14,7 +14,7 @@
 	import { onDestroy, onMount, tick } from 'svelte';
 	import CodeEditor from '$lib/Components/CodeEditor.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import Button from '$lib/Main/Button.svelte';
+	import Button from '$lib/legacy/Main/Button.svelte';
 	import type { ButtonItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 	import { closeAllModals, closeModal } from '$lib/Modals';

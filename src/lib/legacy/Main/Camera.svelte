@@ -107,7 +107,7 @@
 
 	{#if effective_stream_type === 'hls'}
 		<!-- hls -->
-		{#await import('$lib/Main/Camera/HLS.svelte') then HLS}
+		{#await import('$lib/legacy/Main/Camera/HLS.svelte') then HLS}
 			<HLS.default
 				bind:stream_url
 				bind:loaderVisible
@@ -119,7 +119,7 @@
 		{/await}
 	{:else if effective_stream_type === 'web_rtc'}
 		<!-- web_rtc -->
-		{#await import('$lib/Main/Camera/WebRTC.svelte') then WebRTC}
+		{#await import('$lib/legacy/Main/Camera/WebRTC.svelte') then WebRTC}
 			<WebRTC.default
 				bind:stream_url
 				bind:loaderVisible
@@ -132,13 +132,13 @@
 	{/if}
 
 	<!-- camera_proxy -->
-	{#await import('$lib/Main/Camera/Proxy.svelte') then Proxy}
+	{#await import('$lib/legacy/Main/Camera/Proxy.svelte') then Proxy}
 		<Proxy.default bind:loaderVisible {...cameraProps} {stream_url} />
 	{/await}
 
 	<!-- info -->
 	{#if muted && !responsive && sel?.hide_overlay !== true}
-		{#await import('$lib/Main/Camera/Info.svelte') then Info}
+		{#await import('$lib/legacy/Main/Camera/Info.svelte') then Info}
 			<Info.default {sel} {entity} />
 		{/await}
 	{/if}

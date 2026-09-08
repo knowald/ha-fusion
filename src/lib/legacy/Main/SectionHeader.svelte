@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { editMode, motion, refreshDashboard } from '$lib/Stores';
-	import DragIndicator from '$lib/Main/DragIndicator.svelte';
-	import DeleteButton from '$lib/Main/DeleteButton.svelte';
-	import VisibilitySectionButton from '$lib/Main/VisibilitySectionButton.svelte';
-	import SectionTitle from '$lib/Main/SectionTitle.svelte';
+	import DragIndicator from '$lib/legacy/Main/DragIndicator.svelte';
+	import DeleteButton from '$lib/legacy/Main/DeleteButton.svelte';
+	import VisibilitySectionButton from '$lib/legacy/Main/VisibilitySectionButton.svelte';
+	import SectionTitle from '$lib/legacy/Main/SectionTitle.svelte';
 	import { slide } from 'svelte/transition';
 
 	let { view, section }: { view: any; section: any } = $props();

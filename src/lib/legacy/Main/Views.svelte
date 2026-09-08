@@ -13,8 +13,8 @@
 	import { slide, fade } from 'svelte/transition';
 	import { modals } from '$lib/Modals';
 	import { onMount, tick } from 'svelte';
-	import EditViewButton from '$lib/Main/EditViewButton.svelte';
-	import EyeIndicator from '$lib/Main/EyeIndicator.svelte';
+	import EditViewButton from '$lib/legacy/Main/EditViewButton.svelte';
+	import EyeIndicator from '$lib/legacy/Main/EyeIndicator.svelte';
 
 	let { view }: { view: any } = $props();
 

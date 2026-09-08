@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple, connection, states, updateDashboard } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
-	import DaysSince from '$lib/Main/DaysSince.svelte';
+	import DaysSince from '$lib/legacy/Main/DaysSince.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';

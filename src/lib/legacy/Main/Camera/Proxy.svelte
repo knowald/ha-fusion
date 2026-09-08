@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { editMode } from '$lib/Stores';
 	import { onMount } from 'svelte';
-	import Broken from '$lib/Main/Camera/Broken.svelte';
+	import Broken from '$lib/legacy/Main/Camera/Broken.svelte';
 
 	let {
 		sel,

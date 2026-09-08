@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { connection, lang, ripple, services, states } from '$lib/Stores';
 	import { onMount } from 'svelte';
-	import SpotifyPlayer from '$lib/Main/SpotifyPlayer.svelte';
+	import SpotifyPlayer from '$lib/legacy/Main/SpotifyPlayer.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';

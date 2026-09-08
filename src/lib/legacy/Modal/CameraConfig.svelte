@@ -3,7 +3,7 @@
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import Camera from '$lib/Main/Camera.svelte';
+	import Camera from '$lib/legacy/Main/Camera.svelte';
 
 	let {
 		isOpen,

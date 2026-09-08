@@ -2,11 +2,11 @@
 	import { editMode, motion, record, dragging, itemHeight, states, dashboard } from '$lib/Stores';
 	import { onMount, tick } from 'svelte';
 	import { onDndReceive, sortable, type DndReceiveDetail } from '$lib/Actions/sortable';
-	import Content from '$lib/Main/Content.svelte';
-	import SectionHeader from '$lib/Main/SectionHeader.svelte';
-	import HorizontalStackHeader from '$lib/Main/HorizontalStackHeader.svelte';
-	import VerticalStackHeader from '$lib/Main/VerticalStackHeader.svelte';
-	import Scenes from '$lib/Main/Scenes.svelte';
+	import Content from '$lib/legacy/Main/Content.svelte';
+	import SectionHeader from '$lib/legacy/Main/SectionHeader.svelte';
+	import HorizontalStackHeader from '$lib/legacy/Main/HorizontalStackHeader.svelte';
+	import VerticalStackHeader from '$lib/legacy/Main/VerticalStackHeader.svelte';
+	import Scenes from '$lib/legacy/Main/Scenes.svelte';
 	import { handleVisibility, mediaQueries } from '$lib/Conditional';
 	import { generateId } from '$lib/Utils';
 	import { transferLegacyItem, transferLegacySection } from './legacyDrag';

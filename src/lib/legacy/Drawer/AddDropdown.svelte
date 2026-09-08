@@ -23,13 +23,14 @@
 	let ViewButton: Component<any> = $state(undefined as any);
 
 	onMount(async () => {
-		SidebarButton = (await import('$lib/Drawer/SidebarButton.svelte')).default;
-		ObjectButton = (await import('$lib/Drawer/ObjectButton.svelte')).default;
-		SectionButton = (await import('$lib/Drawer/SectionButton.svelte')).default;
-		HorizontalStackButton = (await import('$lib/Drawer/HorizontalStackButton.svelte')).default;
-		VerticalStackButton = (await import('$lib/Drawer/VerticalStackButton.svelte')).default;
-		ScenesButton = (await import('$lib/Drawer/ScenesButton.svelte')).default;
-		ViewButton = (await import('$lib/Drawer/ViewButton.svelte')).default;
+		SidebarButton = (await import('$lib/legacy/Drawer/SidebarButton.svelte')).default;
+		ObjectButton = (await import('$lib/legacy/Drawer/ObjectButton.svelte')).default;
+		SectionButton = (await import('$lib/legacy/Drawer/SectionButton.svelte')).default;
+		HorizontalStackButton = (await import('$lib/legacy/Drawer/HorizontalStackButton.svelte'))
+			.default;
+		VerticalStackButton = (await import('$lib/legacy/Drawer/VerticalStackButton.svelte')).default;
+		ScenesButton = (await import('$lib/legacy/Drawer/ScenesButton.svelte')).default;
+		ViewButton = (await import('$lib/legacy/Drawer/ViewButton.svelte')).default;
 	});
 
 	function handleClick() {

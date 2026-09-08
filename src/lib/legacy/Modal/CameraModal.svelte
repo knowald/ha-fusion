@@ -2,7 +2,7 @@
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { states } from '$lib/Stores';
 	import { getName } from '$lib/Utils';
-	import Camera from '$lib/Main/Camera.svelte';
+	import Camera from '$lib/legacy/Main/Camera.svelte';
 
 	let { sel, isOpen }: { sel: any; isOpen: boolean } = $props();
 

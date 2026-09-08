@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Camera from '$lib/Main/Camera.svelte';
+	import Camera from '$lib/legacy/Main/Camera.svelte';
 	import { editMode } from '$lib/Stores';
 
 	let { sel }: { sel: any } = $props();
