@@ -1,7 +1,9 @@
+import * as v from 'valibot';
 import type { RailWidget } from '../../types';
-import { trimmedOrUndefined } from '../../normalizers';
+import { normalizeWholeNumber, trimmedOrUndefined } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
+import { OptionalText, OptionalEntityId, optionalNumberAtLeast } from '../../schema';
 
 export type ChartWidget = Extract<RailWidget, { type: 'chart' }>;
 
@@ -20,8 +22,15 @@ export const chartWidget: WidgetDescriptor<ChartWidget> = {
 		style: CHART_STYLES.includes(widget.style) ? widget.style : undefined,
 		period: CHART_PERIODS.includes(widget.period) ? widget.period : undefined,
 		math: trimmedOrUndefined(widget.math),
-		stroke:
-			typeof widget.stroke === 'number' && widget.stroke > 0 ? Math.round(widget.stroke) : undefined
+		stroke: normalizeWholeNumber(widget.stroke, 1)
+	}),
+	schema: v.looseObject({
+		entity: OptionalEntityId,
+		name: OptionalText,
+		style: v.optional(v.picklist(CHART_STYLES, 'must be line, history, bar or radial')),
+		period: v.optional(v.picklist(CHART_PERIODS, 'must be hour, day, week or month')),
+		math: OptionalText,
+		stroke: optionalNumberAtLeast(1)
 	}),
 	needsConfiguration: (widget) => !widget.entity,
 	component: Widget,

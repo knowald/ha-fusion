@@ -169,7 +169,7 @@
 	"hearth_command_failed": "Command failed",
 	"hearth_config_changed": "Configuration changed elsewhere",
 	"hearth_config_unreadable": "Hearth configuration is unreadable",
-	"hearth_connection_lost": "Home Assistant connection lost. Reconnecting…",
+	"hearth_connection_lost": "Home Assistant connection lost. Reconnecting...",
 	"hearth_dismiss_screensaver": "Dismiss screensaver",
 	"hearth_edit_configuration": "Edit Hearth configuration",
 	"hearth_good_afternoon": "Good afternoon",
@@ -598,7 +598,7 @@
 	"hearth_fill_leftover_height": "Fill leftover height",
 	"hearth_height_in_px_optional": "Height in px (optional)",
 	"hearth_change_card_type": "Change card type",
-	"hearth_card_type": "CARD TYPE",
+	"hearth_card_type": "Card type",
 	"hearth_cards_sharing_a_column_split_whatever": "Cards sharing a column split whatever height is left over, in proportion to their shares. Only visible on a page set to fill the screen, or when a column is taller than its cards.",
 	"hearth_structure": "STRUCTURE",
 	"hearth_choose_how_this_card_presents_its": "Choose how this card presents its content.",
@@ -915,6 +915,7 @@
 	"hearth_template_hint": "Jinja rendered by Home Assistant, markdown allowed.",
 	"hearth_template_error": "Template error",
 	"hearth_url": "URL",
+	"hearth_embed_url_hint": "Use an http(s) address or a path on this server, such as /local/page.html.",
 	"hearth_height_px": "Height in px",
 	"hearth_no_notifications": "No notifications",
 	"hearth_dismiss": "Dismiss",
@@ -960,5 +961,11 @@
 	"clear": "Clear",
 	"hearth_search_all_icons": "Search all icons",
 	"hearth_search_entities": "Search entities",
-	"hearth_material_symbols_name": "Material Symbols name"
+	"hearth_material_symbols_name": "Material Symbols name",
+	"hearth_page": "Page",
+	"hearth_search_cards": "Search card types",
+	"hearth_search_widgets": "Search widgets",
+	"hearth_no_cards_match": "No card types match",
+	"hearth_decrease": "Decrease",
+	"hearth_increase": "Increase"
 }

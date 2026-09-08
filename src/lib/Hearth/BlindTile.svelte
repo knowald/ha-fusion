@@ -132,7 +132,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 16px 16px;
+		padding: 16px var(--tile-pad-right, 16px) 16px 16px;
 		border-radius: var(--h-radius-md);
 		/* pan-y, not none: the horizontal gesture stays ours while a vertical
 		   swipe still scrolls the page or an enclosing popover */

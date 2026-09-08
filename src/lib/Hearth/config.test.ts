@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { load } from 'js-yaml';
 import {
 	DEFAULT_HEARTH_CONFIG,
 	findOverviewCard,
@@ -238,5 +240,88 @@ describe('hearthConfigIssues', () => {
 		expect(issues).toContain('rail[1].type is not a supported widget type');
 		expect(issues).toContain('rooms[0].cards[0][0].entities[0].entity is required');
 		expect(issues).toContain('rooms[0].cards[0][1].id duplicates rooms[0].cards[0][0].id');
+	});
+
+	it('checks root settings, pages, stacks and shared card fields', () => {
+		const issues = hearthConfigIssues({
+			theme: ['no'],
+			screensaver_brightness: 150,
+			padding_x: '12',
+			rail: [{ id: 'clock', type: 'clock', hour_format: '13', hide_mobile: 'yes' }],
+			rooms: [
+				{
+					id: 'home',
+					columns: 4,
+					cards: [
+						[
+							{
+								id: 'stack',
+								kind: 'stack',
+								direction: 'diagonal',
+								cards: [{ id: 'inner', type: 'climate', fill: -1, visibility: [{ nope: 1 }] }]
+							},
+							{ id: 'media', type: 'conditional_media', timeout: -5 }
+						]
+					]
+				}
+			]
+		});
+		expect(issues).toEqual([
+			'theme must be a mapping of tokens',
+			'screensaver_brightness must be 10 to 100',
+			'padding_x must be a number',
+			'rail[0].hide_mobile must be true or false',
+			'rail[0].hour_format must be auto, 12 or 24',
+			'rooms[0].columns must be 1 to 3',
+			'rooms[0].cards[0][0].direction must be horizontal or vertical',
+			'rooms[0].cards[0][0].cards[0].visibility[0] must name an entity, a media query or an or-group',
+			'rooms[0].cards[0][0].cards[0].fill must be at least 0',
+			'rooms[0].cards[0][1].media_players is required',
+			'rooms[0].cards[0][1].timeout must be at least 0'
+		]);
+	});
+
+	it('accepts the scalar spellings the normalizer accepts', () => {
+		expect(
+			hearthConfigIssues({
+				rail: [],
+				rooms: [
+					{
+						id: 'home',
+						cards: [
+							[
+								{ id: 's', type: 'scenes', scenes: [{ entity: 'scene.a', active_state: 22 }] },
+								{ id: 'v', type: 'vacuum', modes: [{ entity: 'vacuum.a', duration: 48 }] }
+							]
+						]
+					}
+				]
+			})
+		).toEqual([]);
+	});
+
+	it('finds nothing wrong with the matrix fixture, before and after normalization', () => {
+		const raw = load(readFileSync('e2e/fixture-matrix/data/hearth.yaml', 'utf8'));
+		expect(hearthConfigIssues(raw)).toEqual([]);
+		expect(hearthConfigIssues(normalizeHearthConfig(raw))).toEqual([]);
+	});
+});
+
+describe('wall tablet settings', () => {
+	it('keeps only finite, whole, in-range numbers and mapping themes', () => {
+		const config = normalizeHearthConfig({
+			rail: [],
+			rooms: [],
+			padding_x: 12.6,
+			padding_y: -4,
+			screensaver_minutes: Infinity,
+			theme: ['not', 'a', 'mapping'],
+			theme_night: { accent: '#fff', nested: { no: true }, size: 3 }
+		});
+		expect(config.padding_x).toBe(13);
+		expect(config.padding_y).toBeUndefined();
+		expect(config.screensaver_minutes).toBeUndefined();
+		expect(config.theme).toBeUndefined();
+		expect(config.theme_night).toEqual({ accent: '#fff' });
 	});
 });

@@ -1,7 +1,9 @@
+import * as v from 'valibot';
 import type { OverviewCard } from '../../types';
 import { normalizeVerdict, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
+import { OptionalText, OptionalEntityId, VerdictBandsSchema } from '../../schema';
 
 export type TemperatureCard = Extract<OverviewCard, { type: 'temperature' }>;
 
@@ -17,6 +19,13 @@ export const temperatureCard: CardDescriptor<TemperatureCard> = {
 	normalize: (card) => ({
 		climate_entity: trimmedOrUndefined(card.climate_entity),
 		verdict: normalizeVerdict(card.verdict)
+	}),
+	schema: v.looseObject({
+		label: OptionalText,
+		entity: OptionalEntityId,
+		unit: OptionalText,
+		climate_entity: OptionalEntityId,
+		verdict: v.optional(v.union([v.literal(false), VerdictBandsSchema], 'must be false or bands'))
 	}),
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => [

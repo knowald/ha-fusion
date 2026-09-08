@@ -26,14 +26,18 @@ vi.mock('fs/promises', () => ({
 
 import { POST } from './+server';
 
-function request(revision: number, name: string, force = false) {
+function post(body: string) {
 	return POST({
 		request: new Request('http://localhost/_api/save_hearth', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ revision, config: { rail: [], rooms: [], name }, force })
+			body
 		})
 	} as any) as Promise<Response>;
+}
+
+function request(revision: number, name: string, force = false) {
+	return post(JSON.stringify({ revision, config: { rail: [], rooms: [], name }, force }));
 }
 
 describe('Hearth save endpoint', () => {
@@ -54,11 +58,34 @@ describe('Hearth save endpoint', () => {
 		expect(disk.data).toBe('rooms: [unterminated');
 	});
 
-	it('allows an explicit forced save after a revision conflict', async () => {
+	it('allows an explicit forced save from a stale revision', async () => {
 		expect((await request(0, 'first')).status).toBe(200);
 		expect((await request(0, 'stale')).status).toBe(409);
-		expect((await request(1, 'replacement', true)).status).toBe(200);
+		expect((await request(0, 'replacement', true)).status).toBe(200);
 		expect(disk.data).toContain('name: replacement');
 		expect(disk.data).toContain('revision: 2');
+	});
+
+	it('keeps the server-owned version and revision over values in the body', async () => {
+		const config = { rail: [], rooms: [], version: 99, revision: 41 };
+		expect((await post(JSON.stringify({ revision: 0, config }))).status).toBe(200);
+		expect(disk.data).toMatch(/^revision: 1\n/);
+		expect(disk.data).not.toContain('version: 99');
+		expect(disk.data).not.toContain('revision: 41');
+	});
+
+	it('rejects malformed JSON, arrays and invalid revisions', async () => {
+		await expect(post('{not json')).rejects.toMatchObject({ status: 400 });
+		await expect(post('[]')).rejects.toMatchObject({ status: 400 });
+		await expect(post(JSON.stringify({ revision: 0, config: [] }))).rejects.toMatchObject({
+			status: 400
+		});
+		await expect(post(JSON.stringify({ revision: -1, config: {} }))).rejects.toMatchObject({
+			status: 400
+		});
+		await expect(post(JSON.stringify({ revision: 'x', config: {} }))).rejects.toMatchObject({
+			status: 400
+		});
+		expect(disk.data).toBeNull();
 	});
 });

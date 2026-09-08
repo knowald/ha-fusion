@@ -97,20 +97,30 @@ manages the `revision` counter used for conflict detection.
 `padding_y`).
 
 A page is called a room in the type and YAML key, and a page in the UI. These
-mean the same thing; Home Assistant calls it an area.
+mean the same thing. Home Assistant areas are only the starting point the
+layout proposal builds pages from; a configured page need not match an area.
 
-### Card types
+### Card and rail widget types
 
-`entities`, `header`, `temperature`, `media`, `vacuum`, `camera`, `image`,
-`climate`, `scenes`, `fusion`.
-
-### Rail widget types
-
-`clock`, `weather`, `search`, `nav`, `spacer`, `label`, `energy`, `progress`,
-`calendar`, `status`, `entity`, `fusion`.
+The registries are the inventory: `cards/index.ts` lists every card type and
+`widgets/index.ts` every rail widget type, each with its directory under
+`cards/<type>/` or `widgets/<type>/`. A type that is not registered does not
+compile, so the lists there cannot drift.
 
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
+
+## Breakpoints
+
+Three widths, always written as these literals:
+
+| Name         | Rule                                        | What changes                                                                                                                                                        |
+| ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rail folds   | `@media (max-width: 900px)`                 | One column: `shell/PhoneNav.svelte` shows the pages at the top, the rail's nav widget hides, the clock drops to hero size, the rail follows the page, chips shrink. |
+| sheets stack | `@media (max-width: 820px)`                 | Edit sheets go full-height, the card preview follows the fields, pickers stack.                                                                                     |
+| tiles fold   | `@container hearth-page (max-width: 560px)` | Card columns collapse to one (1200px viewport fallback without container queries).                                                                                  |
+
+Popups become bottom sheets and the edit bar spans the width at 700px.
 
 ## Design tokens
 
@@ -153,8 +163,10 @@ one line in `cards/index.ts`:
 
 - `descriptor.ts` - the `CardDescriptor`: translation keys for the gallery
   (`label`, `name`, `sub`) and an icon, the mandatory `normalize` rule that
-  coerces every typed field of a raw YAML card, an optional valibot `schema`
-  for the YAML editor, `needsConfiguration` for the setup placeholder,
+  coerces every typed field of a raw YAML card, the mandatory valibot `schema`
+  (a loose object over the type's own fields, so the YAML editor can name a
+  bad value before Apply while unknown keys pass), `needsConfiguration` for
+  the setup placeholder,
   `entityIds` for attention and search, layout flags (`fillByDefault`,
   `sizable`, `stretchMinHeight`, `heightHint`) and preview flags
   (`previewReorder`, `previewInteractive`). `editor` is a loader
@@ -168,7 +180,11 @@ one line in `cards/index.ts`:
 The card's type shape lives in the `OverviewCardVariant` union in `types.ts`;
 `cards/index.ts` fails to compile when a union member has no descriptor or a
 descriptor has no union member. `typeRegistry.test.ts` fails when a descriptor
-is missing a part or its translation keys are absent from `en.json`.
+is missing a part, its translation keys are absent from `en.json`, its
+defaults fail its own schema, or a schema field accepts a wrongly shaped value.
+`config.test.ts` round-trips the matrix fixture through `hearthConfigIssues`
+before and after normalization, so every type's schema and normalizer agree on
+at least one real document.
 
 Rail widgets follow the same shape under `widgets/`, registered in
 `widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only
@@ -202,8 +218,41 @@ switching on the domain string.
 - **Edit mode.** `hearthEditMode` suppresses device commands. Embedded fusion
   objects consult the original dashboard's `editMode` store instead, so
   `HearthDashboard.svelte` mirrors Hearth's mode into it while the route is
-  mounted, and `FusionCard.svelte` sets `pointer-events: none` on the embed so it
-  cannot open its own editor. Both halves are needed; either alone leaves a gap.
+  mounted, and `cards/fusion/Card.svelte` sets `pointer-events: none` on the
+  embed so it cannot open its own editor. Both halves are needed; either alone
+  leaves a gap.
+
+## Component anatomy
+
+Each family has one anatomy; an instance that needs something else adds a
+descriptor flag rather than its own styling.
+
+| Family                                                                    | Regions, top to bottom or left to right                                                                                                                         | States it must render                                                                        |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Tile (`EntityTile`, `LightTile`, `BlindTile`, `StatTile`)                 | Icon tile, name, state line; slider fill behind the content for lights and covers; tune button or edit handle in the reserved right column (`--tile-pad-right`) | off, on/active, pending pulse, unavailable (dimmed, no controls), readonly, pressed, editing |
+| Card (`cards/*`)                                                          | Section title row with count or group actions, body, `ConfigurationPlaceholder` when unconfigured                                                               | normal, needs setup, filling vs sized, editing (chip straddles the top edge)                 |
+| Rail widget (`widgets/*`)                                                 | Optional mono label, body, dividers only through the label widget                                                                                               | normal, needs setup, hidden on mobile, editing                                               |
+| Popup (`ControlPopup` + `*Popup`, `DetailPopup`)                          | Header: icon tile, name, caption, optional toggle, close; sections with mono labels; slider recipe (`PopupSlider`); action rows                                 | loading, empty (`EmptyState`), unavailable, bottom sheet under 700 px                        |
+| Edit sheet (`edit/EditSheet`)                                             | Title bar with Done and Close (and move arrows), body fields in `editor-fields.css` recipes, footer with Remove                                                 | full height under 820 px, preview after fields                                               |
+| Transient layer (popover, confirm, search, toasts, edit bar, screensaver) | One scrim (`--h-scrim`), one shadow (`--h-shadow-layer`), one radius per level                                                                                  | stacked through `ui/layers.ts`                                                               |
+
+Empty and loading copy goes through `EmptyState.svelte` and `LoadingState.svelte`.
+
+## Interaction
+
+One table for every entity, read from `core/domains`. A tile never invents its own gesture.
+
+| Domain group                                                                                                                                           | Tap                                                                  | Long press                       | Horizontal drag                              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | -------------------------------- | -------------------------------------------- |
+| Lights                                                                                                                                                 | Toggle                                                               | Light sheet (brightness, colour) | Brightness from the release point            |
+| Covers                                                                                                                                                 | Toggle open/closed                                                   | Cover sheet (position)           | Position                                     |
+| Fans                                                                                                                                                   | Toggle                                                               | Fan sheet (speed)                | -                                            |
+| Media players                                                                                                                                          | Toggle play/pause via the card                                       | Media sheet                      | Position and volume sliders inside the sheet |
+| Other `toggle` domains (switch, input_boolean, lock, vacuum, scene, script, automation, timer, humidifier, button, input_button, group, remote, siren) | Toggle service; lock and alarm confirm first                         | Detail sheet                     | -                                            |
+| `controls` domains (climate, camera, image, alarm, calendar, water heater, valve, update, todo, counter, lawn mower, GPS tracker)                      | Detail sheet                                                         | Detail sheet                     | -                                            |
+| `readout` domains (sensor, binary_sensor, person, weather, sun, ...)                                                                                   | Numeric readings open their 24 h history; anything else does nothing | Same                             | -                                            |
+
+Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
 
 ## Copy and translation
 
@@ -216,15 +265,15 @@ cannot ship untranslated. Placeholders show example values and are exempt.
 
 ## Tests
 
-`npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,
-`store`, `drag`, `refresh`, `registry`, `visibility`, `clock`,
-`configurationState`, `fusionFields`, the type registries) and the core
+`pnpm test` (vitest, jsdom, with coverage). Pure modules (`config`, `store`,
+`drag`, `visibility`, `clock`, `attention`, `normalizers`, `markdown`,
+`migrate`, `proposal`, `fusionFields`, the type registries) and the core
 modules have unit tests. Components have render tests through `@testing-library/svelte`, named
 `*.svelte.test.ts` next to the component; `testing.ts` holds the entity
 fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
 and `core` that only moves up.
 
-`npm run test:e2e` (Playwright, Chromium) boots the production build from
+`pnpm test:e2e` (Playwright, Chromium) boots the production build from
 `e2e/fixture` against the scripted Home Assistant in `e2e/fake-hass.mjs` and
 drives the touch surfaces: tap, brightness drag, cancelled drag, long press.
-Run `npm run build` first.
+Run `pnpm build` first.

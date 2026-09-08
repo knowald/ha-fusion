@@ -1,7 +1,9 @@
+import * as v from 'valibot';
 import type { OverviewCard } from '../../types';
 import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
+import { OptionalText, OptionalEntityId, OptionalFlag } from '../../schema';
 
 export type CameraCard = Extract<OverviewCard, { type: 'camera' }>;
 
@@ -16,6 +18,7 @@ export const cameraCard: CardDescriptor<CameraCard> = {
 		title: trimmedOrUndefined(card.title),
 		stream: typeof card.stream === 'boolean' ? card.stream : undefined
 	}),
+	schema: v.looseObject({ entity: OptionalEntityId, title: OptionalText, stream: OptionalFlag }),
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,

@@ -181,7 +181,6 @@
 		margin-top: 8px;
 	}
 
-	.empty,
 	.period {
 		margin-top: 8px;
 		font-size: var(--h-type-label);

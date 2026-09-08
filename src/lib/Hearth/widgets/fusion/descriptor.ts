@@ -1,7 +1,9 @@
+import * as v from 'valibot';
 import type { RailWidget } from '../../types';
 import { normalizeHeight } from '../../normalizers';
 import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
+import { HeightSchema } from '../../schema';
 
 export type FusionWidget = Extract<RailWidget, { type: 'fusion' }>;
 
@@ -24,7 +26,14 @@ export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 	sub: 'hearth_widget_fusion_sub',
 	icon: 'widgets',
 	normalize: (widget) => ({ height: normalizeHeight(widget.height) }),
-	needsConfiguration: (widget) => !widget.config?.type,
+	schema: v.looseObject({
+		config: v.optional(v.record(v.string(), v.unknown(), 'must be a mapping')),
+		height: HeightSchema
+	}),
+	needsConfiguration: (widget) =>
+		!widget.config?.type ||
+		(['sensor', 'camera', 'image', 'weather', 'weather_forecast'].includes(widget.config.type) &&
+			!widget.config.entity_id),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

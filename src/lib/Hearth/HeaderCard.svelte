@@ -73,6 +73,8 @@
 	.header {
 		display: flex;
 		align-items: center;
+		/* the stat chips drop under the title before the title wraps per word */
+		flex-wrap: wrap;
 		gap: 18px;
 	}
 
@@ -97,7 +99,7 @@
 	}
 
 	.titles {
-		flex: 1;
+		flex: 1 1 180px;
 		min-width: 0;
 	}
 

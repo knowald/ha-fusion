@@ -6,9 +6,13 @@
 	let { widget }: { widget: IframeWidget } = $props();
 </script>
 
+<!-- the embedded page may run and talk to its own origin, but it cannot
+     navigate this dashboard, open dialogs or take over the screen -->
 <iframe
 	src={widget.url}
 	title={$lang('hearth_widget_iframe_name')}
+	sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+	referrerpolicy="strict-origin-when-cross-origin"
 	style:height="{widget.height ?? 150}px"
 	style:pointer-events={$hearthEditMode ? 'none' : undefined}
 ></iframe>

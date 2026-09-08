@@ -2,6 +2,10 @@
 	"name": "ha-fusion",
 	"version": "2026.8.2",
 	"private": true,
+	"engines": {
+		"node": ">=22",
+		"pnpm": ">=10"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -13,7 +17,7 @@
 		"check:watch": "npm run check -- --watch",
 		"test": "vitest run --coverage",
 		"test:e2e": "playwright test",
-		"lint": "prettier --check . && eslint . --max-warnings 119",
+		"lint": "prettier --check . && eslint . --max-warnings 118",
 		"format": "prettier --write .",
 		"matrix": "playwright test --config playwright.matrix.config.ts",
 		"style:inventory": "node scripts/style-inventory.mjs",
@@ -73,6 +77,7 @@
 		"d3-array": "^3.2.4",
 		"d3-scale": "^4.0.2",
 		"d3-shape": "^3.2.0",
+		"dompurify": "^3.4.15",
 		"dotenv": "^17.4.2",
 		"express": "^5.2.1",
 		"hls.js": "^1.6.16",

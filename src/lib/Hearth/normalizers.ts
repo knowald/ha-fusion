@@ -18,6 +18,13 @@ export function normalizeFill(raw: unknown): number | undefined {
 }
 
 /** A card or widget height in px; anything unusable means "size to content". */
+/** A finite number at or above `min`, rounded to whole units; anything else is unset. */
+export function normalizeWholeNumber(raw: unknown, min: number): number | undefined {
+	return typeof raw === 'number' && Number.isFinite(raw) && raw >= min
+		? Math.round(raw)
+		: undefined;
+}
+
 export function normalizeHeight(raw: unknown): number | undefined {
 	return typeof raw === 'number' && Number.isFinite(raw) && raw >= 40 ? Math.round(raw) : undefined;
 }
@@ -62,6 +69,18 @@ export function normalizeEntityRef(raw: any): EntityRef | null {
 
 export function trimmedOrUndefined(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+/**
+ * A URL an embed may load: absolute http(s), or a path on this host such as
+ * `/local/page.html`, plus the blank placeholder. Other schemes (javascript:,
+ * data:, file:) are dropped so
+ * a YAML edit cannot turn the iframe into a script runner.
+ */
+export function normalizeEmbedUrl(value: unknown): string | undefined {
+	const url = trimmedOrUndefined(value);
+	if (!url) return undefined;
+	return url === 'about:blank' || /^(https?:\/\/|\/(?!\/))/i.test(url) ? url : undefined;
 }
 
 export function normalizeSceneRef(raw: any): SceneRef | null {

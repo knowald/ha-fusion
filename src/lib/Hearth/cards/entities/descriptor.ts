@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { EntityRefListSchema } from '../../schema';
+import { EntityRefListSchema, OptionalEntityId, OptionalFlag, OptionalText } from '../../schema';
 import type { EntityRef, OverviewCard } from '../../types';
 import { normalizeEntityRef, trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
@@ -37,7 +37,25 @@ export const entitiesCard: CardDescriptor<EntitiesCard> = {
 		summary: trimmedOrUndefined(card.summary),
 		summary_entity: trimmedOrUndefined(card.summary_entity)
 	}),
-	schema: v.looseObject({ entities: EntityRefListSchema }),
+	schema: v.looseObject({
+		title: OptionalText,
+		style: v.optional(v.picklist(['tile', 'stat'], 'must be tile or stat')),
+		columns: v.optional(v.pipe(v.number('must be a number'), v.minValue(1, 'must be at least 1'))),
+		show_count: OptionalFlag,
+		group_actions: OptionalFlag,
+		tune_button: OptionalFlag,
+		vertical_padding: v.optional(v.picklist(['compact'], 'must be compact')),
+		readonly: OptionalFlag,
+		slider_updates: v.optional(
+			v.picklist(['continuous', 'release'], 'must be continuous or release')
+		),
+		wildcard: OptionalText,
+		collapsed: OptionalFlag,
+		icon: OptionalText,
+		summary: OptionalText,
+		summary_entity: OptionalEntityId,
+		entities: EntityRefListSchema
+	}),
 	needsConfiguration: (card) => card.entities.length === 0 && !card.wildcard?.trim(),
 	entityIds: (card) => [
 		...card.entities.map((ref) => ref.entity),

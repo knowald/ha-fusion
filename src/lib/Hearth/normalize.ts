@@ -1,6 +1,7 @@
 import type {
 	HearthConfig,
 	HearthRoom,
+	HearthTheme,
 	OverviewCard,
 	OverviewItem,
 	OverviewStack,
@@ -12,12 +13,20 @@ import {
 	normalizeFill,
 	normalizeHeight,
 	reserveId,
-	trimmedOrUndefined
+	trimmedOrUndefined,
+	normalizeWholeNumber
 } from './normalizers';
 import { CARD_TYPES, cardDescriptor } from './cards';
 import { migrateHearthConfig } from './migrate';
 import * as v from 'valibot';
-import { issueLines } from './schema';
+import {
+	CardSharedSchema,
+	issueLines,
+	RootSettingsSchema,
+	RoomSchema,
+	StackSchema,
+	WidgetSharedSchema
+} from './schema';
 import { RAIL_WIDGET_TYPES, widgetDescriptor } from './widgets';
 
 /*
@@ -34,10 +43,23 @@ const VALID_RAIL_WIDGET_TYPES = new Set<string>(RAIL_WIDGET_TYPES.map(({ type })
  * discard or repair. The visual YAML editor uses this before Apply so a typo
  * cannot silently remove a card, widget or entity reference.
  */
+/** Token maps are string to string; other values (arrays, numbers, nested maps) are dropped. */
+function normalizeTheme(raw: unknown): HearthTheme | undefined {
+	if (!isRecord(raw)) return undefined;
+	return Object.fromEntries(
+		Object.entries(raw).filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+	);
+}
+
 export function hearthConfigIssues(raw: unknown): string[] {
 	if (!isRecord(raw)) return ['Configuration must be a YAML mapping'];
 
 	const issues: string[] = [];
+	const report = (schema: v.GenericSchema, value: unknown, path: string) => {
+		const parsed = v.safeParse(schema, value);
+		if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
+	};
+	report(RootSettingsSchema, raw, '');
 	const widgetIds = new Map<string, string>();
 	const itemIds = new Map<string, string>();
 	const checkId = (value: unknown, path: string, seen: Map<string, string>) => {
@@ -57,6 +79,7 @@ export function hearthConfigIssues(raw: unknown): string[] {
 		checkId(value.id, path, itemIds);
 		if (value.kind === 'stack') {
 			if (!allowStack) issues.push(`${path}: nested stacks are not supported`);
+			report(StackSchema, value, path);
 			if (!Array.isArray(value.cards)) issues.push(`${path}.cards must be a list`);
 			else value.cards.forEach((card, index) => checkCard(card, `${path}.cards[${index}]`, false));
 			return;
@@ -65,11 +88,8 @@ export function hearthConfigIssues(raw: unknown): string[] {
 			issues.push(`${path}.type is not a supported card type`);
 			return;
 		}
-		const schema = cardDescriptor(value.type)?.schema;
-		if (schema) {
-			const parsed = v.safeParse(schema, value);
-			if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
-		}
+		report(CardSharedSchema, value, path);
+		report(cardDescriptor(value.type)!.schema, value, path);
 	};
 
 	if (!Array.isArray(raw.rail)) issues.push('rail must be a list');
@@ -85,11 +105,8 @@ export function hearthConfigIssues(raw: unknown): string[] {
 				issues.push(`${path}.type is not a supported widget type`);
 				return;
 			}
-			const schema = widgetDescriptor(widget.type)?.schema;
-			if (schema) {
-				const parsed = v.safeParse(schema, widget);
-				if (!parsed.success) issues.push(...issueLines(parsed.issues, path));
-			}
+			report(WidgetSharedSchema, widget, path);
+			report(widgetDescriptor(widget.type)!.schema, widget, path);
 		});
 	}
 
@@ -103,6 +120,7 @@ export function hearthConfigIssues(raw: unknown): string[] {
 				return;
 			}
 			checkId(room.id, path, roomIds);
+			report(RoomSchema, room, path);
 			if (!Array.isArray(room.cards)) {
 				issues.push(`${path}.cards must be a list of columns`);
 				return;
@@ -281,14 +299,12 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 
 	return {
 		...extensions,
-		theme: config.theme && typeof config.theme === 'object' ? config.theme : undefined,
-		theme_night:
-			config.theme_night && typeof config.theme_night === 'object' ? config.theme_night : undefined,
+		theme: normalizeTheme(config.theme),
+		theme_night: normalizeTheme(config.theme_night),
 		day_night: dayNight,
 		rail,
 		rooms,
-		screensaver_minutes:
-			typeof config.screensaver_minutes === 'number' ? config.screensaver_minutes : undefined,
+		screensaver_minutes: normalizeWholeNumber(config.screensaver_minutes, 1),
 		screensaver_drift: config.screensaver_drift === true ? true : undefined,
 		screensaver_brightness:
 			typeof config.screensaver_brightness === 'number' &&
@@ -296,7 +312,7 @@ export function normalizeHearthConfig(raw: unknown): HearthConfig {
 				? Math.min(100, Math.max(10, Math.round(config.screensaver_brightness)))
 				: undefined,
 		keep_screen_on: typeof config.keep_screen_on === 'boolean' ? config.keep_screen_on : undefined,
-		padding_x: typeof config.padding_x === 'number' ? config.padding_x : undefined,
-		padding_y: typeof config.padding_y === 'number' ? config.padding_y : undefined
+		padding_x: normalizeWholeNumber(config.padding_x, 0),
+		padding_y: normalizeWholeNumber(config.padding_y, 0)
 	};
 }

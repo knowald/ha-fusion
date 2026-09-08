@@ -1,5 +1,4 @@
 <script lang="ts">
-	import EmptyState from '../EmptyState.svelte';
 	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
@@ -11,6 +10,7 @@
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import EditSheet from './EditSheet.svelte';
 	import Icon from '../Icon.svelte';
+	import TypeGallery from './TypeGallery.svelte';
 	import RailWidgetRenderer from '../RailWidgetRenderer.svelte';
 	import VisibilityField from './VisibilityField.svelte';
 
@@ -25,7 +25,7 @@
 	let visibility = $state<VisibilityCondition[]>(
 		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
 	);
-	let search = $state('');
+	let typeOpen = $state(index === null);
 	// svelte-ignore state_referenced_locally
 	let conditionsOpen = $state(visibility.length > 0);
 	let draft = $state<WidgetDraft<RailWidget>>({ fields: {} as WidgetDraft<RailWidget>['fields'] });
@@ -33,26 +33,12 @@
 	let descriptor = $derived(widgetDescriptor(type));
 	let editorInitial = $derived(initial?.type === type ? initial : undefined);
 
-	let filteredGallery = $derived.by(() => {
-		const query = search.trim().toLowerCase();
-		if (!query) return RAIL_WIDGET_TYPES;
-		return RAIL_WIDGET_TYPES.filter(
-			(kind) =>
-				$lang(kind.name).toLowerCase().includes(query) ||
-				$lang(kind.sub).toLowerCase().includes(query)
-		);
-	});
-
 	let alwaysVisible = $derived(!hideMobile && visibility.length === 0);
 
 	function setAlwaysVisible() {
 		hideMobile = false;
 		visibility = [];
 		conditionsOpen = false;
-	}
-
-	function scrollSelectedIntoView(node: HTMLElement, selected: boolean) {
-		if (selected) node.scrollIntoView({ block: 'nearest' });
 	}
 
 	function close() {
@@ -106,44 +92,18 @@
 	doneDisabled={draft.valid === false}
 	onremove={index !== null ? remove : undefined}
 	wide
-	split
 >
-	<div class="rail-editor">
-		<div class="gallery">
-			<label class="search">
-				<Icon name="search" size={ICON.inline} />
-				<input type="text" bind:value={search} placeholder="Search widgets" spellcheck="false" />
-			</label>
-			{#each filteredGallery as kind (kind.type)}
-				<div
-					class="kind pressable"
-					class:selected={type === kind.type}
-					use:Ripple={PRESS_RIPPLE}
-					use:scrollSelectedIntoView={type === kind.type}
-					role="button"
-					tabindex="0"
-					onclick={() => (type = kind.type)}
-					onkeydown={(event) => activateOnKeyboard(event, () => (type = kind.type))}
-				>
-					<span class="kind-icon"><Icon name={kind.icon} size={ICON.control} /></span>
-					<div>
-						<div class="kind-name">{$lang(kind.name)}</div>
-						<div class="kind-sub">{$lang(kind.sub)}</div>
-					</div>
-				</div>
-			{:else}
-				<EmptyState inline text={$lang('hearth_no_widgets_match')} />
-			{/each}
-		</div>
+	<TypeGallery
+		kinds={RAIL_WIDGET_TYPES}
+		selected={type}
+		label="hearth_widget_type"
+		searchPlaceholder={$lang('hearth_search_widgets')}
+		noMatch={$lang('hearth_no_widgets_match')}
+		bind:open={typeOpen}
+		onselect={(value) => (type = value as RailWidget['type'])}
+	/>
+	<div class="rail-editor editor-layout" class:hidden={typeOpen}>
 		<div class="config editor-fields">
-			<div class="preview-well" style="pointer-events: none">
-				{#if type === 'spacer'}
-					<div class="preview-note">{$lang('hearth_flexible_gap_pushes_the_widgets_around')}</div>
-				{:else}
-					<RailWidgetRenderer widget={previewWidget} />
-				{/if}
-			</div>
-
 			{#key type}
 				{#if descriptor.editor}
 					{#await descriptor.editor() then Editor}
@@ -195,104 +155,47 @@
 				<VisibilityField bind:value={visibility} />
 			{/if}
 		</div>
+		<aside class="pane">
+			<div class="pane-label">{$lang('hearth_live_preview')}</div>
+			<div class="preview-well" style="pointer-events: none">
+				{#if type === 'spacer'}
+					<div class="preview-note">{$lang('hearth_flexible_gap_pushes_the_widgets_around')}</div>
+				{:else}
+					<RailWidgetRenderer widget={previewWidget} />
+				{/if}
+			</div>
+		</aside>
 	</div>
 </EditSheet>
 
 <style>
 	.rail-editor {
-		display: flex;
-		flex: 1;
-		min-height: 0;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+		align-items: start;
+		gap: 28px;
 	}
 
-	.gallery {
-		width: 248px;
-		flex: none;
-		border-right: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
-		padding: 18px 14px;
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-		overflow-y: auto;
+	.rail-editor.hidden {
+		display: none;
 	}
 
-	.search {
-		flex: none;
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px 12px;
-		border-radius: var(--h-radius-xs);
-		background: rgb(var(--h-surface-rgb) / calc(0.05 * var(--h-fill-scale)));
-		color: var(--h-text-6);
-		margin-bottom: 8px;
+	.pane {
+		position: sticky;
+		top: 0;
 	}
 
-	.search input {
-		flex: 1;
-		min-width: 0;
-		border: none;
-		background: none;
-		outline: none;
-		font-family: inherit;
-		font-size: var(--h-type-secondary);
-		color: var(--h-text-2);
-	}
-
-	.search input::placeholder {
-		color: var(--h-text-6);
-	}
-
-	.kind {
-		/* the gallery is a column flex scroll container - without this, the
-		   ripple action's overflow:hidden drops the pressed row's automatic
-		   min-size and it collapses mid-tap, so the release misses the row */
-		flex: none;
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		padding: 12px 12px;
-		border-radius: var(--h-radius-xs);
-		border: 1px solid transparent;
-		color: var(--h-text-3);
-		cursor: pointer;
-		user-select: none;
-		-webkit-user-select: none;
-	}
-
-	.kind-icon {
-		color: var(--h-icon);
-	}
-
-	.kind-name {
-		font-size: var(--h-type-body);
-		font-weight: 500;
-	}
-
-	.kind-sub {
+	.pane-label {
+		font-family: var(--h-font-mono);
 		font-size: var(--h-type-label);
-		color: var(--h-text-6);
-	}
-
-	.kind.selected {
-		background: rgb(var(--h-accent-rgb) / calc(0.14 * var(--h-accent-scale)));
-		border-color: rgb(var(--h-accent-rgb) / calc(0.3 * var(--h-accent-scale)));
-	}
-
-	.kind.selected .kind-icon,
-	.kind.selected .kind-name {
-		color: var(--h-accent-icon);
-	}
-
-	.kind.selected .kind-name {
-		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--h-label);
+		margin-bottom: 10px;
 	}
 
 	.config {
-		flex: 1;
 		min-width: 0;
-		padding: 20px 28px 28px;
-		overflow-y: auto;
 	}
 
 	.preview-well {
@@ -337,21 +240,14 @@
 		color: var(--h-accent-icon);
 	}
 
-	@media (max-width: 700px) {
+	@media (max-width: 820px) {
 		.rail-editor {
-			flex-direction: column;
-			overflow-y: auto;
+			grid-template-columns: 1fr;
+			gap: 18px;
 		}
 
-		.gallery {
-			width: 100%;
-			border-right: none;
-			border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.06 * var(--h-line-scale)));
-			overflow-y: visible;
-		}
-
-		.config {
-			overflow-y: visible;
+		.pane {
+			position: static;
 		}
 	}
 </style>

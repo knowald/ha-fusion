@@ -120,17 +120,31 @@ export async function saveWithFeedback(force = false): Promise<void> {
 	}
 }
 
+let saveInFlight: Promise<boolean> | null = null;
+
 /** Returns false on a revision conflict (another tab saved first). */
-export async function saveEdit(force = false): Promise<boolean> {
+export function saveEdit(force = false): Promise<boolean> {
+	// a second save while one is in flight would race its feedback and could
+	// clear history for edits it never sent, so it shares the first request
+	if (!saveInFlight) {
+		saveInFlight = performSave(force).finally(() => {
+			saveInFlight = null;
+		});
+	}
+	return saveInFlight;
+}
+
+async function performSave(force: boolean): Promise<boolean> {
 	const loadError = get(hearthLoadError);
 	if (loadError) {
 		saveState.set('error');
 		throw new Error(`Cannot save an unreadable Hearth configuration: ${loadError}`);
 	}
+	const config = get(hearthConfig);
 	const response = await fetch(`${base}/_api/save_hearth`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig), force })
+		body: JSON.stringify({ revision: get(hearthRevision), config, force })
 	});
 	if (response.status === 409) {
 		// keep the stale revision: a plain retry must conflict again, only the
@@ -148,6 +162,13 @@ export async function saveEdit(force = false): Promise<boolean> {
 	saveState.set('saved');
 	clearTimeout(savedToastTimer);
 	savedToastTimer = setTimeout(() => saveState.set('idle'), 2500);
+	if (get(hearthConfig) !== config) {
+		// edits landed while the request was in flight; they are still unsaved,
+		// so the editor stays open with its history and Cancel now returns to
+		// what was just saved
+		editSnapshot = config;
+		return true;
+	}
 	editSnapshot = null;
 	undoStack.length = 0;
 	redoStack.length = 0;

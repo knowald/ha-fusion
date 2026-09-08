@@ -215,37 +215,39 @@
 					<div class="section-hint">{summary.activeLabel}</div>
 				{/if}
 				<div class="section-spacer"></div>
-				{#if showGroupActions && switchableIds.length > 1}
-					<button
-						type="button"
-						class="group-action pressable"
-						use:Ripple={PRESS_RIPPLE}
-						onclick={() => turnAllOff(switchableIds)}
-					>
-						<Icon name="power_settings_new" size={ICON.inline} />
-						{$lang('hearth_all_off')}
-					</button>
-				{/if}
-				{#if showGroupActions && coverIds.length > 1}
-					<button
-						type="button"
-						class="group-action pressable"
-						use:Ripple={PRESS_RIPPLE}
-						onclick={() => setAllCovers(coverIds, true)}
-					>
-						<Icon name="keyboard_double_arrow_up" size={ICON.inline} />
-						{$lang('hearth_open_all')}
-					</button>
-					<button
-						type="button"
-						class="group-action pressable"
-						use:Ripple={PRESS_RIPPLE}
-						onclick={() => setAllCovers(coverIds, false)}
-					>
-						<Icon name="keyboard_double_arrow_down" size={ICON.inline} />
-						{$lang('hearth_close_all')}
-					</button>
-				{/if}
+				<div class="section-actions">
+					{#if showGroupActions && switchableIds.length > 1}
+						<button
+							type="button"
+							class="group-action pressable"
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => turnAllOff(switchableIds)}
+						>
+							<Icon name="power_settings_new" size={ICON.inline} />
+							{$lang('hearth_all_off')}
+						</button>
+					{/if}
+					{#if showGroupActions && coverIds.length > 1}
+						<button
+							type="button"
+							class="group-action pressable"
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => setAllCovers(coverIds, true)}
+						>
+							<Icon name="keyboard_double_arrow_up" size={ICON.inline} />
+							{$lang('hearth_open_all')}
+						</button>
+						<button
+							type="button"
+							class="group-action pressable"
+							use:Ripple={PRESS_RIPPLE}
+							onclick={() => setAllCovers(coverIds, false)}
+						>
+							<Icon name="keyboard_double_arrow_down" size={ICON.inline} />
+							{$lang('hearth_close_all')}
+						</button>
+					{/if}
+				</div>
 			</div>
 		{/if}
 		{#if resolvedEntities.length === 0 && (!$hearthEditMode || !showEntityDragHandles)}
@@ -272,7 +274,8 @@
 	.section-header {
 		display: flex;
 		align-items: center;
-		gap: 14px;
+		flex-wrap: wrap;
+		gap: 10px 14px;
 		margin-bottom: 14px;
 	}
 
@@ -283,6 +286,7 @@
 	}
 
 	.section-hint {
+		white-space: nowrap;
 		font-size: var(--h-type-secondary);
 		color: var(--h-text-5);
 	}
@@ -291,9 +295,18 @@
 		flex: 1;
 	}
 
+	/* actions wrap as one unit under the title on narrow cards */
+	.section-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-left: auto;
+	}
+
 	.group-action {
 		display: flex;
 		align-items: center;
+		white-space: nowrap;
 		gap: 8px;
 		padding: 10px 14px;
 		border-radius: var(--h-radius-pill);

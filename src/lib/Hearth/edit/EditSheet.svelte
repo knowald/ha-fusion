@@ -228,6 +228,7 @@
 	   snippets rendered into this shared shell. */
 	.body > :global(.group-label),
 	.body > :global(.type-gallery),
+	.body > :global(.editor-layout),
 	.body > :global(.preview),
 	.body > :global(.filter-row),
 	.body > :global(.add-filter),
@@ -288,7 +289,7 @@
 		border-color: var(--h-bad-text);
 	}
 
-	@media (max-width: 700px) {
+	@media (max-width: 820px) {
 		.overlay {
 			align-items: stretch;
 			padding: 8px;

@@ -18,6 +18,7 @@ export default defineConfig({
 			'd3-array',
 			'd3-scale',
 			'd3-shape',
+			'dompurify',
 			'dotenv',
 			'express',
 			'hls.js',

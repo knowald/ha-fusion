@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { SceneRefSchema } from '../../schema';
+import { OptionalText, SceneRefSchema } from '../../schema';
 import type { OverviewCard, SceneRef } from '../../types';
 import { normalizeSceneRef } from '../../normalizers';
 import type { CardDescriptor } from '../types';
@@ -19,7 +19,11 @@ export const scenesCard: CardDescriptor<ScenesCard> = {
 			.map(normalizeSceneRef)
 			.filter((ref: SceneRef | null): ref is SceneRef => ref !== null)
 	}),
-	schema: v.looseObject({ scenes: v.array(SceneRefSchema, 'must be a list') }),
+	schema: v.looseObject({
+		title: OptionalText,
+		style: v.optional(v.picklist(['chips', 'bar'], 'must be chips or bar')),
+		scenes: v.array(SceneRefSchema, 'must be a list')
+	}),
 	needsConfiguration: (card) => card.scenes.length === 0,
 	entityIds: (card) =>
 		card.scenes.flatMap((ref) => [ref.entity, ...(ref.active_entity ? [ref.active_entity] : [])]),
