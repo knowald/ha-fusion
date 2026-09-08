@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
-	import { hearthEditMode, sensorNumber } from './store';
+	import { activateOnKeyboard } from './interaction';
+	import { states } from '$lib/core/ha/entities';
+	import { hearthEditMode } from './store';
+	import { sensorNumber } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 
 	let {
@@ -33,6 +35,9 @@
 	class="header"
 	class:editable={$hearthEditMode && onedit}
 	onclick={() => $hearthEditMode && onedit?.()}
+	role="button"
+	tabindex="0"
+	onkeydown={(event) => activateOnKeyboard(event, () => $hearthEditMode && onedit?.())}
 >
 	<div class="icon-tile">
 		<Icon name={icon || 'home'} size={32} color="var(--h-accent-text)" />

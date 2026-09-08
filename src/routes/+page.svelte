@@ -17,7 +17,8 @@
 		connection,
 		youtubeAddon
 	} from '$lib/Stores';
-	import { authentication } from '$lib/Socket';
+	import { startConnection, stopConnection } from '$lib/core/ha/connection';
+	import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { modals } from '$lib/Modals';
@@ -63,52 +64,19 @@
 					$dashboard?.views?.find((view) => view?.isDndShadowItem)
 	);
 
-	/**
-	 * WebSocket, tries to reconnect if no previous connection has been made.
-	 */
-	let isConnecting = false;
-	let retryInterval: ReturnType<typeof setInterval>;
+	const connectionHooks = { onTokenRequired: openTokenPrompt };
 
 	if (browser) {
 		document.documentElement.lang = $selectedLanguage || 'en';
-
-		connect();
-		retryInterval = setInterval(connect, 3000);
+		startConnection($configuration, connectionHooks);
 	}
 
-	async function connect() {
-		if (isConnecting) return;
-		isConnecting = true;
-
-		console.debug('authenticating...');
-
-		try {
-			await authentication($configuration);
-			console.debug('authenticated.');
-			clearInterval(retryInterval);
-		} catch {
-			// catch but don't log
-		} finally {
-			isConnecting = false;
-		}
-	}
-
-	/**
-	 * Reconnect if long-lived access token changes
-	 */
+	// reconnect when a long-lived access token is entered
 	$effect(() => {
-		if ($configuration?.token) updateConnection();
+		if ($configuration?.token && browser) startConnection($configuration, connectionHooks);
 	});
 
-	function updateConnection() {
-		if (isConnecting || !browser) return;
-		clearInterval(retryInterval);
-
-		connect();
-		retryInterval = setInterval(connect, 3000);
-	}
-
-	onDestroy(() => clearInterval(retryInterval));
+	onDestroy(stopConnection);
 
 	onMount(async () => {
 		/**

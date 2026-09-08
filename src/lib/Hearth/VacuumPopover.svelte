@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE, type VacuumModeRef } from './config';
 	import { getHearthInteractionMode } from './interaction';
-	import { callEntityService, vacuumCommand } from './store';
+	import { callEntityService } from '$lib/core/ha/commands';
+	import { vacuumCommand } from '$lib/core/domains/vacuum';
 	import Icon from './Icon.svelte';
 
 	let {

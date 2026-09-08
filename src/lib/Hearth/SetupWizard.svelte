@@ -1,9 +1,12 @@
 <script lang="ts">
-	import { connection, lang, states } from '$lib/Stores';
+	import { connection } from '$lib/core/ha/connection';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/Actions/ripple';
 	import { isStack, PRESS_RIPPLE, uniqueId, type HearthRoom } from './config';
 	import Icon from './Icon.svelte';
-	import { buildProposal, fetchRegistry, type HearthProposal } from './registry';
+	import { buildProposal, type HearthProposal } from './proposal';
+	import { fetchRegistry } from '$lib/core/ha/registry';
 	import { hearthNeedsSetup, updateConfig } from './store';
 
 	let { onclose }: { onclose: () => void } = $props();

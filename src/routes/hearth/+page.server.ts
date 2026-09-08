@@ -4,7 +4,7 @@ import * as yaml from 'js-yaml';
 import type { Configuration, Translations } from '$lib/Types';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 async function loadYaml(file: string) {
 	try {

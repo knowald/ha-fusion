@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { capitalize, type RailWidget } from './config';
-	import { hearthEditMode, sensorNumber } from './store';
+	import { hearthEditMode } from './store';
+	import { sensorNumber } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 
 	let { widget }: { widget: Extract<RailWidget, { type: 'progress' }> } = $props();
@@ -122,6 +123,7 @@
 		class:inactive={!active && !completed}
 		class:completed
 		type={completed && !$hearthEditMode ? 'button' : undefined}
+		role={completed && !$hearthEditMode ? undefined : 'status'}
 		title={completed && !$hearthEditMode ? 'Tap to dismiss' : undefined}
 		onclick={completed && !$hearthEditMode ? dismissCompletion : undefined}
 	>

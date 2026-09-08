@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { lang, states } from '$lib/Stores';
-	import type { VerdictBands } from './config';
-	import {
-		airQualityVerdict,
-		entityAvailability,
-		hearthEditMode,
-		popup,
-		sensorNumber
-	} from './store';
-	import { activateOnKeyboard } from './interaction';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
+	import type { VerdictBands } from '$lib/core/domains/sensor';
+	import { hearthEditMode, popup } from './store';
+	import { airQualityVerdict } from '$lib/core/domains/sensor';
+	import { entityAvailability, sensorNumber } from '$lib/core/ha/entities';
 
 	let {
 		entity,
@@ -44,14 +40,7 @@
 	}
 </script>
 
-<div
-	class="stat"
-	class:openable
-	role={openable ? 'button' : undefined}
-	tabindex={openable ? 0 : undefined}
-	onclick={openHistory}
-	onkeydown={(event) => activateOnKeyboard(event, openHistory)}
->
+{#snippet body()}
 	<div class="stat-head">
 		<div class="stat-label">{label}</div>
 		{#if verdict}
@@ -75,13 +64,32 @@
 			{/each}
 		</div>
 	{/if}
-</div>
+{/snippet}
+
+{#if openable}
+	<button type="button" class="stat openable" onclick={openHistory}>
+		{@render body()}
+	</button>
+{:else}
+	<div class="stat">
+		{@render body()}
+	</div>
+{/if}
 
 <style>
 	.stat {
+		display: block;
+		box-sizing: border-box;
+		width: 100%;
+		margin: 0;
 		padding: 14px;
+		border: 0;
 		border-radius: var(--h-radius-sm);
 		background: var(--h-inset);
+		font: inherit;
+		color: inherit;
+		text-align: left;
+		appearance: none;
 		user-select: none;
 		-webkit-user-select: none;
 	}

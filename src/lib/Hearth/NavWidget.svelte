@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import { sortable } from '$lib/Actions/sortable';
-	import { lang } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from './config';
 	import type { HearthRoom } from './config';
 	import { currentRoom, editor, hearthConfig, hearthEditMode, updateConfig } from './store';

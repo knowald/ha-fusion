@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
-	import { attentionItems, hearthConfig } from './store';
+	import { states } from '$lib/core/ha/entities';
+	import { hearthConfig } from './store';
+	import { attentionItems } from './attention';
 	import Icon from './Icon.svelte';
 
 	let { icon = 'eco', text, entity }: { icon?: string; text?: string; entity?: string } = $props();

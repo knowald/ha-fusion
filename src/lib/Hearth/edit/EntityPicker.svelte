@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
+	import { activateOnKeyboard } from '../interaction';
+	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/Actions/ripple';
 	import { domainIcon, PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
@@ -58,8 +59,8 @@
 	mount order, so stopping propagation here reliably closes only the picker. -->
 <svelte:window onkeydowncapture={handleKeydown} />
 
-<div class="overlay" onclick={onclose}>
-	<div class="panel" onclick={(event) => event.stopPropagation()}>
+<div class="overlay" onclick={onclose} role="presentation">
+	<div class="panel" onclick={(event) => event.stopPropagation()} role="presentation">
 		<div class="search">
 			<Icon name="search" size={20} />
 			<input
@@ -69,11 +70,25 @@
 				spellcheck="false"
 				use:focusOnMount
 			/>
-			<span class="icon-button" onclick={onclose}><Icon name="close" size={22} /></span>
+			<span
+				class="icon-button"
+				onclick={onclose}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, onclose)}
+				><Icon name="close" size={22} /></span
+			>
 		</div>
 		<div class="list">
 			{#each matches.slice(0, MAX_ROWS) as entry (entry.entityId)}
-				<div class="row pressable" use:Ripple={PRESS_RIPPLE} onclick={() => pick(entry.entityId)}>
+				<div
+					class="row pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={() => pick(entry.entityId)}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => pick(entry.entityId))}
+				>
 					<span class="row-icon"><Icon name={domainIcon(entry.entityId)} size={20} /></span>
 					<span class="row-text">
 						<span class="row-name">{entry.name}</span>

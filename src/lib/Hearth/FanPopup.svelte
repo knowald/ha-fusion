@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { activateOnKeyboard } from './interaction';
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { getSupport } from '$lib/Utils';
 	import { PRESS_RIPPLE } from './config';
-	import { callEntityService, setFanSpeed } from './store';
+	import { callEntityService } from '$lib/core/ha/commands';
+	import { setFanSpeed } from '$lib/core/domains/fan';
 
 	let { entity }: { entity: string } = $props();
 
@@ -52,6 +54,9 @@
 			class:active={active === speed.value}
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => setFanSpeed(entity, speed.value)}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => setFanSpeed(entity, speed.value))}
 		>
 			{speed.label}
 		</div>
@@ -67,6 +72,10 @@
 				class:active={attributes?.preset_mode === mode}
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => call('set_preset_mode', { preset_mode: mode })}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) =>
+					activateOnKeyboard(event, () => call('set_preset_mode', { preset_mode: mode }))}
 			>
 				{mode}
 			</div>
@@ -82,6 +91,10 @@
 			class:active={attributes?.oscillating === true}
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => call('oscillate', { oscillating: true })}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) =>
+				activateOnKeyboard(event, () => call('oscillate', { oscillating: true }))}
 		>
 			On
 		</div>
@@ -90,6 +103,10 @@
 			class:active={attributes?.oscillating === false}
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => call('oscillate', { oscillating: false })}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) =>
+				activateOnKeyboard(event, () => call('oscillate', { oscillating: false }))}
 		>
 			Off
 		</div>
@@ -104,6 +121,10 @@
 			class:active={attributes?.direction === 'forward'}
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => call('set_direction', { direction: 'forward' })}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) =>
+				activateOnKeyboard(event, () => call('set_direction', { direction: 'forward' }))}
 		>
 			Forward
 		</div>
@@ -112,6 +133,10 @@
 			class:active={attributes?.direction === 'reverse'}
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => call('set_direction', { direction: 'reverse' })}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) =>
+				activateOnKeyboard(event, () => call('set_direction', { direction: 'reverse' }))}
 		>
 			Reverse
 		</div>

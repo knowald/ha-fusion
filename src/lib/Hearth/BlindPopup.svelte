@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
+	import { activateOnKeyboard } from './interaction';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { getSupport } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
@@ -7,11 +8,10 @@
 	import {
 		blindPositionFor,
 		blindTiltFor,
-		callEntityService,
-		controlOverrides,
 		setBlindPosition,
 		setBlindTiltPosition
-	} from './store';
+	} from '$lib/core/domains/cover';
+	import { callEntityService, controlOverrides } from '$lib/core/ha/commands';
 	import PopupSlider from './PopupSlider.svelte';
 
 	let {
@@ -52,6 +52,9 @@
 		class="button pressable"
 		use:Ripple={PRESS_RIPPLE}
 		onclick={() => setBlindPosition(entity, 0)}
+		role="button"
+		tabindex="0"
+		onkeydown={(event) => activateOnKeyboard(event, () => setBlindPosition(entity, 0))}
 	>
 		Close
 	</div>
@@ -60,6 +63,9 @@
 			class="button pressable"
 			use:Ripple={PRESS_RIPPLE}
 			onclick={() => callCoverService('stop_cover')}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('stop_cover'))}
 		>
 			Stop
 		</div>
@@ -68,6 +74,9 @@
 		class="button primary pressable"
 		use:Ripple={PRESS_RIPPLE}
 		onclick={() => setBlindPosition(entity, 100)}
+		role="button"
+		tabindex="0"
+		onkeydown={(event) => activateOnKeyboard(event, () => setBlindPosition(entity, 100))}
 	>
 		Open fully
 	</div>
@@ -91,6 +100,9 @@
 				class="button pressable"
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => callCoverService('close_cover_tilt')}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('close_cover_tilt'))}
 			>
 				Close tilt
 			</div>
@@ -100,6 +112,9 @@
 				class="button pressable"
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => callCoverService('stop_cover_tilt')}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('stop_cover_tilt'))}
 			>
 				Stop tilt
 			</div>
@@ -109,6 +124,9 @@
 				class="button primary pressable"
 				use:Ripple={PRESS_RIPPLE}
 				onclick={() => callCoverService('open_cover_tilt')}
+				role="button"
+				tabindex="0"
+				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('open_cover_tilt'))}
 			>
 				Open tilt
 			</div>

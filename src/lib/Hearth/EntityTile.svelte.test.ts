@@ -1,15 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { get } from 'svelte/store';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { states } from '$lib/Stores';
+import { states } from '$lib/core/ha/entities';
 import { hassEntity } from './testing';
 import EntityTile from './EntityTile.svelte';
 
-vi.mock('./store', async (importOriginal) => ({
-	...(await importOriginal<typeof import('./store')>()),
+vi.mock('$lib/core/domains/entity', async (importOriginal) => ({
+	...(await importOriginal<typeof import('$lib/core/domains/entity')>()),
 	toggleEntity: vi.fn()
 }));
-import { dismissConfirmation, requestedConfirmation, toggleEntity } from './store';
+import { dismissConfirmation, requestedConfirmation } from './store';
+import { toggleEntity } from '$lib/core/domains/entity';
 
 describe('EntityTile', () => {
 	beforeEach(() => {

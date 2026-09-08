@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import { get } from 'svelte/store';
 	import Ripple from '$lib/Actions/ripple';
 	import {
@@ -659,7 +660,14 @@
 								<span>Recommended mode</span>
 							</label>
 						</div>
-						<span class="remove" onclick={() => vacuumModes.splice(modeIndex, 1)}>
+						<span
+							class="remove"
+							onclick={() => vacuumModes.splice(modeIndex, 1)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) =>
+								activateOnKeyboard(event, () => vacuumModes.splice(modeIndex, 1))}
+						>
 							<Icon name="delete" size={20} />
 						</span>
 					</div>
@@ -675,6 +683,19 @@
 							duration: '',
 							default: false
 						})}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) =>
+						activateOnKeyboard(event, () =>
+							vacuumModes.push({
+								entity: '',
+								name: '',
+								icon: '',
+								detail: '',
+								duration: '',
+								default: false
+							})
+						)}
 				>
 					<Icon name="add" size={18} />
 					<span>Add cleaning mode</span>
@@ -855,7 +876,13 @@
 								{/if}
 							</div>
 						{/each}
-						<div class="add-filter" onclick={addEntityRow}>
+						<div
+							class="add-filter"
+							onclick={addEntityRow}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, addEntityRow)}
+						>
 							<Icon name="add" size={18} />
 							<span>Add entity</span>
 						</div>
@@ -900,7 +927,13 @@
 								placeholder="on"
 							/>
 						</div>
-						<span class="remove" onclick={() => scenes.splice(refIndex, 1)}>
+						<span
+							class="remove"
+							onclick={() => scenes.splice(refIndex, 1)}
+							role="button"
+							tabindex="0"
+							onkeydown={(event) => activateOnKeyboard(event, () => scenes.splice(refIndex, 1))}
+						>
 							<Icon name="delete" size={20} />
 						</span>
 					</div>
@@ -920,6 +953,19 @@
 							active_entity: '',
 							active_state: ''
 						})}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) =>
+						activateOnKeyboard(event, () =>
+							scenes.push({
+								entity: '',
+								name: '',
+								icon: '',
+								caption: '',
+								active_entity: '',
+								active_state: ''
+							})
+						)}
 				>
 					<Icon name="add" size={18} />
 					<span>Add scene</span>
@@ -939,12 +985,22 @@
 						class="elements-editor pressable"
 						use:Ripple={PRESS_RIPPLE}
 						onclick={openElementsEditor}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
 					>
 						<Icon name="edit" size={18} />
 						<span>Open elements editor</span>
 					</div>
 				{/if}
-				<div class="advanced-toggle pressable" use:Ripple={PRESS_RIPPLE} onclick={toggleAdvanced}>
+				<div
+					class="advanced-toggle pressable"
+					use:Ripple={PRESS_RIPPLE}
+					onclick={toggleAdvanced}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
+				>
 					<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
 					<span>Advanced (YAML)</span>
 				</div>

@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { callService } from 'home-assistant-js-websocket';
-import { connection } from '$lib/Stores';
+import { connection } from '$lib/core/ha/connection';
 
 export interface QueueTrack {
 	name: string;

@@ -2,27 +2,30 @@ import { writable, readable, derived, get } from 'svelte/store';
 import type {
 	Configuration,
 	Dashboard,
-	PersistentNotification,
 	Template,
-	Translations,
 	Views,
 	KonvaStore,
 	KonvaImageCache
 } from '$lib/Types';
-import type {
-	Connection,
-	HassConfig,
-	HassEntities,
-	HassServices
-} from 'home-assistant-js-websocket';
 import { getName, getSelected } from './Utils';
+import { ACTIVE_STATES, states } from '$lib/core/ha/entities';
 
-// hass
-export const connection = writable<Connection>();
-export const config = writable<HassConfig>();
-export const states = writable<HassEntities>();
-export const services = writable<HassServices>();
-export const connected = writable<boolean>();
+/*
+ * Stores of the original dashboard. The Home Assistant connection, entity
+ * state and translation stores moved to src/lib/core and are re-exported here
+ * so the original components keep their import paths until they are retired.
+ */
+
+export {
+	connection,
+	config,
+	services,
+	connected,
+	event,
+	persistentNotifications
+} from '$lib/core/ha/connection';
+export { states } from '$lib/core/ha/entities';
+export { translation, selectedLanguage, lang } from '$lib/core/i18n';
 
 // user
 export const configuration = writable<Configuration>();
@@ -53,33 +56,8 @@ export function updateDashboard(sel: any, mutate: (live: any) => void) {
 	return refreshDashboard(sel?.id) ?? sel;
 }
 
-// states
-export const onStates = readable([
-	'active',
-	'auto',
-	'cool',
-	'dry',
-	'fan_only',
-	'heat',
-	'heat_cool',
-	'heating',
-	'home',
-	'on',
-	'open',
-	'playing',
-	'unlocking',
-	'unlocked',
-	// vacuum
-	'cleaning',
-	'returning',
-	// water_heater
-	'eco',
-	'electric',
-	'performance',
-	'high_demand',
-	'heat_pump',
-	'gas'
-]);
+// states the original button treats as active; kept under its old name
+export const onStates = readable(ACTIVE_STATES);
 
 // climate states
 export const climateHvacActionToMode = readable<Record<string, string>>({
@@ -104,15 +82,6 @@ export const editMode = writable(false);
 export const showDrawer = writable(false);
 export const motion = writable(190);
 export const itemHeight = readable(61.35);
-
-// language
-export const translation = writable<Translations>({});
-export const selectedLanguage = writable<string>();
-export const lang = derived(
-	translation,
-	(obj: Translations & { _default?: Record<string, string> }) => (key: string) =>
-		obj[key] || obj._default?.[key] || key
-);
 
 // views
 export const currentViewId = writable<number | undefined>();
@@ -200,12 +169,6 @@ export const entityList = derived(
 				};
 			})
 );
-
-// event
-export const event = writable<string | undefined>();
-export const persistentNotifications = writable<{
-	[notificationId: string]: PersistentNotification;
-}>({});
 
 // konva
 export const konvaImageCache = writable<KonvaImageCache>({});

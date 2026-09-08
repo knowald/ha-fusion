@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
@@ -95,6 +96,7 @@
 							type="button"
 							class="switch pressable"
 							class:on={screensaverDrift}
+							aria-label="Screensaver drift"
 							aria-pressed={screensaverDrift}
 							use:Ripple={PRESS_RIPPLE}
 							onclick={() => setScreensaverDrift(!screensaverDrift)}
@@ -129,6 +131,9 @@
 						class:on={keepScreenOn}
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => setKeepScreenOn(!keepScreenOn)}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) => activateOnKeyboard(event, () => setKeepScreenOn(!keepScreenOn))}
 					>
 						<div class="knob"></div>
 					</div>
@@ -186,6 +191,10 @@
 					class="row action pressable"
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => editor.set({ kind: 'appSettings' })}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) =>
+						activateOnKeyboard(event, () => editor.set({ kind: 'appSettings' }))}
 				>
 					<Icon name="settings_applications" size={18} />
 					<div class="row-main">
@@ -198,6 +207,9 @@
 					class="row action pressable"
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => editor.set({ kind: 'code' })}
+					role="button"
+					tabindex="0"
+					onkeydown={(event) => activateOnKeyboard(event, () => editor.set({ kind: 'code' }))}
 				>
 					<Icon name="code" size={18} />
 					<div class="row-main">

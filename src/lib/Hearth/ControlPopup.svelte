@@ -1,14 +1,8 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
-	import {
-		closePopup,
-		controlOverrides,
-		editor,
-		lightViewFor,
-		pendingEntities,
-		popup,
-		toggleLight
-	} from './store';
+	import { states } from '$lib/core/ha/entities';
+	import { closePopup, editor, popup } from './store';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { lightViewFor, toggleLight } from '$lib/core/domains/light';
 	import BlindPopup from './BlindPopup.svelte';
 	import FanPopup from './FanPopup.svelte';
 	import Icon from './Icon.svelte';
@@ -36,12 +30,12 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if $popup}
-	<div class="overlay" onclick={closePopup}>
+	<div class="overlay" onclick={closePopup} role="presentation">
 		{#if $popup.kind === 'media'}
 			<!-- the media sheet is full-bleed art with its own chrome -->
 			<MediaPopup entity={$popup.entity} />
 		{:else}
-			<div class="sheet" onclick={(event) => event.stopPropagation()}>
+			<div class="sheet" onclick={(event) => event.stopPropagation()} role="presentation">
 				<div class="header">
 					<div class="icon-tile">
 						<Icon name={meta[$popup.kind].icon} size={26} color="var(--h-accent-text)" />

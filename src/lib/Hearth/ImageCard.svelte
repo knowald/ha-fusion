@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import type { OverviewCard } from './config';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'image' }> } = $props();

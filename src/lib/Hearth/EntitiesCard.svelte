@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import {
 		domainIcon,
 		findOverviewCard,
@@ -10,13 +10,10 @@
 		type OverviewCard
 	} from './config';
 	import { getHearthInteractionMode } from './interaction';
-	import {
-		entityGroupSummary,
-		hearthEditMode,
-		setAllCovers,
-		turnAllOff,
-		updateConfig
-	} from './store';
+	import { hearthEditMode, updateConfig } from './store';
+	import { entityGroupSummary } from '$lib/core/ha/entities';
+	import { setAllCovers } from '$lib/core/domains/cover';
+	import { turnAllOff } from '$lib/core/domains/light';
 	import AnchoredPopover from './AnchoredPopover.svelte';
 	import EntityGrid from './EntityGrid.svelte';
 	import Icon from './Icon.svelte';

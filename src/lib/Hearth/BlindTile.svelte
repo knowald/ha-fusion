@@ -1,18 +1,13 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { lang, states } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { capitalize, PRESS_RIPPLE } from './config';
-	import {
-		blindPositionFor,
-		controlOverrides,
-		entityAvailability,
-		hearthEditMode,
-		pendingEntities,
-		popup,
-		requestConfirmation,
-		toggleBlind
-	} from './store';
+	import { hearthEditMode, popup, requestConfirmation } from './store';
+	import { blindPositionFor, toggleBlind } from '$lib/core/domains/cover';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { entityAvailability } from '$lib/core/ha/entities';
 	import Icon from './Icon.svelte';
 	import TuneButton from './TuneButton.svelte';
 	import { activateOnKeyboard, longPress } from './interaction';

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import type { VisibilityCondition } from '../config';
 	import Icon from '../Icon.svelte';
 	import EntityField from './EntityField.svelte';
@@ -114,12 +115,24 @@
 				/>
 			{/if}
 		</div>
-		<span class="remove" onclick={() => removeRow(index)}>
+		<span
+			class="remove"
+			onclick={() => removeRow(index)}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, () => removeRow(index))}
+		>
 			<Icon name="delete" size={20} />
 		</span>
 	</div>
 {/each}
-<div class="add-row" onclick={addRow}>
+<div
+	class="add-row"
+	onclick={addRow}
+	role="button"
+	tabindex="0"
+	onkeydown={(event) => activateOnKeyboard(event, addRow)}
+>
 	<Icon name="add" size={18} />
 	<span>Add condition</span>
 </div>

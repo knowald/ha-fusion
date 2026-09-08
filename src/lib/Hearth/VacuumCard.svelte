@@ -1,16 +1,12 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import {
-		controlOverrides,
-		entityActiveFor,
-		hearthEditMode,
-		pendingEntities,
-		sensorNumber,
-		toggleVacuum
-	} from './store';
+	import { hearthEditMode } from './store';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { entityActiveFor, sensorNumber } from '$lib/core/ha/entities';
+	import { toggleVacuum } from '$lib/core/domains/vacuum';
 	import AnchoredPopover from './AnchoredPopover.svelte';
 	import Icon from './Icon.svelte';
 	import { getHearthInteractionMode } from './interaction';

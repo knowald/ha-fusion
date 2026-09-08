@@ -1,10 +1,13 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { connected, connection, lang, selectedLanguage, states } from '$lib/Stores';
+	import { connected, connection } from '$lib/core/ha/connection';
+	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE, type RailWidget } from './config';
 	import { clockTimeOptions } from './clock';
-	import { startDataRefresh } from './refresh';
-	import { hearthConfig, hearthEditMode, sensorNumber } from './store';
+	import { startDataRefresh } from '$lib/core/ha/history';
+	import { hearthConfig, hearthEditMode } from './store';
+	import { sensorNumber } from '$lib/core/ha/entities';
 	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import Icon from './Icon.svelte';
 

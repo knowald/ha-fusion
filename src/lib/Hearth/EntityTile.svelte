@@ -1,21 +1,15 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
 	import StateLogic from '$lib/ui/StateLogic.svelte';
-	import { lang, states } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
 	import { domainIcon, PRESS_RIPPLE } from './config';
-	import { getTogglableService } from '$lib/Utils';
-	import {
-		controlOverrides,
-		entityActiveFor,
-		entityAvailability,
-		hearthEditMode,
-		pendingEntities,
-		popup,
-		requestConfirmation,
-		sensorNumber,
-		toggleEntity
-	} from './store';
+	import { getTogglableService } from '$lib/core/ha/entities';
+	import { hearthEditMode, popup, requestConfirmation } from './store';
+	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
+	import { entityActiveFor, entityAvailability, sensorNumber } from '$lib/core/ha/entities';
+	import { toggleEntity } from '$lib/core/domains/entity';
 	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
 	import BlindTile from './BlindTile.svelte';
 	import Icon from './Icon.svelte';

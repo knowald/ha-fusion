@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import { lang } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
 

@@ -2,7 +2,8 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import Ripple from '$lib/Actions/ripple';
-	import { configuration, motion, selectedLanguage, translation } from '$lib/Stores';
+	import { configuration, motion } from '$lib/Stores';
+	import { selectedLanguage, translation } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import { editor } from '../store';
 	import EditSheet from './EditSheet.svelte';
@@ -139,6 +140,7 @@
 					type="button"
 					class="switch pressable"
 					class:on={reduceMotion}
+					aria-label="Reduce motion"
 					aria-pressed={reduceMotion}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (reduceMotion = !reduceMotion)}
@@ -152,6 +154,7 @@
 					type="button"
 					class="switch pressable"
 					class:on={youtube}
+					aria-label="YouTube add-on"
 					aria-pressed={youtube}
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (youtube = !youtube)}

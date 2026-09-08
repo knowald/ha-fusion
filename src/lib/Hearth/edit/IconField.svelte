@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
@@ -174,7 +175,14 @@
 			<Icon name={value.trim() || 'category'} size={20} />
 		</span>
 		<input type="text" bind:value {placeholder} spellcheck="false" />
-		<span class="expand pressable" use:Ripple={PRESS_RIPPLE} onclick={toggle}>
+		<span
+			class="expand pressable"
+			use:Ripple={PRESS_RIPPLE}
+			onclick={toggle}
+			role="button"
+			tabindex="0"
+			onkeydown={(event) => activateOnKeyboard(event, toggle)}
+		>
 			<Icon name={expanded ? 'expand_less' : 'apps'} size={20} />
 		</span>
 	</div>
@@ -196,6 +204,9 @@
 						title={name}
 						use:Ripple={PRESS_RIPPLE}
 						onclick={() => pick(name)}
+						role="button"
+						tabindex="0"
+						onkeydown={(event) => activateOnKeyboard(event, () => pick(name))}
 					>
 						<Icon {name} size={22} />
 					</span>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { lang, states } from '$lib/Stores';
+	import { lang } from '$lib/core/i18n';
+	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/Actions/ripple';
 	import { domainIcon, PRESS_RIPPLE } from './config';
 	import { currentRoom, hearthConfig } from './store';

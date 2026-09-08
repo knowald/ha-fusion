@@ -1,15 +1,11 @@
 <script lang="ts">
 	import Ripple from '$lib/Actions/ripple';
-	import { states } from '$lib/Stores';
+	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from './config';
 	import type { OverviewCard } from './config';
-	import {
-		activateScene,
-		activeSceneIndex,
-		hearthEditMode,
-		pendingEntities,
-		requestConfirmation
-	} from './store';
+	import { hearthEditMode, requestConfirmation } from './store';
+	import { activateScene, activeSceneIndex } from '$lib/core/domains/scene';
+	import { pendingEntities } from '$lib/core/ha/commands';
 	import Icon from './Icon.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'scenes' }> } = $props();
