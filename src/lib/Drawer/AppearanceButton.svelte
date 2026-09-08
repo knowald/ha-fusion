@@ -11,14 +11,14 @@
 	 * Opens modal
 	 */
 	function handleClick() {
-		openModal(() => import('$lib/Modal/AppearanceConfig.svelte'), { themes: themes });
+		openModal(() => import('$lib/legacy/Modal/AppearanceConfig.svelte'), { themes: themes });
 	}
 
 	/**
 	 * Preloads module before click event
 	 */
 	async function handlePointer() {
-		await import('$lib/Modal/AppearanceConfig.svelte');
+		await import('$lib/legacy/Modal/AppearanceConfig.svelte');
 
 		try {
 			const response = await fetch(`${base}/_api/get_all_themes`);

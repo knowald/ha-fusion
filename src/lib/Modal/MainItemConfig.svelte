@@ -6,19 +6,19 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import {
 		getCameraEntity,
 		getSensorEntity,
 		getMediaPlayerEntity
-	} from '$lib/Modal/getRandomEntity';
+	} from '$lib/legacy/Modal/getRandomEntity';
 
 	import Button from '$lib/Main/Button.svelte';
 	import Camera from '$lib/Main/Camera.svelte';
 	import ConditionalMedia from '$lib/Main/ConditionalMedia.svelte';
 	import Empty from '$lib/Main/Empty.svelte';
 	import Entities from '$lib/Main/Entities.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import PictureElements from '$lib/Main/PictureElements.svelte';
 	import DaysSince from '$lib/Main/DaysSince.svelte';
@@ -182,13 +182,13 @@
 
 		switch (selected?.type) {
 			case 'button':
-				openModal(() => import('$lib/Modal/ButtonConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/ButtonConfig.svelte'), {
 					demo: $demo.sensor,
 					sel: selected
 				});
 				break;
 			case 'days_since':
-				openModal(() => import('$lib/Modal/DaysSinceConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/DaysSinceConfig.svelte'), {
 					sel: selected
 				});
 				break;
@@ -199,18 +199,18 @@
 				});
 				break;
 			case 'entities':
-				openModal(() => import('$lib/Modal/EntitiesConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/EntitiesConfig.svelte'), {
 					sel: selected
 				});
 				break;
 			case 'camera':
-				openModal(() => import('$lib/Modal/CameraConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/CameraConfig.svelte'), {
 					demo: $demo.camera,
 					sel: selected
 				});
 				break;
 			case 'conditional_media':
-				openModal(() => import('$lib/Modal/ConditionalMediaConfig.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/ConditionalMediaConfig.svelte'), {
 					demo: $demo.media_player,
 					sel: selected
 				});
@@ -226,7 +226,7 @@
 			}
 
 			case 'empty':
-				openModal(() => import('$lib/Modal/EmptyConfig.svelte'), { sel: selected });
+				openModal(() => import('$lib/legacy/Modal/EmptyConfig.svelte'), { sel: selected });
 				break;
 			default:
 				openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel: selected });

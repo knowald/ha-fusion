@@ -8,14 +8,14 @@
 	 * Opens modal
 	 */
 	function handleClick() {
-		openModal(() => import('$lib/Modal/CodeConfig.svelte'));
+		openModal(() => import('$lib/legacy/Modal/CodeConfig.svelte'));
 	}
 
 	/**
 	 * Preloads module before click event
 	 */
 	async function handlePointer() {
-		await import('$lib/Modal/CodeConfig.svelte');
+		await import('$lib/legacy/Modal/CodeConfig.svelte');
 	}
 </script>
 

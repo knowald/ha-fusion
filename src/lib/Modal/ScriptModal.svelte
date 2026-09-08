@@ -2,8 +2,8 @@
 	import { states, connection, lang, timer, selectedLanguage, motion } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
 	import Toggle from '$lib/Components/Toggle.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 	import Icon from '@iconify/svelte';
 	import { relativeTime } from '$lib/Utils';

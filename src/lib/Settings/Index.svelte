@@ -3,7 +3,7 @@
 	import { configuration, editMode, lang, motion, ripple, selectedLanguage } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
 	import { modals, closeModal } from '$lib/Modals';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import Language from '$lib/Settings/Language.svelte';
 	import Addons from '$lib/Settings/Addons.svelte';
 	import Motion from '$lib/Settings/Motion.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { configuration, lang, motion } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { base } from '$app/paths';
 	import { closeModal } from '$lib/Modals';
 

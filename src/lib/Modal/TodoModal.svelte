@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, lang, connection, ripple, motion } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import { onMount } from 'svelte';

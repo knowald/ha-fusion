@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Modal from '$lib/Modal/Index.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { base } from '$app/paths';
 	import { onDestroy, onMount } from 'svelte';
 	import { closeModal } from '$lib/Modals';

@@ -9,7 +9,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import RangeSlider from '$lib/Components/RangeSlider.svelte';
 	import Icon from '@iconify/svelte';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';
 
 	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();

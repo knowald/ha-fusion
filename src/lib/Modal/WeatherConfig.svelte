@@ -2,7 +2,7 @@
 	import { states, lang, ripple, entityList } from '$lib/Stores';
 	import Weather from '$lib/Sidebar/Weather.svelte';
 	import Select from '$lib/Components/Select.svelte';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
 	import Ripple from '$lib/Actions/ripple';

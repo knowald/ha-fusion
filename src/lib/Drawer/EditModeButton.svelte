@@ -38,7 +38,7 @@
 			return;
 		}
 
-		openModal(() => import('$lib/Modal/ConfirmAlert.svelte'), {
+		openModal(() => import('$lib/legacy/Modal/ConfirmAlert.svelte'), {
 			title: $lang('unsaved_changes_title'),
 			message: $lang('unsaved_changes'),
 			confirm: () => {

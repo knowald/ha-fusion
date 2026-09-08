@@ -4,7 +4,7 @@
 	import { lang, ripple } from '$lib/Stores';
 
 	function handleClick() {
-		openModal(() => import('$lib/Modal/ConfirmAlert.svelte'), {
+		openModal(() => import('$lib/legacy/Modal/ConfirmAlert.svelte'), {
 			title: $lang('log_out'),
 			message: $lang('confirm_log_out'),
 			confirm: async () => {

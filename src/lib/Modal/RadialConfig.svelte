@@ -3,7 +3,7 @@
 	import Radial from '$lib/Sidebar/Radial.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import InputClear from '$lib/Components/InputClear.svelte';
-	import ConfigModal from '$lib/Modal/ConfigModal.svelte';
+	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import { updateObj, getName } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';
 	import type { RadialItem } from '$lib/Types';

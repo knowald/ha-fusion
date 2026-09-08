@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { states, lang } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();

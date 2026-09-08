@@ -10,8 +10,8 @@
 	import TextPanel from '$lib/Modal/PictureElements/TextPanel.svelte';
 	import ActionPanel from '$lib/Modal/PictureElements/ActionPanel.svelte';
 	import ElementsPanel from '$lib/Modal/PictureElements/ElementsPanel.svelte';
-	import Modal from '$lib/Modal/Index.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
 	import type { ShapeConfig } from 'konva/lib/Shape';
 	import HelpOverlay from '$lib/Modal/PictureElements/HelpOverlay.svelte';

@@ -10,7 +10,7 @@
 	 * Opens modal and highlights `hide_views`
 	 */
 	function handleIconClick() {
-		openModal(() => import('$lib/Modal/AppearanceConfig.svelte'), {
+		openModal(() => import('$lib/legacy/Modal/AppearanceConfig.svelte'), {
 			highlight: true
 		});
 	}

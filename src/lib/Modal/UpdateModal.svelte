@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, states, connection, motion, ripple } from '$lib/Stores';
-	import Modal from '$lib/Modal/Index.svelte';
-	import ConfigButtons from '$lib/Modal/ConfigButtons.svelte';
+	import Modal from '$lib/legacy/Modal/Index.svelte';
+	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import StateLogic from '$lib/Components/StateLogic.svelte';
 	import { callService } from 'home-assistant-js-websocket';

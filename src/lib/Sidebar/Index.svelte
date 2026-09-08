@@ -87,21 +87,21 @@
 
 		if ($editMode && sel) {
 			if (sel?.type === 'bar') {
-				openModal(() => import('$lib/Modal/BarConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/BarConfig.svelte'), { sel });
 			} else if (sel?.type === 'camera') {
-				openModal(() => import('$lib/Modal/CameraConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/CameraConfig.svelte'), { sel });
 			} else if (sel?.type === 'date') {
-				openModal(() => import('$lib/Modal/DateConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/DateConfig.svelte'), { sel });
 			} else if (sel?.type === 'divider') {
-				openModal(() => import('$lib/Modal/DividerConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/DividerConfig.svelte'), { sel });
 			} else if (sel?.type === 'graph') {
-				openModal(() => import('$lib/Modal/GraphConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/GraphConfig.svelte'), { sel });
 			} else if (sel?.type === 'history') {
-				openModal(() => import('$lib/Modal/HistoryConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/HistoryConfig.svelte'), { sel });
 			} else if (sel?.type === 'iframe') {
-				openModal(() => import('$lib/Modal/IframeConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/IframeConfig.svelte'), { sel });
 			} else if (sel?.type === 'image') {
-				openModal(() => import('$lib/Modal/ImageConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/ImageConfig.svelte'), { sel });
 			} else if (sel?.type === 'navigate') {
 				openModal(() => import('$lib/Modal/NavigateConfig.svelte'), { sel });
 			} else if (sel?.type === 'notifications') {
@@ -133,7 +133,7 @@
 		} else {
 			// !$editMode modals
 			if (sel?.type === 'camera') {
-				openModal(() => import('$lib/Modal/CameraModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
 			} else if (sel?.type === 'timer') {
 				openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
 			}
