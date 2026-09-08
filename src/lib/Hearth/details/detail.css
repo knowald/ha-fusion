@@ -1,0 +1,133 @@
+/*
+ * Shared layout for the per-domain detail controls rendered inside the
+ * control popup. Scoped under .detail, which DetailPopup puts around them.
+ */
+
+.detail .label {
+	margin: 20px 0 8px;
+	font-family: var(--h-font-mono);
+	font-size: 11px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: var(--h-label);
+}
+
+.detail .segments {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.detail .segment {
+	flex: 1 1 auto;
+	min-width: 72px;
+	padding: 12px 14px;
+	border: 1px solid rgb(var(--h-line-rgb) / calc(0.1 * var(--h-line-scale)));
+	border-radius: var(--h-radius-sm);
+	background: rgb(var(--h-surface-rgb) / calc(0.04 * var(--h-fill-scale)));
+	color: var(--h-text-3);
+	font: inherit;
+	font-size: 14px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.detail .segment.active {
+	background: rgb(var(--h-accent-rgb) / calc(0.2 * var(--h-accent-scale)));
+	border-color: rgb(var(--h-accent-rgb) / calc(0.5 * var(--h-accent-scale)));
+	color: var(--h-accent-text);
+}
+
+.detail .segment.danger {
+	color: var(--h-bad-text);
+}
+
+.detail .segment:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.detail .stepper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 6px;
+}
+
+.detail .stepper .value {
+	font-size: 40px;
+	font-weight: 600;
+	letter-spacing: -1px;
+	color: var(--h-text-1);
+}
+
+.detail .stepper .unit {
+	font-size: 16px;
+	color: var(--h-text-3);
+	margin-left: 6px;
+}
+
+.detail .step {
+	width: 52px;
+	height: 52px;
+	border: 0;
+	border-radius: 50%;
+	background: rgb(var(--h-surface-rgb) / calc(0.08 * var(--h-fill-scale)));
+	color: var(--h-text-2);
+	font: inherit;
+	cursor: pointer;
+	display: grid;
+	place-items: center;
+}
+
+.detail .field {
+	display: flex;
+	gap: 8px;
+	margin-top: 6px;
+}
+
+.detail .field input,
+.detail .field select {
+	flex: 1;
+	min-width: 0;
+	padding: 12px 14px;
+	border: 1px solid rgb(var(--h-line-rgb) / calc(0.12 * var(--h-line-scale)));
+	border-radius: var(--h-radius-sm);
+	background: var(--h-inset);
+	color: var(--h-text-1);
+	font: inherit;
+	font-size: 15px;
+}
+
+.detail input[type='range'] {
+	width: 100%;
+	accent-color: rgb(var(--h-accent-rgb));
+}
+
+.detail .readout {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
+	font-size: 14px;
+	color: var(--h-text-3);
+}
+
+.detail .readout strong {
+	color: var(--h-text-1);
+	font-weight: 500;
+	text-align: right;
+	overflow-wrap: anywhere;
+}
+
+.detail .note {
+	margin-top: 12px;
+	font-size: 13px;
+	color: var(--h-text-6);
+}
+
+.detail .link {
+	color: var(--h-accent-text);
+}

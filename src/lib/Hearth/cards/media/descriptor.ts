@@ -1,4 +1,7 @@
-import type { OverviewCard } from '../../types';
+import * as v from 'valibot';
+import type { MediaShortcut, OverviewCard } from '../../types';
+import { MediaShortcutSchema } from '../../schema';
+import { trimmedOrUndefined } from '../../normalizers';
 import type { CardDescriptor } from '../types';
 import Card from './Card.svelte';
 import Editor from './Editor.svelte';
@@ -13,6 +16,22 @@ export const mediaCard: CardDescriptor<MediaCard> = {
 	icon: 'music_note',
 	fillByDefault: true,
 	sizable: true,
+	normalize: (card) => ({
+		shortcuts: Array.isArray(card.shortcuts)
+			? card.shortcuts
+					.filter(
+						(entry: any): entry is MediaShortcut =>
+							!!entry && typeof entry.name === 'string' && typeof entry.uri === 'string'
+					)
+					.map((entry: MediaShortcut) => ({
+						name: entry.name.trim(),
+						uri: entry.uri.trim(),
+						image_url: trimmedOrUndefined(entry.image_url)
+					}))
+			: undefined,
+		default_device: trimmedOrUndefined(card.default_device)
+	}),
+	schema: v.looseObject({ shortcuts: v.optional(v.array(MediaShortcutSchema, 'must be a list')) }),
 	needsConfiguration: (card) => !card.entity,
 	entityIds: (card) => (card.entity ? [card.entity] : []),
 	component: Card,

@@ -5,11 +5,14 @@ import { isStack } from '../config';
 import type { CardDescriptor } from './types';
 import { cameraCard } from './camera/descriptor';
 import { climateCard } from './climate/descriptor';
+import { conditionalMediaCard } from './conditional_media/descriptor';
+import { daysSinceCard } from './days_since/descriptor';
 import { entitiesCard } from './entities/descriptor';
 import { fusionCard } from './fusion/descriptor';
 import { headerCard } from './header/descriptor';
 import { imageCard } from './image/descriptor';
 import { mediaCard } from './media/descriptor';
+import { pictureCard } from './picture/descriptor';
 import { scenesCard } from './scenes/descriptor';
 import { temperatureCard } from './temperature/descriptor';
 import { vacuumCard } from './vacuum/descriptor';
@@ -27,6 +30,9 @@ export const CARD_TYPES: CardDescriptor<any>[] = [
 	imageCard,
 	climateCard,
 	scenesCard,
+	pictureCard,
+	daysSinceCard,
+	conditionalMediaCard,
 	fusionCard
 ];
 

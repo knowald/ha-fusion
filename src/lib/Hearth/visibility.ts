@@ -26,12 +26,22 @@ function evaluateCondition(
 	if ('media' in condition) {
 		return mediaMatches[condition.media] ?? false;
 	}
+	if ('or' in condition) {
+		return condition.or.some((nested) => evaluateCondition(nested, $states, mediaMatches));
+	}
 
 	const entityState = $states?.[condition.entity]?.state;
 	if (entityState === undefined) return false;
 
 	if (typeof condition.state === 'string') return entityState === condition.state;
 	if (typeof condition.state_not === 'string') return entityState !== condition.state_not;
+	if (typeof condition.above === 'number' || typeof condition.below === 'number') {
+		const value = parseFloat(entityState);
+		if (!Number.isFinite(value)) return false;
+		if (typeof condition.above === 'number' && !(value > condition.above)) return false;
+		if (typeof condition.below === 'number' && !(value < condition.below)) return false;
+		return true;
+	}
 
 	// neither constraint set: condition just checks the entity is known
 	return true;

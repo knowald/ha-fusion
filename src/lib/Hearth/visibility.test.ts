@@ -29,4 +29,29 @@ describe('evaluateVisibility', () => {
 			false
 		);
 	});
+
+	it('compares numeric windows and any-of groups', () => {
+		const states = { 'sensor.t': { state: '21.5' }, 'switch.a': { state: 'off' } } as any;
+		expect(evaluateVisibility([{ entity: 'sensor.t', above: 20 }], states, {})).toBe(true);
+		expect(evaluateVisibility([{ entity: 'sensor.t', above: 20, below: 21 }], states, {})).toBe(
+			false
+		);
+		expect(
+			evaluateVisibility(
+				[
+					{
+						or: [
+							{ entity: 'switch.a', state: 'on' },
+							{ entity: 'sensor.t', below: 30 }
+						]
+					}
+				],
+				states,
+				{}
+			)
+		).toBe(true);
+		expect(evaluateVisibility([{ or: [{ entity: 'switch.a', state: 'on' }] }], states, {})).toBe(
+			false
+		);
+	});
 });

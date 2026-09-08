@@ -76,6 +76,7 @@ export type Editor =
 	| { kind: 'theme' }
 	| { kind: 'settings' }
 	| { kind: 'appSettings' }
+	| { kind: 'customCss' }
 	| { kind: 'code' };
 
 export const editor = writable<Editor | null>(null);
@@ -147,7 +148,7 @@ export async function saveEdit(force = false): Promise<boolean> {
 export const currentRoom = writable<string>('home');
 
 export type Popup = {
-	kind: 'light' | 'blind' | 'fan' | 'media' | 'sensor';
+	kind: 'light' | 'blind' | 'fan' | 'media' | 'sensor' | 'detail';
 	entity: string;
 	name: string;
 	sliderUpdates?: SliderUpdateMode;

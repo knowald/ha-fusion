@@ -5,7 +5,7 @@
 	import { PRESS_RIPPLE } from './config';
 	import { domainIcon } from '$lib/core/domains';
 	import { currentRoom, hearthConfig } from './store';
-	import { openEntityModal } from '$lib/legacy/bridge/entityModals';
+	import { openEntityDetail } from '$lib/Hearth/details';
 	import Icon from './Icon.svelte';
 
 	let { onclose }: { onclose: () => void } = $props();
@@ -85,7 +85,7 @@
 		} else {
 			// close first: the entity modal portals outside .frame
 			onclose();
-			openEntityModal(result.entityId, result.name);
+			openEntityDetail(result.entityId, result.name);
 		}
 	}
 

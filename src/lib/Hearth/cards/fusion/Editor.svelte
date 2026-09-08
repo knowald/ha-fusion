@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/Actions/ripple';
-	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
 	import { PRESS_RIPPLE } from '../../config';
 	import { activateOnKeyboard } from '../../interaction';
 	import type { CardEditorProps } from '../types';
@@ -52,18 +51,6 @@
 		advancedValid = applyLeftoverYaml(fusionType, options, value);
 	}
 
-	/**
-	 * Opens the original picture-elements Konva editor for the card's
-	 * `elements` and copies the edited list back into the options.
-	 */
-	async function openElementsEditor() {
-		options.elements = await editPictureElements(
-			initial?.id ?? 'hearth-fusion',
-			$state.snapshot(options).elements ?? []
-		);
-		if (advancedOpen) resetAdvancedYaml();
-	}
-
 	$effect(() => {
 		onchange({
 			fields: {
@@ -82,19 +69,6 @@
 	onchange={() => advancedOpen && resetAdvancedYaml()}
 />
 <FusionFields type={fusionType} bind:options />
-{#if fusionType === 'picture_elements'}
-	<div
-		class="elements-editor pressable"
-		use:Ripple={PRESS_RIPPLE}
-		role="button"
-		tabindex="0"
-		onclick={openElementsEditor}
-		onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
-	>
-		<Icon name="edit" size={18} />
-		<span>{$lang('hearth_open_elements_editor')}</span>
-	</div>
-{/if}
 <div
 	class="advanced-toggle pressable"
 	use:Ripple={PRESS_RIPPLE}

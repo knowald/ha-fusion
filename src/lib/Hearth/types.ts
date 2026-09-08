@@ -2,6 +2,7 @@ import type * as v from 'valibot';
 import type { SliderUpdateMode } from '$lib/Types';
 import type {
 	EntityRefSchema,
+	MediaShortcutSchema,
 	SceneRefSchema,
 	VacuumModeRefSchema,
 	VisibilityConditionSchema
@@ -42,6 +43,7 @@ export type EntityRef = v.InferOutput<typeof EntityRefSchema>;
 export type SceneRef = v.InferOutput<typeof SceneRefSchema>;
 export type VacuumModeRef = v.InferOutput<typeof VacuumModeRefSchema>;
 export type VisibilityCondition = v.InferOutput<typeof VisibilityConditionSchema>;
+export type MediaShortcut = v.InferOutput<typeof MediaShortcutSchema>;
 
 type RailWidgetVariant =
 	| {
@@ -57,7 +59,7 @@ type RailWidgetVariant =
 	| { id: string; type: 'search' }
 	| { id: string; type: 'nav' }
 	| { id: string; type: 'spacer' }
-	| { id: string; type: 'label'; text?: string }
+	| { id: string; type: 'label'; text?: string; divider?: boolean }
 	// price is a static amount per kWh; price_entity overrides it when set
 	| {
 			id: string;
@@ -102,6 +104,22 @@ type RailWidgetVariant =
 			icon?: string;
 			vertical_padding?: 'compact';
 	  }
+	// one sensor drawn as a line over time, a state timeline, a bar or a radial
+	// gauge; math rewrites the value (x) before display
+	| {
+			id: string;
+			type: 'chart';
+			entity?: string;
+			name?: string;
+			style?: 'line' | 'history' | 'bar' | 'radial';
+			period?: 'hour' | 'day' | 'week' | 'month';
+			math?: string;
+			stroke?: number;
+	  }
+	| { id: string; type: 'template'; template?: string }
+	| { id: string; type: 'timer'; entity?: string; name?: string }
+	| { id: string; type: 'notifications' }
+	| { id: string; type: 'iframe'; url?: string; height?: number }
 	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
@@ -135,7 +153,16 @@ type OverviewCardVariant =
 			verdict?: false | VerdictBands;
 			height?: number;
 	  }
-	| { id: string; type: 'media'; entity?: string; height?: number }
+	// shortcuts are one-tap Spotify URIs; default_device names the Connect
+	// device they start on when nothing is playing yet
+	| {
+			id: string;
+			type: 'media';
+			entity?: string;
+			height?: number;
+			shortcuts?: MediaShortcut[];
+			default_device?: string;
+	  }
 	// battery_entity and bin_entity add readings to the popover status line for
 	// integrations that expose them as separate entities; battery falls back to
 	// the vacuum's own battery_level attribute
@@ -191,6 +218,19 @@ type OverviewCardVariant =
 	| { id: string; type: 'climate'; entity?: string; title?: string }
 	// `bar` renders the persistent scene row: equal-width tiles, active one lit
 	| { id: string; type: 'scenes'; title?: string; style?: 'chips' | 'bar'; scenes: SceneRef[] }
+	// a Konva canvas of images, icons and state badges (floor plans)
+	| { id: string; type: 'picture'; title?: string; elements: unknown[]; height?: number }
+	// days since an input_datetime was last reset, with a one-tap reset
+	| { id: string; type: 'days_since'; entity?: string; title?: string; icon?: string }
+	// the media card for whichever listed player is active; a paused player
+	// keeps the card for timeout seconds before the next one takes over
+	| {
+			id: string;
+			type: 'conditional_media';
+			media_players: string[];
+			timeout?: number;
+			height?: number;
+	  }
 	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
 
 /**

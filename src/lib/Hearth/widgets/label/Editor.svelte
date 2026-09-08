@@ -11,10 +11,15 @@
 	const initial = initialProp;
 
 	let text = $state(initial?.text ?? '');
+	let divider = $state(initial?.divider ?? false);
 
 	$effect(() => {
-		onchange({ fields: { text: text.trim() || undefined } });
+		onchange({ fields: { text: text.trim() || undefined, divider: divider || undefined } });
 	});
 </script>
 
 <TextField label={$lang('text')} bind:value={text} placeholder="TODAY" />
+<label class="check">
+	<input type="checkbox" bind:checked={divider} />
+	<span>{$lang('hearth_divider_line')}</span>
+</label>

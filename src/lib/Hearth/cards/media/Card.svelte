@@ -12,6 +12,7 @@
 	} from '$lib/core/ha/commands';
 	import { seekMedia, toggleMediaPlayback } from '$lib/core/domains/mediaPlayer';
 	import Icon from '../../Icon.svelte';
+	import Shortcuts from './Shortcuts.svelte';
 	import TuneButton from '../../TuneButton.svelte';
 
 	let { card }: { card: Extract<OverviewCard, { type: 'media' }> } = $props();
@@ -90,6 +91,15 @@
 		</div>
 	{/if}
 	<div class="controls">
+		{#if card.entity && card.shortcuts?.length}
+			<div class="shortcut-row">
+				<Shortcuts
+					entity={card.entity}
+					shortcuts={card.shortcuts}
+					defaultDevice={card.default_device}
+				/>
+			</div>
+		{/if}
 		<div class="track-row">
 			<div class="track">
 				{#if hasTrack}
@@ -182,6 +192,10 @@
 		left: 20px;
 		right: 20px;
 		bottom: 18px;
+	}
+
+	.shortcut-row {
+		margin-bottom: 12px;
 	}
 
 	.track-row {
