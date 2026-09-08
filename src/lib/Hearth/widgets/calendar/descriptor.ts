@@ -7,9 +7,9 @@ export type CalendarWidget = Extract<RailWidget, { type: 'calendar' }>;
 
 export const calendarWidget: WidgetDescriptor<CalendarWidget> = {
 	type: 'calendar',
-	label: 'Calendar (next event)',
-	name: 'Calendar',
-	sub: 'next event',
+	label: 'hearth_widget_calendar_label',
+	name: 'hearth_widget_calendar_name',
+	sub: 'hearth_widget_calendar_sub',
 	icon: 'event',
 	normalize: (widget) => ({
 		entities: (Array.isArray(widget.entities) ? widget.entities : []).filter(

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
@@ -15,19 +16,19 @@
 	let paddingY = $derived($hearthConfig.padding_y ?? 0);
 
 	const SCREENSAVER_OPTIONS = [
-		{ value: '0', label: 'Off' },
-		{ value: '1', label: 'After 1 minute' },
-		{ value: '5', label: 'After 5 minutes' },
-		{ value: '10', label: 'After 10 minutes' },
-		{ value: '15', label: 'After 15 minutes' },
-		{ value: '30', label: 'After 30 minutes' },
-		{ value: '60', label: 'After 1 hour' }
+		{ value: '0', label: $lang('off') },
+		{ value: '1', label: $lang('hearth_after_1_minute') },
+		{ value: '5', label: $lang('hearth_after_5_minutes') },
+		{ value: '10', label: $lang('hearth_after_10_minutes') },
+		{ value: '15', label: $lang('hearth_after_15_minutes') },
+		{ value: '30', label: $lang('hearth_after_30_minutes') },
+		{ value: '60', label: $lang('hearth_after_1_hour') }
 	];
 	const SCREENSAVER_BRIGHTNESS_OPTIONS = [
-		{ value: '18', label: 'Very dim' },
-		{ value: '32', label: 'Dim' },
-		{ value: '50', label: 'Medium' },
-		{ value: '75', label: 'Bright' }
+		{ value: '18', label: $lang('hearth_very_dim') },
+		{ value: '32', label: $lang('hearth_dim') },
+		{ value: '50', label: $lang('fan_speed_medium') },
+		{ value: '75', label: $lang('hearth_bright') }
 	];
 
 	function setScreensaver(value: string) {
@@ -68,14 +69,14 @@
 	}
 </script>
 
-<EditSheet title="Settings" onclose={close} ondone={close}>
+<EditSheet title={$lang('settings')} onclose={close} ondone={close}>
 	<div class="settings">
 		<section>
-			<div class="section-title">DISPLAY</div>
+			<div class="section-title">{$lang('hearth_display_2')}</div>
 			<div class="rows">
 				<div class="row">
 					<div class="row-main">
-						<div class="row-label">Screensaver</div>
+						<div class="row-label">{$lang('hearth_screensaver')}</div>
 					</div>
 					<span class="select-wrap">
 						<select value={screensaver} onchange={(e) => setScreensaver(e.currentTarget.value)}>
@@ -89,14 +90,14 @@
 				{#if screensaver !== '0'}
 					<div class="row">
 						<div class="row-main">
-							<div class="row-label">Screensaver drift</div>
-							<div class="row-sub">Slowly moves the clock to protect the display</div>
+							<div class="row-label">{$lang('hearth_screensaver_drift')}</div>
+							<div class="row-sub">{$lang('hearth_slowly_moves_the_clock_to_protect')}</div>
 						</div>
 						<button
 							type="button"
 							class="switch pressable"
 							class:on={screensaverDrift}
-							aria-label="Screensaver drift"
+							aria-label={$lang('hearth_screensaver_drift')}
 							aria-pressed={screensaverDrift}
 							use:Ripple={PRESS_RIPPLE}
 							onclick={() => setScreensaverDrift(!screensaverDrift)}
@@ -106,7 +107,7 @@
 					</div>
 					<div class="row">
 						<div class="row-main">
-							<div class="row-label">Screensaver brightness</div>
+							<div class="row-label">{$lang('hearth_screensaver_brightness')}</div>
 						</div>
 						<span class="select-wrap">
 							<select
@@ -123,8 +124,8 @@
 				{/if}
 				<div class="row">
 					<div class="row-main">
-						<div class="row-label">Keep screen awake</div>
-						<div class="row-sub">While the dashboard is open</div>
+						<div class="row-label">{$lang('hearth_keep_screen_awake')}</div>
+						<div class="row-sub">{$lang('hearth_while_the_dashboard_is_open')}</div>
 					</div>
 					<div
 						class="switch pressable"
@@ -143,17 +144,17 @@
 						<Icon name="warning" size={18} />
 						<span>
 							{#if $wakeLockState === 'unsupported'}
-								Screen wake lock is unavailable. Open Hearth over HTTPS or Home Assistant Ingress.
+								{$lang('hearth_screen_wake_lock_is_unavailable_open')}
 							{:else}
-								The browser denied the screen wake lock. Check permissions or battery saver.
+								{$lang('hearth_the_browser_denied_the_screen_wake')}
 							{/if}
 						</span>
 					</div>
 				{/if}
 				<div class="row">
 					<div class="row-main">
-						<div class="row-label">Side padding</div>
-						<div class="row-sub">For screens whose frame covers the edges</div>
+						<div class="row-label">{$lang('hearth_side_padding')}</div>
+						<div class="row-sub">{$lang('hearth_for_screens_whose_frame_covers_the')}</div>
 					</div>
 					<span class="unit-input">
 						<input
@@ -168,7 +169,7 @@
 				</div>
 				<div class="row">
 					<div class="row-main">
-						<div class="row-label">Top/bottom padding</div>
+						<div class="row-label">{$lang('hearth_top_bottom_padding')}</div>
 					</div>
 					<span class="unit-input">
 						<input
@@ -185,7 +186,7 @@
 		</section>
 
 		<section>
-			<div class="section-title">ADVANCED</div>
+			<div class="section-title">{$lang('hearth_advanced')}</div>
 			<div class="rows">
 				<div
 					class="row action pressable"
@@ -198,8 +199,8 @@
 				>
 					<Icon name="settings_applications" size={18} />
 					<div class="row-main">
-						<div class="row-label">Application settings</div>
-						<div class="row-sub">Language, motion, add-ons, version, and session</div>
+						<div class="row-label">{$lang('hearth_application_settings')}</div>
+						<div class="row-sub">{$lang('hearth_language_motion_add_ons_version_and')}</div>
 					</div>
 					<Icon name="chevron_right" size={20} />
 				</div>
@@ -213,8 +214,8 @@
 				>
 					<Icon name="code" size={18} />
 					<div class="row-main">
-						<div class="row-label">Edit configuration YAML</div>
-						<div class="row-sub">Edits the whole configuration as YAML in one place</div>
+						<div class="row-label">{$lang('hearth_edit_configuration_yaml')}</div>
+						<div class="row-sub">{$lang('hearth_edits_the_whole_configuration_as_yaml')}</div>
 					</div>
 					<Icon name="chevron_right" size={20} />
 				</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { ScenesCard } from './descriptor';
 	import { activateOnKeyboard } from '../../interaction';
@@ -67,9 +68,9 @@
 	});
 </script>
 
-<TextField label="Title" bind:value={title} placeholder="Scenes" />
+<TextField label={$lang('hearth_title')} bind:value={title} placeholder="Scenes" />
 <SelectField
-	label="Style"
+	label={$lang('hearth_style')}
 	bind:value={style}
 	options={[
 		{ value: 'chips', label: 'Chips' },
@@ -78,27 +79,33 @@
 />
 {#if style === 'bar'}
 	<div class="hint">
-		Equal-width tiles on one row, the active scene lit. Keep it to four scenes so the row never
-		scrolls.
+		{$lang('hearth_equal_width_tiles_on_one_row')}
 	</div>
 {/if}
 
-<div class="group-label">SCENES</div>
+<div class="group-label">{$lang('hearth_scenes')}</div>
 {#each scenes as ref, refIndex (refIndex)}
 	<div class="filter-row">
 		<div class="filter-fields">
-			<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
-			<TextField label="Name (optional)" bind:value={ref.name} />
-			<IconField label="Icon (optional)" bind:value={ref.icon} />
+			<EntityField label={$lang('entity')} bind:value={ref.entity} domains={['scene', 'script']} />
+			<TextField label={$lang('hearth_name_optional')} bind:value={ref.name} />
+			<IconField label={$lang('hearth_icon_optional')} bind:value={ref.icon} />
 			{#if style === 'bar'}
 				<TextField
-					label="Caption (optional)"
+					label={$lang('hearth_caption_optional')}
 					bind:value={ref.caption}
 					placeholder="23:00, all off, ..."
 				/>
 			{/if}
-			<EntityField label="Active while entity (optional)" bind:value={ref.active_entity} />
-			<TextField label="...is in state (optional)" bind:value={ref.active_state} placeholder="on" />
+			<EntityField
+				label={$lang('hearth_active_while_entity_optional')}
+				bind:value={ref.active_entity}
+			/>
+			<TextField
+				label={$lang('hearth_is_in_state_optional')}
+				bind:value={ref.active_state}
+				placeholder="on"
+			/>
 		</div>
 		<span
 			class="remove"
@@ -112,8 +119,7 @@
 	</div>
 {/each}
 <div class="hint">
-	Without an indicator entity, the most recently applied scene entity counts as active. Scripts
-	always need one, since a script has no activation timestamp.
+	{$lang('hearth_without_an_indicator_entity_the_most')}
 </div>
 <div
 	class="add-filter"
@@ -123,5 +129,5 @@
 	onkeydown={(event) => activateOnKeyboard(event, addScene)}
 >
 	<Icon name="add" size={18} />
-	<span>Add scene</span>
+	<span>{$lang('hearth_add_scene')}</span>
 </div>

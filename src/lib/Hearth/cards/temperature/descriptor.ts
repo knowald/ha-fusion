@@ -8,9 +8,9 @@ export type TemperatureCard = Extract<OverviewCard, { type: 'temperature' }>;
 
 export const temperatureCard: CardDescriptor<TemperatureCard> = {
 	type: 'temperature',
-	label: 'Sensor reading + sparkline',
-	name: 'Sensor',
-	sub: 'reading and history',
+	label: 'hearth_card_temperature_label',
+	name: 'hearth_card_temperature_name',
+	sub: 'hearth_card_temperature_sub',
 	icon: 'monitoring',
 	fillByDefault: true,
 	sizable: true,

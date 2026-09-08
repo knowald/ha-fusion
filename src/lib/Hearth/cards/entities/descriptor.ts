@@ -10,9 +10,9 @@ export type EntitiesCard = Extract<OverviewCard, { type: 'entities' }>;
 
 export const entitiesCard: CardDescriptor<EntitiesCard> = {
 	type: 'entities',
-	label: 'Entity grid',
-	name: 'Entities',
-	sub: 'tiles or readings',
+	label: 'hearth_card_entities_label',
+	name: 'hearth_card_entities_name',
+	sub: 'hearth_card_entities_sub',
 	icon: 'grid_view',
 	previewReorder: true,
 	normalize: (card) => ({

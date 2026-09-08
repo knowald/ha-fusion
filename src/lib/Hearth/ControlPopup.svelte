@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { closePopup, editor, popup } from './store';
 	import { controlOverrides, pendingEntities } from '$lib/core/ha/commands';
@@ -50,7 +51,7 @@
 							type="button"
 							class="switch pressable"
 							class:on={lightViewFor(entity, $states, $controlOverrides).on}
-							aria-label="Toggle light"
+							aria-label={$lang('hearth_toggle_light')}
 							aria-pressed={lightViewFor(entity, $states, $controlOverrides).on}
 							class:pending={$pendingEntities[entity] !== undefined}
 							onclick={() => toggleLight(entity)}
@@ -58,7 +59,12 @@
 							<div class="knob"></div>
 						</button>
 					{/if}
-					<button type="button" class="close pressable" aria-label="Close" onclick={closePopup}>
+					<button
+						type="button"
+						class="close pressable"
+						aria-label={$lang('hearth_close')}
+						onclick={closePopup}
+					>
 						<Icon name="close" size={26} />
 					</button>
 				</div>

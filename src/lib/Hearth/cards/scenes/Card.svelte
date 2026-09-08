@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/Actions/ripple';
 	import { states } from '$lib/core/ha/entities';
 	import { PRESS_RIPPLE } from '../../config';
@@ -22,8 +23,8 @@
 		const name = sceneName(ref);
 		requestConfirmation({
 			title: `Activate ${name}?`,
-			message: 'Scenes may change several devices at once.',
-			confirmLabel: 'Activate',
+			message: $lang('hearth_scenes_may_change_several_devices_at'),
+			confirmLabel: $lang('hearth_activate'),
 			action: () => activateScene(ref.entity)
 		});
 	}
@@ -34,7 +35,7 @@
 		<div class="section-title">{card.title}</div>
 	{/if}
 	{#if card.scenes.length === 0}
-		<div class="placeholder">Add scenes in the card editor</div>
+		<div class="placeholder">{$lang('hearth_add_scenes_in_the_card_editor')}</div>
 	{:else}
 		<div class="scenes" class:bar>
 			{#each card.scenes as ref, index (index)}

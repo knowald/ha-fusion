@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { connected, connection } from '$lib/core/ha/connection';
 	import { states } from '$lib/core/ha/entities';
 	import { cachedData, startDataRefresh } from '$lib/core/ha/history';
@@ -96,10 +97,14 @@
 	</svg>
 	<div class="chart-footer">
 		<span>24 H</span>
-		<span>LOW {formatReading(chart.low)} · HIGH {formatReading(chart.high)}</span>
+		<span
+			>{$lang('hearth_low')}
+			{formatReading(chart.low)} · {$lang('hearth_high')}
+			{formatReading(chart.high)}</span
+		>
 	</div>
 {:else}
-	<div class="no-history">No recorded history for the last 24 hours</div>
+	<div class="no-history">{$lang('hearth_no_recorded_history_for_the_last')}</div>
 {/if}
 
 <style>

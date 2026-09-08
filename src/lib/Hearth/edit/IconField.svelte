@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
@@ -211,7 +212,7 @@
 						<Icon {name} size={22} />
 					</span>
 				{:else}
-					<div class="hint">No matching icons</div>
+					<div class="hint">{$lang('hearth_no_matching_icons')}</div>
 				{/each}
 			</div>
 			{#if matches.length > shown.length}
@@ -220,7 +221,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					onclick={() => (limit += PAGE_SIZE)}
 				>
-					Show more ({matches.length - shown.length})
+					{$lang('hearth_show_more')} ({matches.length - shown.length})
 				</button>
 			{:else if !query}
 				<div class="hint">

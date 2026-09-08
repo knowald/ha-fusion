@@ -136,9 +136,9 @@
 
 	function confirmOverwrite() {
 		requestConfirmation({
-			title: 'Overwrite newer Hearth configuration?',
-			message: 'This replaces the version saved by the other session with your current edits.',
-			confirmLabel: 'Overwrite',
+			title: $lang('hearth_overwrite_newer_hearth_configuration'),
+			message: $lang('hearth_this_replaces_the_version_saved_by'),
+			confirmLabel: $lang('hearth_overwrite'),
 			action: () => void handleSave(true)
 		});
 	}
@@ -336,7 +336,7 @@
 			<div>
 				<strong>{$lang('hearth_config_unreadable')}</strong>
 				<span>{$hearthLoadError}</span>
-				<span>Editing is disabled to protect the existing file.</span>
+				<span>{$lang('hearth_editing_is_disabled_to_protect_the')}</span>
 			</div>
 		</div>
 	{/if}
@@ -369,7 +369,8 @@
 	{#if overflowBy > 0}
 		<div class="overflow-toast" transition:fade={{ duration: $motion ? 250 : 0 }}>
 			<Icon name="unfold_less" size={18} />
-			Page overflows this screen by {overflowBy}px
+			{$lang('hearth_page_overflows_this_screen_by')}
+			{overflowBy}px
 		</div>
 	{/if}
 	{#if $hearthEditMode}
@@ -382,7 +383,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					onclick={copySessionEdits}
 				>
-					Copy edits
+					{$lang('hearth_copy_edits')}
 				</button>
 				<button
 					type="button"
@@ -390,7 +391,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					onclick={confirmOverwrite}
 				>
-					Overwrite
+					{$lang('hearth_overwrite')}
 				</button>
 				<button
 					type="button"

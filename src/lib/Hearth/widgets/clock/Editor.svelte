@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { validTimeZone, type ClockHourFormat } from '../../clock';
 	import type { WidgetEditorProps } from '../types';
 	import type { ClockWidget } from './descriptor';
@@ -28,10 +29,10 @@
 	});
 </script>
 
-<TextField label="Time zone" bind:value={timezone} placeholder="Europe/Warsaw" />
-{#if !timezoneValid}<div class="field-error">Use an IANA time zone such as Europe/Warsaw.</div>{/if}
+<TextField label={$lang('hearth_time_zone')} bind:value={timezone} placeholder="Europe/Warsaw" />
+{#if !timezoneValid}<div class="field-error">{$lang('hearth_use_an_iana_time_zone_such')}</div>{/if}
 <SelectField
-	label="Hour format"
+	label={$lang('hearth_hour_format')}
 	bind:value={hourFormat}
 	options={[
 		{ value: 'auto', label: 'Locale default' },
@@ -39,4 +40,6 @@
 		{ value: '24', label: '24 hour' }
 	]}
 />
-<label class="check"><input type="checkbox" bind:checked={showSeconds} /> Show seconds</label>
+<label class="check"
+	><input type="checkbox" bind:checked={showSeconds} /> {$lang('hearth_show_seconds')}</label
+>

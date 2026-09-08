@@ -28,9 +28,9 @@ export const FUSION_WIDGET_TYPES: { value: string; label: string }[] = [
 
 export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 	type: 'fusion',
-	label: 'Fusion widget (graph, bar, camera, ...)',
-	name: 'Fusion widget',
-	sub: 'graphs, cameras, more',
+	label: 'hearth_widget_fusion_label',
+	name: 'hearth_widget_fusion_name',
+	sub: 'hearth_widget_fusion_sub',
 	icon: 'widgets',
 	normalize: (widget) => ({ height: normalizeHeight(widget.height) }),
 	needsConfiguration: (widget) => !widget.config?.type,

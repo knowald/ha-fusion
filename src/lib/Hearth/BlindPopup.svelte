@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import type { SliderUpdateMode } from '$lib/Types';
@@ -39,7 +40,7 @@
 </script>
 
 <PopupSlider
-	label="POSITION"
+	label={$lang('hearth_position')}
 	icon="blinds"
 	value={blindPositionFor(entity, $states, $controlOverrides)}
 	variant="blue"
@@ -56,7 +57,7 @@
 		tabindex="0"
 		onkeydown={(event) => activateOnKeyboard(event, () => setBlindPosition(entity, 0))}
 	>
-		Close
+		{$lang('hearth_close')}
 	</div>
 	{#if supports?.STOP}
 		<div
@@ -67,7 +68,7 @@
 			tabindex="0"
 			onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('stop_cover'))}
 		>
-			Stop
+			{$lang('stop')}
 		</div>
 	{/if}
 	<div
@@ -78,13 +79,13 @@
 		tabindex="0"
 		onkeydown={(event) => activateOnKeyboard(event, () => setBlindPosition(entity, 100))}
 	>
-		Open fully
+		{$lang('hearth_open_fully')}
 	</div>
 </div>
 
 {#if supports?.SET_TILT_POSITION}
 	<PopupSlider
-		label="TILT"
+		label={$lang('hearth_tilt')}
 		icon="tune"
 		value={tiltPosition}
 		variant="blue"
@@ -104,7 +105,7 @@
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('close_cover_tilt'))}
 			>
-				Close tilt
+				{$lang('hearth_close_tilt')}
 			</div>
 		{/if}
 		{#if supports?.STOP_TILT}
@@ -116,7 +117,7 @@
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('stop_cover_tilt'))}
 			>
-				Stop tilt
+				{$lang('hearth_stop_tilt')}
 			</div>
 		{/if}
 		{#if supports?.OPEN_TILT}
@@ -128,7 +129,7 @@
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, () => callCoverService('open_cover_tilt'))}
 			>
-				Open tilt
+				{$lang('hearth_open_tilt')}
 			</div>
 		{/if}
 	</div>

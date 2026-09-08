@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { ProgressWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -52,35 +53,35 @@
 
 <div class="row">
 	<div class="grow">
-		<TextField label="Name" bind:value={name} placeholder="Washer" />
+		<TextField label={$lang('name')} bind:value={name} placeholder="Washer" />
 	</div>
 	<div class="icon-column">
-		<IconField label="Icon" bind:value={icon} placeholder="local_laundry_service" />
+		<IconField label={$lang('icon')} bind:value={icon} placeholder="local_laundry_service" />
 	</div>
 </div>
-<EntityField label="Status entity" bind:value={statusEntity} />
-<EntityField label="Progress entity (0-100, optional)" bind:value={progressEntity} />
+<EntityField label={$lang('hearth_status_entity')} bind:value={statusEntity} />
+<EntityField label={$lang('hearth_progress_entity_0_100_optional')} bind:value={progressEntity} />
 <TextField
-	label="Progress unit (optional, shows the value with this suffix)"
+	label={$lang('hearth_progress_unit_optional_shows_the_value')}
 	bind:value={unit}
 	placeholder="%"
 />
 <EntityField
-	label="Remaining time entity (minutes or timestamp, optional)"
+	label={$lang('hearth_remaining_time_entity_minutes_or_timestamp')}
 	bind:value={remainingEntity}
 />
 <TextField
-	label="Active states (comma separated, optional)"
+	label={$lang('hearth_active_states_comma_separated_optional')}
 	bind:value={activeStates}
 	placeholder="running, rinse, spin"
 />
 <TextField
-	label="Completed states (comma separated)"
+	label={$lang('hearth_completed_states_comma_separated')}
 	bind:value={completedStates}
 	placeholder="complete, completed, finished, done"
 />
 <SelectField
-	label="After completion"
+	label={$lang('hearth_after_completion')}
 	bind:value={completionDelay}
 	options={[
 		{ value: '0', label: 'Hide immediately' },
@@ -92,6 +93,5 @@
 	]}
 />
 <div class="hint">
-	Completed rows can be tapped to dismiss early. Without an explicit active-state list, common idle
-	states (idle, off, standby, docked, ...) hide the row.
+	{$lang('hearth_completed_rows_can_be_tapped_to')}
 </div>

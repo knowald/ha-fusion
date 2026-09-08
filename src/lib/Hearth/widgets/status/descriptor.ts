@@ -7,9 +7,9 @@ export type StatusWidget = Extract<RailWidget, { type: 'status' }>;
 
 export const statusWidget: WidgetDescriptor<StatusWidget> = {
 	type: 'status',
-	label: 'Status pill',
-	name: 'Status pill',
-	sub: 'icon + text',
+	label: 'hearth_widget_status_label',
+	name: 'hearth_widget_status_name',
+	sub: 'hearth_widget_status_sub',
 	icon: 'eco',
 	component: Widget,
 	editor: Editor

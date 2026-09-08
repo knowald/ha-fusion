@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/core/ha/entities';
 	import Ripple from '$lib/Actions/ripple';
@@ -98,10 +99,13 @@
 					<span class="row-state">{entry.state}</span>
 				</div>
 			{:else}
-				<div class="hint">No matching entities</div>
+				<div class="hint">{$lang('hearth_no_matching_entities')}</div>
 			{/each}
 			{#if matches.length > MAX_ROWS}
-				<div class="hint">{matches.length - MAX_ROWS} more matches - refine your search</div>
+				<div class="hint">
+					{matches.length - MAX_ROWS}
+					{$lang('hearth_more_matches_refine_your_search')}
+				</div>
 			{/if}
 		</div>
 	</div>

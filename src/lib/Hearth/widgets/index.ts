@@ -1,3 +1,5 @@
+import { get } from 'svelte/store';
+import { lang } from '$lib/core/i18n';
 import type { RailWidget } from '../types';
 import type { WidgetDescriptor } from './types';
 import { calendarWidget } from './calendar/descriptor';
@@ -46,5 +48,5 @@ export function railWidgetNeedsConfiguration(widget: RailWidget): boolean {
 }
 
 export function railConfigurationLabel(widget: RailWidget): string {
-	return `${widgetDescriptor(widget.type).name} widget`;
+	return get(lang)(widgetDescriptor(widget.type).name);
 }

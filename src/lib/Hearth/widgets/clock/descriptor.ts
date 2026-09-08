@@ -7,9 +7,9 @@ export type ClockWidget = Extract<RailWidget, { type: 'clock' }>;
 
 export const clockWidget: WidgetDescriptor<ClockWidget> = {
 	type: 'clock',
-	label: 'Clock',
-	name: 'Clock',
-	sub: 'time + date',
+	label: 'hearth_widget_clock_label',
+	name: 'hearth_widget_clock_name',
+	sub: 'hearth_widget_clock_sub',
 	icon: 'schedule',
 	component: Widget,
 	editor: Editor

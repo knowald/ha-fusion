@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import { hearthEditMode } from './store';
@@ -55,13 +56,13 @@
 		{#if tempEntity}
 			<div class="chip">
 				<div class="chip-value">{climate.temp}</div>
-				<div class="chip-label">Temp</div>
+				<div class="chip-label">{$lang('hearth_temp')}</div>
 			</div>
 		{/if}
 		{#if humidityEntity}
 			<div class="chip">
 				<div class="chip-value">{climate.humidity}</div>
-				<div class="chip-label">Humidity</div>
+				<div class="chip-label">{$lang('hearth_humidity')}</div>
 			</div>
 		{/if}
 	</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { sortable } from '$lib/Actions/sortable';
 	import {
 		cloneOverviewItem,
@@ -233,7 +234,7 @@
 							{/each}
 							{#if $hearthEditMode}
 								<AddControl
-									label="Add card"
+									label={$lang('hearth_add_card')}
 									onadd={() =>
 										editor.set({
 											kind: 'card',
@@ -252,10 +253,10 @@
 			{/each}
 			{#if $hearthEditMode}
 				<AddControl
-					label="Add card"
+					label={$lang('hearth_add_card')}
 					onadd={() => editor.set({ kind: 'card', column: columnIndex, id: null, roomId })}
 				/>
-				<AddControl label="Add stack" onadd={() => addStack(columnIndex)} />
+				<AddControl label={$lang('hearth_add_stack')} onadd={() => addStack(columnIndex)} />
 			{/if}
 		</div>
 	{/each}

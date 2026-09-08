@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { CardEditorProps } from '../types';
 	import type { HeaderCard } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -30,8 +31,20 @@
 	});
 </script>
 
-<TextField label="Title" bind:value={title} placeholder="Home" />
-<TextField label="Subtitle" bind:value={subtitle} placeholder="Cozy · curtains open" />
-<IconField label="Icon" bind:value={icon} placeholder="home" />
-<EntityField label="Temperature sensor (optional)" bind:value={tempEntity} domains={['sensor']} />
-<EntityField label="Humidity sensor (optional)" bind:value={humidityEntity} domains={['sensor']} />
+<TextField label={$lang('hearth_title')} bind:value={title} placeholder="Home" />
+<TextField
+	label={$lang('hearth_subtitle')}
+	bind:value={subtitle}
+	placeholder="Cozy · curtains open"
+/>
+<IconField label={$lang('icon')} bind:value={icon} placeholder="home" />
+<EntityField
+	label={$lang('hearth_temperature_sensor_optional')}
+	bind:value={tempEntity}
+	domains={['sensor']}
+/>
+<EntityField
+	label={$lang('hearth_humidity_sensor_optional')}
+	bind:value={humidityEntity}
+	domains={['sensor']}
+/>

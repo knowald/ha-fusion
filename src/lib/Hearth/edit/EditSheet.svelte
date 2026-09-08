@@ -65,7 +65,7 @@
 	<div class="sheet" class:wide role="dialog" aria-modal="true" aria-label={title}>
 		<div class="header">
 			{#if onback}
-				<button type="button" class="icon-button" aria-label="Back" onclick={onback}>
+				<button type="button" class="icon-button" aria-label={$lang('back')} onclick={onback}>
 					<Icon name="arrow_back" size={24} />
 				</button>
 			{/if}
@@ -73,12 +73,22 @@
 			{#if onmoveup || onmovedown}
 				<div class="move-actions">
 					{#if onmoveup}
-						<button type="button" class="icon-button" title="Move up" onclick={onmoveup}>
+						<button
+							type="button"
+							class="icon-button"
+							title={$lang('hearth_move_up')}
+							onclick={onmoveup}
+						>
 							<Icon name="arrow_upward" size={20} />
 						</button>
 					{/if}
 					{#if onmovedown}
-						<button type="button" class="icon-button" title="Move down" onclick={onmovedown}>
+						<button
+							type="button"
+							class="icon-button"
+							title={$lang('hearth_move_down')}
+							onclick={onmovedown}
+						>
 							<Icon name="arrow_downward" size={20} />
 						</button>
 					{/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
 	import Ripple from '$lib/Actions/ripple';
 	import { config } from '$lib/core/ha/connection';
@@ -79,13 +80,13 @@
 		<div class="body" class:pending>
 			<div class="readout">
 				<div class="stat">
-					<div class="stat-label">Current</div>
+					<div class="stat-label">{$lang('hearth_current')}</div>
 					<div class="current-value">
 						{current === null ? '-' : current.toFixed(1)}<span class="stat-unit">{unit}</span>
 					</div>
 				</div>
 				<div class="stat">
-					<div class="stat-label">Target</div>
+					<div class="stat-label">{$lang('target')}</div>
 					<div class="stepper">
 						<span
 							class="step pressable"
@@ -137,7 +138,7 @@
 			{/if}
 		</div>
 	{:else}
-		<div class="placeholder">Pick a climate entity in the card editor</div>
+		<div class="placeholder">{$lang('hearth_pick_a_climate_entity_in_the')}</div>
 	{/if}
 </div>
 

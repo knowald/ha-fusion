@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/Actions/ripple';
 	import { states } from '$lib/core/ha/entities';
 	import {
@@ -181,7 +182,7 @@
 				{/if}
 			</div>
 			{#if resolvedEntities.length === 0}
-				<div class="placeholder">Add entities or a wildcard in the card editor</div>
+				<div class="placeholder">{$lang('hearth_add_entities_or_a_wildcard_in')}</div>
 			{:else}
 				<!-- the popover is ~420px wide, so more than two tracks would squeeze
 				     the tiles to nothing however many the card asks for -->
@@ -217,7 +218,7 @@
 						onclick={() => turnAllOff(switchableIds)}
 					>
 						<Icon name="power_settings_new" size={17} />
-						All off
+						{$lang('hearth_all_off')}
 					</button>
 				{/if}
 				{#if showGroupActions && coverIds.length > 1}
@@ -228,7 +229,7 @@
 						onclick={() => setAllCovers(coverIds, true)}
 					>
 						<Icon name="keyboard_double_arrow_up" size={16} />
-						Open all
+						{$lang('hearth_open_all')}
 					</button>
 					<button
 						type="button"
@@ -237,13 +238,13 @@
 						onclick={() => setAllCovers(coverIds, false)}
 					>
 						<Icon name="keyboard_double_arrow_down" size={16} />
-						Close all
+						{$lang('hearth_close_all')}
 					</button>
 				{/if}
 			</div>
 		{/if}
 		{#if resolvedEntities.length === 0 && (!$hearthEditMode || !showEntityDragHandles)}
-			<div class="placeholder">Add entities or a wildcard in the card editor</div>
+			<div class="placeholder">{$lang('hearth_add_entities_or_a_wildcard_in')}</div>
 		{:else}
 			<EntityGrid
 				entities={resolvedEntities}

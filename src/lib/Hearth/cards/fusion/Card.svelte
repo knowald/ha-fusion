@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import type { OverviewCard } from '../../config';
 	import { hearthEditMode } from '../../store';
 	import { fusionObjectEmbeds } from '$lib/legacy/bridge/embeds';
@@ -20,7 +21,7 @@
 	style:height={card.height ? `${card.height}px` : undefined}
 >
 	{#if !load}
-		<div class="placeholder">Fusion object: set a type in the card editor</div>
+		<div class="placeholder">{$lang('hearth_fusion_object_set_a_type_in')}</div>
 	{:else}
 		{#key item.type}
 			{#await load() then module}
