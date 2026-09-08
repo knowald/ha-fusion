@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { states } from '$lib/Stores';
-	import { computeIcon } from '$lib/Modal/PictureElements/computeIcon';
+	import { computeIcon } from '$lib/legacy/Modal/PictureElements/computeIcon';
 	import { getDomain } from '$lib/Utils';
 	let {
 		entity_id,

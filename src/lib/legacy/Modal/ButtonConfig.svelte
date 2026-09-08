@@ -153,7 +153,7 @@
 				class="icon-gallery"
 				onclick={() => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'set_state'
 					});
@@ -200,7 +200,7 @@
 				class="icon-gallery"
 				onclick={async () => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'name'
 					});
@@ -247,7 +247,7 @@
 				class="icon-gallery"
 				onclick={async () => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'state'
 					});
@@ -308,7 +308,7 @@
 				class="icon-gallery"
 				onclick={() => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'icon'
 					});
@@ -370,7 +370,7 @@
 				class="icon-gallery"
 				onclick={() => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'color'
 					});
@@ -495,7 +495,7 @@
 				class="icon-gallery"
 				onclick={() => {
 					if (!sel?.id) return;
-					openModal(() => import('$lib/Modal/Templater.svelte'), {
+					openModal(() => import('$lib/legacy/Modal/Templater.svelte'), {
 						sel,
 						type: 'service'
 					});

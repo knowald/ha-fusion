@@ -21,7 +21,7 @@
 	function handleClick() {
 		// config
 		if ($editMode) {
-			return openModal(() => import('$lib/Modal/ScenesConfig.svelte'), {
+			return openModal(() => import('$lib/legacy/Modal/ScenesConfig.svelte'), {
 				sel
 			});
 		}

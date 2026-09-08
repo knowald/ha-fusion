@@ -169,7 +169,7 @@
 											}}
 											class="edit"
 											onclick={() => {
-												openModal(() => import('$lib/Modal/ThemeEditor.svelte'), {
+												openModal(() => import('$lib/legacy/Modal/ThemeEditor.svelte'), {
 													theme: theme
 												});
 											}}

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import { konvaStore } from '$lib/Stores';
 	import Icon from '@iconify/svelte';
-	import { icons } from '$lib/Modal/PictureElements/icons';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 
 	let { konva }: { konva: KonvaEditor } = $props();
 </script>

@@ -20,11 +20,11 @@ export async function openEntityModal(entity_id: string, name?: string) {
 		case 'remote':
 		case 'siren':
 		case 'switch':
-			openModal(() => import('$lib/Modal/SwitchModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/SwitchModal.svelte'), { sel });
 			break;
 
 		case 'script':
-			openModal(() => import('$lib/Modal/ScriptModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/ScriptModal.svelte'), { sel });
 			break;
 
 		case 'automation':
@@ -60,11 +60,11 @@ export async function openEntityModal(entity_id: string, name?: string) {
 		case 'person':
 		case 'zone':
 		case 'input_button':
-			openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
 			break;
 
 		case 'update':
-			openModal(() => import('$lib/Modal/UpdateModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/UpdateModal.svelte'), { sel });
 			break;
 
 		case 'input_number':
@@ -88,11 +88,11 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		case 'timer':
-			openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel });
 			break;
 
 		case 'vacuum':
-			openModal(() => import('$lib/Modal/VacuumModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/VacuumModal.svelte'), { sel });
 			break;
 
 		case 'lawn_mower':
@@ -100,7 +100,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		case 'valve':
-			openModal(() => import('$lib/Modal/ValveModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/ValveModal.svelte'), { sel });
 			break;
 
 		case 'image':
@@ -108,7 +108,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		case 'todo':
-			openModal(() => import('$lib/Modal/TodoModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/TodoModal.svelte'), { sel });
 			break;
 
 		case 'counter':
@@ -132,7 +132,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		case 'water_heater':
-			openModal(() => import('$lib/Modal/WaterHeaterModal.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/WaterHeaterModal.svelte'), { sel });
 			break;
 
 		case 'humidifier':
@@ -140,7 +140,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		case 'media_player':
-			openModal(() => import('$lib/Modal/MediaPlayer.svelte'), { selected: sel });
+			openModal(() => import('$lib/legacy/Modal/MediaPlayer.svelte'), { selected: sel });
 			break;
 
 		case 'group':
@@ -151,7 +151,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			if (get(states)?.[entity_id]?.attributes?.source_type === 'gps') {
 				openModal(() => import('$lib/legacy/Modal/DeviceTrackerModal.svelte'), { sel });
 			} else {
-				openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
 			}
 			break;
 		}
@@ -165,7 +165,7 @@ export async function openEntityModal(entity_id: string, name?: string) {
 			break;
 
 		default:
-			openModal(() => import('$lib/Modal/Unknown.svelte'), { selected: sel });
+			openModal(() => import('$lib/legacy/Modal/Unknown.svelte'), { selected: sel });
 			break;
 	}
 }

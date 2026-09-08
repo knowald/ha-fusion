@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { konvaStore } from '$lib/Stores';
-	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import Icon from '@iconify/svelte';
 	import type { ShapeConfig } from 'konva/lib/Shape';
-	import { icons } from '$lib/Modal/PictureElements/icons';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 
 	let {
 		konva,

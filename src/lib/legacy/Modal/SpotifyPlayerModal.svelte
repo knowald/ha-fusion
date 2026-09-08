@@ -137,7 +137,7 @@
 	}
 
 	function openBrowser() {
-		openModal(() => import('$lib/Modal/SpotifyBrowser.svelte'), {
+		openModal(() => import('$lib/legacy/Modal/SpotifyBrowser.svelte'), {
 			sel,
 			entity_id
 		});

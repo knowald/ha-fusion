@@ -84,9 +84,9 @@
 		closeModal();
 
 		if (sidebarItem()) {
-			openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel });
 		} else {
-			openModal(() => import('$lib/Modal/MainItemConfig.svelte'), { sel });
+			openModal(() => import('$lib/legacy/Modal/MainItemConfig.svelte'), { sel });
 		}
 	}
 </script>

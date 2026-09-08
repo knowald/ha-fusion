@@ -314,12 +314,12 @@
 			case 'remote':
 			case 'siren':
 			case 'switch':
-				openModal(() => import('$lib/Modal/SwitchModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/SwitchModal.svelte'), { sel });
 				break;
 
 			// script
 			case 'script':
-				openModal(() => import('$lib/Modal/ScriptModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/ScriptModal.svelte'), { sel });
 				break;
 
 			// automation
@@ -360,12 +360,12 @@
 			case 'person':
 			case 'zone':
 			case 'input_button':
-				openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
 				break;
 
 			// update
 			case 'update':
-				openModal(() => import('$lib/Modal/UpdateModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/UpdateModal.svelte'), { sel });
 				break;
 
 			// number
@@ -393,11 +393,11 @@
 				break;
 
 			case 'timer':
-				openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel });
 				break;
 
 			case 'vacuum':
-				openModal(() => import('$lib/Modal/VacuumModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/VacuumModal.svelte'), { sel });
 				break;
 
 			case 'lawn_mower':
@@ -405,7 +405,7 @@
 				break;
 
 			case 'valve':
-				openModal(() => import('$lib/Modal/ValveModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/ValveModal.svelte'), { sel });
 				break;
 
 			case 'image':
@@ -413,7 +413,7 @@
 				break;
 
 			case 'todo':
-				openModal(() => import('$lib/Modal/TodoModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TodoModal.svelte'), { sel });
 				break;
 
 			case 'counter':
@@ -437,7 +437,7 @@
 				break;
 
 			case 'water_heater':
-				openModal(() => import('$lib/Modal/WaterHeaterModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/WaterHeaterModal.svelte'), { sel });
 				break;
 
 			case 'humidifier':
@@ -445,7 +445,7 @@
 				break;
 
 			case 'media_player':
-				openModal(() => import('$lib/Modal/MediaPlayer.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/MediaPlayer.svelte'), {
 					selected: sel
 				});
 				break;
@@ -458,7 +458,7 @@
 				if ($states?.[sel?.entity_id]?.attributes?.source_type === 'gps') {
 					openModal(() => import('$lib/legacy/Modal/DeviceTrackerModal.svelte'), { sel });
 				} else {
-					openModal(() => import('$lib/Modal/SensorModal.svelte'), { sel });
+					openModal(() => import('$lib/legacy/Modal/SensorModal.svelte'), { sel });
 				}
 				break;
 			}
@@ -476,7 +476,7 @@
 				break;
 
 			default:
-				openModal(() => import('$lib/Modal/Unknown.svelte'), {
+				openModal(() => import('$lib/legacy/Modal/Unknown.svelte'), {
 					selected: sel
 				});
 				break;
@@ -495,16 +495,16 @@
 					await import('$lib/legacy/Modal/LightModal.svelte');
 					break;
 				case 'switch':
-					await import('$lib/Modal/SwitchModal.svelte');
+					await import('$lib/legacy/Modal/SwitchModal.svelte');
 					break;
 				case 'climate':
 					await import('$lib/legacy/Modal/ClimateModal.svelte');
 					break;
 				case 'media_player':
-					await import('$lib/Modal/MediaPlayer.svelte');
+					await import('$lib/legacy/Modal/MediaPlayer.svelte');
 					break;
 				default:
-					await import('$lib/Modal/Unknown.svelte');
+					await import('$lib/legacy/Modal/Unknown.svelte');
 					break;
 			}
 		}

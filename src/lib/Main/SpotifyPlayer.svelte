@@ -149,12 +149,12 @@
 
 	function handleClick() {
 		if ($editMode) {
-			openModal(() => import('$lib/Modal/SpotifyPlayerConfig.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/SpotifyPlayerConfig.svelte'), {
 				sel,
 				sectionName
 			});
 		} else {
-			openModal(() => import('$lib/Modal/SpotifyPlayerModal.svelte'), {
+			openModal(() => import('$lib/legacy/Modal/SpotifyPlayerModal.svelte'), {
 				sel
 			});
 		}

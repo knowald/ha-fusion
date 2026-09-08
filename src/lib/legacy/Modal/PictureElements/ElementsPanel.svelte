@@ -2,12 +2,12 @@
 	import { sortable } from '$lib/Actions/sortable';
 	import type { SortableEvent } from 'sortablejs';
 	import type { Shape, ShapeConfig } from 'konva/lib/Shape';
-	import type { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import type { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import { konvaStore } from '$lib/Stores';
 	import Icon, { getIcon, loadIcon } from '@iconify/svelte';
 	import { tick } from 'svelte';
 	import { dragging } from '$lib/Stores';
-	import { icons } from '$lib/Modal/PictureElements/icons';
+	import { icons } from '$lib/legacy/Modal/PictureElements/icons';
 	import { derived } from 'svelte/store';
 
 	let {

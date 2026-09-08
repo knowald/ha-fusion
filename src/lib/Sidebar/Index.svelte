@@ -103,25 +103,25 @@
 			} else if (sel?.type === 'image') {
 				openModal(() => import('$lib/legacy/Modal/ImageConfig.svelte'), { sel });
 			} else if (sel?.type === 'navigate') {
-				openModal(() => import('$lib/Modal/NavigateConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/NavigateConfig.svelte'), { sel });
 			} else if (sel?.type === 'notifications') {
-				openModal(() => import('$lib/Modal/NotificationsConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/NotificationsConfig.svelte'), { sel });
 			} else if (sel?.type === 'radial') {
-				openModal(() => import('$lib/Modal/RadialConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/RadialConfig.svelte'), { sel });
 			} else if (sel?.type === 'sensor') {
-				openModal(() => import('$lib/Modal/SensorConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/SensorConfig.svelte'), { sel });
 			} else if (sel?.type === 'template') {
-				openModal(() => import('$lib/Modal/TemplateConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TemplateConfig.svelte'), { sel });
 			} else if (sel?.type === 'time') {
-				openModal(() => import('$lib/Modal/TimeConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TimeConfig.svelte'), { sel });
 			} else if (sel?.type === 'timer') {
-				openModal(() => import('$lib/Modal/TimerConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TimerConfig.svelte'), { sel });
 			} else if (sel?.type === 'weather') {
-				openModal(() => import('$lib/Modal/WeatherConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/WeatherConfig.svelte'), { sel });
 			} else if (sel?.type === 'weather_forecast') {
-				openModal(() => import('$lib/Modal/WeatherForecastConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/WeatherForecastConfig.svelte'), { sel });
 			} else {
-				openModal(() => import('$lib/Modal/SidebarItemConfig.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/SidebarItemConfig.svelte'), { sel });
 
 				// force $editMode when clicking SidebarItemConfig
 				await tick();
@@ -135,7 +135,7 @@
 			if (sel?.type === 'camera') {
 				openModal(() => import('$lib/legacy/Modal/CameraModal.svelte'), { sel });
 			} else if (sel?.type === 'timer') {
-				openModal(() => import('$lib/Modal/TimerModal.svelte'), { sel });
+				openModal(() => import('$lib/legacy/Modal/TimerModal.svelte'), { sel });
 			}
 		}
 	}

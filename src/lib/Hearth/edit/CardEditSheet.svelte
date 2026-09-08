@@ -24,7 +24,7 @@
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import { openModal } from '$lib/Modals';
-	import { icons as pictureElementsIcons } from '$lib/Modal/PictureElements/icons';
+	import { icons as pictureElementsIcons } from '$lib/legacy/Modal/PictureElements/icons';
 	import CardPreview from './CardPreview.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
@@ -260,7 +260,7 @@
 		};
 
 		const [{ default: PictureElementsConfig }] = await Promise.all([
-			import('$lib/Modal/PictureElements/PictureElementsConfig.svelte'),
+			import('$lib/legacy/Modal/PictureElements/PictureElementsConfig.svelte'),
 			loadIcons(Object.values(pictureElementsIcons))
 		]);
 

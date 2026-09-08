@@ -7,8 +7,8 @@
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 
-	import { trapFocus } from '$lib/Modal/trapFocus';
-	import '$lib/Modal/Modal.css';
+	import { trapFocus } from '$lib/legacy/Modal/trapFocus';
+	import '$lib/legacy/Modal/Modal.css';
 
 	let {
 		backdropImage = true,

@@ -2,19 +2,19 @@
 	import { konvaStore } from '$lib/Stores';
 	import { dashboard, lang, record, states } from '$lib/Stores';
 	import { onDestroy, onMount } from 'svelte';
-	import TransformAttributes from '$lib/Modal/PictureElements/TransformAttributes.svelte';
-	import SelectedAttributes from '$lib/Modal/PictureElements/SelectedAttributes.svelte';
-	import Toolbar from '$lib/Modal/PictureElements/Toolbar.svelte';
-	import KeyboardHandler from '$lib/Modal/PictureElements/KeyboardHandler.svelte';
-	import ResizePanel from '$lib/Modal/PictureElements/ResizePanel.svelte';
-	import TextPanel from '$lib/Modal/PictureElements/TextPanel.svelte';
-	import ActionPanel from '$lib/Modal/PictureElements/ActionPanel.svelte';
-	import ElementsPanel from '$lib/Modal/PictureElements/ElementsPanel.svelte';
+	import TransformAttributes from '$lib/legacy/Modal/PictureElements/TransformAttributes.svelte';
+	import SelectedAttributes from '$lib/legacy/Modal/PictureElements/SelectedAttributes.svelte';
+	import Toolbar from '$lib/legacy/Modal/PictureElements/Toolbar.svelte';
+	import KeyboardHandler from '$lib/legacy/Modal/PictureElements/KeyboardHandler.svelte';
+	import ResizePanel from '$lib/legacy/Modal/PictureElements/ResizePanel.svelte';
+	import TextPanel from '$lib/legacy/Modal/PictureElements/TextPanel.svelte';
+	import ActionPanel from '$lib/legacy/Modal/PictureElements/ActionPanel.svelte';
+	import ElementsPanel from '$lib/legacy/Modal/PictureElements/ElementsPanel.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
-	import { KonvaEditor } from '$lib/Modal/PictureElements/konvaEditor';
+	import { KonvaEditor } from '$lib/legacy/Modal/PictureElements/konvaEditor';
 	import type { ShapeConfig } from 'konva/lib/Shape';
-	import HelpOverlay from '$lib/Modal/PictureElements/HelpOverlay.svelte';
+	import HelpOverlay from '$lib/legacy/Modal/PictureElements/HelpOverlay.svelte';
 
 	let {
 		sel,
