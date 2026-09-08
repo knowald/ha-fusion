@@ -2,10 +2,11 @@
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { states } from '$lib/core/ha/entities';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
 	import { domainIcon } from '$lib/core/domains';
 	import Icon from '../Icon.svelte';
+	import { layer } from '$lib/ui/layers';
 
 	let {
 		domains = [],
@@ -47,21 +48,9 @@
 	function focusOnMount(node: HTMLInputElement) {
 		node.focus();
 	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			onclose();
-		}
-	}
 </script>
 
-<!-- capture phase: this picker nests inside EditSheet, which also closes on
-	Escape. Capture always runs before bubble-phase listeners regardless of
-	mount order, so stopping propagation here reliably closes only the picker. -->
-<svelte:window onkeydowncapture={handleKeydown} />
-
-<div class="overlay" onclick={onclose} role="presentation">
+<div class="overlay" onclick={onclose} role="presentation" use:layer={onclose}>
 	<div class="panel" onclick={(event) => event.stopPropagation()} role="presentation">
 		<div class="search">
 			<Icon name="search" size={20} />

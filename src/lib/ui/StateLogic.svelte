@@ -1,22 +1,25 @@
 <script lang="ts">
-	import { editMode } from '$lib/Stores';
 	import { lang, selectedLanguage } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
-	import { isTimestamp, relativeTime } from '$lib/Utils';
+	import { isTimestamp, relativeTime } from '$lib/core/i18n/time';
 	import { getDomain } from '$lib/core/ha/entities';
 	import type { HassEntity } from 'home-assistant-js-websocket';
 
 	let {
 		selected,
 		contentWidth = undefined,
+		editing = false,
 		entity_id
 	}: {
-		selected: any;
+		// the original dashboard's item config; only attribute and marquee are read
+		selected: ({ attribute?: string; marquee?: boolean } & Record<string, unknown>) | undefined;
 		contentWidth?: number;
+		/** Marquee pauses while the host dashboard is being edited. */
+		editing?: boolean;
 		entity_id: string | undefined;
 	} = $props();
 
-	let entity: HassEntity = $state(undefined as any);
+	let entity = $state<HassEntity | undefined>(undefined);
 
 	$effect(() => {
 		if (entity_id && $states?.[entity_id]?.last_updated !== entity?.last_updated)
@@ -42,7 +45,7 @@
 	<!-- Media -->
 {:else if media_title && entityState === 'playing'}
 	{@const title = `<span title=${media_title}>${media_title}</span>`}
-	{#if selected?.marquee === true && contentWidth && contentWidth > 153 && !$editMode}
+	{#if selected?.marquee === true && contentWidth && contentWidth > 153 && !editing}
 		{#await import('$lib/ui/Marquee.svelte')}
 			{@html title}
 		{:then Marquee}
@@ -103,7 +106,7 @@
 	{:else if entityState === ''}
 		{@html '&nbsp;'}
 	{:else}
-		{attributes?.mode === 'password' ? entityState.replace(/./g, '•') : entityState}
+		{attributes?.mode === 'password' ? entityState?.replace(/./g, '•') : entityState}
 	{/if}
 
 	<!-- Timestamp  -->
@@ -116,7 +119,7 @@
 
 	<!-- State  -->
 {:else if entityState}
-	{#if selected?.marquee && contentWidth && contentWidth > 153 && !$editMode}
+	{#if selected?.marquee && contentWidth && contentWidth > 153 && !editing}
 		{#await import('$lib/ui/Marquee.svelte') then Marquee}
 			<Marquee.default>
 				{@html $lang(entityState)}

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
-	import Ripple from '$lib/Actions/ripple';
-	import { configuration, motion } from '$lib/Stores';
+	import Ripple from '$lib/ui/actions/ripple';
+	import { configuration } from '$lib/core/app/configuration';
+	import { motion } from '$lib/core/app/motion';
 	import { lang, selectedLanguage, translation } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import { editor } from '../store';
@@ -107,7 +108,7 @@
 	}
 
 	function openClassicDashboard() {
-		location.assign(`${base}/`);
+		location.assign(`${base}/classic`);
 	}
 
 	function handleLogout() {

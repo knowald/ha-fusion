@@ -1,69 +1,87 @@
 import { readFile } from 'fs/promises';
 import { dev } from '$app/environment';
 import * as yaml from 'js-yaml';
-import type { Configuration, Dashboard, Translations } from '$lib/Types';
+import type { Configuration } from '$lib/core/app/configuration';
+import type { Translations } from '$lib/core/i18n';
+import { CONFIG_VERSION, configVersion } from '$lib/Hearth/migrate';
 import dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
 
-/**
- * Loads a yaml/json file and returns parsed data
- */
-async function loadFile(file: string) {
+async function loadYaml(file: string) {
 	try {
 		const data = await readFile(file, 'utf8');
-		if (!data.trim()) {
-			return {}; // file is empty, early return object
-		} else {
-			return file.endsWith('.yaml') ? yaml.load(data) : JSON.parse(data);
-		}
+		return data.trim() ? yaml.load(data) : undefined;
 	} catch (error) {
-		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
-			// console.error(`No existing file found for ${file}`);
-		} else {
-			console.error(`Error reading or parsing ${file}:`, error);
-		}
+		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return undefined;
+		throw error;
+	}
+}
+
+async function loadJson(file: string) {
+	try {
+		return JSON.parse(await readFile(file, 'utf8'));
+	} catch {
 		return {};
 	}
 }
 
-/**
- * Server load function
- */
 export async function load({ request }): Promise<{
 	configuration: Configuration;
-	dashboard: Dashboard;
-	theme: any;
+	hearth: unknown;
+	hearthError: string | null;
+	hearthNeedsSetup: boolean;
+	hearthRevision: number;
 	translations: Translations;
 }> {
-	// must be loaded first
-	const [configuration, dashboard] = await Promise.all([
-		loadFile('./data/configuration.yaml'),
-		loadFile('./data/dashboard.yaml')
-	]);
+	const configuration =
+		((await loadYaml('./data/configuration.yaml')) as Configuration | undefined) ?? {};
+	let hearth: unknown;
+	let hearthError: string | null = null;
+	try {
+		hearth = await loadYaml('./data/hearth.yaml');
+		if (hearth !== undefined && (!hearth || typeof hearth !== 'object' || Array.isArray(hearth))) {
+			hearthError = 'Hearth configuration must contain a YAML mapping';
+		} else if (configVersion(hearth) > CONFIG_VERSION) {
+			hearthError = `Hearth configuration version ${configVersion(hearth)} is newer than this build supports (${CONFIG_VERSION}); update ha-fusion`;
+		}
+	} catch (error) {
+		hearthError =
+			error instanceof Error
+				? `Hearth configuration could not be loaded: ${error.message}`
+				: 'Hearth configuration could not be loaded';
+	}
 
-	// hassUrl from env or server.js
-	configuration.hassUrl = process.env.HASS_URL || request.headers.get('X-Proxy-Target');
+	// the client normalizes whatever it gets; a file that failed above would
+	// throw there instead of showing the load error
+	if (hearthError) hearth = undefined;
+	const rawRevision = (hearth as Record<string, unknown> | undefined)?.revision;
+	const hearthRevision = typeof rawRevision === 'number' ? rawRevision : 0;
+	const hearthKeys = hearthError
+		? []
+		: Object.keys((hearth as Record<string, unknown> | undefined) ?? {}).filter(
+				(key) => key !== 'revision' && key !== 'version'
+			);
+	const hearthNeedsSetup = !hearthError && (hearth === undefined || hearthKeys.length === 0);
 
-	// initialize keys if missing
-	dashboard.views = dashboard.views || [];
-	dashboard.sidebar = dashboard.sidebar || [];
+	configuration.hassUrl =
+		process.env.HASS_URL || request.headers.get('X-Proxy-Target') || undefined;
 
+	// translations for reused fusion components (domain modals, widgets)
 	const dir = dev ? './static' : './build/client';
-
-	// load theme and locale
-	const [theme, en, locale] = await Promise.all([
-		loadFile(`${dir}/themes/${dashboard.theme || 'godis'}.yaml`),
-		loadFile(`${dir}/translations/en.json`),
+	const [en, locale] = await Promise.all([
+		loadJson(`${dir}/translations/en.json`),
 		configuration?.locale && configuration.locale !== 'en'
-			? loadFile(`${dir}/translations/${configuration.locale}.json`)
+			? loadJson(`${dir}/translations/${configuration.locale}.json`)
 			: undefined
 	]);
 
 	return {
 		configuration,
-		dashboard,
-		theme,
+		hearth,
+		hearthError,
+		hearthNeedsSetup,
+		hearthRevision,
 		translations: locale ? { ...locale, _default: en } : en
 	};
 }

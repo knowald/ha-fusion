@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../../config';
 	import { hearthEditMode } from '../../store';
 	import { playSpotifyUri, type MediaShortcut } from '../../media';

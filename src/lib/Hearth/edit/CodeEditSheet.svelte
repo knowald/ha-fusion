@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { autocompleteList } from '$lib/Stores';
+	import { entityIds } from '$lib/core/ha/entities';
 	import * as parser from 'js-yaml';
 	import { editor, hearthConfig, updateConfig } from '../store';
 	import { hearthConfigIssues, normalizeHearthConfig } from '../normalize';
@@ -59,7 +59,7 @@
 				{value}
 				type="yaml"
 				transitionend={true}
-				autocompleteList={$autocompleteList}
+				autocompleteList={$entityIds}
 				onchange={(next) => (value = next)}
 			/>
 		{/await}

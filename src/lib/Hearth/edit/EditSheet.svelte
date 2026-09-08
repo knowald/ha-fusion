@@ -1,9 +1,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { lang } from '$lib/core/i18n';
 	import { PRESS_RIPPLE } from '../config';
 	import Icon from '../Icon.svelte';
+	import { layer } from '$lib/ui/layers';
 	import './editor-fields.css';
 
 	let {
@@ -46,21 +47,13 @@
 		confirmRemove = true;
 		confirmTimer = setTimeout(() => (confirmRemove = false), 4000);
 	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			onclose();
-		}
-	}
 </script>
-
-<svelte:window onkeydown={handleKeydown} />
 
 <div
 	class="overlay"
 	role="presentation"
 	onpointerdown={(event) => event.target === event.currentTarget && onclose()}
+	use:layer={onclose}
 >
 	<div class="sheet" class:wide role="dialog" aria-modal="true" aria-label={title}>
 		<div class="header">

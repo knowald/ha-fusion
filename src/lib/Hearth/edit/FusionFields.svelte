@@ -219,7 +219,7 @@
 
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
-	import { autocompleteList } from '$lib/Stores';
+	import { entityIds } from '$lib/core/ha/entities';
 	import EntityField from './EntityField.svelte';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
@@ -319,7 +319,7 @@
 						value={textValue(field.key)}
 						type="jinja2"
 						transitionend={true}
-						autocompleteList={$autocompleteList}
+						autocompleteList={$entityIds}
 						onchange={(next) => setText(field.key, next)}
 					/>
 				</div>

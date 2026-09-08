@@ -2,7 +2,7 @@
 	import { lang } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { callEntityService } from '$lib/core/ha/commands';
-	import { relativeTime } from '$lib/Utils';
+	import { relativeTime } from '$lib/core/i18n/time';
 	import { selectedLanguage } from '$lib/core/i18n';
 
 	let { entity }: { entity: string } = $props();

@@ -16,23 +16,31 @@ const SRC = join(ROOT, 'src');
 const LAYERS = [
 	{
 		name: 'legacy',
-		match: ['src/lib/legacy/', 'src/routes/+page.svelte', 'src/routes/+page.server.ts'],
-		allowed: ['core', 'ui', 'shared', 'bridge']
+		match: ['src/lib/legacy/', 'src/routes/classic/'],
+		allowed: ['core', 'ui', 'server', 'shared', 'bridge']
 	},
 	{
 		name: 'hearth',
 		match: [
 			'src/lib/Hearth/',
+			'src/routes/+page.svelte',
+			'src/routes/+page.server.ts',
 			'src/routes/hearth/',
 			'src/routes/_api/hearth_themes/',
 			'src/routes/_api/save_hearth/'
 		],
-		allowed: ['core', 'ui', 'shared', 'bridge']
+		allowed: ['core', 'ui', 'server', 'bridge']
 	},
-	{ name: 'ui', match: ['src/lib/ui/'], allowed: ['core', 'shared'] },
-	{ name: 'core', match: ['src/lib/core/'], allowed: ['shared'] },
-	// unlayered code from before the rework; shrinks as phases 1 and 2 land
-	{ name: 'shared', match: ['src/lib/', 'src/routes/', 'src/'], allowed: ['core', 'ui', 'bridge'] }
+	{ name: 'server', match: ['src/lib/server/'], allowed: ['core'] },
+	{ name: 'ui', match: ['src/lib/ui/'], allowed: ['core'] },
+	{ name: 'core', match: ['src/lib/core/'], allowed: [] },
+	// the original dashboard's unlayered state and helpers plus the app shell;
+	// only legacy may import it, and it goes with legacy
+	{
+		name: 'shared',
+		match: ['src/lib/', 'src/routes/', 'src/'],
+		allowed: ['core', 'ui', 'server', 'bridge']
+	}
 ];
 
 const BRIDGE_PREFIX = 'src/lib/legacy/bridge/';
@@ -43,7 +51,7 @@ function layerOf(file) {
 }
 
 function allowedFrom(layer) {
-	if (layer === 'bridge') return new Set(['bridge', 'legacy', 'core', 'ui', 'shared']);
+	if (layer === 'bridge') return new Set(['bridge', 'legacy', 'core', 'ui', 'server', 'shared']);
 	const definition = LAYERS.find((entry) => entry.name === layer);
 	return new Set([layer, ...(definition?.allowed ?? [])]);
 }
@@ -57,7 +65,7 @@ async function* walk(dir) {
 }
 
 const IMPORT_PATTERN =
-	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]/g;
+	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]/g;
 
 function resolveTarget(fromFile, specifier) {
 	if (specifier.startsWith('$lib/')) return posix.join('src/lib', specifier.slice(5));
@@ -75,7 +83,7 @@ for await (const absolute of walk(SRC)) {
 	const allowed = allowedFrom(layer);
 	const source = await readFile(absolute, 'utf8');
 	for (const match of source.matchAll(IMPORT_PATTERN)) {
-		const specifier = match[1] ?? match[2] ?? match[3];
+		const specifier = match[1] ?? match[2] ?? match[3] ?? match[4];
 		const target = resolveTarget(file, specifier);
 		if (!target) continue;
 		const targetLayer = layerOf(target);

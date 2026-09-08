@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { motion } from '$lib/Stores';
+	import { motion } from '$lib/core/app/motion';
 	import { getHearthInteractionMode } from './interaction';
-	import { openPopovers } from './store';
+	import { pushLayer } from '$lib/ui/layers';
 
 	let {
 		anchor,
@@ -93,30 +93,19 @@
 		const observer = new ResizeObserver(schedulePosition);
 		observer.observe(card);
 		observer.observe(anchor);
-		openPopovers.update((count) => count + 1);
+		const releaseLayer = pushLayer(onclose);
 		return () => {
 			cancelAnimationFrame(positionFrame);
 			positionFrame = 0;
 			observer.disconnect();
-			openPopovers.update((count) => Math.max(0, count - 1));
+			releaseLayer();
 			// the row that opened this is where the user was
 			anchor.focus?.();
 		};
 	});
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			event.stopPropagation();
-			onclose();
-		}
-	}
 </script>
 
-<svelte:window
-	onkeydown={handleKeydown}
-	onresize={schedulePosition}
-	onscrollcapture={schedulePosition}
-/>
+<svelte:window onresize={schedulePosition} onscrollcapture={schedulePosition} />
 
 <div
 	class="scrim"

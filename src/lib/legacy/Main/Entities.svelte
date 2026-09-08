@@ -76,7 +76,7 @@
 
 				<div class="state">
 					{#if entity}
-						<StateLogic {entity_id} selected={sel} />
+						<StateLogic editing={$editMode} {entity_id} selected={sel} />
 					{:else}
 						{$lang('unknown')}
 					{/if}

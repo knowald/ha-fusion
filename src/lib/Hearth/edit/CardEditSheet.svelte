@@ -24,6 +24,7 @@
 	import EditSheet from './EditSheet.svelte';
 	import FormSection from './FormSection.svelte';
 	import Icon from '../Icon.svelte';
+	import { layer } from '$lib/ui/layers';
 	import SelectField from './SelectField.svelte';
 	import TextField from './TextField.svelte';
 	import VisibilityField from './VisibilityField.svelte';
@@ -87,7 +88,9 @@
 		// a new schema and intentionally leaves type-specific extensions behind.
 		return {
 			...(initial?.type === type ? initial : {}),
-			...draft.fields,
+			// snapshot: the draft is $state and its nested arrays are proxies,
+			// which the store's structuredClone cannot copy
+			...$state.snapshot(draft.fields),
 			id: cardId,
 			type,
 			...(descriptor.sizable
@@ -209,20 +212,18 @@
 	</div>
 
 	{#if typeOpen}
-		<div class="popup-backdrop" role="presentation" onclick={() => (typeOpen = false)}>
+		<div
+			class="popup-backdrop"
+			role="presentation"
+			onclick={(event) => event.target === event.currentTarget && (typeOpen = false)}
+		>
 			<div
 				class="action-popup"
 				role="dialog"
 				tabindex="-1"
 				aria-modal="true"
 				aria-label={$lang('hearth_change_card_type')}
-				onclick={(event) => event.stopPropagation()}
-				onkeydown={(event) => {
-					if (event.key === 'Escape') {
-						event.stopPropagation();
-						typeOpen = false;
-					}
-				}}
+				use:layer={() => (typeOpen = false)}
 			>
 				<div class="popup-header">
 					<div>

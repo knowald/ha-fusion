@@ -1,26 +1,9 @@
 import type Konva from 'konva';
 import type { ShapeConfig } from 'konva/lib/Shape';
 
-export type SliderUpdateMode = 'continuous' | 'release';
+import type { SliderUpdateMode } from '$lib/core/app/configuration';
 
-// configuration.yaml
-
-export interface Configuration {
-	hassUrl?: string;
-	locale?: string;
-	custom_js?: boolean;
-	motion?: boolean;
-	addons?: Addons;
-	token?: string;
-	hearth?: boolean;
-}
-
-export interface Addons {
-	youtube?: boolean;
-	maptiler?: {
-		apikey: string;
-	};
-}
+export type { SliderUpdateMode, Configuration, Addons } from '$lib/core/app/configuration';
 
 export interface Dashboard {
 	views: Views[];
@@ -159,13 +142,7 @@ export interface Template {
 	};
 }
 
-export interface PersistentNotification {
-	created_at: string;
-	message: string;
-	notification_id: string;
-	title: string;
-	status: 'read' | 'unread';
-}
+export type { PersistentNotification } from '$lib/core/app/configuration';
 
 export type SidebarItem = BarItem &
 	CameraItem &

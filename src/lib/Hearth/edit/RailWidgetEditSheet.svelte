@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
-	import Ripple from '$lib/Actions/ripple';
+	import Ripple from '$lib/ui/actions/ripple';
 	import { activateOnKeyboard } from '../interaction';
 	import type { RailWidget, VisibilityCondition } from '../types';
 	import { normalizeVisibility, PRESS_RIPPLE, slugify, uniqueId } from '../config';
@@ -61,7 +61,7 @@
 		// unknown extension keys survive a no-op edit; a type switch starts fresh
 		return {
 			...(initial?.type === type ? initial : {}),
-			...draft.fields,
+			...$state.snapshot(draft.fields),
 			id,
 			type,
 			hide_mobile: hideMobile || undefined,

@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { base } from '$app/paths';
 import { setCommandGate } from '$lib/core/ha/commands';
-import type { SliderUpdateMode } from '$lib/Types';
+import type { SliderUpdateMode } from '$lib/core/app/configuration';
 import { DEFAULT_HEARTH_CONFIG, type HearthConfig } from './config';
 
 /* configuration */
@@ -107,6 +107,17 @@ export function cancelEdit() {
 export const saveState = writable<'idle' | 'saved' | 'conflict' | 'error'>('idle');
 let savedToastTimer: ReturnType<typeof setTimeout>;
 
+/** Save and surface the outcome through saveState instead of throwing. */
+export async function saveWithFeedback(force = false): Promise<void> {
+	saveState.set('idle');
+	try {
+		await saveEdit(force);
+	} catch (error) {
+		console.error(error);
+		saveState.set('error');
+	}
+}
+
 /** Returns false on a revision conflict (another tab saved first). */
 export async function saveEdit(force = false): Promise<boolean> {
 	const loadError = get(hearthLoadError);
@@ -120,8 +131,8 @@ export async function saveEdit(force = false): Promise<boolean> {
 		body: JSON.stringify({ revision: get(hearthRevision), config: get(hearthConfig), force })
 	});
 	if (response.status === 409) {
-		const body = await response.json().catch(() => undefined);
-		if (typeof body?.revision === 'number') hearthRevision.set(body.revision);
+		// keep the stale revision: a plain retry must conflict again, only the
+		// explicit overwrite (force) may replace the other tab's save
 		saveState.set('conflict');
 		return false;
 	}
@@ -155,10 +166,6 @@ export type Popup = {
 };
 
 export const popup = writable<Popup | null>(null);
-
-// open anchored popovers (collapsed groups); window-level shortcuts check this
-// so they cannot open another layer on top of one
-export const openPopovers = writable(0);
 
 export interface RequestedConfirmation {
 	title: string;

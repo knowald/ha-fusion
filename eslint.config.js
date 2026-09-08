@@ -43,17 +43,10 @@ export default tseslint.config(
 		rules: { 'hearth/no-bare-text': 'error' }
 	},
 	{
-		// the rework layers are typed; the count is capped by --max-warnings in the
-		// lint script and only goes down. legacy/ stays exempt until it is deleted.
-		files: ['src/lib/Hearth/**', 'src/lib/ui/**', 'src/lib/core/**', 'src/routes/hearth/**'],
-		rules: {
-			'@typescript-eslint/no-explicit-any': 'warn'
-		}
-	},
-	{
 		/*
 		 * Temporarily disable certain rules to mitigate
-		 * unnecessary distractions during development.
+		 * unnecessary distractions during development. Must stay above the
+		 * per-layer blocks below, since later flat-config entries win.
 		 */
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'off',
@@ -61,6 +54,21 @@ export default tseslint.config(
 			'svelte/no-at-html-tags': 'off',
 			// false positive on `prop = $bindable()` destructuring, core rule doesn't understand runes
 			'no-useless-assignment': 'off'
+		}
+	},
+	{
+		// the rework layers are typed; the count is capped by --max-warnings in the
+		// lint script and only goes down. legacy/ stays exempt until it is deleted.
+		files: ['src/lib/Hearth/**', 'src/routes/+page.svelte', 'src/routes/+page.server.ts'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'warn'
+		}
+	},
+	{
+		// core and ui are any-free; keep them that way
+		files: ['src/lib/core/**', 'src/lib/ui/**'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'error'
 		}
 	}
 );
