@@ -46,6 +46,6 @@ describe('RailWidgetRenderer', () => {
 
 	it('shows the setup placeholder for a widget missing its entity', () => {
 		render(RailWidgetRenderer, { widget: { id: 'n', type: 'energy' } });
-		expect(screen.getByText('Configure Energy widget')).toBeTruthy();
+		expect(screen.getByText('Configure Energy today widget')).toBeTruthy();
 	});
 });

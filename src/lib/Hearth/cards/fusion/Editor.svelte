@@ -1,0 +1,118 @@
+<script lang="ts">
+	import Ripple from '$lib/Actions/ripple';
+	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
+	import { PRESS_RIPPLE } from '../../config';
+	import { activateOnKeyboard } from '../../interaction';
+	import type { CardEditorProps } from '../types';
+	import { FUSION_OBJECT_TYPES, type FusionCard } from './descriptor';
+	import FusionFields, {
+		applyLeftoverYaml,
+		dumpLeftoverYaml
+	} from '../../edit/FusionFields.svelte';
+	import Icon from '../../Icon.svelte';
+	import SelectField from '../../edit/SelectField.svelte';
+	import YamlField from '../../edit/YamlField.svelte';
+
+	let { initial: initialProp, onchange }: CardEditorProps<FusionCard> = $props();
+
+	// remounted per target and type, so the initial value is all the form needs
+	// svelte-ignore state_referenced_locally
+	const initial = initialProp;
+
+	const initialConfig = initial?.config ?? {};
+	let fusionType = $state<string>(String(initialConfig.type ?? 'button'));
+	let options = $state<Record<string, any>>(withoutType(initialConfig));
+	let advancedOpen = $state(false);
+	let advancedYaml = $state('');
+	let advancedValid = $state(true);
+
+	const yamlPlaceholder = 'entity_id: light.living_room\nname: Living Room';
+
+	function withoutType(config: Record<string, any>) {
+		const rest = { ...config };
+		delete rest.type;
+		return rest;
+	}
+
+	// the YAML area edits only the keys the form fields do not cover, so its
+	// text is re-dumped whenever the covered key set can have changed
+	function resetAdvancedYaml() {
+		advancedYaml = dumpLeftoverYaml(fusionType, options);
+		advancedValid = true;
+	}
+
+	function toggleAdvanced() {
+		advancedOpen = !advancedOpen;
+		if (advancedOpen) resetAdvancedYaml();
+	}
+
+	function setAdvancedYaml(value: string) {
+		advancedYaml = value;
+		advancedValid = applyLeftoverYaml(fusionType, options, value);
+	}
+
+	/**
+	 * Opens the original picture-elements Konva editor for the card's
+	 * `elements` and copies the edited list back into the options.
+	 */
+	async function openElementsEditor() {
+		options.elements = await editPictureElements(
+			initial?.id ?? 'hearth-fusion',
+			$state.snapshot(options).elements ?? []
+		);
+		if (advancedOpen) resetAdvancedYaml();
+	}
+
+	$effect(() => {
+		onchange({
+			fields: {
+				config: { type: fusionType, ...$state.snapshot(options) },
+				height: initial?.height
+			},
+			valid: !advancedOpen || advancedValid
+		});
+	});
+</script>
+
+<SelectField
+	label="Object type"
+	bind:value={fusionType}
+	options={FUSION_OBJECT_TYPES}
+	onchange={() => advancedOpen && resetAdvancedYaml()}
+/>
+<FusionFields type={fusionType} bind:options />
+{#if fusionType === 'picture_elements'}
+	<div
+		class="elements-editor pressable"
+		use:Ripple={PRESS_RIPPLE}
+		role="button"
+		tabindex="0"
+		onclick={openElementsEditor}
+		onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
+	>
+		<Icon name="edit" size={18} />
+		<span>Open elements editor</span>
+	</div>
+{/if}
+<div
+	class="advanced-toggle pressable"
+	use:Ripple={PRESS_RIPPLE}
+	role="button"
+	tabindex="0"
+	onclick={toggleAdvanced}
+	onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
+>
+	<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
+	<span>Advanced (YAML)</span>
+</div>
+{#if advancedOpen}
+	<YamlField
+		label="Other options (YAML)"
+		bind:value={() => advancedYaml, setAdvancedYaml}
+		placeholder={yamlPlaceholder}
+	/>
+	<div class="hint">
+		Options match the original ha-fusion object config for the chosen type, e.g. entity_id, name,
+		icon.
+	</div>
+{/if}

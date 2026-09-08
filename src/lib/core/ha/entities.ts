@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket';
+import { domainDescriptor } from '../domains';
 
 /** Every entity state, replaced wholesale on each websocket update. */
 export const states = writable<HassEntities>();
@@ -56,18 +57,10 @@ export const ACTIVE_STATES = [
 	'gas'
 ];
 
-export const OPENING_STATES = ['open', 'opening', 'closing'];
-export const MEDIA_OFF_STATES = ['off', 'unavailable', 'unknown', 'standby', 'idle'];
-
 /** One domain-aware answer to whether an entity is visually active. */
 export function entityActive(entityId: string, entity: HassEntity | undefined) {
 	if (!entity) return false;
-	const domain = getDomain(entityId);
-	if (domain === 'cover' || domain === 'valve') return OPENING_STATES.includes(entity.state);
-	if (domain === 'lock') return entity.state === 'unlocked';
-	if (domain === 'media_player') return !MEDIA_OFF_STATES.includes(entity.state);
-	if (domain === 'vacuum') return entity.state === 'cleaning' || entity.state === 'returning';
-	return entity.state === 'on';
+	return domainDescriptor(getDomain(entityId)).active?.(entity) ?? entity.state === 'on';
 }
 
 /** Active state with an optimistic `active:` override applied while the entity is reachable. */
@@ -82,58 +75,8 @@ export function entityActiveFor(
 
 /** The `domain.service` that flips an entity, or undefined for domains without one. */
 export function getTogglableService(entity: HassEntity) {
-	const domain = getDomain(entity?.entity_id);
-	const state = entity?.state;
-
-	if (!domain || !state) return;
-
-	let service;
-
-	switch (domain) {
-		case 'automation':
-		case 'button':
-		case 'cover':
-		case 'fan':
-		case 'humidifier':
-		case 'input_boolean':
-		case 'light':
-		case 'media_player':
-		case 'script':
-		case 'siren':
-		case 'switch':
-			service = 'toggle';
-			break;
-
-		case 'input_button':
-			service = 'press';
-			break;
-
-		case 'lock':
-			service = state === 'locked' ? 'unlock' : 'lock';
-			break;
-
-		// group members span domains, so only homeassistant.toggle covers them;
-		// without this, Button falls back to a handler that recurses into toggle
-		case 'group':
-		case 'remote':
-			return 'homeassistant.toggle';
-
-		case 'scene':
-			service = 'turn_on';
-			break;
-
-		case 'timer':
-			service = state === 'active' ? 'cancel' : 'start';
-			break;
-
-		case 'vacuum':
-			service = state === 'cleaning' ? 'pause' : 'start';
-			break;
-	}
-
-	if (service) {
-		return `${domain}.${service}`;
-	}
+	if (!entity?.state) return;
+	return domainDescriptor(getDomain(entity.entity_id)).toggleService?.(entity);
 }
 
 /** Parses a sensor state as a number, or null for anything non-numeric. */
@@ -145,33 +88,9 @@ export function sensorNumber(state: string | undefined): number | null {
 
 /* entity groups */
 
-const OPEN_CLOSED_CLASSES = ['door', 'window', 'garage_door', 'opening'];
-
-/** Domains whose entities read as active or inactive in a group summary. */
-const SUMMARY_DOMAINS = [
-	'light',
-	'switch',
-	'input_boolean',
-	'fan',
-	'cover',
-	'valve',
-	'binary_sensor',
-	'media_player',
-	'lock',
-	'humidifier'
-];
-
 /** Active/inactive wording for one entity. */
 export function summaryWords(entityId: string, entity: HassEntity | undefined): [string, string] {
-	const domain = getDomain(entityId);
-	if (domain === 'cover' || domain === 'valve') return ['open', 'closed'];
-	if (domain === 'lock') return ['unlocked', 'locked'];
-	if (domain === 'binary_sensor') {
-		const deviceClass: string | undefined = entity?.attributes?.device_class;
-		if (deviceClass && OPEN_CLOSED_CLASSES.includes(deviceClass)) return ['open', 'closed'];
-		if (deviceClass === 'motion' || deviceClass === 'occupancy') return ['detected', 'clear'];
-	}
-	return ['on', 'off'];
+	return domainDescriptor(getDomain(entityId)).summaryWords?.(entity) ?? ['on', 'off'];
 }
 
 /**
@@ -187,7 +106,9 @@ export function entityGroupSummary(
 	$states: HassEntities | undefined
 ): { text: string; badge: string | null; activeLabel: string } {
 	// eligible by domain, so the wording holds before any state has arrived
-	const eligible = entityIds.filter((entityId) => SUMMARY_DOMAINS.includes(entityId.split('.')[0]));
+	const eligible = entityIds.filter(
+		(entityId) => domainDescriptor(getDomain(entityId)).countable === true
+	);
 	if (!eligible.length) {
 		const size = `${entityIds.length} ${entityIds.length === 1 ? 'entity' : 'entities'}`;
 		return { text: size, badge: null, activeLabel: size };

@@ -11,7 +11,7 @@
 	import { states } from '$lib/core/ha/entities';
 	import { startConnection, stopConnection } from '$lib/core/ha/connection';
 	import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
-	import { normalizeHearthConfig } from '$lib/Hearth/config';
+	import { normalizeHearthConfig } from '$lib/Hearth/normalize';
 	import {
 		hearthConfig,
 		hearthLoadError,

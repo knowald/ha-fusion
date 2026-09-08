@@ -1,39 +1,31 @@
 <script lang="ts">
-	import { activateOnKeyboard } from '../interaction';
 	import { get } from 'svelte/store';
-	import Ripple from '$lib/Actions/ripple';
+	import type {
+		EntityRef,
+		HearthConfig,
+		OverviewCard,
+		OverviewItem,
+		VisibilityCondition
+	} from '../types';
 	import {
 		ensureRoomCardColumns,
-		FUSION_OBJECT_TYPES,
 		findOverviewCard,
 		findOverviewItemList,
 		isStack,
-		moveItem,
 		normalizeVisibility,
-		OVERVIEW_CARD_TYPES,
-		PRESS_RIPPLE,
 		slugify,
 		takenCardIds,
-		uniqueId,
-		type EntityRef,
-		type HearthConfig,
-		type OverviewCard,
-		type OverviewItem,
-		type VisibilityCondition
+		uniqueId
 	} from '../config';
+	import { CARD_TYPES, cardDescriptor, type CardDraft } from '../cards';
 	import { editor, hearthConfig, updateConfig } from '../store';
-	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
 	import CardPreview from './CardPreview.svelte';
 	import EditSheet from './EditSheet.svelte';
-	import EntityField from './EntityField.svelte';
-	import FusionFields, { applyLeftoverYaml, dumpLeftoverYaml } from './FusionFields.svelte';
 	import FormSection from './FormSection.svelte';
 	import Icon from '../Icon.svelte';
-	import IconField from './IconField.svelte';
-	import TextField from './TextField.svelte';
 	import SelectField from './SelectField.svelte';
+	import TextField from './TextField.svelte';
 	import VisibilityField from './VisibilityField.svelte';
-	import YamlField from './YamlField.svelte';
 
 	let {
 		roomId,
@@ -64,451 +56,51 @@
 	// svelte-ignore state_referenced_locally
 	const initial = id !== null ? findOverviewCard(get(hearthConfig), id, roomId) : undefined;
 
-	// display widened to string so the per-entity select can hold '' for
-	// "follow the card style"; narrowed back to the union in buildCard
-	type EditableRef = {
-		entity: string;
-		name?: string;
-		icon?: string;
-		display?: string;
-		readonly?: boolean;
-		slider_updates?: string;
-		// YAML-only field with no form control; carried so edits don't drop it
-		verdict?: EntityRef['verdict'];
-	};
-	type EditableVacuumMode = {
-		entity: string;
-		name?: string;
-		icon?: string;
-		detail?: string;
-		duration?: string;
-		default?: boolean;
-	};
-	type EditableSceneRef = {
-		entity: string;
-		name?: string;
-		icon?: string;
-		caption?: string;
-		active_entity?: string;
-		active_state?: string;
-	};
-
 	let type = $state<OverviewCard['type']>(initial?.type ?? 'entities');
 	let typeOpen = $state(false);
-	let title = $state(initial && 'title' in initial ? (initial.title ?? '') : '');
-	let label = $state(initial?.type === 'temperature' ? (initial.label ?? '') : '');
-	let unit = $state(initial?.type === 'temperature' ? (initial.unit ?? '') : '°C');
-	let climateEntity = $state(initial?.type === 'temperature' ? (initial.climate_entity ?? '') : '');
-	let entity = $state(initial && 'entity' in initial ? (initial.entity ?? '') : '');
-	let cameraStream = $state(initial?.type === 'camera' ? (initial.stream ?? false) : false);
-	let subtitle = $state(initial?.type === 'header' ? (initial.subtitle ?? '') : '');
-	let headerIcon = $state(initial?.type === 'header' ? (initial.icon ?? 'home') : 'home');
-	let headerTempEntity = $state(initial?.type === 'header' ? (initial.temp_entity ?? '') : '');
-	let headerHumidityEntity = $state(
-		initial?.type === 'header' ? (initial.humidity_entity ?? '') : ''
-	);
 	// blank means the type's own default: media and sensor cards fill, the rest
 	// size to their content
 	let fill = $state<string>(
-		initial && 'fill' in initial && typeof initial.fill === 'number' ? String(initial.fill) : ''
+		initial && typeof initial.fill === 'number' ? String(initial.fill) : ''
 	);
 	// blank means "size to content" for a fusion embed, or "fill the column" for
 	// the two cards that stretch
 	let height = $state<string>(
 		initial && 'height' in initial && initial.height ? String(initial.height) : ''
 	);
-	let gridStyle = $state<string>(initial?.type === 'entities' ? (initial.style ?? 'tile') : 'tile');
-	let gridColumns = $state<string>(
-		initial?.type === 'entities' && initial.columns ? String(initial.columns) : ''
-	);
-	// mirrors the runtime default (titled sections count unless opted out), so
-	// the checkbox state matches what the dashboard actually renders
-	let showCount = $state(
-		initial?.type === 'entities' ? (initial.show_count ?? Boolean(initial.title)) : true
-	);
-	let groupActions = $state(initial?.type === 'entities' ? initial.group_actions !== false : true);
-	let tuneButtons = $state(initial?.type === 'entities' ? (initial.tune_button ?? false) : false);
-	let gridVerticalPadding = $state(
-		initial?.type === 'entities' ? (initial.vertical_padding ?? '') : ''
-	);
-	let gridReadonly = $state(initial?.type === 'entities' ? (initial.readonly ?? false) : false);
-	let gridWildcard = $state(initial?.type === 'entities' ? (initial.wildcard ?? '') : '');
-	let gridSliderUpdates = $state(
-		initial?.type === 'entities' ? (initial.slider_updates ?? 'continuous') : 'continuous'
-	);
-	let gridCollapsed = $state(initial?.type === 'entities' ? (initial.collapsed ?? false) : false);
-	let gridIcon = $state(initial?.type === 'entities' ? (initial.icon ?? '') : '');
-	let gridSummary = $state(initial?.type === 'entities' ? (initial.summary ?? '') : '');
-	let gridSummaryEntity = $state(
-		initial?.type === 'entities' ? (initial.summary_entity ?? '') : ''
-	);
-	// optional ref keys become '' instead of undefined - the row fields bind
-	// them to props with fallback values, which undefined would crash
-	let entities = $state<EditableRef[]>(
-		initial?.type === 'entities'
-			? initial.entities.map((ref) => ({
-					entity: ref.entity ?? '',
-					name: ref.name ?? '',
-					icon: ref.icon ?? '',
-					display: ref.display ?? '',
-					readonly: ref.readonly ?? false,
-					slider_updates: ref.slider_updates ?? '',
-					verdict: ref.verdict
-				}))
-			: []
-	);
-	let entitiesOpen = $state(true);
-	let expandedEntityRows = $state<number[]>([]);
-	let vacuumModes = $state<EditableVacuumMode[]>(
-		initial?.type === 'vacuum'
-			? (initial.modes ?? []).map((ref) => ({
-					entity: ref.entity ?? '',
-					name: ref.name ?? '',
-					icon: ref.icon ?? '',
-					detail: ref.detail ?? '',
-					duration: ref.duration ?? '',
-					default: ref.default ?? false
-				}))
-			: []
-	);
-	let vacuumBatteryEntity = $state(
-		initial?.type === 'vacuum' ? (initial.battery_entity ?? '') : ''
-	);
-	let vacuumBinEntity = $state(initial?.type === 'vacuum' ? (initial.bin_entity ?? '') : '');
-	let vacuumQuickAction = $state(
-		initial?.type === 'vacuum' ? (initial.quick_action ?? false) : false
-	);
-	let sensorVerdict = $state(initial?.type === 'temperature' ? initial.verdict !== false : true);
-	// custom verdict bands have no form fields; a YAML-authored object survives
-	// form edits as long as the verdict stays enabled
-	const initialVerdictBands =
-		initial?.type === 'temperature' && typeof initial.verdict === 'object'
-			? initial.verdict
-			: undefined;
-	let sceneStyle = $state<string>(
-		initial?.type === 'scenes' ? (initial.style ?? 'chips') : 'chips'
-	);
-	let scenes = $state<EditableSceneRef[]>(
-		initial?.type === 'scenes'
-			? initial.scenes.map((ref) => ({
-					entity: ref.entity ?? '',
-					name: ref.name ?? '',
-					icon: ref.icon ?? '',
-					caption: ref.caption ?? '',
-					active_entity: ref.active_entity ?? '',
-					active_state: ref.active_state ?? ''
-				}))
-			: []
-	);
 	let visibility = $state<VisibilityCondition[]>(
 		(initial?.visibility ?? []).map((condition) => ({ ...condition }))
 	);
-	const initialFusion = initial?.type === 'fusion' ? (initial.config ?? {}) : {};
-	let fusionType = $state<string>(String(initialFusion.type ?? 'button'));
-	let fusionOptions = $state<Record<string, any>>(withoutType(initialFusion));
-	let advancedOpen = $state(false);
-	let advancedYaml = $state('');
-	let advancedValid = $state(true);
 
-	const yamlPlaceholder = 'entity_id: light.living_room\nname: Living Room';
+	// the per-type editor reports its fields; the shell adds id, type and layout
+	let draft = $state<CardDraft<OverviewCard>>({ fields: {} as CardDraft<OverviewCard>['fields'] });
+	let editorRef = $state<{ applyPreviewReorder?: (entities: EntityRef[]) => void }>();
 
-	// only one mode carries the tag, so checking a row clears the rest
-	function setDefaultMode(index: number, checked: boolean) {
-		vacuumModes = vacuumModes.map((mode, position) => ({
-			...mode,
-			default: checked && position === index
-		}));
-	}
+	let descriptor = $derived(cardDescriptor(type));
+	let editorInitial = $derived(initial?.type === type ? initial : undefined);
 
-	function withoutType(config: Record<string, any>) {
-		const options = { ...config };
-		delete options.type;
-		return options;
-	}
-
-	// the YAML area edits only the keys the form fields do not cover, so its
-	// text is re-dumped whenever the covered key set can have changed
-	function resetAdvancedYaml() {
-		advancedYaml = dumpLeftoverYaml(fusionType, fusionOptions);
-		advancedValid = true;
-	}
-
-	function toggleAdvanced() {
-		advancedOpen = !advancedOpen;
-		if (advancedOpen) resetAdvancedYaml();
-	}
-
-	function setAdvancedYaml(value: string) {
-		advancedYaml = value;
-		advancedValid = applyLeftoverYaml(fusionType, fusionOptions, value);
-	}
-
-	/**
-	 * Opens the original picture-elements Konva editor for the fusion card's
-	 * `elements`. The editor mutates the `sel` object it's given in place (see
-	 * its onDestroy) rather than writing through any store, so it's passed a
-	 * plain snapshot; once the modal closes that snapshot is copied back into
-	 * `fusionOptions`, which flows into hearthConfig through the normal
-	 * done()/updateConfig() path.
-	 */
-	async function openElementsEditor() {
-		fusionOptions.elements = await editPictureElements(
-			initial?.id ?? 'hearth-fusion',
-			$state.snapshot(fusionOptions).elements ?? []
-		);
-		if (advancedOpen) resetAdvancedYaml();
-	}
-
-	let entityDomains = $derived(
-		type === 'media'
-			? ['media_player']
-			: type === 'vacuum'
-				? ['vacuum']
-				: type === 'camera'
-					? ['camera']
-					: type === 'image'
-						? ['image']
-						: type === 'climate'
-							? ['climate']
-							: ['sensor']
-	);
-
-	function close() {
-		editor.set(null);
-	}
-
-	function buildKnownCard(id: string): OverviewCard {
-		const visibilityValue = normalizeVisibility($state.snapshot(visibility));
+	function buildCard(cardId: string): OverviewCard {
 		const heightValue = parseInt(height, 10);
-		const cardHeight = Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined;
 		const fillValue = fill === '' ? undefined : Number(fill);
-		const cardFill = Number.isFinite(fillValue as number) ? fillValue : undefined;
-		if (type === 'header') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				subtitle: subtitle.trim() || undefined,
-				icon: headerIcon.trim() || undefined,
-				temp_entity: headerTempEntity.trim() || undefined,
-				humidity_entity: headerHumidityEntity.trim() || undefined,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'temperature') {
-			return {
-				id,
-				type,
-				label: label.trim() || undefined,
-				entity: entity.trim() || undefined,
-				unit: unit.trim() || undefined,
-				climate_entity: climateEntity.trim() || undefined,
-				verdict: sensorVerdict ? initialVerdictBands : false,
-				height: cardHeight,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'entities') {
-			const columnCount = parseInt(gridColumns, 10);
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				style: gridStyle === 'stat' ? 'stat' : undefined,
-				columns: Number.isFinite(columnCount) && columnCount >= 1 ? columnCount : undefined,
-				// stored only when it differs from the default (titled sections count,
-				// untitled ones do not); explicit false opts a titled section out
-				show_count: showCount === Boolean(title.trim()) ? undefined : showCount,
-				group_actions: groupActions ? undefined : false,
-				tune_button: tuneButtons || undefined,
-				vertical_padding: gridVerticalPadding === 'compact' ? 'compact' : undefined,
-				readonly: gridReadonly || undefined,
-				wildcard: gridWildcard.trim() || undefined,
-				slider_updates:
-					gridSliderUpdates === 'release' || gridSliderUpdates === 'continuous'
-						? gridSliderUpdates
-						: undefined,
-				collapsed: gridCollapsed || undefined,
-				icon: gridCollapsed ? gridIcon.trim() || undefined : undefined,
-				summary: gridCollapsed ? gridSummary.trim() || undefined : undefined,
-				summary_entity: gridCollapsed ? gridSummaryEntity.trim() || undefined : undefined,
-				entities: entities
-					.map((ref): EntityRef => ({
-						entity: ref.entity.trim(),
-						name: ref.name?.trim() || undefined,
-						icon: ref.icon?.trim() || undefined,
-						display: ref.display === 'stat' || ref.display === 'tile' ? ref.display : undefined,
-						readonly: ref.readonly || undefined,
-						slider_updates:
-							ref.slider_updates === 'continuous' || ref.slider_updates === 'release'
-								? ref.slider_updates
-								: undefined,
-						verdict: ref.verdict
-					}))
-					.filter((ref) => ref.entity),
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'camera') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				entity: entity.trim() || undefined,
-				stream: cameraStream || undefined,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'image') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				entity: entity.trim() || undefined,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'climate') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				entity: entity.trim() || undefined,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'scenes') {
-			return {
-				id,
-				type,
-				title: title.trim() || undefined,
-				style: sceneStyle === 'bar' ? 'bar' : undefined,
-				scenes: scenes
-					.map((ref) => ({
-						entity: ref.entity.trim(),
-						name: ref.name?.trim() || undefined,
-						icon: ref.icon?.trim() || undefined,
-						caption: ref.caption?.trim() || undefined,
-						active_entity: ref.active_entity?.trim() || undefined,
-						active_state: ref.active_state?.trim() || undefined
-					}))
-					.filter((ref) => ref.entity),
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'fusion') {
-			return {
-				id,
-				type,
-				config: { type: fusionType, ...$state.snapshot(fusionOptions) },
-				height: cardHeight,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'media') {
-			return {
-				id,
-				type,
-				entity: entity.trim() || undefined,
-				height: cardHeight,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		if (type === 'vacuum') {
-			return {
-				id,
-				type,
-				entity: entity.trim() || undefined,
-				modes: vacuumModes
-					.map((ref) => ({
-						entity: ref.entity.trim(),
-						name: ref.name?.trim() || undefined,
-						icon: ref.icon?.trim() || undefined,
-						detail: ref.detail?.trim() || undefined,
-						duration: ref.duration?.trim() || undefined,
-						default: ref.default || undefined
-					}))
-					.filter((ref) => ref.entity),
-				battery_entity: vacuumBatteryEntity.trim() || undefined,
-				bin_entity: vacuumBinEntity.trim() || undefined,
-				quick_action: vacuumQuickAction || undefined,
-				fill: cardFill,
-				visibility: visibilityValue
-			};
-		}
-		return { id, type, entity: entity.trim() || undefined, visibility: visibilityValue };
-	}
-
-	function buildCard(id: string): OverviewCard {
 		// Unknown extension keys survive a no-op form edit. Switching type starts
 		// a new schema and intentionally leaves type-specific extensions behind.
 		return {
 			...(initial?.type === type ? initial : {}),
-			...buildKnownCard(id)
+			...draft.fields,
+			id: cardId,
+			type,
+			...(descriptor.sizable
+				? { height: Number.isFinite(heightValue) && heightValue >= 40 ? heightValue : undefined }
+				: {}),
+			fill: Number.isFinite(fillValue as number) ? fillValue : undefined,
+			visibility: normalizeVisibility($state.snapshot(visibility))
 		} as OverviewCard;
 	}
 
 	let previewCard = $derived.by(() => buildCard('preview'));
 
-	function reorderPreviewEntities(reordered: EntityRef[]) {
-		// buildCard filters incomplete rows out of the preview. Keep those rows in
-		// place in the form while applying the preview's order to the valid ones.
-		const positions = entities.flatMap((ref, position) => (ref.entity.trim() ? [position] : []));
-		if (positions.length !== reordered.length) return;
-		const next = entities.map((ref) => ({ ...ref }));
-		for (const [order, position] of positions.entries()) {
-			const ref = reordered[order];
-			next[position] = {
-				entity: ref.entity,
-				name: ref.name ?? '',
-				icon: ref.icon ?? '',
-				display: ref.display ?? '',
-				readonly: ref.readonly ?? false,
-				slider_updates: ref.slider_updates ?? ''
-			};
-		}
-		entities = next;
-		expandedEntityRows = [];
-	}
-
-	function toggleEntityRow(index: number) {
-		expandedEntityRows = expandedEntityRows.includes(index)
-			? expandedEntityRows.filter((entry) => entry !== index)
-			: [...expandedEntityRows, index];
-	}
-
-	function moveEntityRow(index: number, direction: -1 | 1) {
-		moveItem(entities, index, direction);
-		expandedEntityRows = [];
-	}
-
-	function removeEntityRow(index: number) {
-		entities.splice(index, 1);
-		expandedEntityRows = expandedEntityRows
-			.filter((entry) => entry !== index)
-			.map((entry) => (entry > index ? entry - 1 : entry));
-	}
-
-	function addEntityRow() {
-		entities.push({
-			entity: '',
-			name: '',
-			icon: '',
-			display: '',
-			readonly: false,
-			slider_updates: ''
-		});
-		entitiesOpen = true;
-		expandedEntityRows = [entities.length - 1];
+	function close() {
+		editor.set(null);
 	}
 
 	function done() {
@@ -538,10 +130,6 @@
 		close();
 	}
 
-	let currentType = $derived(
-		OVERVIEW_CARD_TYPES.find((kind) => kind.value === type) ?? OVERVIEW_CARD_TYPES[0]
-	);
-
 	function selectType(value: OverviewCard['type']) {
 		type = value;
 		typeOpen = false;
@@ -552,470 +140,29 @@
 	title={id !== null ? 'Edit card' : 'Add card'}
 	onclose={close}
 	ondone={done}
-	doneDisabled={type === 'fusion' && advancedOpen && !advancedValid}
+	doneDisabled={draft.valid === false}
 	onremove={id !== null ? remove : undefined}
 	wide
 >
 	<div class="card-editor-layout">
-		<div class="card-settings">
+		<div class="card-settings editor-fields">
 			<div class="card-actions">
 				<button type="button" class="action-button" onclick={() => (typeOpen = true)}>
-					<span class="action-icon"><Icon name={currentType.icon} size={20} /></span>
-					<span class="action-copy"
-						><small>CARD TYPE</small><strong>{currentType.name}</strong></span
+					<span class="action-icon"><Icon name={descriptor.icon} size={20} /></span>
+					<span class="action-copy"><small>CARD TYPE</small><strong>{descriptor.name}</strong></span
 					>
 					<Icon name="chevron_right" size={20} />
 				</button>
 			</div>
 
-			{#if type === 'header' || type === 'entities' || type === 'camera' || type === 'image' || type === 'climate' || type === 'scenes'}
-				<TextField
-					label="Title"
-					bind:value={title}
-					placeholder={type === 'header' ? 'Home' : 'Lights'}
+			<!-- keyed so a type switch mounts a fresh editor with fresh field state -->
+			{#key type}
+				<descriptor.editor
+					bind:this={editorRef}
+					initial={editorInitial}
+					onchange={(next) => (draft = next)}
 				/>
-			{/if}
-
-			{#if type === 'header'}
-				<TextField label="Subtitle" bind:value={subtitle} placeholder="Cozy · curtains open" />
-				<IconField label="Icon" bind:value={headerIcon} placeholder="home" />
-				<EntityField
-					label="Temperature sensor (optional)"
-					bind:value={headerTempEntity}
-					domains={['sensor']}
-				/>
-				<EntityField
-					label="Humidity sensor (optional)"
-					bind:value={headerHumidityEntity}
-					domains={['sensor']}
-				/>
-			{/if}
-
-			{#if type === 'temperature'}
-				<TextField label="Label" bind:value={label} placeholder="Average home temperature" />
-				<EntityField label="Entity" bind:value={entity} domains={['sensor']} />
-				<TextField label="Unit" bind:value={unit} placeholder="°C" />
-				<EntityField
-					label="Thermostat (optional)"
-					bind:value={climateEntity}
-					domains={['climate']}
-				/>
-				<div class="hint">Adds a target readout with +/- controls and a target line.</div>
-				<label class="check">
-					<input type="checkbox" bind:checked={sensorVerdict} />
-					<span>Verdict pill for air sensors (GOOD / FAIR / POOR)</span>
-				</label>
-				<div class="hint">
-					Judged by device class; custom thresholds go in YAML as verdict: &lbrace; good, fair, max
-					&rbrace;.
-				</div>
-			{/if}
-
-			{#if type === 'media' || type === 'vacuum' || type === 'camera' || type === 'image' || type === 'climate'}
-				<EntityField label="Entity" bind:value={entity} domains={entityDomains} />
-			{/if}
-
-			{#if type === 'vacuum'}
-				<EntityField
-					label="Battery entity (optional)"
-					bind:value={vacuumBatteryEntity}
-					domains={['sensor']}
-				/>
-				<EntityField
-					label="Dustbin entity (optional)"
-					bind:value={vacuumBinEntity}
-					domains={['sensor']}
-				/>
-				<label class="check">
-					<input type="checkbox" bind:checked={vacuumQuickAction} />
-					<span>One-tap Clean/Stop button on the row</span>
-				</label>
-				<div class="group-label">CLEANING MODES</div>
-				<div class="hint">
-					Button entities launched from the vacuum popover, in display order. Each runs on a single
-					tap, so give every mode the rooms it covers and how long it takes.
-				</div>
-				{#each vacuumModes as mode, modeIndex (modeIndex)}
-					<div class="filter-row">
-						<div class="filter-fields">
-							<EntityField label="Button entity" bind:value={mode.entity} domains={['button']} />
-							<TextField label="Name (optional)" bind:value={mode.name} />
-							<IconField label="Icon (optional)" bind:value={mode.icon} />
-							<TextField
-								label="Covers (optional)"
-								bind:value={mode.detail}
-								placeholder="Living + Bedroom"
-							/>
-							<TextField
-								label="Duration (optional)"
-								bind:value={mode.duration}
-								placeholder="26 min"
-							/>
-							<label class="check">
-								<input
-									type="checkbox"
-									checked={mode.default ?? false}
-									onchange={(event) => setDefaultMode(modeIndex, event.currentTarget.checked)}
-								/>
-								<span>Recommended mode</span>
-							</label>
-						</div>
-						<span
-							class="remove"
-							onclick={() => vacuumModes.splice(modeIndex, 1)}
-							role="button"
-							tabindex="0"
-							onkeydown={(event) =>
-								activateOnKeyboard(event, () => vacuumModes.splice(modeIndex, 1))}
-						>
-							<Icon name="delete" size={20} />
-						</span>
-					</div>
-				{/each}
-				<div
-					class="add-filter"
-					onclick={() =>
-						vacuumModes.push({
-							entity: '',
-							name: '',
-							icon: '',
-							detail: '',
-							duration: '',
-							default: false
-						})}
-					role="button"
-					tabindex="0"
-					onkeydown={(event) =>
-						activateOnKeyboard(event, () =>
-							vacuumModes.push({
-								entity: '',
-								name: '',
-								icon: '',
-								detail: '',
-								duration: '',
-								default: false
-							})
-						)}
-				>
-					<Icon name="add" size={18} />
-					<span>Add cleaning mode</span>
-				</div>
-			{/if}
-
-			{#if type === 'camera'}
-				<label class="check">
-					<input type="checkbox" bind:checked={cameraStream} />
-					<span>Live stream</span>
-				</label>
-			{/if}
-
-			{#if type === 'entities'}
-				<SelectField
-					label="Style"
-					bind:value={gridStyle}
-					options={[
-						{ value: 'tile', label: 'Tiles' },
-						{ value: 'stat', label: 'Stat boxes' }
-					]}
-				/>
-				<SelectField
-					label="Columns"
-					bind:value={gridColumns}
-					options={[
-						{ value: '', label: 'Auto' },
-						{ value: '1', label: '1' },
-						{ value: '2', label: '2' },
-						{ value: '3', label: '3' },
-						{ value: '4', label: '4' }
-					]}
-				/>
-				<SelectField
-					label="Vertical padding"
-					bind:value={gridVerticalPadding}
-					options={[
-						{ value: '', label: 'Standard' },
-						{ value: 'compact', label: 'Compact' }
-					]}
-				/>
-				<SelectField
-					label="Slider commands"
-					bind:value={gridSliderUpdates}
-					options={[
-						{ value: 'continuous', label: 'While dragging' },
-						{ value: 'release', label: 'On release' }
-					]}
-				/>
-				<label class="check">
-					<input type="checkbox" bind:checked={showCount} />
-					<span>Show active count in header</span>
-				</label>
-				<label class="check">
-					<input type="checkbox" bind:checked={groupActions} />
-					<span>Header actions for groups (All off, Open all, Close all)</span>
-				</label>
-				<label class="check">
-					<input type="checkbox" bind:checked={tuneButtons} />
-					<span>Controls glyph on tiles (long-press always works)</span>
-				</label>
-				<label class="check">
-					<input type="checkbox" bind:checked={gridReadonly} />
-					<span>Display only (no tile ever sends a command)</span>
-				</label>
-				<TextField
-					label="Entity wildcard (optional)"
-					bind:value={gridWildcard}
-					placeholder="light.kitchen_*"
-				/>
-				<label class="check">
-					<input type="checkbox" bind:checked={gridCollapsed} />
-					<span>Collapse into a summary row (details in a popover)</span>
-				</label>
-
-				{#if gridCollapsed}
-					<IconField label="Summary row icon (optional)" bind:value={gridIcon} />
-					<TextField
-						label="Summary text (optional)"
-						bind:value={gridSummary}
-						placeholder="5 open · 3 closed"
-					/>
-					<EntityField label="Summary from entity (optional)" bind:value={gridSummaryEntity} />
-					<div class="hint">
-						Without either, the row counts the entities that are on. The title names the group.
-					</div>
-				{/if}
-
-				<button
-					type="button"
-					class="entities-section-toggle"
-					aria-expanded={entitiesOpen}
-					onclick={() => (entitiesOpen = !entitiesOpen)}
-				>
-					<span class="group-label">ENTITIES</span>
-					<span class="entities-count">{entities.length}</span>
-					<Icon name={entitiesOpen ? 'expand_less' : 'expand_more'} size={19} />
-				</button>
-				{#if entitiesOpen}
-					<div class="entity-editors">
-						{#each entities as ref, refIndex (refIndex)}
-							<div class="filter-row entity-editor-row">
-								<div class="entity-row-header">
-									<button
-										type="button"
-										class="entity-row-toggle"
-										aria-expanded={expandedEntityRows.includes(refIndex)}
-										onclick={() => toggleEntityRow(refIndex)}
-									>
-										<Icon
-											name={expandedEntityRows.includes(refIndex) ? 'expand_more' : 'chevron_right'}
-											size={19}
-										/>
-										<span class="entity-row-copy">
-											<strong>{ref.name?.trim() || ref.entity.trim() || 'New entity'}</strong>
-											{#if ref.name?.trim() && ref.entity.trim()}<small>{ref.entity}</small>{/if}
-										</span>
-									</button>
-									<span class="entity-row-actions">
-										<button
-											type="button"
-											class="reorder"
-											disabled={refIndex === 0}
-											aria-label="Move entity up"
-											onclick={() => moveEntityRow(refIndex, -1)}
-										>
-											<Icon name="keyboard_arrow_up" size={20} />
-										</button>
-										<button
-											type="button"
-											class="reorder"
-											disabled={refIndex === entities.length - 1}
-											aria-label="Move entity down"
-											onclick={() => moveEntityRow(refIndex, 1)}
-										>
-											<Icon name="keyboard_arrow_down" size={20} />
-										</button>
-										<button
-											type="button"
-											class="remove"
-											aria-label="Remove entity"
-											onclick={() => removeEntityRow(refIndex)}
-										>
-											<Icon name="delete" size={20} />
-										</button>
-									</span>
-								</div>
-								{#if expandedEntityRows.includes(refIndex)}
-									<div class="filter-fields entity-row-fields">
-										<EntityField label="Entity" bind:value={ref.entity} />
-										<TextField label="Name (optional)" bind:value={ref.name} />
-										<IconField label="Icon (optional)" bind:value={ref.icon} />
-										<SelectField
-											label="Display"
-											bind:value={ref.display}
-											options={[
-												{ value: '', label: 'Card style' },
-												{ value: 'tile', label: 'Tile' },
-												{ value: 'stat', label: 'Stat box' }
-											]}
-										/>
-										<SelectField
-											label="Slider commands"
-											bind:value={ref.slider_updates}
-											options={[
-												{ value: '', label: 'Card setting' },
-												{ value: 'continuous', label: 'While dragging' },
-												{ value: 'release', label: 'On release' }
-											]}
-										/>
-										{#if !gridReadonly}
-											<label class="check">
-												<input type="checkbox" bind:checked={ref.readonly} />
-												<span>Display only</span>
-											</label>
-										{/if}
-									</div>
-								{/if}
-							</div>
-						{/each}
-						<div
-							class="add-filter"
-							onclick={addEntityRow}
-							role="button"
-							tabindex="0"
-							onkeydown={(event) => activateOnKeyboard(event, addEntityRow)}
-						>
-							<Icon name="add" size={18} />
-							<span>Add entity</span>
-						</div>
-					</div>
-				{/if}
-			{/if}
-
-			{#if type === 'scenes'}
-				<SelectField
-					label="Style"
-					bind:value={sceneStyle}
-					options={[
-						{ value: 'chips', label: 'Chips' },
-						{ value: 'bar', label: 'Scene bar' }
-					]}
-				/>
-				{#if sceneStyle === 'bar'}
-					<div class="hint">
-						Equal-width tiles on one row, the active scene lit. Keep it to four scenes so the row
-						never scrolls.
-					</div>
-				{/if}
-
-				<div class="group-label">SCENES</div>
-				{#each scenes as ref, refIndex (refIndex)}
-					<div class="filter-row">
-						<div class="filter-fields">
-							<EntityField label="Entity" bind:value={ref.entity} domains={['scene', 'script']} />
-							<TextField label="Name (optional)" bind:value={ref.name} />
-							<IconField label="Icon (optional)" bind:value={ref.icon} />
-							{#if sceneStyle === 'bar'}
-								<TextField
-									label="Caption (optional)"
-									bind:value={ref.caption}
-									placeholder="23:00, all off, ..."
-								/>
-							{/if}
-							<EntityField label="Active while entity (optional)" bind:value={ref.active_entity} />
-							<TextField
-								label="...is in state (optional)"
-								bind:value={ref.active_state}
-								placeholder="on"
-							/>
-						</div>
-						<span
-							class="remove"
-							onclick={() => scenes.splice(refIndex, 1)}
-							role="button"
-							tabindex="0"
-							onkeydown={(event) => activateOnKeyboard(event, () => scenes.splice(refIndex, 1))}
-						>
-							<Icon name="delete" size={20} />
-						</span>
-					</div>
-				{/each}
-				<div class="hint">
-					Without an indicator entity, the most recently applied scene entity counts as active.
-					Scripts always need one, since a script has no activation timestamp.
-				</div>
-				<div
-					class="add-filter"
-					onclick={() =>
-						scenes.push({
-							entity: '',
-							name: '',
-							icon: '',
-							caption: '',
-							active_entity: '',
-							active_state: ''
-						})}
-					role="button"
-					tabindex="0"
-					onkeydown={(event) =>
-						activateOnKeyboard(event, () =>
-							scenes.push({
-								entity: '',
-								name: '',
-								icon: '',
-								caption: '',
-								active_entity: '',
-								active_state: ''
-							})
-						)}
-				>
-					<Icon name="add" size={18} />
-					<span>Add scene</span>
-				</div>
-			{/if}
-
-			{#if type === 'fusion'}
-				<SelectField
-					label="Object type"
-					bind:value={fusionType}
-					options={FUSION_OBJECT_TYPES}
-					onchange={() => advancedOpen && resetAdvancedYaml()}
-				/>
-				<FusionFields type={fusionType} bind:options={fusionOptions} />
-				{#if fusionType === 'picture_elements'}
-					<div
-						class="elements-editor pressable"
-						use:Ripple={PRESS_RIPPLE}
-						onclick={openElementsEditor}
-						role="button"
-						tabindex="0"
-						onkeydown={(event) => activateOnKeyboard(event, openElementsEditor)}
-					>
-						<Icon name="edit" size={18} />
-						<span>Open elements editor</span>
-					</div>
-				{/if}
-				<div
-					class="advanced-toggle pressable"
-					use:Ripple={PRESS_RIPPLE}
-					onclick={toggleAdvanced}
-					role="button"
-					tabindex="0"
-					onkeydown={(event) => activateOnKeyboard(event, toggleAdvanced)}
-				>
-					<Icon name={advancedOpen ? 'expand_less' : 'expand_more'} size={18} />
-					<span>Advanced (YAML)</span>
-				</div>
-				{#if advancedOpen}
-					<YamlField
-						label="Other options (YAML)"
-						bind:value={() => advancedYaml, setAdvancedYaml}
-						placeholder={yamlPlaceholder}
-					/>
-					<div class="hint">
-						Options match the original ha-fusion object config for the chosen type, e.g. entity_id,
-						name, icon.
-					</div>
-				{/if}
-			{/if}
+			{/key}
 
 			<FormSection title="LAYOUT">
 				<SelectField
@@ -1034,7 +181,7 @@
 					Only visible on a page set to fill the screen, or when a column is taller than its cards.
 				</div>
 
-				{#if type === 'temperature' || type === 'media' || type === 'fusion'}
+				{#if descriptor.sizable}
 					<TextField label="Height in px (optional)" bind:value={height} placeholder="240" />
 					<div class="hint">
 						{type === 'fusion'
@@ -1049,7 +196,9 @@
 
 		<CardPreview
 			card={previewCard}
-			onentitiesreorder={type === 'entities' ? reorderPreviewEntities : undefined}
+			onentitiesreorder={descriptor.previewReorder
+				? (entities) => editorRef?.applyPreviewReorder?.(entities)
+				: undefined}
 		/>
 	</div>
 
@@ -1080,19 +229,19 @@
 				</div>
 				<p class="popup-intro">Choose how this card presents its content.</p>
 				<div class="type-gallery">
-					{#each OVERVIEW_CARD_TYPES as kind (kind.value)}
+					{#each CARD_TYPES as kind (kind.type)}
 						<button
 							type="button"
 							class="type-option"
-							class:selected={type === kind.value}
-							onclick={() => selectType(kind.value)}
+							class:selected={type === kind.type}
+							onclick={() => selectType(kind.type)}
 						>
 							<span class="type-icon"><Icon name={kind.icon} size={21} /></span>
 							<span class="type-copy"
 								><span class="type-name">{kind.name}</span><span class="type-sub">{kind.sub}</span
 								></span
 							>
-							{#if type === kind.value}<Icon name="check" size={19} />{/if}
+							{#if type === kind.type}<Icon name="check" size={19} />{/if}
 						</button>
 					{/each}
 				</div>
@@ -1102,14 +251,6 @@
 </EditSheet>
 
 <style>
-	.group-label {
-		font-family: var(--h-font-mono);
-		font-size: 11px;
-		letter-spacing: 2px;
-		color: var(--h-label);
-		margin: 18px 0 10px;
-	}
-
 	.card-editor-layout {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
@@ -1283,218 +424,6 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.advanced-toggle,
-	.elements-editor {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 10px 4px;
-		border-radius: var(--h-radius-xs);
-		color: var(--h-text-5);
-		font-size: 13px;
-		cursor: pointer;
-		user-select: none;
-		-webkit-user-select: none;
-	}
-
-	.advanced-toggle:hover,
-	.elements-editor:hover {
-		color: var(--h-text-3);
-	}
-
-	.elements-editor {
-		margin-bottom: 14px;
-	}
-
-	.filter-row {
-		display: flex;
-		align-items: flex-start;
-		gap: 10px;
-		padding: 12px 12px 0;
-		border-radius: var(--h-radius-sm);
-		background: var(--h-inset);
-		margin-bottom: 10px;
-	}
-
-	.filter-fields {
-		flex: 1;
-	}
-
-	.entities-section-toggle {
-		display: flex;
-		align-items: center;
-		width: 100%;
-		gap: 8px;
-		margin: 18px 0 10px;
-		padding: 0;
-		border: 0;
-		background: none;
-		color: var(--h-label);
-		font: inherit;
-		cursor: pointer;
-	}
-
-	.entities-section-toggle .group-label {
-		margin: 0;
-	}
-
-	.entities-count {
-		padding: 2px 6px;
-		border-radius: 999px;
-		background: rgb(var(--h-surface-rgb) / calc(0.07 * var(--h-fill-scale)));
-		color: var(--h-text-6);
-		font-family: var(--h-font-mono);
-		font-size: 10px;
-	}
-
-	.entities-section-toggle > :global(.mi) {
-		margin-left: auto;
-	}
-
-	.entity-editors {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.filter-row.entity-editor-row {
-		display: block;
-		padding: 0;
-		overflow: hidden;
-	}
-
-	.entity-row-header {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		min-height: 48px;
-		padding: 6px 8px 6px 6px;
-	}
-
-	.entity-row-toggle {
-		display: flex;
-		align-items: center;
-		flex: 1;
-		gap: 7px;
-		min-width: 0;
-		padding: 5px;
-		border: 0;
-		background: none;
-		color: var(--h-icon);
-		font: inherit;
-		text-align: left;
-		cursor: pointer;
-	}
-
-	.entity-row-copy {
-		display: flex;
-		flex-direction: column;
-		min-width: 0;
-	}
-
-	.entity-row-copy strong,
-	.entity-row-copy small {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	.entity-row-copy strong {
-		color: var(--h-text-3);
-		font-size: 13px;
-		font-weight: 550;
-	}
-
-	.entity-row-copy small {
-		color: var(--h-text-6);
-		font-size: 10.5px;
-	}
-
-	.entity-row-actions {
-		display: flex;
-		align-items: center;
-		gap: 2px;
-	}
-
-	.entity-row-actions button {
-		display: flex;
-		padding: 4px;
-		border: 0;
-		background: none;
-	}
-
-	.entity-row-actions button:disabled {
-		opacity: 0.25;
-		cursor: default;
-	}
-
-	.entity-row-actions .remove {
-		margin: 0 0 0 2px;
-	}
-
-	.entity-row-fields {
-		padding: 0 12px 8px 39px;
-		border-top: 1px solid rgb(var(--h-line-rgb) / calc(0.05 * var(--h-line-scale)));
-	}
-
-	.remove {
-		color: var(--h-icon);
-		cursor: pointer;
-		margin-top: 32px;
-	}
-
-	.remove:hover {
-		color: var(--h-bad-text);
-	}
-
-	.reorder {
-		color: var(--h-icon);
-		cursor: pointer;
-		display: inline-flex;
-	}
-
-	.reorder:hover {
-		color: var(--h-text-2);
-	}
-
-	.check {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		font-size: 14px;
-		color: var(--h-text-3);
-		margin: 4px 0 10px;
-		cursor: pointer;
-	}
-
-	.check input {
-		accent-color: var(--h-accent-deep);
-		width: 16px;
-		height: 16px;
-	}
-
-	.add-filter {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		padding: 12px;
-		border-radius: var(--h-radius-xs);
-		border: 1px dashed rgb(var(--h-line-rgb) / calc(0.15 * var(--h-line-scale)));
-		color: var(--h-text-6);
-		font-size: 14px;
-		cursor: pointer;
-	}
-
-	.add-filter:hover {
-		color: var(--h-text-4);
-	}
-
-	.hint {
-		font-size: 12px;
-		color: var(--h-text-6);
-		margin: 4px 0 12px;
 	}
 
 	@media (max-width: 820px) {
