@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import Ripple from '$lib/ui/actions/ripple';
@@ -53,7 +54,7 @@
 	}
 
 	$effect(() => {
-		const heightValue = parseInt(height, 10);
+		const heightValue = integerFromInput(height);
 		onchange({
 			fields: {
 				config: { type: fusionType, ...$state.snapshot(options) },

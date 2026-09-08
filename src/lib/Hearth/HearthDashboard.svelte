@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { lang } from '$lib/core/i18n';
 	import { mirrorLegacyEditMode } from '$lib/legacy/bridge/editMode';
 	import { THEME_PRESETS, type HearthTheme } from '$lib/core/theme';
 	import {
@@ -127,6 +128,13 @@
 		<!-- the edit sheets and their editors load with edit mode, not the dashboard -->
 		{#await import('./edit/EditorHost.svelte') then EditorHost}
 			<EditorHost.default />
+		{:catch}
+			<div class="edit-load-error" role="alert">
+				{$lang('hearth_could_not_load_component')}
+				<button type="button" onclick={() => hearthEditMode.set(false)}>
+					{$lang('hearth_exit_edit_mode')}
+				</button>
+			</div>
 		{/await}
 	{/if}
 	{#if showSearch}

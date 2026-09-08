@@ -39,7 +39,14 @@ export function relativeTime(timestamp: string, languageCode: string | undefined
 export function parseLocalDate(value: string): Date {
 	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
 	if (!dateOnly) return new Date(value);
-	return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+	const [year, month, day] = [Number(dateOnly[1]), Number(dateOnly[2]), Number(dateOnly[3])];
+	// the constructor reads a two-digit year as 19xx; setFullYear does not
+	const date = new Date(2000, 0, 1);
+	date.setFullYear(year, month - 1, day);
+	// the constructor rolls February 31 into March; that is not the date named
+	const valid =
+		date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+	return valid ? date : new Date(NaN);
 }
 
 /** The calendar date of `date` as YYYY-MM-DD in `timeZone`, or the browser zone. */

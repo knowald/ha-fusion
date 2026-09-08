@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ICON } from '../iconSizes';
 	import { layer } from '$lib/ui/layers';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { PRESS_RIPPLE } from '../config';
@@ -233,7 +233,7 @@
 			{:else if !query}
 				<div class="hint">
 					{allNames.length
-						? $lang('hearth_search_all_icons_count').replace('{count}', String(allNames.length))
+						? fill($lang('hearth_search_all_icons_count'), { count: String(allNames.length) })
 						: $lang('hearth_loading_icon_list')}
 				</div>
 			{/if}

@@ -17,15 +17,16 @@ const COPY_ATTRIBUTES = new Set([
 	'removeLabel',
 	'text',
 	'name',
-	'sub'
+	'sub',
+	'alt'
 ]);
 
 // attributes whose string values are identifiers, never copy
 const IDENTIFIER_ELEMENTS = new Set(['Icon', 'svelte:element', 'input', 'meta', 'link']);
 
-// two letters in a row is the smallest thing that reads as a word; symbols,
-// units and numbers pass
-const WORD = /[A-Za-z]{2,}/;
+// two letters in a row is the smallest thing that reads as a word, in any
+// script; symbols, units and numbers pass
+const WORD = /\p{L}{2,}/u;
 
 // units and symbols that are the same in every language
 const UNITS = new Set(['kWh', 'Wh', 'px', 'ppm', 'dB', 'ms', 'min', 'km', 'kg']);
@@ -34,8 +35,9 @@ function isCopy(text) {
 	const trimmed = text.replace(/\s+/g, ' ').trim();
 	if (!WORD.test(trimmed)) return false;
 	if (UNITS.has(trimmed)) return false;
-	// technical tokens: entity ids, css values, urls, single lowercase tokens
-	if (/^[a-z0-9_.:/#%*-]+$/.test(trimmed)) return false;
+	// technical tokens carry a separator or digit: entity ids, css values,
+	// urls; a plain lowercase word such as "save" is copy
+	if (/^[a-z0-9_.:/#%*-]+$/.test(trimmed) && /[0-9_.:/#%*-]/.test(trimmed)) return false;
 	return true;
 }
 
@@ -128,11 +130,19 @@ export default {
 				if (IDENTIFIER_ELEMENTS.has(parentName)) return;
 				if (node.value.length !== 1) return;
 				const value = node.value[0];
-				if (value.type !== 'SvelteLiteral') return;
-				if (!isCopy(value.value)) return;
+				// title="Delete" and title={'Delete'} are the same mistake
+				const text =
+					value.type === 'SvelteLiteral'
+						? value.value
+						: value.type === 'SvelteMustacheTag' &&
+							  value.expression?.type === 'Literal' &&
+							  typeof value.expression.value === 'string'
+							? value.expression.value
+							: undefined;
+				if (text === undefined || !isCopy(text)) return;
 				context.report({
 					node: value,
-					message: `Bare ${key} "${value.value.trim()}": use $lang()`
+					message: `Bare ${key} "${text.trim()}": use $lang()`
 				});
 			}
 		};

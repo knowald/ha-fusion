@@ -28,9 +28,17 @@ export const fusionCard: CardDescriptor<FusionCard> = {
 	schema: v.looseObject({
 		config: v.optional(v.record(v.string(), v.unknown(), 'must be a mapping'))
 	}),
-	needsConfiguration: (card) =>
-		!card.config?.type ||
-		(card.config.type !== 'empty' && !card.config.entity_id && !card.config.entities),
+	needsConfiguration: (card) => {
+		const config = card.config;
+		if (!config?.type) return true;
+		if (config.type === 'empty') return false;
+		if (config.type === 'entities') {
+			const entities = Array.isArray(config.entities) ? config.entities : [];
+			const wildcard = typeof config.wildcard === 'string' && config.wildcard.trim();
+			return entities.length === 0 && !wildcard;
+		}
+		return !config.entity_id;
+	},
 	entityIds: (card) => (typeof card.config?.entity_id === 'string' ? [card.config.entity_id] : []),
 	component: Card,
 	editor: () => import('./Editor.svelte')

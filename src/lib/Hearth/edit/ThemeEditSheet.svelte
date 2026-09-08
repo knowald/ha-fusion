@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ICON } from '../iconSizes';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
 	import { base } from '$app/paths';
 	import { get } from 'svelte/store';
@@ -127,10 +127,14 @@
 		themesError = '';
 		try {
 			const response = await fetch(`${base}/_api/hearth_themes`);
-			if (!response.ok) throw new Error(`load failed: ${response.status}`);
+			if (!response.ok) {
+				themesError = `${$lang('hearth_themes_load_failed')} [${response.status}]`;
+				return;
+			}
 			savedThemes = await response.json();
 		} catch (err: any) {
-			themesError = err.message ?? $lang('hearth_themes_load_failed');
+			console.error(err);
+			themesError = $lang('hearth_themes_load_failed');
 		} finally {
 			themesLoading = false;
 		}
@@ -151,11 +155,15 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name, theme })
 			});
-			if (!response.ok) throw new Error(`save failed: ${response.status}`);
+			if (!response.ok) {
+				themesError = `${$lang('hearth_theme_save_failed')} [${response.status}]`;
+				return;
+			}
 			newThemeName = '';
 			await loadThemes();
 		} catch (err: any) {
-			themesError = err.message ?? $lang('hearth_theme_save_failed');
+			console.error(err);
+			themesError = $lang('hearth_theme_save_failed');
 		} finally {
 			saving = false;
 		}
@@ -167,7 +175,7 @@
 	}
 
 	async function deleteSavedTheme(saved: SavedTheme) {
-		if (!confirm($lang('hearth_delete_theme_confirm').replace('{name}', saved.name))) return;
+		if (!confirm(fill($lang('hearth_delete_theme_confirm'), { name: saved.name }))) return;
 		themesError = '';
 		try {
 			const response = await fetch(`${base}/_api/hearth_themes`, {
@@ -175,10 +183,14 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ id: saved.id })
 			});
-			if (!response.ok) throw new Error(`delete failed: ${response.status}`);
+			if (!response.ok) {
+				themesError = `${$lang('hearth_theme_delete_failed')} [${response.status}]`;
+				return;
+			}
 			savedThemes = savedThemes.filter((entry) => entry.id !== saved.id);
 		} catch (err: any) {
-			themesError = err.message ?? $lang('hearth_theme_delete_failed');
+			console.error(err);
+			themesError = $lang('hearth_theme_delete_failed');
 		}
 	}
 

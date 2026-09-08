@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { numberFromInput } from '../../edit/numbers';
 	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { EnergyWidget } from './descriptor';
@@ -17,7 +18,7 @@
 	let currency = $state(initial?.currency ?? '');
 
 	$effect(() => {
-		const parsedPrice = parseFloat(price);
+		const parsedPrice = numberFromInput(price);
 		onchange({
 			fields: {
 				entity: entity.trim() || undefined,

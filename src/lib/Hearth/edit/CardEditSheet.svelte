@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from './numbers';
 	import { lang } from '$lib/core/i18n';
 	import { get } from 'svelte/store';
 	import type {
@@ -82,7 +83,7 @@
 	let editorInitial = $derived(initial?.type === type ? initial : undefined);
 
 	function buildCard(cardId: string): OverviewCard {
-		const heightValue = parseInt(height, 10);
+		const heightValue = integerFromInput(height);
 		const fillValue = fill === '' ? undefined : Number(fill);
 		// Unknown extension keys survive a no-op form edit. Switching type starts
 		// a new schema and intentionally leaves type-specific extensions behind.
@@ -142,6 +143,8 @@
 
 	function selectType(value: string) {
 		type = value as OverviewCard['type'];
+		// the previous type's fields must not leak into the preview or the save
+		draft = { fields: {} as CardDraft<OverviewCard>['fields'] };
 	}
 </script>
 
@@ -149,7 +152,7 @@
 	title={$lang(id !== null ? 'hearth_edit_card' : 'hearth_add_card')}
 	onclose={close}
 	ondone={done}
-	doneDisabled={draft.valid === false}
+	doneDisabled={typeOpen || draft.valid === false}
 	onremove={id !== null ? remove : undefined}
 	wide
 >
@@ -172,6 +175,8 @@
 						initial={editorInitial}
 						onchange={(next) => (draft = next)}
 					/>
+				{:catch}
+					<div class="field-error">{$lang('hearth_could_not_load_component')}</div>
 				{/await}
 			{/key}
 

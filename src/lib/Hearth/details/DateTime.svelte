@@ -16,8 +16,9 @@
 
 	function commit() {
 		if (domain === 'datetime') {
+			const clock = time || '00:00';
 			callEntityService('datetime', 'set_value', entity, {
-				datetime: `${date} ${time || '00:00'}:00`
+				datetime: `${date} ${clock.length === 5 ? `${clock}:00` : clock}`
 			});
 			return;
 		}
@@ -30,6 +31,11 @@
 
 <form class="field" onsubmit={(event) => (event.preventDefault(), commit())}>
 	{#if hasDate}<input type="date" bind:value={date} aria-label={$lang('hearth_date')} />{/if}
-	{#if hasTime}<input type="time" bind:value={time} aria-label={$lang('hearth_time')} />{/if}
+	{#if hasTime}<input
+			type="time"
+			step="1"
+			bind:value={time}
+			aria-label={$lang('hearth_time')}
+		/>{/if}
 	<button type="submit" class="segment">{$lang('hearth_set_value')}</button>
 </form>

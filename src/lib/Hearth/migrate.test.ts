@@ -24,6 +24,47 @@ describe('migrateHearthConfig', () => {
 		}
 	});
 
+	it('keeps the v1 root entities as a weather widget and home cards, in one column', () => {
+		const migrated = migrateHearthConfig({
+			city: 'Wroclaw',
+			weather_entity: 'weather.home',
+			average_temperature_entity: 'sensor.average',
+			pm25_entity: 'sensor.pm25',
+			humidity_entity: 'sensor.humidity',
+			filters: [{ entity: 'fan.purifier', label: 'Purifier' }],
+			media_entity: 'media_player.living',
+			vacuum_entity: 'vacuum.robot',
+			overview: [
+				{ id: 'a', type: 'entities', entities: [] },
+				{ id: 'b', type: 'entities', entities: [] }
+			]
+		}) as {
+			rail: { type: string; entity?: string }[];
+			rooms: { columns?: number; cards: { id: string; type: string }[][] }[];
+		};
+		expect(migrated.rail.find((widget) => widget.type === 'weather')?.entity).toBe('weather.home');
+		const home = migrated.rooms[0];
+		expect(home.columns).toBeUndefined();
+		expect(home.cards).toHaveLength(1);
+		expect(home.cards[0].map((card) => `${card.type}:${card.id}`)).toEqual([
+			'entities:a',
+			'entities:b',
+			'temperature:temperature',
+			'entities:air',
+			'media:media',
+			'vacuum:vacuum'
+		]);
+	});
+
+	it('refuses a version that is not a whole number', () => {
+		expect(() => migrateHearthConfig({ version: '4', rail: [], rooms: [] })).toThrow(
+			/whole number/
+		);
+		expect(() => migrateHearthConfig({ version: 4.5, rail: [], rooms: [] })).toThrow(
+			/whole number/
+		);
+	});
+
 	it('passes a current file through unchanged', () => {
 		const current = { version: CONFIG_VERSION, rail: [], rooms: [{ id: 'home', cards: [[]] }] };
 		expect(migrateHearthConfig(current)).toEqual(current);

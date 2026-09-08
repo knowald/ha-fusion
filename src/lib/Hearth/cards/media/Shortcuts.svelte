@@ -20,7 +20,7 @@
 </script>
 
 <div class="shortcuts">
-	{#each shortcuts as shortcut (shortcut.uri)}
+	{#each shortcuts as shortcut, index (index)}
 		<button
 			type="button"
 			class="shortcut pressable"

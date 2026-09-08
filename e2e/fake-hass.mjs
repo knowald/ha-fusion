@@ -695,7 +695,14 @@ const http = createServer(async (request, response) => {
 		return;
 	}
 	if (request.url === '/_test/state' && request.method === 'POST') {
-		const patch = JSON.parse((await readBody(request)) || '{}');
+		let patch;
+		try {
+			patch = JSON.parse((await readBody(request)) || '{}');
+		} catch {
+			response.statusCode = 400;
+			response.end('invalid JSON');
+			return;
+		}
 		const entity = states[patch.entity_id];
 		if (!entity) {
 			response.statusCode = 404;

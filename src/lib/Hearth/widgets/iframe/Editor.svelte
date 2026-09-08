@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { IframeWidget } from './descriptor';
@@ -17,7 +18,7 @@
 	let urlValid = $derived(!url.trim() || normalizeEmbedUrl(url) !== undefined);
 
 	$effect(() => {
-		const heightValue = parseInt(height, 10);
+		const heightValue = integerFromInput(height);
 		onchange({
 			fields: {
 				url: normalizeEmbedUrl(url),

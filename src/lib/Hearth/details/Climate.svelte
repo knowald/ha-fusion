@@ -37,7 +37,8 @@
 	);
 
 	function clamp(value: number) {
-		return Math.round(Math.min(max, Math.max(min, value)) / step) * step;
+		// rounding after clamping could step back over the bound
+		return Math.min(max, Math.max(min, Math.round(value / step) * step));
 	}
 
 	function setRange(nextLow: number, nextHigh: number) {

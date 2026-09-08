@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { ICON } from '../../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../../interaction';
@@ -20,7 +21,7 @@
 	let timeout = $state(initial?.timeout !== undefined ? String(initial.timeout) : '');
 
 	$effect(() => {
-		const timeoutValue = parseInt(timeout, 10);
+		const timeoutValue = integerFromInput(timeout);
 		onchange({
 			fields: {
 				media_players: players.map((row) => row.entity.trim()).filter(Boolean),

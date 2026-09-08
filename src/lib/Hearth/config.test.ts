@@ -261,7 +261,7 @@ describe('hearthConfigIssues', () => {
 								direction: 'diagonal',
 								cards: [{ id: 'inner', type: 'climate', fill: -1, visibility: [{ nope: 1 }] }]
 							},
-							{ id: 'media', type: 'conditional_media', timeout: -5 }
+							{ id: 'media', type: 'conditional_media', media_players: 'x', timeout: -5 }
 						]
 					]
 				}
@@ -277,7 +277,7 @@ describe('hearthConfigIssues', () => {
 			'rooms[0].cards[0][0].direction must be horizontal or vertical',
 			'rooms[0].cards[0][0].cards[0].visibility[0] must name an entity, a media query or an or-group',
 			'rooms[0].cards[0][0].cards[0].fill must be at least 0',
-			'rooms[0].cards[0][1].media_players is required',
+			'rooms[0].cards[0][1].media_players must be a list of entity ids',
 			'rooms[0].cards[0][1].timeout must be at least 0'
 		]);
 	});

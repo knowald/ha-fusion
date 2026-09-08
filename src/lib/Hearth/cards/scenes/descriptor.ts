@@ -22,7 +22,7 @@ export const scenesCard: CardDescriptor<ScenesCard> = {
 	schema: v.looseObject({
 		title: OptionalText,
 		style: v.optional(v.picklist(['chips', 'bar'], 'must be chips or bar')),
-		scenes: v.array(SceneRefSchema, 'must be a list')
+		scenes: v.optional(v.array(SceneRefSchema, 'must be a list'))
 	}),
 	needsConfiguration: (card) => card.scenes.length === 0,
 	entityIds: (card) =>

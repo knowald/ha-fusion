@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { numberFromInput } from '../../edit/numbers';
 	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { CalendarWidget } from './descriptor';
@@ -18,7 +19,7 @@
 	);
 
 	$effect(() => {
-		const parsedHours = parseFloat(lookaheadHours);
+		const parsedHours = numberFromInput(lookaheadHours);
 		onchange({
 			fields: {
 				entities: entities

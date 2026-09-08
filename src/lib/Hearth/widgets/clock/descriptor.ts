@@ -4,6 +4,7 @@ import type { WidgetDescriptor } from '../types';
 import Widget from './Widget.svelte';
 import { OptionalText, OptionalFlag } from '../../schema';
 import { trimmedOrUndefined } from '../../normalizers';
+import { validTimeZone } from '../../clock';
 
 export type ClockWidget = Extract<RailWidget, { type: 'clock' }>;
 
@@ -15,7 +16,8 @@ export const clockWidget: WidgetDescriptor<ClockWidget> = {
 	icon: 'schedule',
 	normalize: (widget) => ({
 		city: trimmedOrUndefined(widget.city),
-		timezone: trimmedOrUndefined(widget.timezone),
+		// older files carried an IANA name in `city`; keep it when nothing better exists
+		timezone: trimmedOrUndefined(widget.timezone) ?? validTimeZone(widget.city),
 		hour_format: ['auto', '12', '24'].includes(widget.hour_format) ? widget.hour_format : undefined,
 		show_seconds: widget.show_seconds === true ? true : undefined
 	}),

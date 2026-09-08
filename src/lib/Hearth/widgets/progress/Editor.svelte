@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import type { ProgressWidget } from './descriptor';
 	import EntityField from '../../edit/EntityField.svelte';
@@ -85,9 +85,9 @@
 	bind:value={completionDelay}
 	options={[
 		{ value: '0', label: $lang('hearth_hide_immediately') },
-		{ value: '5', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '5') },
-		{ value: '15', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '15') },
-		{ value: '30', label: $lang('hearth_hide_after_minutes').replace('{minutes}', '30') },
+		{ value: '5', label: fill($lang('hearth_hide_after_minutes'), { minutes: '5' }) },
+		{ value: '15', label: fill($lang('hearth_hide_after_minutes'), { minutes: '15' }) },
+		{ value: '30', label: fill($lang('hearth_hide_after_minutes'), { minutes: '30' }) },
 		{ value: '60', label: $lang('hearth_hide_after_1_hour') },
 		{ value: '-1', label: $lang('hearth_keep_until_tapped') }
 	]}

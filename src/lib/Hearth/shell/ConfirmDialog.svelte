@@ -4,6 +4,20 @@
 	import { confirmRequestedAction, dismissConfirmation, requestedConfirmation } from '../store';
 	import Icon from '../Icon.svelte';
 	import { layer } from '$lib/ui/layers';
+
+	let cancelButton: HTMLButtonElement | undefined = $state();
+	let confirmButton: HTMLButtonElement | undefined = $state();
+
+	// the safe action takes focus; the layer stack hands focus back on close
+	$effect(() => {
+		if ($requestedConfirmation) cancelButton?.focus();
+	});
+
+	function trapTab(event: KeyboardEvent) {
+		if (event.key !== 'Tab' || !cancelButton || !confirmButton) return;
+		event.preventDefault();
+		(document.activeElement === cancelButton ? confirmButton : cancelButton).focus();
+	}
 </script>
 
 {#if $requestedConfirmation}
@@ -19,6 +33,7 @@
 			aria-modal="true"
 			aria-labelledby="hearth-confirm-title"
 			use:layer={dismissConfirmation}
+			onkeydown={trapTab}
 		>
 			<Icon name="warning" size={ICON.tile} color="var(--h-bad-text)" />
 			<div class="confirm-copy">
@@ -26,10 +41,20 @@
 				<span>{$requestedConfirmation.message}</span>
 			</div>
 			<div class="confirm-actions">
-				<button type="button" class="confirm-button" onclick={dismissConfirmation}>
+				<button
+					type="button"
+					class="confirm-button"
+					bind:this={cancelButton}
+					onclick={dismissConfirmation}
+				>
 					{$lang('cancel')}
 				</button>
-				<button type="button" class="confirm-button dangerous" onclick={confirmRequestedAction}>
+				<button
+					type="button"
+					class="confirm-button dangerous"
+					bind:this={confirmButton}
+					onclick={confirmRequestedAction}
+				>
 					{$requestedConfirmation.confirmLabel}
 				</button>
 			</div>

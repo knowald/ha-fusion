@@ -15,16 +15,16 @@ export const conditionalMediaCard: CardDescriptor<ConditionalMediaCard> = {
 	fillByDefault: true,
 	sizable: true,
 	normalize: (card) => ({
-		media_players: (Array.isArray(card.media_players) ? card.media_players : []).filter(
-			(entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== ''
-		),
+		media_players: (Array.isArray(card.media_players) ? card.media_players : [])
+			.filter((entry: unknown): entry is string => typeof entry === 'string' && entry.trim() !== '')
+			.map((entry) => entry.trim()),
 		timeout:
 			typeof card.timeout === 'number' && Number.isFinite(card.timeout) && card.timeout >= 0
 				? Math.round(card.timeout)
 				: undefined
 	}),
 	schema: v.looseObject({
-		media_players: v.array(EntityIdSchema, 'must be a list of entity ids'),
+		media_players: v.optional(v.array(EntityIdSchema, 'must be a list of entity ids')),
 		timeout: optionalNumberAtLeast(0)
 	}),
 	needsConfiguration: (card) => card.media_players.length === 0,

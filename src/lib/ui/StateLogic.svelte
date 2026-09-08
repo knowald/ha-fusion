@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang, selectedLanguage } from '$lib/core/i18n';
+	import { lang, selectedLanguage, fill } from '$lib/core/i18n';
 	import { states } from '$lib/core/ha/entities';
 	import { isTimestamp, relativeTime } from '$lib/core/i18n/time';
 	import { getDomain } from '$lib/core/ha/entities';
@@ -31,6 +31,10 @@
 	let brightness = $derived(attributes?.brightness);
 	let percentage = $derived(attributes?.percentage);
 	let media_title = $derived(attributes?.media_title);
+
+	// non-breaking spaces keep the marquee's copies apart; text, not markup
+	const GAP = '\u00a0'.repeat(4);
+	const BLANK = '\u00a0';
 </script>
 
 <!-- Light -->
@@ -44,18 +48,17 @@
 
 	<!-- Media -->
 {:else if media_title && entityState === 'playing'}
-	{@const title = `<span title=${media_title}>${media_title}</span>`}
 	{#if selected?.marquee === true && contentWidth && contentWidth > 153 && !editing}
 		{#await import('$lib/ui/Marquee.svelte')}
-			{@html title}
+			<span title={media_title}>{media_title}</span>
 		{:then Marquee}
 			<Marquee.default>
 				{media_title}
-				{@html '&nbsp;'.repeat(4)}
+				{GAP}
 			</Marquee.default>
 		{/await}
 	{:else}
-		{@html title}
+		<span title={media_title}>{media_title}</span>
 	{/if}
 
 	<!-- Climate -->
@@ -66,7 +69,7 @@
 {:else if getDomain(entity_id) === 'update'}
 	{#if attributes?.in_progress}
 		{typeof attributes?.in_progress === 'number'
-			? $lang('update_installing_progress').replace('{progress}', String(attributes?.in_progress))
+			? fill($lang('update_installing_progress'), { progress: String(attributes?.in_progress) })
 			: $lang('update_installing')}
 	{:else if entityState === 'on'}
 		{$lang('update_available')}
@@ -104,7 +107,7 @@
 	{#if entityState === 'unknown'}
 		{$lang('unknown')}
 	{:else if entityState === ''}
-		{@html '&nbsp;'}
+		{BLANK}
 	{:else}
 		{attributes?.mode === 'password' ? entityState?.replace(/./g, '•') : entityState}
 	{/if}
@@ -122,17 +125,17 @@
 	{#if selected?.marquee && contentWidth && contentWidth > 153 && !editing}
 		{#await import('$lib/ui/Marquee.svelte') then Marquee}
 			<Marquee.default>
-				{@html $lang(entityState)}
+				{$lang(entityState)}
 
 				<!-- Unit -->
 				{#if attributes?.unit_of_measurement}
 					{attributes.unit_of_measurement}
 				{/if}
-				{@html '&nbsp;'.repeat(4)}
+				{GAP}
 			</Marquee.default>
 		{/await}
 	{:else}
-		{@html $lang(entityState)}
+		{$lang(entityState)}
 
 		<!-- Unit -->
 		{#if attributes?.unit_of_measurement}

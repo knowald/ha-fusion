@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from '../../edit/numbers';
 	import { lang } from '$lib/core/i18n';
 	import type { WidgetEditorProps } from '../types';
 	import { SPACER_MIN_HEIGHT, type SpacerWidget } from './descriptor';
@@ -14,7 +15,7 @@
 	let height = $state(initial?.height ? String(initial.height) : '');
 
 	$effect(() => {
-		const heightValue = parseInt(height, 10);
+		const heightValue = integerFromInput(height);
 		onchange({
 			fields: {
 				line: line || undefined,

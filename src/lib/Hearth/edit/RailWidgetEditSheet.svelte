@@ -89,7 +89,7 @@
 	title={$lang(index !== null ? 'hearth_edit_widget' : 'hearth_add_widget')}
 	onclose={close}
 	ondone={done}
-	doneDisabled={draft.valid === false}
+	doneDisabled={typeOpen || draft.valid === false}
 	onremove={index !== null ? remove : undefined}
 	wide
 >
@@ -100,7 +100,11 @@
 		searchPlaceholder={$lang('hearth_search_widgets')}
 		noMatch={$lang('hearth_no_widgets_match')}
 		bind:open={typeOpen}
-		onselect={(value) => (type = value as RailWidget['type'])}
+		onselect={(value) => {
+			type = value as RailWidget['type'];
+			// option-free types have no editor to replace a stale draft
+			draft = { fields: {} as WidgetDraft<RailWidget>['fields'] };
+		}}
 	/>
 	<div class="rail-editor editor-layout" class:hidden={typeOpen}>
 		<div class="config editor-fields">
@@ -108,6 +112,8 @@
 				{#if descriptor.editor}
 					{#await descriptor.editor() then Editor}
 						<Editor.default initial={editorInitial} onchange={(next) => (draft = next)} />
+					{:catch}
+						<div class="field-error">{$lang('hearth_could_not_load_component')}</div>
 					{/await}
 				{/if}
 			{/key}

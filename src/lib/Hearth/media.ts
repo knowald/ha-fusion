@@ -149,6 +149,7 @@ export async function playSpotifyUri(entityId: string, uri: string, defaultDevic
 }
 
 /** The user's saved albums, tracks or followed artists from SpotifyPlus. */
+/** null means the request failed; the popup offers a retry rather than a spinner. */
 export async function fetchSpotifyLibrary(
 	entityId: string,
 	kind: LibraryKind

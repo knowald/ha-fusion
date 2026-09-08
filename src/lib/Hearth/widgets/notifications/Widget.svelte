@@ -42,6 +42,7 @@
 			<div class="body">
 				{#if notification.title}<div class="title">{notification.title}</div>{/if}
 				{#if rendered[id]?.message === (notification.message ?? '')}
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitized in markdown.ts -->
 					<div class="message">{@html rendered[id].html}</div>
 				{:else}
 					<div class="message">{notification.message ?? ''}</div>

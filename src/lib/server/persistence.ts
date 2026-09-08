@@ -17,7 +17,8 @@ import * as yaml from 'js-yaml';
 const BACKUP_KEEP = 10;
 
 function backupDirectory(file: string) {
-	return join(dirname(file), 'backups');
+	// one directory per document: hearth.yaml and hearth.yml never share retention
+	return join(dirname(file), 'backups', basename(file));
 }
 
 function backupStem(file: string) {
@@ -144,6 +145,7 @@ export async function saveYamlDocument(request: SaveRequest): Promise<SaveResult
 			return { conflict: true as const, revision };
 		}
 		const head: Record<string, unknown> = { revision: revision + 1, ...(request.head ?? {}) };
+		head.revision = revision + 1;
 		const body = { ...request.body };
 		for (const key of Object.keys(head)) delete body[key];
 		const data = yaml.dump({ ...head, ...body });

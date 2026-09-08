@@ -13,11 +13,14 @@
 	onMount(async () => {
 		try {
 			const response = await fetch(`${base}/_api/custom_css`);
-			if (response.ok) value = await response.json();
+			if (!response.ok) throw new Error(`${response.status}`);
+			value = await response.json();
+			// saving stays disabled unless the current file was read, so a failed
+			// load can never be replaced by an empty one
+			loaded = true;
 		} catch (failure) {
 			console.error(failure);
-		} finally {
-			loaded = true;
+			error = $lang('hearth_could_not_load_file');
 		}
 	});
 

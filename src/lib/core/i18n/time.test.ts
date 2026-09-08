@@ -8,6 +8,11 @@ describe('parseLocalDate', () => {
 		expect(date.getHours()).toBe(0);
 	});
 
+	it('rejects a date that does not exist', () => {
+		expect(Number.isNaN(parseLocalDate('2026-02-31').getTime())).toBe(true);
+		expect(Number.isNaN(parseLocalDate('2026-13-01').getTime())).toBe(true);
+	});
+
 	it('leaves timestamps to the platform parser', () => {
 		expect(parseLocalDate('2026-03-29T10:30:00+02:00').getTime()).toBe(
 			Date.parse('2026-03-29T10:30:00+02:00')

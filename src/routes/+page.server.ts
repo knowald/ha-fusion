@@ -36,8 +36,11 @@ export async function load({ request }): Promise<{
 }> {
 	let configuration: Configuration = {};
 	try {
-		configuration =
-			((await loadYaml('./data/configuration.yaml')) as Configuration | undefined) ?? {};
+		const loaded = await loadYaml('./data/configuration.yaml');
+		if (loaded !== undefined && (!loaded || typeof loaded !== 'object' || Array.isArray(loaded))) {
+			throw new Error('configuration.yaml must contain a YAML mapping');
+		}
+		configuration = (loaded as Configuration | undefined) ?? {};
 	} catch (error) {
 		console.error('configuration.yaml could not be read, using defaults:', error);
 	}

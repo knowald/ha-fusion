@@ -2,7 +2,7 @@
 	import LoadingState from './LoadingState.svelte';
 	import EmptyState from './EmptyState.svelte';
 	import { ICON } from './iconSizes';
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
 	import { timer } from '$lib/core/app/clock';
@@ -103,10 +103,11 @@
 
 	let pane = $state<'queue' | 'playlists' | 'speakers' | 'library'>('queue');
 	let libraryKind = $state<LibraryKind>('albums');
-	let library = $state<Record<LibraryKind, LibraryItem[] | null>>({
-		albums: null,
-		tracks: null,
-		artists: null
+	// undefined: not asked yet, null: the request failed, list: loaded
+	let library = $state<Record<LibraryKind, LibraryItem[] | null | undefined>>({
+		albums: undefined,
+		tracks: undefined,
+		artists: undefined
 	});
 	let queue = $state<QueueTrack[] | null>(null);
 	let playlists = $state<MediaPlaylist[] | null>(null);
@@ -149,9 +150,10 @@
 		loadLibrary(libraryKind);
 	}
 
-	function loadLibrary(kind: LibraryKind) {
+	function loadLibrary(kind: LibraryKind, retry = false) {
 		libraryKind = kind;
-		if (library[kind] === null) {
+		if (library[kind] === undefined || (retry && library[kind] === null)) {
+			library[kind] = undefined;
 			fetchSpotifyLibrary(entity, kind).then((items) => (library[kind] = items));
 		}
 	}
@@ -328,7 +330,14 @@
 								<div class="row-text">
 									<div class="row-name">{playlist.name}</div>
 									{#if playlist.trackCount !== null}
-										<div class="row-sub">{playlist.trackCount} songs</div>
+										<div class="row-sub">
+											{fill(
+												$lang(playlist.trackCount === 1 ? 'hearth_one_song' : 'hearth_n_songs'),
+												{
+													count: String(playlist.trackCount)
+												}
+											)}
+										</div>
 									{/if}
 								</div>
 								{#if currentContext === playlist.uri}
@@ -350,8 +359,12 @@
 							</button>
 						{/each}
 					</div>
-					{#if library[libraryKind] === null}
+					{#if library[libraryKind] === undefined}
 						<LoadingState inline text={$lang('hearth_loading_library')} />
+					{:else if library[libraryKind] === null}
+						<button type="button" class="retry" onclick={() => loadLibrary(libraryKind, true)}>
+							{$lang('hearth_retry')}
+						</button>
 					{:else if library[libraryKind]?.length === 0}
 						<EmptyState inline text={$lang('hearth_no_library_items')} />
 					{:else}
@@ -703,6 +716,17 @@
 		border-radius: var(--h-radius-tight);
 		cursor: pointer;
 		color: var(--h-on-art-3);
+	}
+
+	.retry {
+		align-self: flex-start;
+		padding: 10px 14px;
+		border: 1px solid rgb(var(--h-line-rgb) / calc(0.12 * var(--h-line-scale)));
+		border-radius: var(--h-radius-xs);
+		background: none;
+		color: var(--h-accent-text);
+		font: inherit;
+		cursor: pointer;
 	}
 
 	.row:hover {

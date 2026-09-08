@@ -40,6 +40,7 @@
 	{#if error}
 		<div class="error">{$lang('hearth_template_error')}: {error}</div>
 	{:else}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitized in markdown.ts -->
 		{@html html}
 	{/if}
 </div>

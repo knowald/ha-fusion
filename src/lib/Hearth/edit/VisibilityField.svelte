@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { numberFromInput } from './numbers';
 	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
@@ -16,13 +17,13 @@
 
 	type RowType = 'entity' | 'numeric' | 'media' | 'or';
 
-	const TYPE_OPTIONS = [
+	let TYPE_OPTIONS = $derived([
 		{ value: 'entity', label: $lang('hearth_entity_state') },
 		{ value: 'numeric', label: $lang('hearth_numeric_state') },
 		{ value: 'media', label: $lang('hearth_media_query') },
 		// an or-group inside an or-group adds nothing; keep the tree one level deep
 		...(nested ? [] : [{ value: 'or', label: $lang('hearth_any_of') }])
-	];
+	]);
 
 	function rowType(condition: VisibilityCondition): RowType {
 		if ('media' in condition) return 'media';
@@ -31,6 +32,7 @@
 	}
 
 	function setRowType(index: number, type: string) {
+		drafts = {};
 		value[index] =
 			type === 'media'
 				? { media: '' }
@@ -80,7 +82,12 @@
 		else condition.state = text;
 	}
 
+	// what the user typed, so "-" and "20." survive until the number is complete
+	let drafts = $state<Record<string, string>>({});
+
 	function boundValue(index: number, key: 'above' | 'below'): string {
+		const draft = drafts[`${index}:${key}`];
+		if (draft !== undefined) return draft;
 		const condition = value[index];
 		const bound = 'entity' in condition ? condition[key] : undefined;
 		return typeof bound === 'number' ? String(bound) : '';
@@ -89,9 +96,15 @@
 	function setBound(index: number, key: 'above' | 'below', text: string) {
 		const condition = value[index];
 		if (!('entity' in condition)) return;
-		const parsed = parseFloat(text);
-		if (Number.isFinite(parsed)) condition[key] = parsed;
-		else delete condition[key];
+		const parsed = numberFromInput(text);
+		if (Number.isFinite(parsed)) {
+			// a complete number renders from the condition; only partial text is kept
+			delete drafts[`${index}:${key}`];
+			condition[key] = parsed;
+		} else {
+			drafts[`${index}:${key}`] = text;
+			if (!text.trim()) delete condition[key];
+		}
 	}
 
 	function mediaValue(index: number): string {
@@ -109,6 +122,8 @@
 	}
 
 	function removeRow(index: number) {
+		// drafts are keyed by index; the rows below shift, so none of them may survive
+		drafts = {};
 		value.splice(index, 1);
 	}
 </script>

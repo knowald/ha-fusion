@@ -70,9 +70,10 @@ export function openEntityDetail(entityId: string, name?: string) {
 		);
 		return;
 	}
-	popup.set({
-		kind: 'detail',
-		entity: entityId,
-		name: name || entity?.attributes?.friendly_name || entityId
-	});
+	const label = name || entity?.attributes?.friendly_name || entityId;
+	// these have full popups of their own; the generic sheet has no controls for them
+	if (domain === 'light') return popup.set({ kind: 'light', entity: entityId, name: label });
+	if (domain === 'fan') return popup.set({ kind: 'fan', entity: entityId, name: label });
+	if (domain === 'cover') return popup.set({ kind: 'blind', entity: entityId, name: label });
+	popup.set({ kind: 'detail', entity: entityId, name: label });
 }

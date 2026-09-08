@@ -22,10 +22,10 @@
 	let direction = $state<OverviewStack['direction']>(initial?.direction ?? 'horizontal');
 	let fill = $state<string>(typeof initial?.fill === 'number' ? String(initial.fill) : '');
 
-	const DIRECTION_OPTIONS: { value: OverviewStack['direction']; label: string }[] = [
+	let DIRECTION_OPTIONS: { value: OverviewStack['direction']; label: string }[] = $derived([
 		{ value: 'horizontal', label: $lang('horizontal') },
 		{ value: 'vertical', label: $lang('vertical') }
-	];
+	]);
 
 	function close() {
 		editor.set(null);

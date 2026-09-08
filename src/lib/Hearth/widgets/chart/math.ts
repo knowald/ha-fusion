@@ -88,7 +88,7 @@ class Parser {
 			return value;
 		}
 		if (this.take('x')) return this.x;
-		const match = /^\d+(?:\.\d+)?|^\.\d+/.exec(this.source.slice(this.index));
+		const match = /^\d+\.?\d*|^\.\d+/.exec(this.source.slice(this.index));
 		if (!match) throw new SyntaxError(`unexpected input at ${this.index}`);
 		this.index += match[0].length;
 		return Number(match[0]);

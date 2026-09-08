@@ -1,3 +1,4 @@
+import { sensorNumber } from '$lib/core/ha/entities';
 import type { HassEntities } from 'home-assistant-js-websocket';
 import type { VisibilityCondition } from './config';
 
@@ -36,8 +37,8 @@ function evaluateCondition(
 	if (typeof condition.state === 'string') return entityState === condition.state;
 	if (typeof condition.state_not === 'string') return entityState !== condition.state_not;
 	if (typeof condition.above === 'number' || typeof condition.below === 'number') {
-		const value = parseFloat(entityState);
-		if (!Number.isFinite(value)) return false;
+		const value = sensorNumber(entityState);
+		if (value === null) return false;
 		if (typeof condition.above === 'number' && !(value > condition.above)) return false;
 		if (typeof condition.below === 'number' && !(value < condition.below)) return false;
 		return true;

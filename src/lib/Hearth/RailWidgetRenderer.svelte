@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { lang } from '$lib/core/i18n';
+	import { lang, fill } from '$lib/core/i18n';
 	import type { RailWidget } from './types';
 	import {
 		railConfigurationLabel,
@@ -15,7 +15,7 @@
 
 {#if !descriptor}
 	<ConfigurationPlaceholder
-		label={$lang('hearth_unknown_widget_type').replace('{type}', widget.type)}
+		label={fill($lang('hearth_unknown_widget_type'), { type: widget.type })}
 		compact
 		context="widget"
 	/>

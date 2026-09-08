@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { integerFromInput } from './numbers';
 	import { ICON } from '../iconSizes';
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from '../interaction';
@@ -16,7 +17,7 @@
 	let paddingX = $derived($hearthConfig.padding_x ?? 0);
 	let paddingY = $derived($hearthConfig.padding_y ?? 0);
 
-	const SCREENSAVER_OPTIONS = [
+	let SCREENSAVER_OPTIONS = $derived([
 		{ value: '0', label: $lang('off') },
 		{ value: '1', label: $lang('hearth_after_1_minute') },
 		{ value: '5', label: $lang('hearth_after_5_minutes') },
@@ -24,16 +25,16 @@
 		{ value: '15', label: $lang('hearth_after_15_minutes') },
 		{ value: '30', label: $lang('hearth_after_30_minutes') },
 		{ value: '60', label: $lang('hearth_after_1_hour') }
-	];
-	const SCREENSAVER_BRIGHTNESS_OPTIONS = [
+	]);
+	let SCREENSAVER_BRIGHTNESS_OPTIONS = $derived([
 		{ value: '18', label: $lang('hearth_very_dim') },
 		{ value: '32', label: $lang('hearth_dim') },
 		{ value: '50', label: $lang('fan_speed_medium') },
 		{ value: '75', label: $lang('hearth_bright') }
-	];
+	]);
 
 	function setScreensaver(value: string) {
-		const minutes = parseInt(value);
+		const minutes = integerFromInput(value);
 		updateConfig((config) => {
 			config.screensaver_minutes = minutes > 0 ? minutes : undefined;
 		});
@@ -46,7 +47,7 @@
 	}
 
 	function setScreensaverBrightness(value: string) {
-		const brightness = parseInt(value);
+		const brightness = integerFromInput(value);
 		updateConfig((config) => {
 			config.screensaver_brightness = brightness === 32 ? undefined : brightness;
 		});
@@ -59,7 +60,7 @@
 	}
 
 	function setPadding(axis: 'padding_x' | 'padding_y', value: string) {
-		const pixels = Math.round(parseFloat(value));
+		const pixels = integerFromInput(value);
 		updateConfig((config) => {
 			config[axis] = Number.isFinite(pixels) && pixels > 0 ? Math.min(pixels, 300) : undefined;
 		});
@@ -162,13 +163,14 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_decrease')}
+								aria-label={`${$lang('hearth_decrease')} ${$lang('hearth_side_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_x', String(paddingX - 4))}
 							>
 								<Icon name="remove" size={ICON.inline} />
 							</button>
 							<input
 								type="number"
+								aria-label={$lang('hearth_side_padding')}
 								min="0"
 								max="300"
 								value={paddingX}
@@ -177,7 +179,7 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_increase')}
+								aria-label={`${$lang('hearth_increase')} ${$lang('hearth_side_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_x', String(paddingX + 4))}
 							>
 								<Icon name="add" size={ICON.inline} />
@@ -195,13 +197,14 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_decrease')}
+								aria-label={`${$lang('hearth_decrease')} ${$lang('hearth_top_bottom_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_y', String(paddingY - 4))}
 							>
 								<Icon name="remove" size={ICON.inline} />
 							</button>
 							<input
 								type="number"
+								aria-label={$lang('hearth_top_bottom_padding')}
 								min="0"
 								max="300"
 								value={paddingY}
@@ -210,7 +213,7 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_increase')}
+								aria-label={`${$lang('hearth_increase')} ${$lang('hearth_top_bottom_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_y', String(paddingY + 4))}
 							>
 								<Icon name="add" size={ICON.inline} />

@@ -10,12 +10,12 @@
 
 	let { entity }: { entity: string } = $props();
 
-	const speeds = [
+	let speeds = $derived([
 		{ label: $lang('off'), value: 0 },
 		{ label: $lang('fan_speed_low'), value: 33 },
 		{ label: $lang('hearth_med'), value: 66 },
 		{ label: $lang('fan_speed_high'), value: 100 }
-	];
+	]);
 
 	let fan = $derived($states?.[entity]);
 	let attributes = $derived(fan?.attributes);

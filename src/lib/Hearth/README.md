@@ -88,7 +88,7 @@ types derive from them. Card and widget descriptors attach a schema for their
 own fields, and the YAML editor reports every schema issue with its path
 before applying an edit. Saves go through `src/lib/server/persistence.ts`,
 which serializes writes per file within one server process, backs the
-replaced document up under `data/backups/` (ten kept, named by timestamp and
+replaced document up under `data/backups/<file>/` (ten kept, named by timestamp and
 the revision they replace; a save that cannot be backed up fails), replaces
 the file atomically and manages the `revision` counter used for conflict
 detection.
