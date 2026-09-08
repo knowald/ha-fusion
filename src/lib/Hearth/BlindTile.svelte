@@ -65,7 +65,7 @@
 			const action = open ? 'Close' : 'Open';
 			requestConfirmation({
 				title: `${action} ${label}?`,
-				message: `This cover controls an access point. Confirm before continuing.`,
+				message: $lang('hearth_cover_access_point_confirm'),
 				confirmLabel: action,
 				action: () => toggleBlind(entity)
 			});

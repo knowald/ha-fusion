@@ -29,6 +29,7 @@ export const energyWidget: WidgetDescriptor<EnergyWidget> = {
 		currency: OptionalText
 	}),
 	needsConfiguration: (widget) => !widget.entity,
+	entityIds: (widget) => [widget.entity, widget.price_entity].filter((id): id is string => !!id),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

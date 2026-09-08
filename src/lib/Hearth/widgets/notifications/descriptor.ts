@@ -12,5 +12,6 @@ export const notificationsWidget: WidgetDescriptor<NotificationsWidget> = {
 	sub: 'hearth_widget_notifications_sub',
 	icon: 'notifications',
 	schema: v.looseObject({}),
+	entityIds: () => [],
 	component: Widget
 };

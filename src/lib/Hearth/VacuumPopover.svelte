@@ -29,13 +29,13 @@
 	// still at the dock when it expires
 	const UNDO_MS = 6000;
 
-	const statusLabels: Record<string, string> = {
-		docked: 'Docked',
-		cleaning: 'Cleaning',
-		returning: 'Returning home',
-		paused: 'Paused',
-		idle: 'Idle',
-		error: 'Needs help'
+	const statusKeys: Record<string, string> = {
+		docked: 'docked',
+		cleaning: 'cleaning',
+		returning: 'hearth_vacuum_returning_home',
+		paused: 'paused',
+		idle: 'idle',
+		error: 'hearth_vacuum_needs_help'
 	};
 
 	type Action = {
@@ -59,7 +59,7 @@
 	}
 
 	let vacuum = $derived($states?.[entity]);
-	let status = $derived(statusLabels[vacuum?.state ?? ''] ?? 'Unavailable');
+	let status = $derived($lang(statusKeys[vacuum?.state ?? ''] ?? 'unavailable'));
 	let battery = $derived(
 		batteryEntity
 			? percent($states?.[batteryEntity]?.state)

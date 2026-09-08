@@ -87,8 +87,11 @@ visibility conditions) are valibot schemas in `schema.ts`; their TypeScript
 types derive from them. Card and widget descriptors attach a schema for their
 own fields, and the YAML editor reports every schema issue with its path
 before applying an edit. Saves go through `src/lib/server/persistence.ts`,
-which serializes writes per file, replaces atomically, keeps ten backups and
-manages the `revision` counter used for conflict detection.
+which serializes writes per file within one server process, backs the
+replaced document up under `data/backups/` (ten kept, named by timestamp and
+the revision they replace; a save that cannot be backed up fails), replaces
+the file atomically and manages the `revision` counter used for conflict
+detection.
 
 `HearthConfig` holds `rail` (a list of rail widgets), `rooms` (pages, each with
 `cards` as an array of columns), the `theme` and `theme_night` token maps, the
@@ -187,9 +190,8 @@ before and after normalization, so every type's schema and normalizer agree on
 at least one real document.
 
 Rail widgets follow the same shape under `widgets/`, registered in
-`widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Layout-only
-widgets (the spacer) have no component; option-free widgets (nav, search) have
-no editor.
+`widgets/index.ts`, with `Widget.svelte` rendering `{ widget }`. Option-free
+widgets (nav, search, notifications) have no editor.
 
 Entity domains are described in `src/lib/core/domains/index.ts`: icon, tap
 behaviour, tile treatment, active predicate, group summary words and toggle
@@ -252,7 +254,7 @@ One table for every entity, read from `core/domains`. A tile never invents its o
 | `controls` domains (climate, camera, image, alarm, calendar, water heater, valve, update, todo, counter, lawn mower, GPS tracker)                      | Detail sheet                                                         | Detail sheet                     | -                                            |
 | `readout` domains (sensor, binary_sensor, person, weather, sun, ...)                                                                                   | Numeric readings open their 24 h history; anything else does nothing | Same                             | -                                            |
 
-Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
+Rules that hold everywhere: a `readonly` tile does nothing on tap; an unavailable entity shows no controls, and `callEntityService` refuses a command to an unavailable or unknown-to-HA entity with a failure toast, whatever surface sent it; a discrete command shows the pending pulse until the entity's next state update, a timeout or the failure toast (drags skip the pulse and keep an optimistic override for a short time instead); a drag that moves more vertically than horizontally becomes a scroll; edit mode turns every tap into "open the editor". Tap targets are 44 px or more.
 
 ## Copy and translation
 

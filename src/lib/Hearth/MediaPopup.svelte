@@ -5,6 +5,7 @@
 	import { lang } from '$lib/core/i18n';
 	import { activateOnKeyboard } from './interaction';
 	import { states } from '$lib/core/ha/entities';
+	import { timer } from '$lib/core/app/clock';
 	import { horizontalDrag } from './drag';
 	import {
 		fetchMediaPlaylists,
@@ -49,21 +50,15 @@
 		repeatSet: 262144
 	};
 
-	let now = $state(Date.now());
-
 	let player = $derived($states?.[entity]);
 	let attributes = $derived(player?.attributes ?? {});
 	let pending = $derived($pendingEntities[entity] !== undefined);
 	let features = $derived(Number(attributes.supported_features ?? 0));
 	let playing = $derived(player?.state === 'playing');
 	let duration = $derived(attributes.media_duration ?? 0);
+	// the shared second clock drives the position readout while playing
+	let now = $derived(playing ? $timer.getTime() : 0);
 
-	$effect(() => {
-		if (!playing) return;
-		now = Date.now();
-		const timer = setInterval(() => (now = Date.now()), 1000);
-		return () => clearInterval(timer);
-	});
 	let spotify = $derived(hasSpotifyPlus(attributes));
 
 	let appLabel = $derived(
@@ -196,7 +191,7 @@
 				<span class="source-label">{sourceLine}</span>
 			</div>
 			<div class="track">
-				<div class="title">{attributes.media_title ?? 'Nothing playing'}</div>
+				<div class="title">{attributes.media_title ?? $lang('hearth_nothing_playing')}</div>
 				<div class="artist">
 					{[attributes.media_artist, attributes.media_album_name].filter(Boolean).join(' · ')}
 				</div>
@@ -285,13 +280,15 @@
 
 		<div class="panel">
 			<div class="panel-label">
-				{pane === 'queue'
-					? 'UP NEXT'
-					: pane === 'playlists'
-						? 'PLAYLISTS'
-						: pane === 'library'
-							? $lang('hearth_library').toUpperCase()
-							: 'PLAY ON'}
+				{$lang(
+					pane === 'queue'
+						? 'hearth_up_next'
+						: pane === 'playlists'
+							? 'hearth_playlists'
+							: pane === 'library'
+								? 'hearth_library'
+								: 'hearth_play_on'
+				).toUpperCase()}
 			</div>
 			<div class="panel-list">
 				{#if pane === 'queue'}

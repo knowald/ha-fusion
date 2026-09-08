@@ -56,9 +56,10 @@
 					insert: init
 				}
 			});
-			// restore
+			// restore, clamped: the replacement may be shorter than the old text
+			const end = view.state.doc.length;
 			view.dispatch({
-				selection: { anchor: anchor, head: head }
+				selection: { anchor: Math.min(anchor, end), head: Math.min(head, end) }
 			});
 			view.scrollDOM.scrollTop = scrollTop;
 			view.scrollDOM.scrollLeft = scrollLeft;
@@ -194,7 +195,7 @@
 					diagnostics.push({
 						from: from,
 						to: from,
-						message: failure.message ?? 'Invalid YAML',
+						message: failure.message ?? 'Invalid YAML', // copy ok: yaml diagnostic
 						severity: 'error'
 					});
 				}

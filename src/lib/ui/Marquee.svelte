@@ -17,10 +17,10 @@
 
 	let hovered = $state(false);
 
-	function handleHover(event: MouseEvent | FocusEvent) {
-		if (event?.type === 'mouseover' || event?.type === 'focus') {
+	function handleHover(event: PointerEvent | FocusEvent) {
+		if (event.type === 'pointerover' || event.type === 'focus') {
 			hovered = true;
-		} else if (event?.type === 'mouseout' || event?.type === 'blur') {
+		} else if (event.type === 'pointerout' || event.type === 'blur') {
 			hovered = false;
 		}
 	}

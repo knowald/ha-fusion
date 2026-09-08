@@ -232,7 +232,9 @@
 				</button>
 			{:else if !query}
 				<div class="hint">
-					{allNames.length ? `Type to search all ${allNames.length} icons` : 'Loading icon list'}
+					{allNames.length
+						? $lang('hearth_search_all_icons_count').replace('{count}', String(allNames.length))
+						: $lang('hearth_loading_icon_list')}
 				</div>
 			{/if}
 		</div>

@@ -130,7 +130,7 @@
 			if (!response.ok) throw new Error(`load failed: ${response.status}`);
 			savedThemes = await response.json();
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to load saved themes';
+			themesError = err.message ?? $lang('hearth_themes_load_failed');
 		} finally {
 			themesLoading = false;
 		}
@@ -155,7 +155,7 @@
 			newThemeName = '';
 			await loadThemes();
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to save theme';
+			themesError = err.message ?? $lang('hearth_theme_save_failed');
 		} finally {
 			saving = false;
 		}
@@ -167,7 +167,7 @@
 	}
 
 	async function deleteSavedTheme(saved: SavedTheme) {
-		if (!confirm(`Delete theme "${saved.name}"?`)) return;
+		if (!confirm($lang('hearth_delete_theme_confirm').replace('{name}', saved.name))) return;
 		themesError = '';
 		try {
 			const response = await fetch(`${base}/_api/hearth_themes`, {
@@ -178,7 +178,7 @@
 			if (!response.ok) throw new Error(`delete failed: ${response.status}`);
 			savedThemes = savedThemes.filter((entry) => entry.id !== saved.id);
 		} catch (err: any) {
-			themesError = err.message ?? 'failed to delete theme';
+			themesError = err.message ?? $lang('hearth_theme_delete_failed');
 		}
 	}
 
@@ -298,16 +298,14 @@
 			spellcheck="false"
 			onkeydown={(event) => event.key === 'Enter' && saveCurrentTheme()}
 		/>
-		<div
+		<button
+			type="button"
 			class="button pressable"
-			class:disabled={!newThemeName.trim() || saving}
+			disabled={!newThemeName.trim() || saving}
 			onclick={saveCurrentTheme}
-			role="button"
-			tabindex="0"
-			onkeydown={(event) => activateOnKeyboard(event, saveCurrentTheme)}
 		>
 			{$lang('save')}
-		</div>
+		</button>
 	</div>
 
 	{#if themesError}
@@ -319,38 +317,28 @@
 	{:else if savedThemes.length}
 		<div class="saved-themes">
 			{#each savedThemes as saved (saved.id)}
-				<div
-					class="saved-theme pressable"
-					onclick={() => applySavedTheme(saved)}
-					role="button"
-					tabindex="0"
-					onkeydown={(event) => activateOnKeyboard(event, () => applySavedTheme(saved))}
-				>
-					<div class="dots">
-						<span class="dot" style:background={swatch(saved, 'background_inner')}></span>
-						<span class="dot" style:background={swatch(saved, 'accent')}></span>
-						<span class="dot" style:background={swatch(saved, 'cool')}></span>
-						<span class="dot" style:background={swatch(saved, 'text_1')}></span>
-					</div>
-					<span class="saved-theme-name">{saved.name}</span>
-					<span
+				<div class="saved-theme">
+					<button
+						type="button"
+						class="saved-theme-apply pressable"
+						onclick={() => applySavedTheme(saved)}
+					>
+						<div class="dots">
+							<span class="dot" style:background={swatch(saved, 'background_inner')}></span>
+							<span class="dot" style:background={swatch(saved, 'accent')}></span>
+							<span class="dot" style:background={swatch(saved, 'cool')}></span>
+							<span class="dot" style:background={swatch(saved, 'text_1')}></span>
+						</div>
+						<span class="saved-theme-name">{saved.name}</span>
+					</button>
+					<button
+						type="button"
 						class="icon-button"
-						onclick={(event) => {
-							event.stopPropagation();
-							deleteSavedTheme(saved);
-						}}
-						role="button"
-						tabindex="0"
-						onkeydown={(event) =>
-							activateOnKeyboard(event, () =>
-								((event) => {
-									event.stopPropagation();
-									deleteSavedTheme(saved);
-								})(event)
-							)}
+						aria-label={`${$lang('delete')} ${saved.name}`}
+						onclick={() => deleteSavedTheme(saved)}
 					>
 						<Icon name="delete" size={ICON.control} />
-					</span>
+					</button>
 				</div>
 			{/each}
 		</div>
@@ -574,7 +562,13 @@
 		cursor: pointer;
 	}
 
-	.save-row .button.disabled {
+	.save-row .button {
+		border: 0;
+		font-family: inherit;
+		cursor: pointer;
+	}
+
+	.save-row .button:disabled {
 		opacity: 0.4;
 		cursor: default;
 	}
@@ -616,6 +610,21 @@
 		margin-left: 0;
 	}
 
+	.saved-theme-apply {
+		display: flex;
+		flex: 1;
+		min-width: 0;
+		align-items: center;
+		gap: 10px;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
 	.saved-theme-name {
 		flex: 1;
 		overflow: hidden;
@@ -625,6 +634,14 @@
 
 	.icon-button {
 		flex: none;
+		display: grid;
+		place-items: center;
+		width: 44px;
+		height: 44px;
+		margin: -10px -10px -10px 0;
+		padding: 0;
+		border: 0;
+		background: none;
 		color: var(--h-icon);
 		cursor: pointer;
 	}

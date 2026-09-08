@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store';
 import { callService, type HassEntity } from 'home-assistant-js-websocket';
-import { connected, connection } from './connection';
-import { states } from './entities';
+import { connection, health } from './connection';
+import { entityControllable, states } from './entities';
 
 /*
  * The command pipeline: every device call leaves through service() here, with
@@ -168,13 +168,19 @@ function reportCommandFailure(entityId: string | null, error: unknown) {
 
 /* sending */
 
+/** Whether the websocket can carry a message right now. */
+export function socketOpen(): boolean {
+	const $health = get(health);
+	return $health === 'connected' || $health === 'degraded';
+}
+
 export function service(domain: string, name: string, data: Record<string, unknown>) {
 	if (!commandsAllowed()) return;
 	const entityId = typeof data.entity_id === 'string' ? data.entity_id : null;
 	const conn = get(connection);
-	// the connection object survives reconnects, so `connected` is the
-	// authoritative guard during a dropped websocket
-	if (!conn || !get(connected)) {
+	// the connection object survives reconnects, so health is the guard: a
+	// degraded socket (one stale subscription) still carries commands
+	if (!conn || !socketOpen()) {
 		reportCommandFailure(entityId, new Error('Not connected to Home Assistant'));
 		return;
 	}
@@ -190,6 +196,15 @@ export function callEntityService(
 	entityId: string,
 	data: Record<string, unknown> = {}
 ) {
+	if (!commandsAllowed()) return;
+	// the one place every entity command passes, so an unavailable target is
+	// refused here rather than in each card, popup and detail sheet
+	const $states = get(states);
+	if ($states && !entityControllable($states[entityId])) {
+		const reason = $states[entityId] ? 'is unavailable' : 'is not known to Home Assistant';
+		reportCommandFailure(entityId, new Error(`${entityId} ${reason}`));
+		return;
+	}
 	markPending(entityId);
 	service(domain, name, { entity_id: entityId, ...data });
 }

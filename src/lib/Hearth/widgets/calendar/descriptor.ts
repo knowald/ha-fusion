@@ -26,6 +26,10 @@ export const calendarWidget: WidgetDescriptor<CalendarWidget> = {
 		lookahead_hours: optionalNumberAtLeast(1)
 	}),
 	needsConfiguration: (widget) => !widget.entities?.length,
+	entityIds: (widget) => [
+		...(widget.entities ?? []),
+		...(widget.travel_entity ? [widget.travel_entity] : [])
+	],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

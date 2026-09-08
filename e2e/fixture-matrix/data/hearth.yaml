@@ -22,6 +22,10 @@ rail:
   - id: weather
     type: weather
     entity: weather.home
+  - id: divider
+    type: spacer
+    line: true
+    height: 24
   - id: nav
     type: nav
   - id: search

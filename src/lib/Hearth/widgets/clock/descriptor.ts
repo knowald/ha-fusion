@@ -25,6 +25,7 @@ export const clockWidget: WidgetDescriptor<ClockWidget> = {
 		hour_format: v.optional(v.picklist(['auto', '12', '24'], 'must be auto, 12 or 24')),
 		show_seconds: OptionalFlag
 	}),
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

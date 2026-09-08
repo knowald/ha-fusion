@@ -93,7 +93,7 @@
 </script>
 
 <EditSheet
-	title={id ? 'Edit page' : 'Add page'}
+	title={$lang(id ? 'hearth_edit_page' : 'hearth_add_page')}
 	onclose={close}
 	ondone={done}
 	doneDisabled={!name.trim()}
@@ -118,8 +118,8 @@
 		label={$lang('hearth_screen_height')}
 		bind:value={fillScreen}
 		options={[
-			{ value: 'scroll', label: 'Scrollable (default)' },
-			{ value: 'fill', label: 'Fill the screen' }
+			{ value: 'scroll', label: $lang('hearth_scrollable_default') },
+			{ value: 'fill', label: $lang('hearth_fill_the_screen') }
 		]}
 	/>
 	{#if fillScreen === 'fill'}

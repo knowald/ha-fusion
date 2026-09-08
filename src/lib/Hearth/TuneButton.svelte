@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { ICON } from './iconSizes';
 	import Icon from './Icon.svelte';
 
@@ -14,7 +15,7 @@
 	<button
 		type="button"
 		class="tune"
-		aria-label={icon === 'edit' ? 'Edit' : 'Open controls'}
+		aria-label={$lang(icon === 'edit' ? 'edit' : 'hearth_open_controls')}
 		onclick={(event) => {
 			event.stopPropagation();
 			onopen();

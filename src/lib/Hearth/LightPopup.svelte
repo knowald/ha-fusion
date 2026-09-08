@@ -27,7 +27,7 @@
 	let tabChoice = $state<'temp' | 'color' | 'white' | null>(null);
 	let mode = $derived(tabChoice ?? view.mode);
 	let kelvinLabel = $derived(
-		`${view.kelvin}K · ${view.kelvin < 3300 ? 'Warm white' : view.kelvin < 5000 ? 'Neutral' : 'Cool white'}`
+		`${view.kelvin}K · ${$lang(view.kelvin < 3300 ? 'hearth_warm_white' : view.kelvin < 5000 ? 'hearth_neutral_white' : 'hearth_cool_white')}`
 	);
 
 	let attributes = $derived($states?.[entity]?.attributes ?? {});
@@ -149,6 +149,8 @@
 				onclick={() => setLightColor(entity, swatch)}
 				role="button"
 				tabindex="0"
+				aria-label={`${$lang('color')} ${swatch}`}
+				aria-pressed={swatchSelected(swatch)}
 				onkeydown={(event) => activateOnKeyboard(event, () => setLightColor(entity, swatch))}
 			></div>
 		{/each}

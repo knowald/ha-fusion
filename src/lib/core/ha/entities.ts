@@ -27,6 +27,16 @@ export function entityAvailable(entity: HassEntity | undefined): boolean {
 	return entityAvailability(entity) === 'available';
 }
 
+/**
+ * Whether a command may be sent to the entity. Missing and unavailable
+ * entities cannot act; `unknown` can, since scenes, buttons and scripts report
+ * it until their first use.
+ */
+export function entityControllable(entity: HassEntity | undefined): boolean {
+	const availability = entityAvailability(entity);
+	return availability === 'available' || availability === 'unknown';
+}
+
 export const UNAVAILABLE_STATES = ['unavailable', 'unknown'];
 
 /** States the original dashboard's button treats as active, across domains. */
@@ -60,7 +70,9 @@ export const ACTIVE_STATES = [
 /** One domain-aware answer to whether an entity is visually active. */
 export function entityActive(entityId: string, entity: HassEntity | undefined) {
 	if (!entity) return false;
-	return domainDescriptor(getDomain(entityId)).active?.(entity) ?? entity.state === 'on';
+	return (
+		domainDescriptor(getDomain(entityId)).active?.(entity) ?? ACTIVE_STATES.includes(entity.state)
+	);
 }
 
 /** Active state with an optimistic `active:` override applied while the entity is reachable. */
@@ -81,8 +93,11 @@ export function getTogglableService(entity: HassEntity) {
 
 /** Parses a sensor state as a number, or null for anything non-numeric. */
 export function sensorNumber(state: string | undefined): number | null {
-	if (state === undefined) return null;
-	const value = parseFloat(state);
+	// a number, optionally followed by a unit after whitespace ("12.5 °C");
+	// "12abc" is not a reading, which parseFloat alone would accept as 12
+	const match = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?(?=\s|$)/.exec(state?.trim() ?? '');
+	if (!match) return null;
+	const value = Number(match[0]);
 	return Number.isFinite(value) ? value : null;
 }
 

@@ -74,8 +74,8 @@
 	label={$lang('hearth_style')}
 	bind:value={style}
 	options={[
-		{ value: 'chips', label: 'Chips' },
-		{ value: 'bar', label: 'Scene bar' }
+		{ value: 'chips', label: $lang('hearth_scene_chips') },
+		{ value: 'bar', label: $lang('hearth_scene_bar') }
 	]}
 />
 {#if style === 'bar'}

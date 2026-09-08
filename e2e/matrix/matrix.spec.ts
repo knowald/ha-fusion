@@ -4,7 +4,8 @@ import { expect, test, type Page } from '@playwright/test';
 /*
  * Renders the review matrix. Each scene is a named setup on the page; every
  * scene is captured at each viewport, and page scenes additionally in the
- * night slot and two presets. Output: matrix-output/<scene>__<viewport>__<theme>.png
+ * night slot and two presets; a scene without a theme list runs in day and
+ * night. Output: matrix-output/<scene>__<viewport>__<theme>.png
  * plus index.html, a contact sheet grouped by family.
  */
 
@@ -269,7 +270,7 @@ for (const [viewportName, viewport] of Object.entries(VIEWPORTS) as [
 		test.use({ viewport, hasTouch: viewportName === 'phone', isMobile: viewportName === 'phone' });
 		for (const scene of SCENES) {
 			if (scene.viewports && !scene.viewports.includes(viewportName)) continue;
-			for (const theme of scene.themes ?? ['day']) {
+			for (const theme of scene.themes ?? ['day', 'night']) {
 				test(`${scene.family}/${scene.name} ${theme}`, async ({ page }) => {
 					const errors: string[] = [];
 					page.on('pageerror', (error) => errors.push(error.message));

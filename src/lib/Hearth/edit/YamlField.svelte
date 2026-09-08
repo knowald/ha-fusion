@@ -13,9 +13,9 @@
 			const parsed = yaml.load(value);
 			return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
 				? null
-				: 'Expected a YAML mapping';
+				: 'Expected a YAML mapping'; // copy ok: yaml diagnostic
 		} catch (parseError) {
-			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML';
+			return parseError instanceof Error ? parseError.message.split('\n')[0] : 'Invalid YAML'; // copy ok: yaml diagnostic
 		}
 	});
 </script>

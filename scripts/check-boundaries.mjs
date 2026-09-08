@@ -64,8 +64,10 @@ async function* walk(dir) {
 	}
 }
 
+// the optional whitespace after import/export also catches minified-style
+// `import{x}from'./y'`, which Prettier never writes but a hand edit might
 const IMPORT_PATTERN =
-	/(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]|@import\s+(?:url\()?['"]([^'"]+)['"]/g;
+	/(?:import|export)\s*[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s*['"]([^'"]+)['"]|vi\.mock\(\s*['"]([^'"]+)['"]|@import\s+(?:url\()?['"]([^'"]+)['"]/g;
 
 function resolveTarget(fromFile, specifier) {
 	// SvelteKit generates ./$types next to every route; it is not a layer

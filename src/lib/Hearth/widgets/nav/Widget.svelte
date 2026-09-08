@@ -7,10 +7,12 @@
 	import type { HearthRoom } from '../../config';
 	import { currentRoom, editor, hearthConfig, hearthEditMode, updateConfig } from '../../store';
 	import Icon from '../../Icon.svelte';
+	import type { NavWidget } from './descriptor';
+
+	let { widget }: { widget: NavWidget } = $props();
 </script>
 
-<div class="divider"></div>
-<div class="rooms-label">{$lang('hearth_pages')}</div>
+<div class="rooms-label" data-widget={widget.id}>{$lang('hearth_pages')}</div>
 
 <div
 	class="room-list"
@@ -52,12 +54,6 @@
 </div>
 
 <style>
-	.divider {
-		height: 1px;
-		background: rgb(var(--h-line-rgb) / calc(0.08 * var(--h-line-scale)));
-		margin: 24px 0;
-	}
-
 	.rooms-label {
 		font-family: var(--h-font-mono);
 		font-size: var(--h-type-label);
@@ -101,10 +97,6 @@
 	   instead of a tall list, which only shows while editing since the rail
 	   hides runtime navigation behind PhoneNav there */
 	@media (max-width: 900px) {
-		.divider {
-			margin: 16px 0;
-		}
-
 		.room-list {
 			display: flex;
 			overflow-x: auto;

@@ -7,16 +7,16 @@ import { HeightSchema } from '../../schema';
 
 export type FusionWidget = Extract<RailWidget, { type: 'fusion' }>;
 
-/** Original sidebar widget types embeddable through the fusion rail widget. */
+/** Original sidebar widget types embeddable through the fusion rail widget; labels are translation keys. */
 export const FUSION_WIDGET_TYPES: { value: string; label: string }[] = [
-	{ value: 'sensor', label: 'Sensor' },
-	{ value: 'camera', label: 'Camera' },
-	{ value: 'image', label: 'Image' },
-	{ value: 'time', label: 'Time' },
-	{ value: 'date', label: 'Date' },
-	{ value: 'weather', label: 'Weather (compact)' },
-	{ value: 'weather_forecast', label: 'Weather forecast' },
-	{ value: 'divider', label: 'Divider' }
+	{ value: 'sensor', label: 'hearth_fusion_sensor' },
+	{ value: 'camera', label: 'hearth_fusion_camera' },
+	{ value: 'image', label: 'hearth_fusion_image' },
+	{ value: 'time', label: 'hearth_fusion_time' },
+	{ value: 'date', label: 'hearth_fusion_date' },
+	{ value: 'weather', label: 'hearth_fusion_weather_compact' },
+	{ value: 'weather_forecast', label: 'hearth_fusion_weather_forecast' },
+	{ value: 'divider', label: 'hearth_fusion_divider' }
 ];
 
 export const fusionWidget: WidgetDescriptor<FusionWidget> = {
@@ -34,6 +34,7 @@ export const fusionWidget: WidgetDescriptor<FusionWidget> = {
 		!widget.config?.type ||
 		(['sensor', 'camera', 'image', 'weather', 'weather_forecast'].includes(widget.config.type) &&
 			!widget.config.entity_id),
+	entityIds: () => [],
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

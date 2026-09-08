@@ -33,6 +33,7 @@ export const chartWidget: WidgetDescriptor<ChartWidget> = {
 		stroke: optionalNumberAtLeast(1)
 	}),
 	needsConfiguration: (widget) => !widget.entity,
+	entityIds: (widget) => (widget.entity ? [widget.entity] : []),
 	component: Widget,
 	editor: () => import('./Editor.svelte')
 };

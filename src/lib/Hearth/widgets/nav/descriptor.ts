@@ -12,5 +12,6 @@ export const navWidget: WidgetDescriptor<NavWidget> = {
 	sub: 'hearth_widget_nav_sub',
 	icon: 'home',
 	schema: v.looseObject({}),
+	entityIds: () => [],
 	component: Widget
 };

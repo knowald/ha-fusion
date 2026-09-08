@@ -254,7 +254,9 @@ function handleError(error: unknown) {
 
 const RETRY_MS = 3000;
 let retryTimer: ReturnType<typeof setInterval> | undefined;
-let connecting = false;
+// bumped by every start, so an attempt from a superseded run cannot stop the
+// retry loop of the run that replaced it
+let currentRun = 0;
 
 /**
  * Authenticates and keeps retrying every few seconds until it succeeds. Calling
@@ -263,12 +265,14 @@ let connecting = false;
  */
 export function startConnection(configuration: Configuration, hooks: ConnectionHooks = {}) {
 	stopConnection();
+	const run = ++currentRun;
+	let connecting = false;
 	const attempt = async () => {
-		if (connecting) return;
+		if (connecting || run !== currentRun) return;
 		connecting = true;
 		try {
 			await authentication(configuration, hooks);
-			stopConnection();
+			if (run === currentRun) stopConnection();
 		} catch {
 			// retried on the interval
 		} finally {

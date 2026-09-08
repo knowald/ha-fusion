@@ -86,7 +86,7 @@
 </script>
 
 <EditSheet
-	title={index !== null ? 'Edit widget' : 'Add widget'}
+	title={$lang(index !== null ? 'hearth_edit_widget' : 'hearth_add_widget')}
 	onclose={close}
 	ondone={done}
 	doneDisabled={draft.valid === false}
@@ -119,6 +119,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-pressed={alwaysVisible}
 					onclick={setAlwaysVisible}
 					onkeydown={(event) => activateOnKeyboard(event, setAlwaysVisible)}
 				>
@@ -131,6 +132,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-pressed={hideMobile}
 					onclick={() => (hideMobile = !hideMobile)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (hideMobile = !hideMobile))}
 				>
@@ -143,6 +145,7 @@
 					use:Ripple={PRESS_RIPPLE}
 					role="button"
 					tabindex="0"
+					aria-expanded={conditionsOpen}
 					onclick={() => (conditionsOpen = !conditionsOpen)}
 					onkeydown={(event) => activateOnKeyboard(event, () => (conditionsOpen = !conditionsOpen))}
 				>
@@ -158,7 +161,7 @@
 		<aside class="pane">
 			<div class="pane-label">{$lang('hearth_live_preview')}</div>
 			<div class="preview-well" style="pointer-events: none">
-				{#if type === 'spacer'}
+				{#if previewWidget.type === 'spacer' && !previewWidget.height && !previewWidget.line}
 					<div class="preview-note">{$lang('hearth_flexible_gap_pushes_the_widgets_around')}</div>
 				{:else}
 					<RailWidgetRenderer widget={previewWidget} />

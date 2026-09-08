@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { lang } from '$lib/core/i18n';
 	import { ICON } from '../../iconSizes';
 	import Ripple from '$lib/ui/actions/ripple';
 	import { states } from '$lib/core/ha/entities';
@@ -18,13 +19,13 @@
 	const interactionMode = getHearthInteractionMode();
 	const preview = interactionMode === 'preview';
 
-	const statusLabels: Record<string, string> = {
-		docked: 'Docked',
-		cleaning: 'Cleaning',
-		returning: 'Returning to dock',
-		paused: 'Paused',
-		idle: 'Idle',
-		error: 'Error'
+	const statusKeys: Record<string, string> = {
+		docked: 'docked',
+		cleaning: 'cleaning',
+		returning: 'returning',
+		paused: 'paused',
+		idle: 'idle',
+		error: 'hearth_vacuum_needs_help'
 	};
 
 	let entity = $derived(card.entity ? $states?.[card.entity] : undefined);
@@ -40,7 +41,7 @@
 	let pending = $derived(card.entity !== undefined && $pendingEntities[card.entity] !== undefined);
 	let status = $derived(
 		[
-			statusLabels[entity?.state ?? ''] ?? 'Unavailable',
+			$lang(statusKeys[entity?.state ?? ''] ?? 'unavailable'),
 			...(battery !== null ? [`${Math.round(battery)}%`] : []),
 			...(bin !== null ? [`bin ${Math.round(bin)}%`] : [])
 		].join(' · ')
