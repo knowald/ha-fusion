@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { states, lang, ripple, entityList } from '$lib/Stores';
-	import Weather from '$lib/Sidebar/Weather.svelte';
+	import Weather from '$lib/legacy/Sidebar/Weather.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import type { WeatherItem } from '$lib/Types';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import { motion } from '$lib/Stores';
 	import { tick } from 'svelte';
 	import VirtualList from 'svelte-tiny-virtual-list';

@@ -8,7 +8,7 @@
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import Icon from '@iconify/svelte';
 	import { getName } from '$lib/Utils';
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 

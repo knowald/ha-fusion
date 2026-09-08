@@ -6,7 +6,7 @@
 	import { openModal } from '$lib/Modals';
 	import { generateId, getSelected } from '$lib/Utils';
 	import type { SidebarItem } from '$lib/Types';
-	import '$lib/Sidebar/Sidebar.css';
+	import '$lib/legacy/Sidebar/Sidebar.css';
 	import type { Component } from 'svelte';
 
 	let { altKeyPressed }: { altKeyPressed: boolean } = $props();
@@ -33,26 +33,31 @@
 	let WeatherForecast: Component<any> = $state(undefined as any);
 
 	const imports = {
-		bar: () => import('$lib/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),
-		camera: () => import('$lib/Sidebar/Camera.svelte').then((c) => (Camera = c.default)),
-		configure: () => import('$lib/Sidebar/Configure.svelte').then((c) => (Configure = c.default)),
-		date: () => import('$lib/Sidebar/Date.svelte').then((c) => (Date = c.default)),
-		divider: () => import('$lib/Sidebar/Divider.svelte').then((c) => (Divider = c.default)),
-		graph: () => import('$lib/Sidebar/Graph.svelte').then((c) => (Graph = c.default)),
-		history: () => import('$lib/Sidebar/History.svelte').then((c) => (History = c.default)),
-		iframe: () => import('$lib/Sidebar/Iframe.svelte').then((c) => (Iframe = c.default)),
-		image: () => import('$lib/Sidebar/Image.svelte').then((c) => (Image = c.default)),
-		navigate: () => import('$lib/Sidebar/Navigate.svelte').then((c) => (Navigate = c.default)),
+		bar: () => import('$lib/legacy/Sidebar/Bar.svelte').then((c) => (Bar = c.default)),
+		camera: () => import('$lib/legacy/Sidebar/Camera.svelte').then((c) => (Camera = c.default)),
+		configure: () =>
+			import('$lib/legacy/Sidebar/Configure.svelte').then((c) => (Configure = c.default)),
+		date: () => import('$lib/legacy/Sidebar/Date.svelte').then((c) => (Date = c.default)),
+		divider: () => import('$lib/legacy/Sidebar/Divider.svelte').then((c) => (Divider = c.default)),
+		graph: () => import('$lib/legacy/Sidebar/Graph.svelte').then((c) => (Graph = c.default)),
+		history: () => import('$lib/legacy/Sidebar/History.svelte').then((c) => (History = c.default)),
+		iframe: () => import('$lib/legacy/Sidebar/Iframe.svelte').then((c) => (Iframe = c.default)),
+		image: () => import('$lib/legacy/Sidebar/Image.svelte').then((c) => (Image = c.default)),
+		navigate: () =>
+			import('$lib/legacy/Sidebar/Navigate.svelte').then((c) => (Navigate = c.default)),
 		notifications: () =>
-			import('$lib/Sidebar/Notifications.svelte').then((c) => (Notifications = c.default)),
-		radial: () => import('$lib/Sidebar/Radial.svelte').then((c) => (Radial = c.default)),
-		sensor: () => import('$lib/Sidebar/Sensor.svelte').then((c) => (Sensor = c.default)),
-		template: () => import('$lib/Sidebar/Template.svelte').then((c) => (Template = c.default)),
-		time: () => import('$lib/Sidebar/Time.svelte').then((c) => (Time = c.default)),
-		timer: () => import('$lib/Sidebar/Timer.svelte').then((c) => (Timer = c.default)),
-		weather: () => import('$lib/Sidebar/Weather.svelte').then((c) => (Weather = c.default)),
+			import('$lib/legacy/Sidebar/Notifications.svelte').then((c) => (Notifications = c.default)),
+		radial: () => import('$lib/legacy/Sidebar/Radial.svelte').then((c) => (Radial = c.default)),
+		sensor: () => import('$lib/legacy/Sidebar/Sensor.svelte').then((c) => (Sensor = c.default)),
+		template: () =>
+			import('$lib/legacy/Sidebar/Template.svelte').then((c) => (Template = c.default)),
+		time: () => import('$lib/legacy/Sidebar/Time.svelte').then((c) => (Time = c.default)),
+		timer: () => import('$lib/legacy/Sidebar/Timer.svelte').then((c) => (Timer = c.default)),
+		weather: () => import('$lib/legacy/Sidebar/Weather.svelte').then((c) => (Weather = c.default)),
 		weather_forecast: () =>
-			import('$lib/Sidebar/WeatherForecast.svelte').then((c) => (WeatherForecast = c.default))
+			import('$lib/legacy/Sidebar/WeatherForecast.svelte').then(
+				(c) => (WeatherForecast = c.default)
+			)
 	};
 
 	$effect(() => {
@@ -365,7 +370,7 @@
 			{/each}
 		</section>
 
-		{#await import('$lib/Sidebar/Toast.svelte') then Toast}
+		{#await import('$lib/legacy/Sidebar/Toast.svelte') then Toast}
 			<Toast.default />
 		{/await}
 	{/if}

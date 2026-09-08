@@ -4,14 +4,14 @@
 	import { fade } from 'svelte/transition';
 	import { modals, closeModal } from '$lib/Modals';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import Language from '$lib/Settings/Language.svelte';
-	import Addons from '$lib/Settings/Addons.svelte';
-	import Motion from '$lib/Settings/Motion.svelte';
-	import Version from '$lib/Settings/Version.svelte';
-	import Token from '$lib/Settings/Token.svelte';
-	import CustomJs from '$lib/Settings/CustomJs.svelte';
-	import CustomCss from '$lib/Settings/CustomCss.svelte';
-	import Logout from '$lib/Settings/Logout.svelte';
+	import Language from '$lib/legacy/Settings/Language.svelte';
+	import Addons from '$lib/legacy/Settings/Addons.svelte';
+	import Motion from '$lib/legacy/Settings/Motion.svelte';
+	import Version from '$lib/legacy/Settings/Version.svelte';
+	import Token from '$lib/legacy/Settings/Token.svelte';
+	import CustomJs from '$lib/legacy/Settings/CustomJs.svelte';
+	import CustomCss from '$lib/legacy/Settings/CustomCss.svelte';
+	import Logout from '$lib/legacy/Settings/Logout.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
 	let {

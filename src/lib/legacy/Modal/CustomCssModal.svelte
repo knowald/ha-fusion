@@ -3,7 +3,7 @@
 	import { motion, lang } from '$lib/Stores';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
-	import CodeEditor from '$lib/Components/CodeEditor.svelte';
+	import CodeEditor from '$lib/ui/CodeEditor.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 
 	let { isOpen }: { isOpen: boolean } = $props();

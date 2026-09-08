@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { lang, ripple, motion, record, updateDashboard } from '$lib/Stores';
-	import Divider from '$lib/Sidebar/Divider.svelte';
+	import Divider from '$lib/legacy/Sidebar/Divider.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import type { SidebarItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';
 	import { updateObj } from '$lib/Utils';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { onDestroy } from 'svelte';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: SidebarItem } = $props();

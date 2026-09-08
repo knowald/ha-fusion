@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ComputeIcon from '$lib/Components/ComputeIcon.svelte';
+	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
 	import Configure from '$lib/legacy/Main/Configure.svelte';
 	import { ripple, editMode, states, motion, connection } from '$lib/Stores';
 	import { getName } from '$lib/Utils';

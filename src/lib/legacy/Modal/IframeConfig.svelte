@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple } from '$lib/Stores';
-	import Iframe from '$lib/Sidebar/Iframe.svelte';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import Iframe from '$lib/legacy/Sidebar/Iframe.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { IframeItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';

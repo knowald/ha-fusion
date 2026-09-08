@@ -2,7 +2,7 @@
 	import { states, lang, motion } from '$lib/Stores';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import Entities from '$lib/legacy/Main/Entities.svelte';
 	import { slide } from 'svelte/transition';
 

@@ -16,7 +16,7 @@
 	import Ripple from '$lib/Actions/ripple';
 	import ConditionalMedia from '$lib/legacy/Main/ConditionalMedia.svelte';
 	import { slide } from 'svelte/transition';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 
 	let {
 		isOpen,

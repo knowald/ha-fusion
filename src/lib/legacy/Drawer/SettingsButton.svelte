@@ -34,14 +34,14 @@
 		} catch (error) {
 			console.error(error);
 		}
-		openModal(() => import('$lib/Settings/Index.svelte'), { data, languages });
+		openModal(() => import('$lib/legacy/Settings/Index.svelte'), { data, languages });
 	}
 
 	/**
 	 * Preloads module before click event
 	 */
 	async function handlePointer() {
-		await import('$lib/Settings/Index.svelte');
+		await import('$lib/legacy/Settings/Index.svelte');
 	}
 </script>
 

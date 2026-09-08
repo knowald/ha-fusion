@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { states, barErrors, motion, lang, ripple, entityList } from '$lib/Stores';
 	import { slide } from 'svelte/transition';
-	import Bar from '$lib/Sidebar/Bar.svelte';
+	import Bar from '$lib/legacy/Sidebar/Bar.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import { getName } from '$lib/Utils';
 	import type { BarItem } from '$lib/Types';
 

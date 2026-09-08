@@ -11,7 +11,7 @@
 	} from '$lib/Stores';
 	import { onDestroy } from 'svelte';
 	import { modals } from '$lib/Modals';
-	import InputClear from '$lib/Components/InputClear.svelte';
+	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 
 	let input: HTMLInputElement;
 

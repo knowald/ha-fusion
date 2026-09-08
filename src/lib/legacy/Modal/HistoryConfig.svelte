@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, ripple, entityList } from '$lib/Stores';
-	import History from '$lib/Sidebar/History.svelte';
+	import History from '$lib/legacy/Sidebar/History.svelte';
 	import Select from '$lib/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { HistoryItem } from '$lib/Types';
