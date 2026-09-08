@@ -1,0 +1,51 @@
+# A hearth.yaml as written by the 2026.7 preview, before the format was
+# versioned: a separate overview, light and blind registries referenced by id,
+# per-room lighting and device grids, and the retired lights/blinds/air cards.
+city: Wroclaw
+weather_entity: weather.forecast_home
+lights:
+  - id: desk
+    name: Desk
+    entity: light.desk
+  - id: shelf
+    name: Shelf
+    entity: light.shelf
+blinds:
+  - id: office-blind
+    name: Office blind
+    entity: cover.office
+overview:
+  - id: air
+    type: air
+    pm25_entity: sensor.pm25
+    humidity_entity: sensor.humidity
+    filters:
+      - entity: fan.purifier
+        label: Purifier
+  - id: temp
+    type: temperature
+    entity: sensor.average_temperature
+rail:
+  - id: clock
+    type: clock
+    city: Wroclaw
+  - id: nav
+    type: nav
+rooms:
+  - id: office
+    name: Office
+    icon: desk
+    columns: 2
+    lights: [desk, shelf]
+    blinds: [office-blind]
+    devices:
+      - entity: switch.fan
+        name: Fan
+      - entity: sensor.co2
+        readonly: true
+    cards:
+      - id: office-lights
+        type: lights
+      - id: office-blinds
+        type: blinds
+        title: Shades

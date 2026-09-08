@@ -82,6 +82,7 @@
 		"sortablejs": "^1.15.7",
 		"svelte-modals": "2.0.1",
 		"svelte-tiny-virtual-list": "^3.0.1",
+		"valibot": "^1.4.2",
 		"weekstart": "^2.0.0",
 		"youtubei.js": "^17.2.0"
 	}

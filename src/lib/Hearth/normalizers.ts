@@ -100,15 +100,3 @@ export function reserveId(raw: unknown, fallback: string, taken: string[]): stri
 	taken.push(id);
 	return id;
 }
-
-/** Problems with a list of entity references, for descriptor issue checks. */
-export function entityRefIssues(value: unknown, path: string): string[] {
-	if (!Array.isArray(value)) return [`${path} must be a list`];
-	const issues: string[] = [];
-	value.forEach((entry, index) => {
-		if (!isRecord(entry) || typeof entry.entity !== 'string' || !entry.entity.trim()) {
-			issues.push(`${path}[${index}].entity must be a non-empty string`);
-		}
-	});
-	return issues;
-}
