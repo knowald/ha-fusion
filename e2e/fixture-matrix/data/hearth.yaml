@@ -1,0 +1,250 @@
+version: 4
+revision: 1
+day_night:
+  entity: sun.sun
+padding_x: 0
+padding_y: 0
+rail:
+  - id: clock
+    type: clock
+  - id: weather
+    type: weather
+    entity: weather.home
+  - id: nav
+    type: nav
+  - id: search
+    type: search
+  - id: label
+    type: label
+    text: Today
+    divider: true
+  - id: energy
+    type: energy
+    entity: sensor.energy
+    price_entity: sensor.price
+    currency: EUR
+  - id: progress
+    type: progress
+    name: 3D print
+    icon: print
+    status_entity: sensor.printer_status
+    progress_entity: sensor.printer_progress
+    remaining_entity: sensor.printer_remaining
+    unit: '%'
+    active_states:
+      - printing
+  - id: calendar
+    type: calendar
+    entities:
+      - calendar.family
+  - id: status
+    type: status
+    entity: binary_sensor.door
+    icon: door_front
+    text: Front door
+  - id: entity
+    type: entity
+    entity: sensor.humidity
+  - id: chart-line
+    type: chart
+    entity: sensor.temperature
+    style: line
+    period: day
+  - id: chart-history
+    type: chart
+    entity: binary_sensor.motion
+    style: history
+    period: day
+  - id: chart-bar
+    type: chart
+    entity: sensor.humidity
+    style: bar
+  - id: chart-radial
+    type: chart
+    entity: sensor.humidity
+    style: radial
+  - id: template
+    type: template
+    template: '{{ states("sensor.temperature") }}'
+  - id: timer
+    type: timer
+    entity: timer.laundry
+  - id: notifications
+    type: notifications
+  - id: iframe
+    type: iframe
+    url: about:blank
+    height: 120
+  - id: fusion
+    type: fusion
+    config:
+      type: sensor
+      entity_id: sensor.power
+  - id: spacer
+    type: spacer
+rooms:
+  - id: living
+    name: Living room
+    icon: weekend
+    temp_entity: sensor.temperature
+    humidity_entity: sensor.humidity
+    columns: 2
+    cards:
+      - - id: lights
+          type: entities
+          title: Lights
+          entities:
+            - entity: light.desk
+            - entity: light.shelf
+              slider_updates: release
+            - entity: light.strip
+            - entity: switch.fan
+            - entity: fan.bedroom
+            - entity: switch.heater
+        - id: covers
+          type: entities
+          title: Blinds
+          entities:
+            - entity: cover.blind
+            - entity: cover.garage
+        - id: readings
+          type: entities
+          title: Readings
+          style: stat
+          entities:
+            - entity: sensor.temperature
+            - entity: sensor.humidity
+            - entity: sensor.power
+            - entity: sensor.broken
+        - id: collapsed
+          type: entities
+          title: Everything else
+          collapsed: true
+          entities:
+            - entity: switch.heater
+            - entity: input_boolean.guest
+            - entity: binary_sensor.motion
+        - id: scenes
+          type: scenes
+          title: Scenes
+          style: bar
+          scenes:
+            - entity: scene.evening
+              name: Evening
+            - entity: scene.movie
+              name: Movie
+            - entity: scene.bright
+              name: Bright
+        - id: stack
+          kind: stack
+          title: Side by side
+          direction: horizontal
+          cards:
+            - id: stack-a
+              type: days_since
+              entity: input_datetime.filter_changed
+              title: Filter changed
+              icon: air
+            - id: stack-b
+              type: climate
+              entity: climate.living
+              title: Thermostat
+      - - id: header
+          type: header
+          title: Header card
+          subtitle: A page header as a card
+          icon: home
+          temp_entity: sensor.temperature
+          humidity_entity: sensor.humidity
+        - id: temperature
+          type: temperature
+          label: Inside
+          entity: sensor.temperature
+          climate_entity: climate.living
+          height: 220
+        - id: media
+          type: media
+          entity: media_player.living
+          height: 260
+          shortcuts:
+            - name: Focus
+              uri: spotify:playlist:1
+            - name: Jazz
+              uri: spotify:playlist:2
+        - id: vacuum
+          type: vacuum
+          entity: vacuum.robot
+          quick_action: true
+          battery_entity: sensor.humidity
+        - id: now-playing
+          type: conditional_media
+          media_players:
+            - media_player.living
+            - media_player.kitchen
+          height: 200
+        - id: camera
+          type: camera
+          entity: camera.front
+          title: Front camera
+        - id: image
+          type: image
+          entity: image.floorplan
+          title: Floor plan
+        - id: picture
+          type: picture
+          title: Picture card
+          height: 160
+          elements:
+            - className: Text
+              attrs:
+                text: Floor plan
+                x: 24
+                y: 24
+                fontSize: 20
+                fill: '#f4c879'
+        - id: fusion
+          type: fusion
+          config:
+            type: button
+            entity_id: light.desk
+            name: Fusion button
+  - id: devices
+    name: Devices
+    icon: devices
+    columns: 2
+    cards:
+      - - id: controls
+          type: entities
+          title: Controls
+          entities:
+            - entity: lock.front
+            - entity: climate.living
+            - entity: vacuum.robot
+            - entity: alarm_control_panel.home
+            - entity: input_select.mode
+            - entity: input_number.volume
+            - entity: input_text.note
+            - entity: input_datetime.filter_changed
+            - entity: timer.laundry
+            - entity: counter.visits
+            - entity: update.core
+            - entity: humidifier.bedroom
+      - - id: more
+          type: entities
+          title: More
+          entities:
+            - entity: water_heater.tank
+            - entity: valve.main
+            - entity: lawn_mower.robo
+            - entity: script.goodnight
+            - entity: automation.morning
+            - entity: scene.evening
+            - entity: button.restart
+            - entity: input_button.ping
+            - entity: input_boolean.guest
+            - entity: camera.front
+            - entity: image.floorplan
+            - entity: person.kevin
+            - entity: device_tracker.phone
+            - entity: binary_sensor.door
+            - entity: media_player.kitchen
