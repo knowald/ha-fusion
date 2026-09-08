@@ -43,6 +43,26 @@ function lineOf(source, index) {
 
 const failures = [];
 
+// removes every var(...) and calc(...) call, including nested fallbacks,
+// which a single regex cannot balance
+function withoutFunctions(value) {
+	let out = '';
+	let depth = 0;
+	for (let i = 0; i < value.length; i += 1) {
+		if (depth === 0) {
+			const call = /^(var|calc)\(/.exec(value.slice(i));
+			if (call) {
+				depth = 1;
+				i += call[0].length - 1;
+				continue;
+			}
+			out += value[i];
+		} else if (value[i] === '(') depth += 1;
+		else if (value[i] === ')') depth -= 1;
+	}
+	return out;
+}
+
 function check(file, source, block) {
 	// one declaration per match: `property: value;` possibly spanning lines
 	for (const declaration of block.text.matchAll(/([a-z-]+)\s*:\s*([^;{}]+);/g)) {
@@ -65,8 +85,7 @@ function check(file, source, block) {
 			fail('font size off the type scale; use var(--h-type-*)');
 		}
 		if (property === 'border-radius') {
-			const bare = value
-				.replace(/var\([^)]+\)/g, '')
+			const bare = withoutFunctions(value)
 				.replace(/50%|inherit|0/g, '')
 				.trim();
 			if (bare) fail('radius literal; use a --h-radius-* token');

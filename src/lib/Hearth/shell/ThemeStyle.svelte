@@ -58,5 +58,6 @@
 </script>
 
 <svelte:head>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- generated from theme tokens, never user text -->
 	{@html `<style>${rootCss}</style>`}
 </svelte:head>

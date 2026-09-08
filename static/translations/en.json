@@ -1042,5 +1042,9 @@
 	"hearth_n_suggestions": "{count} suggestions",
 	"hearth_n_songs": "{count} songs",
 	"hearth_entity_offline": "{name} offline",
-	"hearth_could_not_load_file": "The current file could not be loaded, so saving is off."
+	"hearth_could_not_load_file": "The current file could not be loaded, so saving is off.",
+	"hearth_could_not_load_component": "This part could not be loaded.",
+	"hearth_exit_edit_mode": "Exit edit mode",
+	"hearth_lock_confirm_message": "Lock {label}?",
+	"hearth_unlock_confirm_message": "Unlock {label}?"
 }

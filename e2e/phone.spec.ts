@@ -34,6 +34,7 @@ test('a light popup opens as a bottom sheet and the card sheet leads with its fi
 	await expect(toggle).toBeVisible();
 	const sheetBox = (await page.locator('.sheet').first().boundingBox())!;
 	expect(Math.round(sheetBox.x + sheetBox.width)).toBe(390);
+	expect(Math.round(sheetBox.y + sheetBox.height)).toBe(844);
 	await page.keyboard.press('Escape');
 
 	await page.getByRole('button', { name: 'Edit Hearth configuration' }).click();

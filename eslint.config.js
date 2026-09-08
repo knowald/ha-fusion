@@ -37,6 +37,11 @@ export default tseslint.config(
 		ignores: ['build/', '.svelte-kit/', 'dist/', 'test-results/', 'playwright-report/']
 	},
 	{
+		// the original dashboard renders raw HTML in many places; it goes with legacy
+		files: ['src/lib/legacy/**'],
+		rules: { 'svelte/no-at-html-tags': 'off' }
+	},
+	{
 		// user-facing copy in the rework layers goes through $lang()
 		files: [
 			'src/lib/Hearth/**/*.svelte',
@@ -58,7 +63,6 @@ export default tseslint.config(
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
-			'svelte/no-at-html-tags': 'off',
 			// false positive on `prop = $bindable()` destructuring, core rule doesn't understand runes
 			'no-useless-assignment': 'off'
 		}

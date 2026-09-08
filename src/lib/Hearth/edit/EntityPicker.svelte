@@ -76,6 +76,7 @@
 			<span
 				class="icon-button"
 				onclick={onclose}
+				aria-label={$lang('hearth_close')}
 				role="button"
 				tabindex="0"
 				onkeydown={(event) => activateOnKeyboard(event, onclose)}

@@ -226,7 +226,7 @@
 
 	.artist {
 		font-size: var(--h-type-secondary);
-		color: var(--h-on-art-1);
+		color: var(--h-on-art-2);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

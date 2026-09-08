@@ -15,7 +15,7 @@
 	// while showing, the screensaver is the top layer: Escape dismisses it
 	// instead of whatever sheet it covers
 	$effect(() => {
-		if (active) return pushLayer(() => (active = false));
+		if (active) return pushLayer(hide);
 	});
 	let overlay: HTMLElement | undefined = $state();
 
@@ -37,13 +37,18 @@
 		scheduleIdle();
 	}
 
+	// an idle stamp older than the timeout would rearm the screensaver at once
+	function hide() {
+		lastActivity = Date.now();
+		active = false;
+		scheduleIdle();
+	}
+
 	function dismiss(event: Event) {
 		// swallow so the wake tap/keypress never reaches the dashboard
 		event.preventDefault();
 		event.stopPropagation();
-		lastActivity = Date.now();
-		active = false;
-		scheduleIdle();
+		hide();
 	}
 
 	$effect(() => {

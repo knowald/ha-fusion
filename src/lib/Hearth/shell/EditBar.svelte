@@ -90,7 +90,7 @@
 		{/if}
 		<button
 			type="button"
-			class="bar-icon pressable"
+			class="bar-icon setup pressable"
 			aria-label={$lang('hearth_setup')}
 			onclick={onsetup}
 		>

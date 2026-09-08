@@ -152,7 +152,7 @@
 	title={$lang(id !== null ? 'hearth_edit_card' : 'hearth_add_card')}
 	onclose={close}
 	ondone={done}
-	doneDisabled={draft.valid === false}
+	doneDisabled={typeOpen || draft.valid === false}
 	onremove={id !== null ? remove : undefined}
 	wide
 >
@@ -175,6 +175,8 @@
 						initial={editorInitial}
 						onchange={(next) => (draft = next)}
 					/>
+				{:catch}
+					<div class="field-error">{$lang('hearth_could_not_load_component')}</div>
 				{/await}
 			{/key}
 

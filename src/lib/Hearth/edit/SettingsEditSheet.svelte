@@ -163,13 +163,14 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_decrease')}
+								aria-label={`${$lang('hearth_decrease')} ${$lang('hearth_side_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_x', String(paddingX - 4))}
 							>
 								<Icon name="remove" size={ICON.inline} />
 							</button>
 							<input
 								type="number"
+								aria-label={$lang('hearth_side_padding')}
 								min="0"
 								max="300"
 								value={paddingX}
@@ -178,7 +179,7 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_increase')}
+								aria-label={`${$lang('hearth_increase')} ${$lang('hearth_side_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_x', String(paddingX + 4))}
 							>
 								<Icon name="add" size={ICON.inline} />
@@ -196,13 +197,14 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_decrease')}
+								aria-label={`${$lang('hearth_decrease')} ${$lang('hearth_top_bottom_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_y', String(paddingY - 4))}
 							>
 								<Icon name="remove" size={ICON.inline} />
 							</button>
 							<input
 								type="number"
+								aria-label={$lang('hearth_top_bottom_padding')}
 								min="0"
 								max="300"
 								value={paddingY}
@@ -211,7 +213,7 @@
 							<button
 								type="button"
 								class="step"
-								aria-label={$lang('hearth_increase')}
+								aria-label={`${$lang('hearth_increase')} ${$lang('hearth_top_bottom_padding').toLowerCase()}`}
 								onclick={() => setPadding('padding_y', String(paddingY + 4))}
 							>
 								<Icon name="add" size={ICON.inline} />

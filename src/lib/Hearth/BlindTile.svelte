@@ -110,7 +110,7 @@
 					? 'var(--h-accent-dim-text)'
 					: 'var(--h-icon-dim)'}
 		/>
-		<div>
+		<div class="copy">
 			<div class="name">{label}</div>
 			<div class="state" class:open>{stateText}</div>
 		</div>
@@ -188,6 +188,10 @@
 		display: flex;
 		align-items: center;
 		gap: 14px;
+		min-width: 0;
+	}
+
+	.copy {
 		min-width: 0;
 	}
 

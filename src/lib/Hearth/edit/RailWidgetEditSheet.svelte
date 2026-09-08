@@ -89,7 +89,7 @@
 	title={$lang(index !== null ? 'hearth_edit_widget' : 'hearth_add_widget')}
 	onclose={close}
 	ondone={done}
-	doneDisabled={draft.valid === false}
+	doneDisabled={typeOpen || draft.valid === false}
 	onremove={index !== null ? remove : undefined}
 	wide
 >
@@ -112,6 +112,8 @@
 				{#if descriptor.editor}
 					{#await descriptor.editor() then Editor}
 						<Editor.default initial={editorInitial} onchange={(next) => (draft = next)} />
+					{:catch}
+						<div class="field-error">{$lang('hearth_could_not_load_component')}</div>
 					{/await}
 				{/if}
 			{/key}

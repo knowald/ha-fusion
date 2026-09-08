@@ -30,10 +30,10 @@ function styleText(source, file) {
 const FAMILIES = {
 	colour: /(#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\))/g,
 	'font-size': /font-size:\s*([0-9.]+(?:px|rem|em))/g,
-	spacing: /(?:padding|margin|gap|inset|top|right|bottom|left)[a-z-]*:\s*([^;]+);/g,
-	radius: /border-radius:\s*([^;]+);/g,
+	spacing: /(?:padding|margin|gap|inset|top|right|bottom|left)[a-z-]*:\s*([^;}]+)[;}]/g,
+	radius: /border-radius:\s*([^;}]+)[;}]/g,
 	'z-index': /z-index:\s*(-?\d+)/g,
-	transition: /(?:transition|animation)[a-z-]*:\s*([^;]+);/g
+	transition: /(?:transition|animation)[a-z-]*:\s*([^;}]+)[;}]/g
 };
 
 const found = Object.fromEntries(Object.keys(FAMILIES).map((key) => [key, new Map()]));

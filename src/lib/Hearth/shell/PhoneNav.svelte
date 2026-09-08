@@ -11,7 +11,9 @@
 	 */
 	let { onsearch }: { onsearch: () => void } = $props();
 
-	let hasSearch = $derived($hearthConfig.rail.some((widget) => widget.type === 'search'));
+	let hasSearch = $derived(
+		$hearthConfig.rail.some((widget) => widget.type === 'search' && widget.hide_mobile !== true)
+	);
 </script>
 
 <nav class="phone-nav" aria-label={$lang('hearth_pages')}>

@@ -5,7 +5,7 @@
 	import { connected } from '$lib/core/ha/connection';
 	import { commandFailure, dismissCommandFailure } from '$lib/core/ha/commands';
 	import { lang } from '$lib/core/i18n';
-	import { hearthLoadError, saveState } from '../store';
+	import { hearthEditMode, hearthLoadError, saveState } from '../store';
 	import Icon from '../Icon.svelte';
 
 	/** How far the current fill-screen page overflows while editing, in px. */
@@ -48,7 +48,12 @@
 	</div>
 {/if}
 {#if $commandFailure}
-	<div class="command-error" role="alert" transition:fade={{ duration: $motion ? 250 : 0 }}>
+	<div
+		class="command-error"
+		class:editing={$hearthEditMode}
+		role="alert"
+		transition:fade={{ duration: $motion ? 250 : 0 }}
+	>
 		<Icon name="error" size={ICON.control} />
 		<div>
 			<strong>{$lang('hearth_command_failed')}</strong>
@@ -209,5 +214,9 @@
 		font-size: var(--h-type-body);
 		font-weight: 600;
 		box-shadow: 0 20px 60px var(--h-scrim);
+	}
+	/* the edit bar sits along the bottom while editing; the toast moves above it */
+	.command-error.editing {
+		bottom: calc(104px + var(--h-pad-y)); /* literal ok: edit bar height plus its gap */
 	}
 </style>

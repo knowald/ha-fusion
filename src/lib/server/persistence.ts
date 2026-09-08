@@ -144,6 +144,7 @@ export async function saveYamlDocument(request: SaveRequest): Promise<SaveResult
 			return { conflict: true as const, revision };
 		}
 		const head: Record<string, unknown> = { revision: revision + 1, ...(request.head ?? {}) };
+		head.revision = revision + 1;
 		const body = { ...request.body };
 		for (const key of Object.keys(head)) delete body[key];
 		const data = yaml.dump({ ...head, ...body });

@@ -80,7 +80,9 @@
 			const verb = $lang(unlocking ? 'hearth_unlock' : 'hearth_lock');
 			requestConfirmation({
 				title: $lang(unlocking ? 'hearth_unlock_door_question' : 'hearth_lock_door_question'),
-				message: `${verb} ${label}?`,
+				message: $lang(
+					unlocking ? 'hearth_unlock_confirm_message' : 'hearth_lock_confirm_message'
+				).replace('{label}', label),
 				confirmLabel: verb,
 				action: () => toggleEntity(entity)
 			});
