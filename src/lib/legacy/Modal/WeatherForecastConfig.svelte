@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, lang, ripple, entityList, updateDashboard } from '$lib/Stores';
 	import WeatherForecast from '$lib/legacy/Sidebar/WeatherForecast.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import { getSupport, updateObj } from '$lib/Utils';
 	import Ripple from '$lib/Actions/ripple';

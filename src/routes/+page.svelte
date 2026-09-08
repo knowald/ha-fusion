@@ -21,7 +21,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { modals } from '$lib/Modals';
-	import Theme from '$lib/Components/Theme.svelte';
+	import Theme from '$lib/legacy/Components/Theme.svelte';
 
 	/**
 	 * Data from server-side load

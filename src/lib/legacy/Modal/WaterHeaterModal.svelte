@@ -4,10 +4,10 @@
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import Ripple from '$lib/Actions/ripple';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 

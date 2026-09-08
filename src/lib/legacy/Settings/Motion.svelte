@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, motion } from '$lib/Stores';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 
 	let checked = $state($motion === 190);
 

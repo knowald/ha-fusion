@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, lang } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 

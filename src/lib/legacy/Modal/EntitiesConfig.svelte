@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { states, lang, motion } from '$lib/Stores';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import InputClear from '$lib/legacy/Components/InputClear.svelte';
 	import Entities from '$lib/legacy/Main/Entities.svelte';

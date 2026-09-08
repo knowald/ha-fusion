@@ -1,12 +1,12 @@
 <script lang="ts">
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { connection, lang, selectedLanguage, states, ripple } from '$lib/Stores';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
-	import Select from '$lib/Components/Select.svelte';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 
 	let { isOpen, selected }: { isOpen: boolean; selected: any } = $props();

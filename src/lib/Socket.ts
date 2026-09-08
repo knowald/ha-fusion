@@ -22,7 +22,8 @@ import {
 	event,
 	persistentNotifications
 } from '$lib/Stores';
-import { openModal, closeModal } from '$lib/Modals';
+import { closeModal } from '$lib/Modals';
+import { openTokenPrompt } from '$lib/legacy/bridge/tokenPrompt';
 import type { Configuration, PersistentNotification } from '$lib/Types';
 
 const options = {
@@ -76,7 +77,7 @@ export async function authentication(configuration: Configuration) {
 		} else if (navigator.userAgent.includes('Home Assistant')) {
 			if (!tokenPromptOpen) {
 				tokenPromptOpen = true;
-				openModal(() => import('$lib/Components/TokenModal.svelte'));
+				openTokenPrompt();
 			}
 			connected.set(false);
 			// This is not a successful authentication: callers must retain their

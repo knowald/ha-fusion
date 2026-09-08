@@ -7,7 +7,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
 	import Icon from '@iconify/svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';

@@ -72,13 +72,12 @@
 	use:Ripple={interactive ? PRESS_RIPPLE : { color: 'transparent' }}
 	onclick={() => $hearthEditMode && onedit?.()}
 	onkeydown={(event) =>
-		activateOnKeyboard(event, () =>
-			$hearthEditMode
-				? onedit?.()
-				: event.shiftKey && available && !readonly
-					? popup.set({ kind: 'light', entity, name: label, sliderUpdates })
-					: toggleLight(entity)
-		)}
+		activateOnKeyboard(event, () => {
+			if ($hearthEditMode) onedit?.();
+			else if (readonly || !available) return;
+			else if (event.shiftKey) popup.set({ kind: 'light', entity, name: label, sliderUpdates });
+			else toggleLight(entity);
+		})}
 	use:horizontalDrag={{
 		set: (value, commit) => setLightLevel(entity, value, commit),
 		updateMode: sliderUpdates,

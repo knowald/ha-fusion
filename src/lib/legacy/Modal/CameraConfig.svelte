@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { states, dashboard, lang, ripple, entityList } from '$lib/Stores';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import Camera from '$lib/legacy/Main/Camera.svelte';

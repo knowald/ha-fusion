@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { states, lang, connection } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import WheelPicker from '$lib/Components/WheelPicker.svelte';
+	import WheelPicker from '$lib/legacy/Components/WheelPicker.svelte';
 	import Icon from '@iconify/svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 

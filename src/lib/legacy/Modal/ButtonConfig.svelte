@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, lang, ripple, templates, entityList, updateDashboard } from '$lib/Stores';
 	import Button from '$lib/legacy/Main/Button.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';

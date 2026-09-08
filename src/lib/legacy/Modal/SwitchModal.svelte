@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, connection, lang } from '$lib/Stores';
 	import { callService } from 'home-assistant-js-websocket';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import { getName } from '$lib/Utils';

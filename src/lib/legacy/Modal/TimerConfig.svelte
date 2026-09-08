@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { lang, ripple, entityList } from '$lib/Stores';
 	import Timer from '$lib/legacy/Sidebar/Timer.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import type { TimerItem } from '$lib/Types';
 	import Ripple from '$lib/Actions/ripple';

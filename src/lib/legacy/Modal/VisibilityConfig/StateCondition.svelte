@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { lang, entityList } from '$lib/Stores';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import type { Condition } from '$lib/Types';
 
 	let { item, items = $bindable() }: { item: Condition; items: Condition[] } = $props();

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { states, lang, connection, selectedLanguage } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName } from '$lib/Utils';
 	import { callService } from 'home-assistant-js-websocket';
-	import RangeSlider from '$lib/Components/RangeSlider.svelte';
-	import Select from '$lib/Components/Select.svelte';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import RangeSlider from '$lib/legacy/Components/RangeSlider.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 
 	let { isOpen, sel }: { isOpen: boolean; sel: any } = $props();
 

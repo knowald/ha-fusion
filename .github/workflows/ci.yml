@@ -31,6 +31,9 @@ jobs:
       - name: Type check
         run: pnpm check
 
+      - name: Import boundary check
+        run: pnpm check:boundaries
+
       - name: Hearth accessibility check
         run: pnpm check:hearth-a11y
 
@@ -42,3 +45,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Bundle budget
+        run: pnpm check:bundle
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Browser smoke test
+        run: pnpm test:e2e

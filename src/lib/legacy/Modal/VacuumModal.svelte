@@ -3,7 +3,7 @@
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import { getName, getSupport } from '$lib/Utils';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import { callService } from 'home-assistant-js-websocket';
 	import Ripple from '$lib/Actions/ripple';
 	import Icon from '@iconify/svelte';

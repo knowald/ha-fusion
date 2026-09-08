@@ -2,15 +2,15 @@
 	import { states, selectedLanguage, lang, ripple, connection } from '$lib/Stores';
 	import Modal from '$lib/legacy/Modal/Index.svelte';
 	import LightSlider from '$lib/legacy/Components/LightSlider.svelte';
-	import WhiteSlider from '$lib/Components/WhiteSlider.svelte';
+	import WhiteSlider from '$lib/legacy/Components/WhiteSlider.svelte';
 	import ColorPicker from '$lib/legacy/Components/ColorPicker.svelte';
 	import ConfigButtons from '$lib/legacy/Modal/ConfigButtons.svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import { getName } from '$lib/Utils';
 	import { callService, type HassEntity } from 'home-assistant-js-websocket';
-	import Toggle from '$lib/Components/Toggle.svelte';
+	import Toggle from '$lib/legacy/Components/Toggle.svelte';
 	import { onMount } from 'svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 
 	let { isOpen, sel = $bindable() }: { isOpen: boolean; sel: any } = $props();
 

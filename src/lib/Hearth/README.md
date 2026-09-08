@@ -23,7 +23,7 @@ What this means in practice:
 ## Enabling it
 
 Set `hearth: true` in `data/configuration.yaml`. That adds a Hearth button to
-the original dashboard's drawer (`src/lib/Drawer/Index.svelte`). The route is
+the original dashboard's drawer (`src/lib/legacy/Drawer/Index.svelte`). The route is
 served at `/hearth` regardless of the flag.
 
 On first load with no `data/hearth.yaml`, the setup wizard opens automatically
@@ -87,6 +87,15 @@ mean the same thing; Home Assistant calls it an area.
 `fusion` embeds a component from the original dashboard, which is how features
 that have not been ported natively stay reachable.
 
+## Boundaries
+
+The original dashboard lives under `src/lib/legacy`. Hearth may import from it
+only through `src/lib/legacy/bridge`, one module per legacy capability still in
+use (embeds, entity modals, the picture elements editor, the camera player, the
+token prompt). `scripts/check-boundaries.mjs` enforces this in CI, along with
+the layer order `routes -> hearth -> ui -> core`. Retiring a legacy feature
+means deleting its bridge module.
+
 ## Adding a card type
 
 There is no single registration point yet. `OVERVIEW_CARD_TYPES` in `config.ts`
@@ -130,7 +139,15 @@ Rail widgets follow a parallel but not identical path through
 
 ## Tests
 
-`npm run test` (vitest). The covered modules are the pure ones: `config`,
+`npm run test` (vitest, jsdom, with coverage). Pure modules (`config`,
 `store`, `drag`, `refresh`, `registry`, `visibility`, `clock`,
-`configurationState`, `fusionFields`, `socket` and the type registries.
-Components are not covered.
+`configurationState`, `fusionFields`, `socket`, the type registries) have unit
+tests. Components have render tests through `@testing-library/svelte`, named
+`*.svelte.test.ts` next to the component; `testing.ts` holds the entity
+fixture helper. `vitest.config.ts` carries a coverage floor for `Hearth`, `ui`
+and `core` that only moves up.
+
+`npm run test:e2e` (Playwright, Chromium) boots the production build from
+`e2e/fixture` against the scripted Home Assistant in `e2e/fake-hass.mjs` and
+drives the touch surfaces: tap, brightness drag, cancelled drag, long press.
+Run `npm run build` first.

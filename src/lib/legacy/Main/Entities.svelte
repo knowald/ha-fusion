@@ -3,7 +3,7 @@
 	import { openModal } from '$lib/Modals';
 	import { getName } from '$lib/Utils';
 	import ComputeIcon from '$lib/legacy/Components/ComputeIcon.svelte';
-	import StateLogic from '$lib/Components/StateLogic.svelte';
+	import StateLogic from '$lib/ui/StateLogic.svelte';
 	import Ripple from '$lib/Actions/ripple';
 
 	let {

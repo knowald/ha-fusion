@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
-	import { tick } from 'svelte';
-	import { loadIcons } from '@iconify/svelte';
 	import Ripple from '$lib/Actions/ripple';
 	import {
 		ensureRoomCardColumns,
@@ -23,8 +21,7 @@
 		type VisibilityCondition
 	} from '../config';
 	import { editor, hearthConfig, updateConfig } from '../store';
-	import { openModal } from '$lib/Modals';
-	import { icons as pictureElementsIcons } from '$lib/legacy/Modal/PictureElements/icons';
+	import { editPictureElements } from '$lib/legacy/bridge/pictureElements';
 	import CardPreview from './CardPreview.svelte';
 	import EditSheet from './EditSheet.svelte';
 	import EntityField from './EntityField.svelte';
@@ -254,23 +251,10 @@
 	 * done()/updateConfig() path.
 	 */
 	async function openElementsEditor() {
-		const sel = {
-			id: initial?.id ?? 'hearth-fusion',
-			elements: $state.snapshot(fusionOptions).elements ?? []
-		};
-
-		const [{ default: PictureElementsConfig }] = await Promise.all([
-			import('$lib/legacy/Modal/PictureElements/PictureElementsConfig.svelte'),
-			loadIcons(Object.values(pictureElementsIcons))
-		]);
-
-		await openModal(PictureElementsConfig, { sel });
-		// PictureElementsConfig writes sel.elements from its onDestroy, which
-		// runs as part of the Svelte reactivity flush triggered by the modal
-		// stack closing - wait for that flush before reading sel back.
-		await tick();
-
-		fusionOptions.elements = sel.elements;
+		fusionOptions.elements = await editPictureElements(
+			initial?.id ?? 'hearth-fusion',
+			$state.snapshot(fusionOptions).elements ?? []
+		);
 		if (advancedOpen) resetAdvancedYaml();
 	}
 

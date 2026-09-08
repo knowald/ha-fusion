@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { translation, selectedLanguage, lang } from '$lib/Stores';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 
 	let { languages }: { languages: { id: string; label: string }[] } = $props();
 

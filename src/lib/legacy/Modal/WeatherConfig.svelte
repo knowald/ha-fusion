@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { states, lang, ripple, entityList } from '$lib/Stores';
 	import Weather from '$lib/legacy/Sidebar/Weather.svelte';
-	import Select from '$lib/Components/Select.svelte';
+	import Select from '$lib/legacy/Components/Select.svelte';
 	import ConfigModal from '$lib/legacy/Modal/ConfigModal.svelte';
 	import Icon from '@iconify/svelte';
 	import InputClear from '$lib/legacy/Components/InputClear.svelte';
