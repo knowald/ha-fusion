@@ -1,62 +1,15 @@
 # Changelog
 
-## [2026.8.2](https://github.com/knowald/ha-fusion/releases/tag/2026.8.2) - 2026-08-16
-
-### Fixed
-
-- Hearth: keep two tile tracks alive on padded two-column pages, the tile minimum width dropped from 190px to 160px so screen edge padding no longer folds entity grids into a single column (9a7c3b6)
-- Hearth: page columns fold at 560px of page width instead of 660px, restoring two-column layouts on tablets with wide screen padding (9a7c3b6)
-
 ## [2026.8.1](https://github.com/knowald/ha-fusion/releases/tag/2026.8.1) - 2026-08-16
-
-### Added
-
-- Hearth: tap a numeric sensor tile or stat readout to open a 24 h history popup with low/high and current value (bfeafba)
-- Hearth: sensor card thermostat option, a climate entity adds a target readout, plus/minus controls and a dashed target line on the chart (bfeafba)
-- Hearth: air quality verdicts (GOOD / FAIR / POOR) with banded tracks on CO2, PM2.5 and humidity readouts, custom thresholds via `verdict: { good, fair, max }` (bfeafba)
-- Hearth: group actions on section headers, All off for lights and Open all / Close all for covers, hidden with `group_actions: false` (bfeafba, f8ba778)
-- Hearth: card options `tune_button` (restore the per-tile controls glyph), `quick_action` (one-tap Clean/Stop on the vacuum row) and a per-card verdict opt-out (f8ba778)
 
 ### Changed
 
-- Hearth: tiles open their control popup on long-press or Shift+Enter, the per-tile glyph is gone by default (bfeafba, f8ba778)
-- Hearth: offline tiles render dashed and muted instead of red, blinds joined the warm palette and show their position (bfeafba)
-- Hearth: sensor charts draw an area fill, an end dot and a 24 h low/high footer (bfeafba)
-- Hearth: the media card transport is a 52 px button with amber progress, the vacuum card is a summary row with battery and bin levels (bfeafba)
-- Hearth: readout tiles whose modal only echoed the state are no longer interactive (bfeafba)
-- Hearth: an unconfigured rail status widget reports offline dashboard entities instead of a static pill, and the edit toggle is a labeled row (bfeafba)
 - Bump TypeScript to 6.0 and JS and CI dependencies (4d57ac2, 6f1f11b, bc0d049, 2ce056d, 8bf3a87, fbf1dae, 679f46d, 96189d9, c8531d9)
 
 ### Fixed
 
-- Hearth: fill-screen pages size their columns to the screen, filling cards start at their content height, and the column collapse follows the page width instead of a viewport breakpoint (bfeafba, f8ba778)
-- Hearth: keep the rail weather widget on one row (2430ce1)
 - Restore cross-container dashboard dragging and give alt-cloned sections fresh descendant ids (e657e8b, f8ba778)
 - Declare the fontsource side-effect imports so svelte-check passes under TypeScript 6 (5839ec8, 82fb9c2)
-
-## [2026.8.0](https://github.com/knowald/ha-fusion/releases/tag/2026.8.0) - 2026-08-04
-
-### Added
-
-- Hearth: light themes and a day/night switch driven by a Home Assistant entity (db260bb)
-- Hearth: image card for floor maps and stills, cleaning modes in the vacuum popover, live interactive card previews in the editor (14302be, d81ae86, e855479, 85dc63e)
-- Hearth: wildcard entity cards, discovered glanceable suggestions in the setup wizard, and fusion embed form fields (05a9acf, 77e70c0, 1cefdf1)
-- Hearth: search as an optional rail widget with keyboard controls, full material symbols search in the icon picker, entity card reordering (64cb617, fa994fd, a947e8b)
-- Hearth: release-only slider update mode, confirmations for disruptive device actions, first-run setup instead of a personal fallback (928abc9, dfd30e4, 9a4b525)
-- Hearth: wall display controls, screensaver drift and brightness, clock timezone (9fc618a, 90da2fb)
-
-### Changed
-
-- Hearth: cache recorder history across pages and release long-lived resources on navigation (5de42f8, 56081d0)
-- Hearth: unify component taxonomy, editor save models, refresh plumbing and optimistic control state internally (a06151d, ff313de, db19167, cde366a, 44a1e2f, 9192869, 0af33c7)
-
-### Fixed
-
-- Hearth: serialize and atomically persist config saves, preserve edits on save conflict, surface unreadable configuration, validate shapes and repair duplicate ids, keep unknown extension keys (7defe86, 9d5f7a4, 06f575d, 66f081e, 09e4ecc)
-- Hearth: honor base paths for APIs and the manifest, retain authentication retries, keep unrelated service workers alive, bundle fonts and symbols locally (78a0a11, 7eadada, eac0609, 3856114)
-- Hearth: surface device command and wake lock failures, distinguish unreachable entity states and boot from disconnect (195c278, b249c0c, af2f6e6, a719e03)
-- Hearth: strengthen tile state legibility, harden secondary touch targets, render discrete taps optimistically, clean up cancelled drag gestures (4339219, e65d8fc, a0c9be7, 5d329ae)
-- Hearth: prioritize page content on tablets, keep overflow controls reachable, make the rail clock locale-aware, localize primary controls (7bfbfee, 478a2f4, 6f038b5, 44e7569)
 
 ## [2026.7.4](https://github.com/knowald/ha-fusion/releases/tag/2026.7.4) - 2026-07-27
 
@@ -72,10 +25,6 @@
 - Repair the multi-arch Docker image build by compiling the web bundle on the build platform, 32-bit node segfaulted under emulation (2a82569)
 
 ## [2026.7.2](https://github.com/knowald/ha-fusion/releases/tag/2026.7.2) - 2026-07-26
-
-### Added
-
-- Add an early preview of the Hearth dashboard, opt in by setting `hearth: true` in `configuration.yaml` to get a drawer button that opens it (11714cc)
 
 ### Changed
 

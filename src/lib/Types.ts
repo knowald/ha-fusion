@@ -12,7 +12,6 @@ export interface Configuration {
 	motion?: boolean;
 	addons?: Addons;
 	token?: string;
-	hearth?: boolean;
 }
 
 export interface Addons {
