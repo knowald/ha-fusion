@@ -97,6 +97,38 @@ These work when a port is exposed via the add-on config or Docker. They are unav
 - `?view=Bedroom` - load a specific view by name on page load.
 - `?menu=false` - hide the menu button. Useful for wall-mounted tablets where you want to prevent edits.
 
+### Events
+
+Fire an `HA_FUSION` event from an automation to act on open dashboards. `close_popup` closes the open popup, `refresh` reloads the page:
+
+```yaml
+- event: HA_FUSION
+  event_data:
+    event: refresh
+```
+
+Subscribing to custom events like `HA_FUSION` requires an admin user. To reach dashboards logged in as a non-admin user (e.g. a wall tablet), set `event_entity` in `configuration.yaml` to a helper such as an `input_text`. Every dashboard, admin or not, follows it: setting its state to `close_popup` or `refresh` does the same as the event. Clear it afterwards, a state that doesn't change doesn't trigger anything:
+
+```yaml
+# configuration.yaml
+event_entity: input_text.ha_fusion_event
+```
+
+```yaml
+- action: input_text.set_value
+  target:
+    entity_id: input_text.ha_fusion_event
+  data:
+    value: refresh
+- action: input_text.set_value
+  target:
+    entity_id: input_text.ha_fusion_event
+  data:
+    value: ''
+```
+
+Use one channel per command: an automation that fires `HA_FUSION` and also sets the helper runs the command twice on admin dashboards. That is harmless for `close_popup` and `refresh`.
+
 ### Keyboard shortcuts
 
 | Key                 | Action |

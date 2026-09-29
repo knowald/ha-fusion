@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Non-admin users no longer get an `Unauthorized` error on every connect: the admin-only `HA_FUSION` event subscription is skipped for them, and the new `event_entity` option lets every dashboard, admin or not, receive `close_popup` and `refresh` through an entity's state
+
 ## [2026.8.1](https://github.com/knowald/ha-fusion/releases/tag/2026.8.1) - 2026-08-16
 
 ### Changed

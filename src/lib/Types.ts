@@ -12,6 +12,7 @@ export interface Configuration {
 	motion?: boolean;
 	addons?: Addons;
 	token?: string;
+	event_entity?: string;
 }
 
 export interface Addons {

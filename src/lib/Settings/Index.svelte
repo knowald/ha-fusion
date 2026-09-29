@@ -72,6 +72,8 @@
 
 			if (Object.keys(addons).length > 0) json.addons = addons;
 			if (custom_js) json.custom_js = custom_js;
+			// yaml-only, keep it across saves
+			if ($configuration.event_entity) json.event_entity = $configuration.event_entity;
 
 			if (!formMotion) {
 				$motion = 0;
