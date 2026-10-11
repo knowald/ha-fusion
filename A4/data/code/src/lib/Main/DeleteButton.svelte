@@ -1,0 +1,79 @@
+<script lang="ts">
+	import { dashboard, motion, record, lang, ripple } from '$lib/Stores';
+	import Ripple from '$lib/Actions/ripple';
+	import { scale } from 'svelte/transition';
+	import Icon from '@iconify/svelte';
+
+	let { view, section }: { view: any; section: any } = $props();
+
+	/**
+	 * Removes the section from the `sections` array of the view.
+	 * After removal, updates the dashboard and records the changes.
+	 */
+	function handleClick() {
+		// top-level section
+		if (view.sections.includes(section)) {
+			view.sections = view.sections.filter((sec: any) => sec !== section);
+		} else {
+			// nested in a stack (one level deep)
+			const stack = view.sections.find((sec: any) => sec.sections?.includes(section));
+			if (stack) {
+				stack.sections = stack.sections.filter((sub: any) => sub !== section);
+			} else {
+				// nested two levels deep (section inside vertical stack inside horizontal stack)
+				for (const parentStack of view.sections) {
+					if (parentStack.sections) {
+						for (const nestedStack of parentStack.sections) {
+							if (nestedStack.sections?.includes(section)) {
+								nestedStack.sections = nestedStack.sections.filter((sub: any) => sub !== section);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// reassigning `$dashboard` to itself is not enough - the derived `view`
+		// in +page.svelte resolves to the same object ref, so nothing re-renders.
+		// Deep clone to refresh all refs, same as drag end and undo/redo.
+		dashboard.update((d) => JSON.parse(JSON.stringify(d)));
+		$record();
+	}
+</script>
+
+<button
+	title={$lang('remove')}
+	transition:scale={{ start: 0.9, duration: $motion }}
+	onclick={handleClick}
+	use:Ripple={{ ...$ripple, color: 'rgba(0, 0, 0, 0.35)' }}
+>
+	<div class="icon">
+		<Icon icon="ic:round-delete" height="none" />
+	</div>
+</button>
+
+<style>
+	button {
+		background: #ba0000;
+		color: white;
+		padding: 0.4rem 0.6rem;
+		font-weight: 500;
+		float: right;
+		font-size: 0.8rem;
+		cursor: pointer;
+		height: 1.8rem;
+		align-items: center;
+		border: inherit;
+		border-radius: 0.4rem;
+		display: flex;
+		font-family: inherit;
+		overflow: hidden;
+		white-space: nowrap;
+	}
+
+	.icon {
+		width: 1.1rem;
+		height: 110%;
+	}
+</style>

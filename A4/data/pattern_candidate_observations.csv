@@ -1,0 +1,2 @@
+source_version,candidate_name,verdict,pattern_type,source_locations,reason,scope
+AfterChange3@632f01bd326e09841d0279fbf5f3ca33c1e4940f,Hearth Rail Widget Factory Method,rejected,Factory Method,"Part2/code/src/lib/Hearth/config.ts:422-428; Part2/code/src/lib/Hearth/RailWidgetRenderer.svelte:20-70",The registry is a descriptor array and the renderer selects components with conditional branches; no creator method or subclass-overridable creation operation participates in this collaboration.,CH03 changed module only

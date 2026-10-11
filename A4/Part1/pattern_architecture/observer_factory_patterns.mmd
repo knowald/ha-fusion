@@ -1,0 +1,87 @@
+classDiagram
+    direction TB
+
+    %% Observer Pattern
+    class HAConnection {
+        <<Subject>>
+        +sendMessagePromise(msg)
+        +addEventListener(event, handler)
+    }
+    class SubscribeEntities {
+        <<Subscription Hook>>
+        +subscribeEntities(conn, callback)
+    }
+    class StatesStore {
+        <<ConcreteObserver>>
+        +set(HassEntities)
+        +subscribe(run)
+    }
+    class ReactiveUIComponent {
+        <<Observer Client>>
+        +$states: HassEntities
+        +render()
+    }
+
+    HAConnection <.. SubscribeEntities : listens to socket updates
+    SubscribeEntities ..> StatesStore : calls states.set(hassEntities)
+    StatesStore <.. ReactiveUIComponent : reactive store subscription
+
+    %% Factory Method Pattern
+    class ModalFactory {
+        <<Parameterized Factory>>
+        +openEntityModal(entity_id: string, name?: string)
+    }
+    class DomainUtils {
+        <<Discriminant Extractor>>
+        +getDomain(entity_id: string): string
+    }
+    class ModalOpener {
+        <<Product Instantiator>>
+        +openModal(componentImport, props)
+    }
+    class LightModal {
+        <<Concrete Product>>
+        +renderLightControls()
+    }
+    class SwitchModal {
+        <<Concrete Product>>
+        +renderSwitchControls()
+    }
+    class SensorModal {
+        <<Concrete Product>>
+        +renderSensorAttributes()
+    }
+
+    ModalFactory ..> DomainUtils : extracts domain
+    ModalFactory ..> ModalOpener : invokes openModal()
+    ModalOpener ..> LightModal : dynamically instantiates
+    ModalOpener ..> SwitchModal : dynamically instantiates
+    ModalOpener ..> SensorModal : dynamically instantiates
+
+    %% Template Method Pattern
+    class KonvaBase {
+        <<Abstract Class>>
+        +stage: Konva.Stage
+        +layer: Konva.Layer
+        #updateCallback()*
+        #isGuide(node): boolean
+        -handleScaleChange(event)
+        -handleZoomChange(event)
+    }
+    class KonvaViewer {
+        <<Concrete Class>>
+        +constructor(container, data)
+        -handleMount()
+        -subscribeStates()
+    }
+    class KonvaEditor {
+        <<Concrete Class>>
+        +constructor(container, data)
+        #updateCallback()
+        -record()
+        +undo()
+        +redo()
+    }
+
+    KonvaBase <|-- KonvaViewer : inherits skeleton lifecycle
+    KonvaBase <|-- KonvaEditor : overrides updateCallback() & adds editor actions

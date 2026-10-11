@@ -1,0 +1,337 @@
+commit b2731a34870bcb79090327234341e431b3c24b28
+Author:     Karthikeya <goldenblack429@gmail.com>
+AuthorDate: Sun Oct 11 04:35:37 2026 +0530
+Commit:     Karthikeya <goldenblack429@gmail.com>
+CommitDate: Sun Oct 11 04:35:37 2026 +0530
+
+    CH01: Add not composite condition and refactor evaluator dispatch table
+
+diff --git a/src/lib/Conditional.test.ts b/src/lib/Conditional.test.ts
+new file mode 100644
+index 0000000..95b6904
+--- /dev/null
++++ b/src/lib/Conditional.test.ts
+@@ -0,0 +1,199 @@
++import { describe, expect, it } from 'vitest';
++import type { HassEntities } from 'home-assistant-js-websocket';
++import type { Condition, Section } from '$lib/Types';
++import {
++	validateCondition,
++	handleAllConditions,
++	handleState,
++	handleNumericState,
++	handleAnd,
++	handleOr,
++	handleNot
++} from './Conditional';
++
++const mockStates: HassEntities = {
++	'light.living_room': {
++		entity_id: 'light.living_room',
++		state: 'on',
++		attributes: {},
++		last_changed: '',
++		last_updated: '',
++		context: { id: '1', parent_id: null, user_id: null }
++	},
++	'sensor.temperature': {
++		entity_id: 'sensor.temperature',
++		state: '21.5',
++		attributes: {},
++		last_changed: '',
++		last_updated: '',
++		context: { id: '2', parent_id: null, user_id: null }
++	},
++	'sensor.invalid_num': {
++		entity_id: 'sensor.invalid_num',
++		state: 'unknown',
++		attributes: {},
++		last_changed: '',
++		last_updated: '',
++		context: { id: '3', parent_id: null, user_id: null }
++	}
++};
++
++const mockSection: Section = { id: 1 };
++
++describe('Conditional Engine (Composite / Interpreter)', () => {
++	describe('Leaf conditions: handleState', () => {
++		it('matches positive state', () => {
++			const cond: Condition = { condition: 'state', entity: 'light.living_room', state: 'on' };
++			expect(handleState(mockStates, cond)).toBe(true);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(true);
++		});
++
++		it('rejects mismatched state', () => {
++			const cond: Condition = { condition: 'state', entity: 'light.living_room', state: 'off' };
++			expect(handleState(mockStates, cond)).toBe(false);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(false);
++		});
++
++		it('matches inverted state_not', () => {
++			const cond: Condition = { condition: 'state', entity: 'light.living_room', state_not: 'off' };
++			expect(handleState(mockStates, cond)).toBe(true);
++		});
++	});
++
++	describe('Leaf conditions: handleNumericState', () => {
++		it('evaluates above and below ranges', () => {
++			const condRange: Condition = {
++				condition: 'numeric_state',
++				entity: 'sensor.temperature',
++				above: 20,
++				below: 25
++			};
++			expect(handleNumericState(mockStates, condRange)).toBe(true);
++
++			const condBelow: Condition = {
++				condition: 'numeric_state',
++				entity: 'sensor.temperature',
++				below: 20
++			};
++			expect(handleNumericState(mockStates, condBelow)).toBe(false);
++		});
++
++		it('handles non-numeric states gracefully', () => {
++			const cond: Condition = {
++				condition: 'numeric_state',
++				entity: 'sensor.invalid_num',
++				above: 10
++			};
++			expect(handleNumericState(mockStates, cond)).toBe(false);
++		});
++	});
++
++	describe('Composite conditions: handleAnd & handleOr', () => {
++		it('evaluates AND composite logic', () => {
++			const cond: Condition = {
++				condition: 'and',
++				conditions: [
++					{ condition: 'state', entity: 'light.living_room', state: 'on' },
++					{ condition: 'numeric_state', entity: 'sensor.temperature', above: 20 }
++				]
++			};
++			expect(handleAnd(false, mockStates, mockSection, cond)).toBe(true);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(true);
++		});
++
++		it('evaluates OR composite logic', () => {
++			const cond: Condition = {
++				condition: 'or',
++				conditions: [
++					{ condition: 'state', entity: 'light.living_room', state: 'off' },
++					{ condition: 'numeric_state', entity: 'sensor.temperature', above: 20 }
++				]
++			};
++			expect(handleOr(false, mockStates, mockSection, cond)).toBe(true);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(true);
++		});
++	});
++
++	describe('CH01 Extension: handleNot composite condition', () => {
++		it('inverts a true child condition to false', () => {
++			const cond: Condition = {
++				condition: 'not',
++				conditions: [{ condition: 'state', entity: 'light.living_room', state: 'on' }]
++			};
++			expect(handleNot(false, mockStates, mockSection, cond)).toBe(false);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(false);
++		});
++
++		it('inverts a false child condition to true', () => {
++			const cond: Condition = {
++				condition: 'not',
++				conditions: [{ condition: 'state', entity: 'light.living_room', state: 'off' }]
++			};
++			expect(handleNot(false, mockStates, mockSection, cond)).toBe(true);
++			expect(validateCondition(false, mockStates, mockSection, cond)).toBe(true);
++		});
++
++		it('inverts multiple subconditions (returns true only when NONE are true)', () => {
++			const condAllFalse: Condition = {
++				condition: 'not',
++				conditions: [
++					{ condition: 'state', entity: 'light.living_room', state: 'off' },
++					{ condition: 'numeric_state', entity: 'sensor.temperature', below: 15 }
++				]
++			};
++			expect(handleNot(false, mockStates, mockSection, condAllFalse)).toBe(true);
++
++			const condOneTrue: Condition = {
++				condition: 'not',
++				conditions: [
++					{ condition: 'state', entity: 'light.living_room', state: 'off' },
++					{ condition: 'numeric_state', entity: 'sensor.temperature', above: 20 }
++				]
++			};
++			expect(handleNot(false, mockStates, mockSection, condOneTrue)).toBe(false);
++		});
++
++		it('handles nested composite: NOT wrapping an OR group', () => {
++			const nestedCond: Condition = {
++				condition: 'not',
++				conditions: [
++					{
++						condition: 'or',
++						conditions: [
++							{ condition: 'state', entity: 'light.living_room', state: 'off' },
++							{ condition: 'numeric_state', entity: 'sensor.temperature', below: 10 }
++						]
++					}
++				]
++			};
++			// Neither child of OR is true -> OR is false -> NOT(false) is true
++			expect(validateCondition(false, mockStates, mockSection, nestedCond)).toBe(true);
++		});
++
++		it('returns false for empty conditions list', () => {
++			const emptyCond: Condition = { condition: 'not', conditions: [] };
++			expect(handleNot(false, mockStates, mockSection, emptyCond)).toBe(false);
++		});
++	});
++
++	describe('handleAllConditions integration', () => {
++		it('returns true when all visibility rules pass', () => {
++			const sectionWithVis: Section = {
++				id: 2,
++				visibility: [
++					{
++						condition: 'and',
++						conditions: [
++							{ condition: 'state', entity: 'light.living_room', state: 'on' },
++							{
++								condition: 'not',
++								conditions: [{ condition: 'state', entity: 'light.living_room', state: 'off' }]
++							}
++						]
++					}
++				]
++			};
++			expect(handleAllConditions(false, mockStates, sectionWithVis)).toBe(true);
++		});
++	});
++});
+diff --git a/src/lib/Conditional.ts b/src/lib/Conditional.ts
+index f83d14b..a3fdd4d 100644
+--- a/src/lib/Conditional.ts
++++ b/src/lib/Conditional.ts
+@@ -64,6 +64,25 @@ export function handleAllConditions($editMode: boolean, $states: HassEntities, s
+ 	);
+ }
+ 
++/**
++ * Validates every condition in handleAllConditions
++ */
++type ConditionEvaluator = (
++	$editMode: boolean,
++	$states: HassEntities,
++	section: Section,
++	condition: Condition
++) => boolean;
++
++const CONDITION_EVALUATORS: Record<string, ConditionEvaluator> = {
++	and: (em, st, sec, cond) => handleAnd(em, st, sec, cond),
++	or: (em, st, sec, cond) => handleOr(em, st, sec, cond),
++	not: (em, st, sec, cond) => handleNot(em, st, sec, cond),
++	state: (_em, st, _sec, cond) => handleState(st, cond),
++	numeric_state: (_em, st, _sec, cond) => handleNumericState(st, cond),
++	screen: (em, _st, sec, cond) => handleScreen(em, sec, cond)
++};
++
+ /**
+  * Validates every condition in handleAllConditions
+  */
+@@ -73,20 +92,9 @@ export function validateCondition(
+ 	section: Section,
+ 	condition: Condition
+ ): boolean {
+-	switch (condition?.condition) {
+-		case 'and':
+-			return handleAnd($editMode, $states, section, condition);
+-		case 'or':
+-			return handleOr($editMode, $states, section, condition);
+-		case 'state':
+-			return handleState($states, condition);
+-		case 'numeric_state':
+-			return handleNumericState($states, condition);
+-		case 'screen':
+-			return handleScreen($editMode, section, condition);
+-		default:
+-			return false;
+-	}
++	if (!condition?.condition) return false;
++	const evaluator = CONDITION_EVALUATORS[condition.condition];
++	return evaluator ? evaluator($editMode, $states, section, condition) : false;
+ }
+ 
+ /**
+@@ -162,6 +170,24 @@ export function handleOr(
+ 	);
+ }
+ 
++/**
++ * Not
++ */
++export function handleNot(
++	$editMode: boolean,
++	$states: HassEntities,
++	section: Section,
++	condition: Condition
++) {
++	if (!condition.conditions?.length) return false;
++
++	return (
++		!condition.conditions.some((subCondition) =>
++			validateCondition($editMode, $states, section, subCondition)
++		) ?? false
++	);
++}
++
+ /**
+  * Screen
+  */
+diff --git a/src/lib/Types.ts b/src/lib/Types.ts
+index 7c7db4f..eb98395 100644
+--- a/src/lib/Types.ts
++++ b/src/lib/Types.ts
+@@ -56,7 +56,7 @@ export interface Section {
+ }
+ 
+ export interface Condition {
+-	condition?: 'state' | 'numeric_state' | 'screen' | 'or' | 'and';
++	condition?: 'state' | 'numeric_state' | 'screen' | 'or' | 'and' | 'not';
+ 	conditions?: Condition[];
+ 	id?: number;
+ 	entity?: string;
+diff --git a/src/lib/Conditional.ts b/src/lib/Conditional.ts
+index a3fdd4d..0db62e9 100644
+--- a/src/lib/Conditional.ts
++++ b/src/lib/Conditional.ts
+@@ -181,10 +181,8 @@ export function handleNot(
+ ) {
+ 	if (!condition.conditions?.length) return false;
+ 
+-	return (
+-		!condition.conditions.some((subCondition) =>
+-			validateCondition($editMode, $states, section, subCondition)
+-		) ?? false
++	return !condition.conditions.some((subCondition) =>
++		validateCondition($editMode, $states, section, subCondition)
+ 	);
+ }
+ 
+diff --git a/src/lib/Types.ts b/src/lib/Types.ts
+index eb98395..b486a14 100644
+--- a/src/lib/Types.ts
++++ b/src/lib/Types.ts
+@@ -46,9 +46,7 @@ export interface Section {
+ 	id?: number;
+ 	name?: string;
+ 	items?: Item[];
+-	visibility?: {
+-		conditions?: Condition[];
+-	}[];
++	visibility?: Condition[];
+ 
+ 	// horizontal-stack | vertical-stack
+ 	type?: string;

@@ -1,0 +1,10 @@
+$ pnpm test
+$ vitest run
+◇ injected env (0) from .env
+
+RUN v4.1.10 /Users/karthikeya/dp-work/ha-evolved
+
+Test Files  15 passed (15)
+Tests       68 passed (68)
+Start at    05:00:52
+Duration    844ms (transform 1.91s, setup 0ms, import 2.59s, tests 112ms, environment 3ms)

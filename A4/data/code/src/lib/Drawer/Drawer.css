@@ -1,0 +1,61 @@
+/**
+ * Global CSS for #drawer
+ */
+
+#drawer .button {
+	text-align: left;
+	position: relative;
+	border: none;
+	border-radius: 0.4rem;
+	padding: 0.65rem 1rem 0.4rem 0.82rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: width 0.3s ease;
+	white-space: nowrap;
+	overflow: hidden;
+	background-color: var(--theme-drawer-button-background-color);
+	color: inherit;
+	margin-right: 0;
+	font-weight: 500;
+	font-size: var(--theme-drawer-font-size);
+	text-overflow: ellipsis;
+}
+
+#drawer .button.dropdown {
+	background-color: transparent;
+	width: 100%;
+	/* child radius = parent radius - padding */
+	border-radius: calc(0.4rem - 0.2rem);
+}
+
+/* add margin instead of padding because of animation drift */
+#drawer .dropdown button:first-of-type {
+	margin-top: 0.4rem;
+}
+
+#drawer .dropdown button:last-of-type {
+	margin-bottom: 0.45rem;
+}
+
+#drawer figure {
+	width: 1.5em;
+	margin: 0 0.2rem 0 0;
+	vertical-align: middle;
+	display: inline-block;
+	color: inherit;
+}
+
+/* Phone */
+@media all and (max-width: 768px) {
+	#drawer .button {
+		padding: 0.65rem 0.8rem 0.4rem 0.8rem !important;
+	}
+
+	#drawer .button span {
+		display: none;
+	}
+
+	#drawer figure {
+		margin: 0 !important;
+	}
+}

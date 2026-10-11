@@ -1,0 +1,2 @@
+"part","model_and_date","prompt_file","input_file","output_file","evaluation","verification_file"
+"Pattern discovery","Gemini / 2026-10-11","Part1/Part1_prompt.txt","Part1/llm/input_code_context.txt","Part1/llm/raw_output.txt","Partially correct: merged two distinct undo mechanisms into one Memento instance and lacked per-participant source locations. Separated Classic vs Hearth Mementos and added exact per-participant ranges.","Part1/llm/verification_evidence.md"

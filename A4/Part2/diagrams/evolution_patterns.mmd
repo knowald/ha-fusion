@@ -1,0 +1,17 @@
+flowchart LR
+  subgraph CH01["CH01 — condition evaluation"]
+    C["Condition discriminant"] --> D["validateCondition()"]
+    D --> M["CONDITION_EVALUATORS map"]
+    M --> S["condition strategy functions\nand / or / not / state / numeric / screen"]
+  end
+  subgraph CH02["CH02 — Hearth history"]
+    ST["Hearth store"] --> HM["HistoryManager<HearthConfig>"]
+    HM --> US["undo / redo snapshot stacks"]
+  end
+  subgraph CH03["CH03 — widget configuration"]
+    WT["RailWidget.type"] --> VD["railWidgetNeedsConfiguration()"]
+    VD --> VM["WIDGET_CONFIG_VALIDATORS map"]
+    VM --> VP["widget predicate functions\nincluding alert"]
+    WT --> AR["Alert widget variant"]
+    AR --> RR["RailWidgetRenderer"]
+  end

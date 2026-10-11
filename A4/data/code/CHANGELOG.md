@@ -1,0 +1,193 @@
+# Changelog
+
+## [2026.8.2](https://github.com/knowald/ha-fusion/releases/tag/2026.8.2) - 2026-08-16
+
+### Fixed
+
+- Hearth: keep two tile tracks alive on padded two-column pages, the tile minimum width dropped from 190px to 160px so screen edge padding no longer folds entity grids into a single column (9a7c3b6)
+- Hearth: page columns fold at 560px of page width instead of 660px, restoring two-column layouts on tablets with wide screen padding (9a7c3b6)
+
+## [2026.8.1](https://github.com/knowald/ha-fusion/releases/tag/2026.8.1) - 2026-08-16
+
+### Added
+
+- Hearth: tap a numeric sensor tile or stat readout to open a 24 h history popup with low/high and current value (bfeafba)
+- Hearth: sensor card thermostat option, a climate entity adds a target readout, plus/minus controls and a dashed target line on the chart (bfeafba)
+- Hearth: air quality verdicts (GOOD / FAIR / POOR) with banded tracks on CO2, PM2.5 and humidity readouts, custom thresholds via `verdict: { good, fair, max }` (bfeafba)
+- Hearth: group actions on section headers, All off for lights and Open all / Close all for covers, hidden with `group_actions: false` (bfeafba, f8ba778)
+- Hearth: card options `tune_button` (restore the per-tile controls glyph), `quick_action` (one-tap Clean/Stop on the vacuum row) and a per-card verdict opt-out (f8ba778)
+
+### Changed
+
+- Hearth: tiles open their control popup on long-press or Shift+Enter, the per-tile glyph is gone by default (bfeafba, f8ba778)
+- Hearth: offline tiles render dashed and muted instead of red, blinds joined the warm palette and show their position (bfeafba)
+- Hearth: sensor charts draw an area fill, an end dot and a 24 h low/high footer (bfeafba)
+- Hearth: the media card transport is a 52 px button with amber progress, the vacuum card is a summary row with battery and bin levels (bfeafba)
+- Hearth: readout tiles whose modal only echoed the state are no longer interactive (bfeafba)
+- Hearth: an unconfigured rail status widget reports offline dashboard entities instead of a static pill, and the edit toggle is a labeled row (bfeafba)
+- Bump TypeScript to 6.0 and JS and CI dependencies (4d57ac2, 6f1f11b, bc0d049, 2ce056d, 8bf3a87, fbf1dae, 679f46d, 96189d9, c8531d9)
+
+### Fixed
+
+- Hearth: fill-screen pages size their columns to the screen, filling cards start at their content height, and the column collapse follows the page width instead of a viewport breakpoint (bfeafba, f8ba778)
+- Hearth: keep the rail weather widget on one row (2430ce1)
+- Restore cross-container dashboard dragging and give alt-cloned sections fresh descendant ids (e657e8b, f8ba778)
+- Declare the fontsource side-effect imports so svelte-check passes under TypeScript 6 (5839ec8, 82fb9c2)
+
+## [2026.8.0](https://github.com/knowald/ha-fusion/releases/tag/2026.8.0) - 2026-08-04
+
+### Added
+
+- Hearth: light themes and a day/night switch driven by a Home Assistant entity (db260bb)
+- Hearth: image card for floor maps and stills, cleaning modes in the vacuum popover, live interactive card previews in the editor (14302be, d81ae86, e855479, 85dc63e)
+- Hearth: wildcard entity cards, discovered glanceable suggestions in the setup wizard, and fusion embed form fields (05a9acf, 77e70c0, 1cefdf1)
+- Hearth: search as an optional rail widget with keyboard controls, full material symbols search in the icon picker, entity card reordering (64cb617, fa994fd, a947e8b)
+- Hearth: release-only slider update mode, confirmations for disruptive device actions, first-run setup instead of a personal fallback (928abc9, dfd30e4, 9a4b525)
+- Hearth: wall display controls, screensaver drift and brightness, clock timezone (9fc618a, 90da2fb)
+
+### Changed
+
+- Hearth: cache recorder history across pages and release long-lived resources on navigation (5de42f8, 56081d0)
+- Hearth: unify component taxonomy, editor save models, refresh plumbing and optimistic control state internally (a06151d, ff313de, db19167, cde366a, 44a1e2f, 9192869, 0af33c7)
+
+### Fixed
+
+- Hearth: serialize and atomically persist config saves, preserve edits on save conflict, surface unreadable configuration, validate shapes and repair duplicate ids, keep unknown extension keys (7defe86, 9d5f7a4, 06f575d, 66f081e, 09e4ecc)
+- Hearth: honor base paths for APIs and the manifest, retain authentication retries, keep unrelated service workers alive, bundle fonts and symbols locally (78a0a11, 7eadada, eac0609, 3856114)
+- Hearth: surface device command and wake lock failures, distinguish unreachable entity states and boot from disconnect (195c278, b249c0c, af2f6e6, a719e03)
+- Hearth: strengthen tile state legibility, harden secondary touch targets, render discrete taps optimistically, clean up cancelled drag gestures (4339219, e65d8fc, a0c9be7, 5d329ae)
+- Hearth: prioritize page content on tablets, keep overflow controls reachable, make the rail clock locale-aware, localize primary controls (7bfbfee, 478a2f4, 6f038b5, 44e7569)
+
+## [2026.7.4](https://github.com/knowald/ha-fusion/releases/tag/2026.7.4) - 2026-07-27
+
+### Fixed
+
+- Keep rendering when an entity state looks like a timestamp but cannot be parsed, the state is shown as-is instead of throwing (e3a7a0c)
+- Skip camera playback instead of failing when the stream URL is missing (e3a7a0c)
+
+## [2026.7.3](https://github.com/knowald/ha-fusion/releases/tag/2026.7.3) - 2026-07-26
+
+### Fixed
+
+- Repair the multi-arch Docker image build by compiling the web bundle on the build platform, 32-bit node segfaulted under emulation (2a82569)
+
+## [2026.7.2](https://github.com/knowald/ha-fusion/releases/tag/2026.7.2) - 2026-07-26
+
+### Added
+
+- Add an early preview of the Hearth dashboard, opt in by setting `hearth: true` in `configuration.yaml` to get a drawer button that opens it (11714cc)
+
+### Changed
+
+- Bump JS dependencies within semver ranges and fix audit vulnerabilities (b88855c)
+- Bump GitHub Actions used by CI workflows (2de6447, 8ce9635, 5e42074, d00fc8e, 4f86983)
+
+### Fixed
+
+- Recover camera HLS playback after network errors (d6fa0f3)
+- Harden auth token handling and redirect back to the ingress path after login (d7aae9c)
+- Set the connected store on the initial websocket connection (ff6e096)
+- Guard modal state reads against pre-connection undefined states (6e91dc2)
+- Declare mutated component state with $state so updates render (bcf20c0)
+- Reserve a scrollbar gutter in the modal body instead of padding tricks (c1a1906)
+- Make the sidebar weather responsive (7e8eb64)
+
+## [2026.7.1](https://github.com/knowald/ha-fusion/releases/tag/2026.7.1) - 2026-07-09
+
+### Fixed
+
+- Re-render the dashboard on in-place config edits and restrict section drag to the drag handle (e76cb7b)
+- Replace the unknown domain error modal with a generic entity modal (910390d)
+- Complete the PWA manifest and add an apple touch icon (06be9d1)
+- Respect target_temp_step in the thermostat temperature wheel (6ce8c67)
+- Only offer alarm arm modes the panel supports (abdd7c9)
+
+## [2026.7.0](https://github.com/knowald/ha-fusion/releases/tag/2026.7.0) - 2026-07-07
+
+### Added
+
+- Add entities list card showing multiple entity states, with wildcard entity selection (1c14220)
+- Add white channel sliders to the light modal for RGBW and RGBWW lights (e6d053a)
+- Add option to hide the camera name overlay (5c4aded)
+
+### Changed
+
+- Soften the camera name overlay with less dimming and blur (5c4aded)
+- Merge the Spotify player large variant into a single component (378fa1a)
+- Extract a shared scaffold for config panels (5fef1a6, 69b7388)
+- Rewrite the README as a maintained continuation of the original project, with a migration guide (4ee4e36, 3135697)
+- Add CI workflow, issue templates, and automated release sync to the addon repo (5a4b539, c08a647, ee746d5, 9703e69)
+
+### Fixed
+
+- Fix toggle recursion when pressing group entity buttons (532a90e)
+- Show a placeholder instead of a missing weather icon when the state is unknown or unavailable (3b859ac)
+- Hide the alarm keypad and skip the code when the panel does not require one (8d45efb)
+- Preserve white channels when picking colors on RGBW and RGBWW lights (e6d053a)
+- Repair YouTube account linking in the video addon by updating youtubei.js (cdd9c19)
+
+## [2026.3.3](https://github.com/knowald/ha-fusion/releases/tag/2026.3.3) - 2026-07-02
+
+### Fixed
+
+- Send `color_temp_kelvin` instead of the removed `kelvin` parameter, restoring the color temperature slider (8081243)
+- Throttle light color and brightness service calls by time, so slow devices in a group no longer delay updates while dragging (6c5a2a7)
+
+## [2026.3.2](https://github.com/knowald/ha-fusion/releases/tag/2026.3.2) - 2026-06-30
+
+### Changed
+
+- Migrate the app to Svelte 5 runes, converting all components, event handlers, and stores (7014436, 8f4db3b, a300430)
+- Replace svelte-dnd-action with SortableJS for drag-and-drop under Svelte 5 (b445f23)
+- Exclude legacy Svelte 4 libraries from Vite prebundling so they load in runes mode (f0e341f)
+- Rewrite the README and refresh the preview screenshot (a523b94, 45c7e04)
+
+### Fixed
+
+- Resolve runtime `$effect` loops and reactivity bugs from the runes migration (e044194)
+- Restore drag-drop UI updates and redo history after the migration (8643b05)
+- Render a newly added object immediately in the dashboard editor (5b9f689)
+- Correct drag reorder order and fix a crash on cross-zone item drops (174af9f)
+
+## [2026.3.1](https://github.com/knowald/ha-fusion/releases/tag/2026.3.1) - 2026-03-29
+
+### Added
+
+- Add quick play shortcuts to Spotify widgets, shown when not playing (SpotifyShortcuts.svelte, SpotifyShortcutsConfig.svelte)
+- Add rotating background from recently played tracks on idle Spotify widgets (SpotifyPlayer.svelte, SpotifyPlayerLarge.svelte)
+- Add default device picker to Spotify widget config (SpotifyPlayerConfig.svelte, SpotifyPlayerLargeConfig.svelte)
+
+### Changed
+
+- Redesign Spotify player modal with side-by-side layout for smaller screens (SpotifyPlayerModal.svelte)
+- Reduce modal font sizes and padding for higher information density (Modal.css, Index.svelte)
+
+## [2026.3.0](https://github.com/knowald/ha-fusion/releases/tag/2026.3.0) - 2026-03-08
+
+### Added
+
+- Add vertical stack layout for arranging sections in columns (src/lib/Drawer/VerticalStackButton.svelte, src/lib/Main/VerticalStackHeader.svelte)
+- Add nested vertical stacks inside horizontal stacks for complex layouts (src/lib/Main/Index.svelte)
+- Add Docker environment example file for compose configuration (.env.docker.example)
+
+### Changed
+
+- Update Docker compose files to use environment variables for ports, paths, and settings (docker-compose.yml, docker-compose.dev.yml)
+- Update Docker compose to use named networks and health checks (docker-compose.yml)
+- Update Dockerfile.dev to call vite directly for correct `--host` binding (Dockerfile.dev)
+- Update README to document vertical stacks and clean up formatting (README.md)
+- Update visibility, search, drag-and-drop, and deletion logic to support vertical stacks (Conditional.ts, SearchInput.svelte, DeleteButton.svelte, ConfigButtons.svelte, Utils.ts)
+
+## [2025.10.0](https://github.com/knowald/ha-fusion/releases/tag/2025.10.0) - 2025-10-01
+
+_First release of the ha-fusion fork._
+
+### Added
+
+- Add Spotify player widgets (36adbcf)
+- Add DaysSince modal for tracking elapsed time (817b223)
+- Add custom CSS feature for user-defined styling (a8bb68f)
+- Add serene theme (6a3e749)
+- Add display-only option to buttons (2185e28)
+- Add slide-to-adjust brightness on light buttons (36ef1bd)
+- Add optimistic UI updates for instant button feedback (78d22f3)

@@ -1,0 +1,36 @@
+Change 3 verification log
+Run date: 2026-10-11
+Working tree: ha-evolved, branch ch03-hearth-widget-extension
+
+$ pnpm test
+$ vitest run
+RUN v4.1.10 /Users/karthikeya/dp-work/ha-evolved
+
+Test Files  15 passed (15)
+Tests       68 passed (68)
+Start at    04:51:52
+Duration    840ms (transform 2.14s, setup 0ms, import 2.81s, tests 126ms, environment 4ms)
+Result: PASS
+
+$ pnpm check
+Result: FAIL (svelte-check found 4 errors and 0 warnings in 3 files)
+Diagnostics:
+- src/lib/Conditional.ts:185:3 — right operand of ?? is unreachable because the left operand is never nullish.
+- src/lib/Conditional.test.ts:185:7 — object literal property 'condition' is not accepted by the declared type.
+- src/lib/Hearth/store.ts:146:2 — cannot find name 'undoStack'.
+- src/lib/Hearth/store.ts:147:2 — cannot find name 'redoStack'.
+No diagnostics were reported in the Change 3 alert renderer, component, configuration state, or tests.
+
+$ git diff --check
+Result: PASS
+
+Follow-up verification after stabilizing CH01/CH02
+Run date: 2026-10-11
+
+$ pnpm test
+Result: PASS — 15 test files, 68 tests passed; duration 844ms.
+
+$ pnpm check
+Result: PASS — svelte-check found 0 errors and 0 warnings.
+
+The earlier follow-up log recorded four type-check errors in CH01/CH02. They were corrected: Section.visibility now uses the Condition[] shape used by the visibility editor/evaluator, handleNot no longer applies an unreachable nullish fallback, and saveEdit clears the encapsulated HistoryManager. The revised cumulative suite and type check both pass. Full command output is in A4/data/test_result/evolved_test.log and evolved_check.log.

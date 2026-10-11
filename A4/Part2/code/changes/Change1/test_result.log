@@ -1,0 +1,27 @@
+$ vitest run
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ RUN  v4.1.10 /Users/karthikeya/dp-work/ha-evolved
+
+ ✓ src/lib/Hearth/refresh.test.ts (2 tests) 4ms
+ ✓ src/lib/Hearth/clock.test.ts (3 tests) 31ms
+ ✓ src/lib/Hearth/config.test.ts (10 tests) 8ms
+ ✓ src/lib/Hearth/drag.test.ts (5 tests) 4ms
+ ✓ src/routes/_api/save_hearth/server.test.ts (3 tests) 29ms
+ ✓ src/lib/Hearth/configurationState.test.ts (3 tests) 2ms
+ ✓ src/lib/Hearth/typeRegistry.test.ts (2 tests) 5ms
+ ✓ src/lib/Main/legacyDrag.test.ts (4 tests) 3ms
+ ✓ src/lib/Hearth/visibility.test.ts (2 tests) 2ms
+ ✓ src/lib/Conditional.test.ts (13 tests) 3ms
+ ✓ src/lib/Hearth/registry.test.ts (1 test) 2ms
+ ✓ src/lib/Hearth/fusionFields.test.ts (1 test) 2ms
+ ✓ src/lib/Hearth/socket.test.ts (1 test) 2ms
+ ✓ src/lib/Hearth/store.test.ts (9 tests) 4ms
+
+ Test Files  14 passed (14)
+      Tests  59 passed (59)
+   Start at  04:35:03
+   Duration  701ms (transform 1.77s, setup 0ms, import 2.34s, tests 99ms, environment 2ms)
+
+
+Follow-up correction and cumulative verification (2026-10-11): aligned Section.visibility with the Condition[] representation used by the editor/evaluator, removed an unreachable nullish fallback in handleNot, and reran the complete cumulative suite. pnpm test: 15 files, 68 tests passed. pnpm check: 0 errors, 0 warnings. See A4/data/test_result/evolved_test.log and evolved_check.log.

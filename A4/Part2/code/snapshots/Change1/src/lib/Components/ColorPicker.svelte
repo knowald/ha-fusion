@@ -1,0 +1,273 @@
+<script lang="ts">
+	import { connection, motion } from '$lib/Stores';
+	import { onDestroy, onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import iro from '@jaames/iro';
+	import { callService, type HassEntity } from 'home-assistant-js-websocket';
+
+	// const colorSupport = ['hs', 'xy', 'rgb', 'rgbw', 'rgbww'];
+	// const brightnessSupport = [...colorSupport, 'color_temp', 'brightness', 'white'];
+
+	let {
+		entity,
+		colorMode,
+		supportedColorModes,
+		tempSelected,
+		colorSelected
+	}: {
+		entity: HassEntity;
+		colorMode: any;
+		supportedColorModes: any;
+		tempSelected: boolean;
+		colorSelected: boolean;
+	} = $props();
+
+	let picker = $state<iro.ColorPicker>();
+	let element = $state<HTMLDivElement>();
+	let kelvinNumber = $state<number | undefined>(undefined);
+
+	let timeout: ReturnType<typeof setTimeout> | undefined;
+	let interacting = $state(false);
+
+	const SEND_INTERVAL = 250;
+	let sendTimer: ReturnType<typeof setTimeout> | undefined;
+	let pendingData: Record<string, unknown> | undefined;
+	let lastSentData: string | undefined;
+
+	let attributes = $derived(entity?.attributes);
+	let rgbColor = $derived(attributes?.rgb_color);
+	let colorTempKelvin = $derived(attributes?.color_temp_kelvin);
+
+	/**
+	 * If changing color and quickly selecting temperature tab, the last
+	 * service call will be a temperature value... Prevent this behavior
+	 */
+	$effect(() => {
+		if (tempSelected) {
+			interacting = false;
+		}
+	});
+
+	const colorLayout = [
+		{
+			component: iro.ui.Wheel,
+			options: {
+				wheelAngle: 270,
+				wheelDirection: 'clockwise'
+			}
+		}
+	];
+
+	let temperatureLayout = $derived([
+		{
+			component: iro.ui.Slider,
+			options: {
+				sliderShape: 'circle',
+				sliderType: 'kelvin',
+				minTemperature: attributes?.min_color_temp_kelvin,
+				maxTemperature: attributes?.max_color_temp_kelvin
+			}
+		}
+	]);
+
+	$effect(() => {
+		if (picker) {
+			// Layout
+			if (tempSelected) {
+				picker.setOptions({ layout: temperatureLayout });
+			} else if (colorSelected) {
+				picker.setOptions({ layout: colorLayout });
+			}
+		}
+	});
+
+	$effect(() => {
+		if (picker && !interacting) {
+			// Color or Temperature
+			if (colorMode === 'xy' && rgbColor) {
+				picker.color.rgb = {
+					r: rgbColor[0],
+					g: rgbColor[1],
+					b: rgbColor[2]
+				};
+			} else if (colorMode === 'color_temp' && colorTempKelvin) {
+				picker.color.kelvin = colorTempKelvin;
+			}
+		}
+	});
+
+	onMount(async () => {
+		picker = iro.ColorPicker(element!, {
+			width: 275,
+			color: `rgb(${rgbColor || '255, 255, 255'})`,
+			handleRadius: 20,
+			wheelLightness: false,
+			borderWidth: 3,
+			layoutDirection: 'horizontal',
+			layout: colorMode === 'xy' ? colorLayout : temperatureLayout
+		});
+
+		// init
+		picker.on('input:start', () => {
+			clearTimeout(timeout);
+			setHandleTransition(`all ${$motion}ms ease`);
+			interacting = true;
+		});
+
+		// on input logic
+		picker.on('input:change', handleChange);
+
+		// don't transition handle when dragging
+		picker.on('input:move', () => setHandleTransition('none'));
+
+		picker.on('input:end', (event: any) => {
+			// remove displayed kelvin and reset transition
+			kelvinNumber = undefined;
+			setHandleTransition(`all ${$motion}ms ease`);
+
+			// make sure to send a final request so last doesn't get ignored
+			flush(event);
+
+			// debounce for one sec
+			timeout = setTimeout(() => {
+				interacting = false;
+			}, 1000);
+		});
+	});
+
+	type PickerColor = { rgb: { r: number; g: number; b: number }; kelvin: number };
+
+	function handleChange(color: PickerColor) {
+		kelvinNumber = Math.round(color?.kelvin);
+
+		const data = buildServiceData(color);
+		if (data) throttledSend(data);
+	}
+
+	function buildServiceData(color: PickerColor): Record<string, unknown> | undefined {
+		const type =
+			typeof picker?.state?.layout?.[0] !== 'string'
+				? picker?.state?.layout?.[0]?.options?.sliderType
+				: undefined;
+
+		if (type === 'kelvin' && supportedColorModes?.includes('color_temp')) {
+			return {
+				color_temp_kelvin: Math.round(color?.kelvin)
+			};
+		} else if (!type) {
+			const rgb = [color.rgb.r, color.rgb.g, color.rgb.b];
+
+			// send the dedicated white channels along, otherwise home assistant
+			// recomputes them from the rgb value and overwrites slider changes
+			if (supportedColorModes?.includes('rgbw')) {
+				return { rgbw_color: [...rgb, attributes?.rgbw_color?.[3] ?? 0] };
+			} else if (supportedColorModes?.includes('rgbww')) {
+				return {
+					rgbww_color: [
+						...rgb,
+						attributes?.rgbww_color?.[3] ?? 0,
+						attributes?.rgbww_color?.[4] ?? 0
+					]
+				};
+			}
+
+			return { rgb_color: rgb };
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * Sends are throttled by time instead of waiting on the previous request,
+	 * so slow devices (e.g. cloud lights in a group) don't reduce the update
+	 * rate while dragging. The latest value is always sent as a trailing call.
+	 */
+	function throttledSend(data: Record<string, unknown>) {
+		if (sendTimer) {
+			pendingData = data;
+			return;
+		}
+
+		send(data);
+
+		sendTimer = setTimeout(() => {
+			sendTimer = undefined;
+			if (pendingData) {
+				const pending = pendingData;
+				pendingData = undefined;
+				throttledSend(pending);
+			} else {
+				// interaction settled, allow resending the same value later
+				lastSentData = undefined;
+			}
+		}, SEND_INTERVAL);
+	}
+
+	function send(data: Record<string, unknown>) {
+		const key = JSON.stringify(data);
+		if (key === lastSentData) return;
+		lastSentData = key;
+
+		callService($connection, 'light', 'turn_on', {
+			entity_id: entity?.entity_id,
+			...data
+		}).catch((error) => {
+			console.error('Failed to update color or temperature:', error);
+		});
+	}
+
+	/**
+	 * Sends the final value immediately, skipping the throttle window
+	 */
+	function flush(color: PickerColor) {
+		clearTimeout(sendTimer);
+		sendTimer = undefined;
+		pendingData = undefined;
+
+		const data = buildServiceData(color);
+		if (data) send(data);
+	}
+
+	function setHandleTransition(value: string) {
+		const handle: SVGElement | null = element?.querySelector('svg.IroHandle') ?? null;
+		if (handle) handle.style.transition = value;
+	}
+
+	onDestroy(() => {
+		clearTimeout(timeout);
+		timeout = undefined;
+		clearTimeout(sendTimer);
+		sendTimer = undefined;
+	});
+</script>
+
+<div
+	bind:this={element}
+	style:margin-top={supportedColorModes?.length !== 1 ? '2em' : '0'}
+	style:opacity={entity?.state === 'off' ? '0.25' : 'unset'}
+	style:transition="all {$motion}ms ease"
+></div>
+
+{#if tempSelected && kelvinNumber && interacting}
+	<span
+		in:fade={{ duration: $motion / 2 }}
+		out:fade={{ duration: $motion / 2, delay: $motion * 2 }}
+	>
+		{kelvinNumber}K
+	</span>
+{/if}
+
+<style>
+	div {
+		display: flex;
+		justify-content: center;
+	}
+
+	span {
+		position: absolute;
+		bottom: 2.5rem;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 1.2rem;
+	}
+</style>

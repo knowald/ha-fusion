@@ -1,0 +1,303 @@
+commit 3eb21fc061b3aefa339ae9b9f92cd51f68c4b567
+Author:     Karthikeya <goldenblack429@gmail.com>
+AuthorDate: Sun Oct 11 04:38:46 2026 +0530
+Commit:     Karthikeya <goldenblack429@gmail.com>
+CommitDate: Sun Oct 11 04:38:46 2026 +0530
+
+    CH02: Encapsulate Hearth config history into HistoryManager Caretaker class
+
+diff --git a/src/lib/Hearth/historyManager.test.ts b/src/lib/Hearth/historyManager.test.ts
+new file mode 100644
+index 0000000..0d5df58
+--- /dev/null
++++ b/src/lib/Hearth/historyManager.test.ts
+@@ -0,0 +1,94 @@
++import { describe, expect, it } from 'vitest';
++import { HistoryManager } from './historyManager';
++
++describe('HistoryManager (Memento Caretaker)', () => {
++	it('initializes with empty stacks and default capacity', () => {
++		const manager = new HistoryManager<string>();
++		expect(manager.canUndo()).toBe(false);
++		expect(manager.canRedo()).toBe(false);
++		expect(manager.depth()).toEqual([0, 0]);
++		expect(manager.capacity()).toBe(50);
++	});
++
++	it('pushes snapshots and updates canUndo', () => {
++		const manager = new HistoryManager<string>();
++		manager.push('state-1');
++		expect(manager.canUndo()).toBe(true);
++		expect(manager.canRedo()).toBe(false);
++		expect(manager.depth()).toEqual([1, 0]);
++
++		manager.push('state-2');
++		expect(manager.depth()).toEqual([2, 0]);
++	});
++
++	it('undo restores previous state and stages current onto redoStack', () => {
++		const manager = new HistoryManager<string>();
++		manager.push('state-1');
++		manager.push('state-2');
++
++		const restored = manager.undo('state-3');
++		expect(restored).toBe('state-2');
++		expect(manager.canUndo()).toBe(true);
++		expect(manager.canRedo()).toBe(true);
++		expect(manager.depth()).toEqual([1, 1]);
++	});
++
++	it('redo restores next state and stages current onto undoStack', () => {
++		const manager = new HistoryManager<string>();
++		manager.push('state-1');
++		manager.push('state-2');
++
++		manager.undo('state-3');
++		const redone = manager.redo('state-2');
++		expect(redone).toBe('state-3');
++		expect(manager.canUndo()).toBe(true);
++		expect(manager.canRedo()).toBe(false);
++		expect(manager.depth()).toEqual([2, 0]);
++	});
++
++	it('push clears redoStack', () => {
++		const manager = new HistoryManager<string>();
++		manager.push('state-1');
++		manager.push('state-2');
++		manager.undo('state-3');
++		expect(manager.canRedo()).toBe(true);
++
++		// New branch mutation invalidates redo history
++		manager.push('state-branch');
++		expect(manager.canRedo()).toBe(false);
++		expect(manager.depth()).toEqual([2, 0]);
++	});
++
++	it('enforces maximum capacity by evicting oldest snapshots', () => {
++		const manager = new HistoryManager<number>(3);
++		manager.push(1);
++		manager.push(2);
++		manager.push(3);
++		manager.push(4); // evicts 1
++
++		expect(manager.depth()).toEqual([3, 0]);
++		expect(manager.undo(5)).toBe(4);
++		expect(manager.undo(4)).toBe(3);
++		expect(manager.undo(3)).toBe(2);
++		expect(manager.undo(2)).toBeUndefined(); // 1 was evicted
++	});
++
++	it('clear resets all stacks', () => {
++		const manager = new HistoryManager<string>();
++		manager.push('a');
++		manager.push('b');
++		manager.undo('c');
++		expect(manager.depth()).toEqual([1, 1]);
++
++		manager.clear();
++		expect(manager.canUndo()).toBe(false);
++		expect(manager.canRedo()).toBe(false);
++		expect(manager.depth()).toEqual([0, 0]);
++	});
++
++	it('returns undefined when undoing or redoing an empty stack', () => {
++		const manager = new HistoryManager<string>();
++		expect(manager.undo('current')).toBeUndefined();
++		expect(manager.redo('current')).toBeUndefined();
++	});
++});
+diff --git a/src/lib/Hearth/historyManager.ts b/src/lib/Hearth/historyManager.ts
+new file mode 100644
+index 0000000..5a89bba
+--- /dev/null
++++ b/src/lib/Hearth/historyManager.ts
+@@ -0,0 +1,83 @@
++/**
++ * Generic Memento Caretaker managing undo and redo history stacks.
++ * Encapsulates snapshot storage, capacity bounding, and state transfer.
++ */
++export class HistoryManager<T> {
++	private readonly undoStack: T[] = [];
++	private readonly redoStack: T[] = [];
++	private readonly maxHistory: number;
++
++	constructor(maxHistory: number = 50) {
++		this.maxHistory = Math.max(1, maxHistory);
++	}
++
++	/**
++	 * Records a state snapshot to the undo stack, evicts the oldest entry if capacity
++	 * is exceeded, and invalidates any subsequent redo branch.
++	 */
++	public push(state: T): void {
++		this.undoStack.push(state);
++		if (this.undoStack.length > this.maxHistory) {
++			this.undoStack.shift();
++		}
++		this.redoStack.length = 0;
++	}
++
++	/**
++	 * Navigates backward: pushes the current state onto redoStack and restores
++	 * the most recent state from undoStack. Returns undefined if undoStack is empty.
++	 */
++	public undo(currentState: T): T | undefined {
++		const previous = this.undoStack.pop();
++		if (previous === undefined) return undefined;
++		this.redoStack.push(currentState);
++		return previous;
++	}
++
++	/**
++	 * Navigates forward: pushes the current state onto undoStack and restores
++	 * the next state from redoStack. Returns undefined if redoStack is empty.
++	 */
++	public redo(currentState: T): T | undefined {
++		const next = this.redoStack.pop();
++		if (next === undefined) return undefined;
++		this.undoStack.push(currentState);
++		return next;
++	}
++
++	/**
++	 * Resets both undo and redo history stacks.
++	 */
++	public clear(): void {
++		this.undoStack.length = 0;
++		this.redoStack.length = 0;
++	}
++
++	/**
++	 * Returns true if at least one undoable state snapshot exists.
++	 */
++	public canUndo(): boolean {
++		return this.undoStack.length > 0;
++	}
++
++	/**
++	 * Returns true if at least one redoable state snapshot exists.
++	 */
++	public canRedo(): boolean {
++		return this.redoStack.length > 0;
++	}
++
++	/**
++	 * Returns current stack depths as [undoCount, redoCount].
++	 */
++	public depth(): [number, number] {
++		return [this.undoStack.length, this.redoStack.length];
++	}
++
++	/**
++	 * Returns the maximum history capacity.
++	 */
++	public capacity(): number {
++		return this.maxHistory;
++	}
++}
+diff --git a/src/lib/Hearth/store.ts b/src/lib/Hearth/store.ts
+index 0809eeb..fbf628e 100644
+--- a/src/lib/Hearth/store.ts
++++ b/src/lib/Hearth/store.ts
+@@ -12,6 +12,7 @@ import {
+ 	type SceneRef,
+ 	type VerdictBands
+ } from './config';
++import { HistoryManager } from './historyManager';
+ 
+ /* configuration */
+ 
+@@ -29,22 +30,19 @@ export const hearthNeedsSetup = writable(false);
+ // server-managed save counter for conflict detection between tabs
+ export const hearthRevision = writable(0);
+ 
+-const undoStack: HearthConfig[] = [];
+-const redoStack: HearthConfig[] = [];
++const configHistory = new HistoryManager<HearthConfig>(50);
+ 
+ export const canUndo = writable(false);
+ export const canRedo = writable(false);
+ 
+ function syncHistoryFlags() {
+-	canUndo.set(undoStack.length > 0);
+-	canRedo.set(redoStack.length > 0);
++	canUndo.set(configHistory.canUndo());
++	canRedo.set(configHistory.canRedo());
+ }
+ 
+ export function updateConfig(mutate: (config: HearthConfig) => void) {
+ 	hearthConfig.update((config) => {
+-		undoStack.push(config);
+-		if (undoStack.length > 50) undoStack.shift();
+-		redoStack.length = 0;
++		configHistory.push(config);
+ 		const next = structuredClone(config);
+ 		mutate(next);
+ 		return next;
+@@ -53,21 +51,28 @@ export function updateConfig(mutate: (config: HearthConfig) => void) {
+ }
+ 
+ export function undoConfig() {
+-	const previous = undoStack.pop();
++	const previous = configHistory.undo(get(hearthConfig));
+ 	if (!previous) return;
+-	redoStack.push(get(hearthConfig));
+ 	hearthConfig.set(previous);
+ 	syncHistoryFlags();
+ }
+ 
+ export function redoConfig() {
+-	const next = redoStack.pop();
++	const next = configHistory.redo(get(hearthConfig));
+ 	if (!next) return;
+-	undoStack.push(get(hearthConfig));
+ 	hearthConfig.set(next);
+ 	syncHistoryFlags();
+ }
+ 
++export function clearHistory() {
++	configHistory.clear();
++	syncHistoryFlags();
++}
++
++export function getHistoryDepth(): [number, number] {
++	return configHistory.depth();
++}
++
+ /* edit mode */
+ 
+ export const hearthEditMode = writable(false);
+@@ -93,8 +98,7 @@ let editSnapshot: HearthConfig | null = null;
+ 
+ export function enterEditMode() {
+ 	editSnapshot = structuredClone(get(hearthConfig));
+-	undoStack.length = 0;
+-	redoStack.length = 0;
++	configHistory.clear();
+ 	syncHistoryFlags();
+ 	hearthEditMode.set(true);
+ }
+@@ -102,8 +106,7 @@ export function enterEditMode() {
+ export function cancelEdit() {
+ 	if (editSnapshot) hearthConfig.set(editSnapshot);
+ 	editSnapshot = null;
+-	undoStack.length = 0;
+-	redoStack.length = 0;
++	configHistory.clear();
+ 	syncHistoryFlags();
+ 	editor.set(null);
+ 	hearthEditMode.set(false);
+diff --git a/src/lib/Hearth/store.ts b/src/lib/Hearth/store.ts
+index fbf628e..7c0a585 100644
+--- a/src/lib/Hearth/store.ts
++++ b/src/lib/Hearth/store.ts
+@@ -143,8 +143,7 @@ export async function saveEdit(force = false): Promise<boolean> {
+ 	clearTimeout(savedToastTimer);
+ 	savedToastTimer = setTimeout(() => saveState.set('idle'), 2500);
+ 	editSnapshot = null;
+-	undoStack.length = 0;
+-	redoStack.length = 0;
++	configHistory.clear();
+ 	syncHistoryFlags();
+ 	editor.set(null);
+ 	hearthEditMode.set(false);

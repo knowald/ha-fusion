@@ -1,0 +1,26 @@
+Context and Code Inputs supplied for Pattern Discovery:
+1. src/lib/Stores.ts (lines 20-40, 145-155):
+   export const dashboard = writable<Dashboard>();
+   export const history = writable<string[]>([]);
+   export const historyIndex = writable<number>(0);
+   export const record = writable<() => void>(() => {});
+   export function historyUpdater(func: () => void) { record.set(func); }
+
+2. src/lib/Drawer/HistoryButtons.svelte (lines 15-85):
+   historyUpdater(snapshot);
+   function snapshot() { ... JSON.stringify($dashboard) ... }
+   function set(newIndex: number) { ... JSON.parse($history[$historyIndex]) ... }
+
+3. src/lib/Hearth/store.ts (lines 18-110) & src/lib/Hearth/config.ts (lines 324-345):
+   export const hearthConfig = writable<HearthConfig>(...);
+   const undoStack: HearthConfig[] = [];
+   const redoStack: HearthConfig[] = [];
+   export function updateConfig(mutate) { ... undoStack.push(config); ... }
+   export function undoConfig() { ... }
+   export function redoConfig() { ... }
+   let editSnapshot: HearthConfig | null = null;
+   export function enterEditMode() { ... }
+   export function cancelEdit() { ... }
+
+4. src/lib/Conditional.ts (lines 55-165) & src/lib/Types.ts (lines 55-70):
+   validateCondition(), handleAnd(), handleOr(), handleState(), handleNumericState(), handleScreen()

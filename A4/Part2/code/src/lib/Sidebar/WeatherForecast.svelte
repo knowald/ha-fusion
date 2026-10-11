@@ -1,0 +1,276 @@
+<script lang="ts">
+	import { states, selectedLanguage, lang, connection, forecasts, dragging } from '$lib/Stores';
+	import { iconMapMaterialSymbolsLight, iconMapMeteocons, iconMapWeatherIcons } from '$lib/Weather';
+	import type { WeatherIconSet, WeatherIconConditions, WeatherIconMapping } from '$lib/Weather';
+	import Icon from '@iconify/svelte';
+	import { getSupport } from '$lib/Utils';
+	import { onDestroy } from 'svelte';
+	import { writable } from 'svelte/store';
+
+	let { sel }: { sel: any } = $props();
+
+	let unsubscribe: any;
+	let busy = $state(false);
+	const debug = false;
+
+	let entity = $derived($states?.[sel?.entity_id]);
+	let attributes = $derived(entity?.attributes);
+	let supported_features = $derived(attributes?.supported_features);
+
+	let supports = $derived(
+		getSupport(supported_features, {
+			FORECAST_DAILY: 1,
+			FORECAST_HOURLY: 2,
+			FORECAST_TWICE_DAILY: 4
+		})
+	);
+
+	/**
+	 * tame reactivity
+	 */
+	// svelte-ignore state_referenced_locally
+	const entity_id = writable<string | undefined>(sel?.entity_id);
+	// svelte-ignore state_referenced_locally
+	const forecast_type = writable<string | undefined>(sel?.forecast_type);
+
+	$effect(() => {
+		if (sel?.entity_id) $entity_id = sel?.entity_id;
+	});
+	$effect(() => {
+		$forecast_type = sel?.forecast_type;
+	});
+
+	// forecast_type fallback
+	let defaultForecastType = $derived(
+		Object.keys(supports)
+			?.find((key) => supports?.[key])
+			?.replace('FORECAST_', '')
+			?.toLowerCase()
+	);
+
+	// get forecast when not dragging
+	// and when entity_id or forecast_type changes
+	$effect(() => {
+		if (($forecast_type || !$forecast_type) && $entity_id && !$dragging && defaultForecastType) {
+			getForecast();
+
+			if (debug) {
+				console.debug({
+					$forecast_type,
+					$entity_id,
+					$dragging
+				});
+			}
+		}
+	});
+
+	async function getForecast() {
+		if (busy) return;
+		busy = true;
+
+		// cleanup old sub
+		if (unsubscribe) {
+			if (debug) console.debug('forecast unsubscribed');
+			unsubscribe?.();
+		}
+
+		try {
+			unsubscribe = await $connection?.subscribeMessage(
+				(data: any) => {
+					$forecasts[sel?.id] = { ...data, entity_id: $entity_id, subscribed: Date.now() };
+					if (debug) console.debug('forecast subscribed');
+				},
+				{
+					type: 'weather/subscribe_forecast',
+					entity_id: $entity_id,
+					forecast_type: $forecast_type || defaultForecastType
+				}
+			);
+		} catch (err) {
+			console.error(err);
+		} finally {
+			busy = false;
+		}
+	}
+
+	let iconSet: WeatherIconSet = $derived.by(() => {
+		if (sel?.icon_pack === 'materialsymbolslight') {
+			return iconMapMaterialSymbolsLight;
+		} else if (sel?.icon_pack === 'meteocons') {
+			return iconMapMeteocons;
+		} else if (sel?.icon_pack === 'weathericons') {
+			return iconMapWeatherIcons;
+		} else {
+			return iconMapMeteocons;
+		}
+	});
+
+	// Some providers expose dozens of points; configuration supports at most seven.
+	let calculated = $derived(Math.max(1, Math.min(sel?.days_to_show ?? 7, 7)));
+	// Keep each forecast legible and render only as many as the measured width can hold.
+	const MIN_FORECAST_ITEM_WIDTH = 48;
+	let containerWidth = $state(0);
+	let visibleCount = $derived(
+		Math.min(
+			calculated,
+			Math.max(1, Math.floor(Math.max(0, containerWidth - 4) / MIN_FORECAST_ITEM_WIDTH))
+		)
+	);
+
+	interface Forecast {
+		condition: string;
+		icon: WeatherIconMapping;
+		date: string;
+		temperature: number;
+	}
+
+	let forecast: Forecast[] = $derived(
+		$forecasts?.[sel?.id]?.forecast?.slice(0, calculated).map(function (item: any) {
+			let icon: WeatherIconMapping =
+				iconSet.conditions[item?.condition as keyof WeatherIconConditions];
+			let x: Forecast = {
+				condition: item?.condition,
+				icon: icon,
+				date: item?.datetime,
+				temperature: item?.temperature
+			};
+
+			return x;
+		})
+	);
+	let visibleForecast = $derived(forecast?.slice(0, visibleCount));
+
+	// Different forecast providers choose different intervals, we need to figure out display based on this
+	let forecast_diff = $derived(
+		(new Date(forecast?.[1]?.date).valueOf() - new Date(forecast?.[0]?.date).valueOf()) / 3600000
+	);
+
+	// cleanup
+	onDestroy(() => {
+		if (unsubscribe) {
+			if (debug) console.debug('forecast destroyed');
+			unsubscribe?.();
+		}
+	});
+</script>
+
+{#if forecast}
+	<div
+		class="container"
+		bind:clientWidth={containerWidth}
+		style:--forecast-count={Math.max(1, visibleForecast?.length ?? 0)}
+		data-visible-count={visibleForecast?.length ?? 0}
+	>
+		{#each visibleForecast as forecast, i (i)}
+			<div class="item">
+				<div class="day">
+					{#if forecast_diff < 24}
+						{new Intl.DateTimeFormat($selectedLanguage, { hour: 'numeric' }).format(
+							new Date(forecast.date)
+						)}
+					{:else}
+						{new Intl.DateTimeFormat($selectedLanguage, { weekday: 'short' }).format(
+							new Date(forecast.date)
+						)}
+					{/if}
+				</div>
+
+				<div class="icon">
+					{#if forecast.icon.local}
+						<icon class="ff-fill">
+							<img src="{forecast.icon.icon_variant_day}.svg" width="100%" height="100%" alt="" />
+						</icon>
+					{:else}
+						<Icon icon={forecast.icon.icon_variant_day} width="100%" height="100%"></Icon>
+					{/if}
+				</div>
+
+				<div class="temp">
+					{Math.round(forecast.temperature)}{attributes?.temperature_unit || '°'}
+				</div>
+			</div>
+		{/each}
+	</div>
+{:else}
+	<div class="empty">
+		{$lang('weather_forecast')}
+	</div>
+{/if}
+
+<style>
+	.item {
+		display: grid;
+		grid-column-gap: 0px;
+		grid-row-gap: 0px;
+		grid-template-areas:
+			'day'
+			'icon'
+			'temp';
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		text-overflow: ellipsis;
+		overflow: hidden;
+		min-width: 0;
+	}
+
+	.container {
+		padding: var(--theme-sidebar-item-padding);
+		display: grid;
+		grid-template-columns: repeat(var(--forecast-count), minmax(0, 1fr));
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		text-overflow: ellipsis;
+		overflow: hidden;
+		padding-left: 0;
+		padding-right: 0.25rem;
+		margin-left: -0.1rem;
+		min-height: 7.5rem;
+		width: 100%;
+	}
+
+	.empty {
+		word-wrap: break-word;
+		padding: 0.5em;
+		overflow: hidden;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+		min-height: 7.5rem;
+	}
+
+	.day {
+		grid-area: day;
+		justify-content: center;
+		display: flex;
+		width: 100%;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.icon {
+		grid-area: icon;
+		width: 100%;
+		max-width: 3.6rem;
+		aspect-ratio: 1;
+		display: flex;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		justify-content: center;
+		transform-origin: right;
+		margin: 0 auto;
+	}
+
+	.temp {
+		grid-area: temp;
+		justify-content: center;
+		display: flex;
+		white-space: nowrap;
+		width: 100%;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+	}
+
+	.ff-fill {
+		width: 100%;
+		height: 100%;
+	}
+</style>

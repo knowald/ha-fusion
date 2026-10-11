@@ -1,0 +1,3 @@
+Analyze the ha-fusion repository (commit 65cc1957c39c6005609102c33650c32abc8d12f0) for design pattern implementations.
+Identify candidate patterns, determine their participants, evaluate whether they conform to GoF/GRASP definitions, and provide exact file and line ranges for each participant.
+Do not invent classes where none exist. Identify whether candidates are confirmed, uncertain, or rejected.

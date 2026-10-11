@@ -1,0 +1,75 @@
+classDiagram
+    direction TB
+
+    %% Instance 1: Classic Dashboard Edit History
+    class DashboardStore {
+        <<Originator>>
+        +subscribe(run)
+        +set(Dashboard)
+        +update(updater)
+    }
+    class HistoryStore {
+        <<Memento>>
+        +string[] history
+        +number historyIndex
+    }
+    class HistoryButtons {
+        <<Caretaker>>
+        -snapshot()
+        -set(newIndex)
+        +canUndo: boolean
+        +canRedo: boolean
+        -restoreViewSelection()
+    }
+    class HistoryUpdater {
+        <<Registration / Invoker>>
+        +record: Writable~Function~
+        +historyUpdater(func)
+    }
+
+    DashboardStore <.. HistoryButtons : reads & restores
+    HistoryButtons --> HistoryStore : pushes JSON & restores
+    HistoryButtons ..> HistoryUpdater : registers snapshot()
+
+    %% Instance 2: Hearth Config History & Transaction
+    class HearthStore {
+        <<Originator & Caretaker>>
+        +hearthConfig: Writable~HearthConfig~
+        -undoStack: HearthConfig[]
+        -redoStack: HearthConfig[]
+        -editSnapshot: HearthConfig | null
+        +updateConfig(mutate)
+        +undoConfig()
+        +redoConfig()
+        +enterEditMode()
+        +cancelEdit()
+        +canUndo: Writable~boolean~
+        +canRedo: Writable~boolean~
+    }
+    class HearthConfig {
+        <<Memento>>
+        +rooms: HearthRoom[]
+        +rail: RailWidget[]
+        +theme: HearthTheme
+        +theme_night: HearthTheme
+        +screensaver_minutes: number
+    }
+    HearthStore --> HearthConfig : clones, snapshots & restores
+
+    %% Instance 3: Konva Editor History
+    class KonvaEditor {
+        <<Originator & Caretaker>>
+        -undoStack: KonvaHistory[]
+        -redoStack: KonvaHistory[]
+        -maxHistory: number
+        -record()
+        +undo()
+        +redo()
+        -applyState(state: KonvaHistory)
+    }
+    class KonvaHistory {
+        <<Memento>>
+        +elements: ShapeConfig[]
+        +selectedShapes: string[]
+    }
+    KonvaEditor --> KonvaHistory : stores snapshots & reconstructs canvas

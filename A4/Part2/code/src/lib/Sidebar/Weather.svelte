@@ -1,0 +1,208 @@
+<script lang="ts">
+	import { states, lang } from '$lib/Stores';
+	import type { HassEntity } from 'home-assistant-js-websocket';
+	import Icon from '@iconify/svelte';
+
+	let { sel }: { sel: any } = $props();
+
+	let entity: HassEntity = $state(undefined as any);
+	$effect(() => {
+		if (sel?.entity_id && $states?.[sel?.entity_id]?.last_updated !== entity?.last_updated) {
+			entity = $states?.[sel?.entity_id];
+		}
+	});
+
+	let attributes = $derived(entity?.attributes);
+
+	// icon pack
+	let below_horizon = $derived($states?.['sun.sun']?.state === 'below_horizon');
+	let src = $derived(`weather/meteocons/${entity?.state}-${below_horizon ? 'night' : 'day'}.svg`);
+
+	// sensor
+	let sensor = $derived(sel?.sensor && $states?.[sel?.sensor]);
+
+	let containerWidth = $state(0);
+	let compact = $derived(containerWidth > 0 && containerWidth < 220);
+	let minimal = $derived(containerWidth > 0 && containerWidth < 150);
+</script>
+
+{#if entity && entity?.state !== 'unavailable' && entity?.state !== 'unknown'}
+	<div
+		class="container"
+		class:compact
+		class:minimal
+		bind:clientWidth={containerWidth}
+		data-width={Math.round(containerWidth)}
+	>
+		<div class="icon">
+			<img {src} width="100%" height="100%" alt="" />
+		</div>
+
+		{#if attributes?.temperature}
+			<div class="temperature">
+				{#if sel?.show_apparent}
+					{Math.round(attributes?.temperature)}{#if attributes.apparent_temperature}({Math.round(
+							attributes?.apparent_temperature
+						)}){/if}{attributes?.temperature_unit || '°'}
+				{:else}
+					{Math.round(attributes?.temperature)}{attributes?.temperature_unit || '°'}
+				{/if}
+			</div>
+		{/if}
+
+		<div class="state">
+			{#if sel?.state && $states?.[sel?.state]?.state}
+				<span>{$states?.[sel?.state]?.state}</span>
+			{:else if entity?.state}
+				<span>
+					{$lang(`weather_${entity?.state?.replace('-', '_')}`)}
+				</span>
+			{/if}
+		</div>
+
+		{#if sensor}
+			<div class="sensor">
+				<div class="sensor-icon">
+					<Icon icon={sel?.icon || 'codicon:blank'} height="none" />
+				</div>
+
+				<span class="sensor-value">
+					{sensor?.state}{#if sensor?.attributes?.unit_of_measurement}{sensor?.attributes
+							?.unit_of_measurement}{/if}
+				</span>
+			</div>
+		{/if}
+	</div>
+{:else}
+	<div class="empty">
+		{$lang('weather')}
+	</div>
+{/if}
+
+<style>
+	.empty {
+		word-wrap: break-word;
+		padding: 0.5em;
+		overflow: hidden;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+	}
+
+	.container {
+		padding: var(--theme-sidebar-item-padding);
+		display: grid;
+		grid-template-columns: 3.5rem auto minmax(0, 1fr);
+		grid-template-rows: auto auto;
+		grid-template-areas:
+			'icon temperature sensor'
+			'icon state state';
+		align-items: center;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		overflow: hidden;
+		width: 100%;
+	}
+
+	.icon {
+		grid-area: icon;
+		width: 3rem;
+		height: 3rem;
+		display: flex;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		align-items: flex-start;
+		scale: 1.2;
+		transform-origin: right;
+		margin-right: 0.4rem;
+		margin-left: 0.1rem;
+	}
+
+	.temperature {
+		grid-area: temperature;
+		align-self: end;
+		justify-self: stretch;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.state {
+		grid-area: state;
+		justify-self: start;
+		align-self: start;
+		display: flex;
+		white-space: nowrap;
+		width: 100%;
+		min-width: 0;
+		overflow: hidden;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+	}
+
+	span::first-letter {
+		text-transform: uppercase;
+	}
+
+	span {
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	img {
+		height: 100%;
+	}
+
+	.sensor {
+		grid-area: sensor;
+		justify-self: end;
+		align-self: end;
+		display: flex;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		align-items: flex-end;
+		min-width: 0;
+		max-width: 100%;
+		overflow: hidden;
+	}
+
+	.sensor-icon {
+		flex: 0 0 auto;
+		width: 1.22rem;
+		text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		display: flex;
+		margin-right: 0.2rem;
+		align-self: center;
+	}
+
+	.sensor-value {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.container.compact {
+		grid-template-columns: 2.7rem minmax(0, 1fr);
+		grid-template-areas:
+			'icon temperature'
+			'icon state';
+	}
+
+	.compact .icon {
+		width: 2.3rem;
+		height: 2.3rem;
+		margin-left: 0;
+		margin-right: 0.4rem;
+		scale: 1;
+		transform-origin: center;
+	}
+
+	.compact .sensor {
+		display: none;
+	}
+
+	.container.minimal {
+		grid-template-rows: auto;
+		grid-template-areas: 'icon temperature';
+	}
+
+	.minimal .state {
+		display: none;
+	}
+</style>

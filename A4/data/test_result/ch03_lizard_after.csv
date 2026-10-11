@@ -1,0 +1,119 @@
+20,12,92,1,21,"cardNeedsConfiguration@3-23@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","cardNeedsConfiguration","cardNeedsConfiguration ( card OverviewCard )",3,23
+5,1,29,1,7,"cardConfigurationLabel@23-29@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","cardConfigurationLabel","cardConfigurationLabel ( card OverviewCard )",23,29
+2,1,10,1,2,"weather@30-31@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","weather","weather ( w )",30,31
+2,1,10,1,2,"energy@31-32@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","energy","energy ( w )",31,32
+2,1,10,1,2,"entity@32-33@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","entity","entity ( w )",32,33
+2,1,10,1,2,"progress@33-34@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","progress","progress ( w )",33,34
+2,1,12,1,2,"calendar@34-35@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","calendar","calendar ( w )",34,35
+2,1,12,1,2,"fusion@35-36@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","fusion","fusion ( w )",35,36
+2,2,18,1,2,"alert@36-37@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","alert","alert ( w )",36,37
+5,2,30,1,6,"railWidgetNeedsConfiguration@39-44@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","railWidgetNeedsConfiguration","railWidgetNeedsConfiguration ( widget RailWidget )",39,44
+4,2,28,1,4,"railConfigurationLabel@44-47@src/lib/Hearth/configurationState.ts","src/lib/Hearth/configurationState.ts","railConfigurationLabel","railConfigurationLabel ( widget RailWidget )",44,47
+4,2,23,1,6,"isStack@268-273@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","isStack","isStack ( item OverviewItem )",268,273
+1,1,6,0,1,"(anonymous)@281-281@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",281,281
+1,1,6,0,1,"(anonymous)@283-283@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",283,283
+17,9,107,3,18,"findOverviewItemList@273-290@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","findOverviewItemList","findOverviewItemList ( config HearthConfig , id , roomId )",273,290
+1,1,6,0,1,"(anonymous)@295-295@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",295,295
+9,4,54,3,11,"findOverviewCard@290-300@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","findOverviewCard","findOverviewCard ( config HearthConfig , id , roomId )",290,300
+1,1,9,0,1,"(anonymous)@305-305@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",305,305
+1,1,7,0,1,"(anonymous)@308-308@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",308,308
+11,2,90,2,13,"wildcardEntityIds@300-312@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","wildcardEntityIds","wildcardEntityIds ( pattern undefined , entityIds )",300,312
+6,7,70,1,7,"fillWeight@318-324@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","fillWeight","fillWeight ( item OverviewItem )",318,324
+1,1,2,0,1,"(anonymous)@480-480@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",480,480
+1,1,2,0,1,"(anonymous)@481-481@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",481,481
+3,3,34,1,3,"isRecord@483-485@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","isRecord","isRecord ( value )",483,485
+9,4,95,3,9,"checkId@498-506@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","checkId","checkId ( value , path , seen Map )",498,506
+5,4,44,0,5,"(anonymous)@512-516@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",512,516
+7,2,51,2,11,"checkRefs@507-517@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","checkRefs","checkRefs ( value , path )",507,517
+1,1,18,0,1,"(anonymous)@527-527@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",527,527
+22,11,228,3,22,"checkCard@518-539@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","checkCard","checkCard ( value , path , allowStack )",518,539
+11,4,81,0,11,"(anonymous)@543-553@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",543,553
+1,1,18,0,1,"(anonymous)@576-576@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",576,576
+8,2,54,0,8,"(anonymous)@570-577@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",570,577
+13,3,91,0,20,"(anonymous)@559-578@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",559,578
+20,4,166,1,94,"hearthConfigIssues@492-585@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","hearthConfigIssues","hearthConfigIssues ( raw )",492,585
+15,11,137,1,17,"normalizeVisibilityCondition@637-653@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeVisibilityCondition","normalizeVisibilityCondition ( raw )",637,653
+1,1,4,0,1,"(anonymous)@657-657@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",657,657
+12,3,98,1,19,"normalizeVisibility@653-671@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeVisibility","normalizeVisibility ( raw )",653,671
+1,1,8,0,1,"(anonymous)@672-672@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",672,672
+4,1,37,1,10,"registryEntityRefs@671-680@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","registryEntityRefs","registryEntityRefs ( registry entity name )",671,680
+1,1,7,0,1,"(anonymous)@713-713@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",713,713
+1,1,20,0,1,"(anonymous)@714-714@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",714,714
+42,13,252,2,44,"migrateLegacyCard@680-723@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","migrateLegacyCard","migrateLegacyCard ( card , registries LegacyRegistries )",680,723
+6,4,49,1,8,"normalizeFill@723-730@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeFill","normalizeFill ( raw )",723,730
+4,4,38,1,5,"normalizeHeight@730-734@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeHeight","normalizeHeight ( raw )",730,734
+17,8,95,1,18,"normalizeVerdict@734-751@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeVerdict","normalizeVerdict ( raw )",734,751
+19,10,140,1,22,"normalizeEntityRef@751-772@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeEntityRef","normalizeEntityRef ( raw )",751,772
+4,3,32,1,5,"trimmedOrUndefined@772-776@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","trimmedOrUndefined","trimmedOrUndefined ( value )",772,776
+15,6,95,1,19,"normalizeSceneRef@776-794@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeSceneRef","normalizeSceneRef ( raw )",776,794
+12,4,83,1,14,"normalizeVacuumModeRef@794-807@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeVacuumModeRef","normalizeVacuumModeRef ( raw )",794,807
+6,3,46,3,7,"reserveId@807-813@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","reserveId","reserveId ( raw , fallback , taken )",807,813
+1,1,4,0,1,"(anonymous)@828-828@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",828,828
+35,12,254,4,38,"normalizeCard@813-850@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeCard","normalizeCard ( raw , fallbackId , registries LegacyRegistries , taken )",813,850
+1,1,4,0,1,"(anonymous)@865-865@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",865,865
+1,1,4,0,1,"(anonymous)@872-872@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",872,872
+1,1,1,0,1,"(anonymous)@897-897@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",897,897
+1,1,1,0,1,"(anonymous)@904-904@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",904,904
+22,7,157,4,23,"normalizeStack@883-905@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeStack","normalizeStack ( raw , fallbackId , registries LegacyRegistries , taken )",883,905
+11,2,53,4,16,"normalizeOverviewItem@917-932@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeOverviewItem","normalizeOverviewItem ( raw , fallbackId , registries LegacyRegistries , taken )",917,932
+2,1,2,0,2,"(anonymous)@933-934@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",933,934
+7,4,89,2,10,"resizeCardColumns@932-941@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","resizeCardColumns","resizeCardColumns ( columns OverviewItem , count )",932,941
+1,1,3,0,1,"(anonymous)@943-943@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",943,943
+7,4,58,1,13,"ensureRoomCardColumns@941-953@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","ensureRoomCardColumns","ensureRoomCardColumns ( room HearthRoom )",941,953
+1,1,8,0,1,"(anonymous)@965-965@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",965,965
+1,1,1,0,1,"(anonymous)@970-970@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",970,970
+1,1,1,0,1,"(anonymous)@975-975@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",975,975
+1,1,1,0,1,"(anonymous)@981-981@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",981,981
+30,12,234,5,38,"normalizeRoomCards@953-990@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeRoomCards","normalizeRoomCards ( room , roomId , columns undefined , registries LegacyRegistries , taken )",953,990
+10,4,72,1,11,"deviceEntityRef@990-1000@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deviceEntityRef","deviceEntityRef ( device )",990,1000
+1,1,6,0,1,"(anonymous)@1002-1002@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1002,1002
+1,1,10,0,1,"(anonymous)@1002-1002@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1002,1002
+1,1,4,0,1,"(anonymous)@1003-1003@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1003,1003
+1,1,16,0,1,"(anonymous)@1004-1004@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1004,1004
+7,2,68,2,14,"registryRefs@1000-1013@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","registryRefs","registryRefs ( ids , registry LegacyRegistries )",1000,1013
+1,1,4,0,1,"(anonymous)@1023-1023@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1023,1023
+1,2,23,0,1,"(anonymous)@1023-1023@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1023,1023
+1,1,4,0,1,"(anonymous)@1034-1034@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1034,1034
+49,14,378,5,60,"migrateRoomGrids@1013-1072@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","migrateRoomGrids","migrateRoomGrids ( room , roomId , columns OverviewItem , registries LegacyRegistries , taken )",1013,1072
+34,12,204,5,40,"normalizeRoom@1072-1111@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeRoom","normalizeRoom ( raw , index , registries LegacyRegistries , taken , takenItems )",1072,1111
+2,1,13,0,2,"(anonymous)@1126-1127@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1126,1127
+14,7,156,1,17,"normalizeHearthConfig@1111-1127@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","normalizeHearthConfig","normalizeHearthConfig ( raw )",1111,1127
+1,1,6,0,1,"(anonymous)@1170-1170@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1170,1170
+1,1,18,0,1,"(anonymous)@1171-1171@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1171,1171
+1,1,7,0,1,"(anonymous)@1194-1194@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1194,1194
+1,1,20,0,1,"(anonymous)@1195-1195@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1195,1195
+1,1,6,0,1,"(anonymous)@1205-1205@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1205,1205
+2,3,16,0,2,"(anonymous)@1220-1221@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1220,1221
+2,1,5,0,2,"(anonymous)@1228-1229@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1228,1229
+7,1,48,0,10,"(anonymous)@1222-1231@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1222,1231
+2,1,5,0,2,"(anonymous)@1236-1237@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1236,1237
+2,1,5,0,2,"(anonymous)@1241-1242@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1241,1242
+5,5,35,1,6,"domainIcon@1352-1357@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","domainIcon","domainIcon ( entityId )",1352,1357
+8,2,32,1,8,"slugify@1357-1364@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","slugify","slugify ( name )",1357,1364
+3,1,26,1,3,"capitalize@1367-1369@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","capitalize","capitalize ( text )",1367,1369
+6,2,47,2,6,"uniqueId@1371-1376@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","uniqueId","uniqueId ( base , taken )",1371,1376
+4,2,40,1,6,"overviewItemIds@1378-1383@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","overviewItemIds","overviewItemIds ( item OverviewItem )",1378,1383
+1,3,19,0,1,"(anonymous)@1384-1384@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1384,1384
+4,1,25,1,5,"takenCardIds@1383-1387@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","takenCardIds","takenCardIds ( config HearthConfig )",1383,1387
+4,2,22,1,11,"overviewItemTypeKey@1387-1397@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","overviewItemTypeKey","overviewItemTypeKey ( item OverviewItem )",1387,1397
+5,2,50,1,5,"assignIds@1399-1403@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","assignIds","assignIds ( node OverviewItem )",1399,1403
+7,1,76,1,7,"channel@1538-1544@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","channel","channel ( offset )",1538,1544
+5,1,37,3,14,"mixHex@1537-1550@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","mixHex","mixHex ( a , b , t )",1537,1550
+23,2,190,2,24,"deriveAccent@1550-1573@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveAccent","deriveAccent ( hex , light false )",1550,1573
+19,2,129,2,20,"deriveCool@1573-1592@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveCool","deriveCool ( hex , light false )",1573,1592
+4,2,38,2,5,"deriveBad@1592-1596@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveBad","deriveBad ( hex , light false )",1592,1596
+9,1,51,2,11,"deriveBackground@1596-1606@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveBackground","deriveBackground ( inner , outer )",1596,1606
+1,1,18,0,1,"(anonymous)@1609-1609@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1609,1609
+7,2,80,1,8,"luminance@1606-1613@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","luminance","luminance ( hex )",1606,1613
+5,3,32,1,6,"isLightTheme@1613-1618@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","isLightTheme","isLightTheme ( theme HearthTheme )",1613,1618
+14,1,145,3,14,"deriveText@1618-1631@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveText","deriveText ( ink , background , light false )",1618,1631
+1,1,11,0,1,"(anonymous)@1651-1651@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1651,1651
+14,1,63,1,16,"deriveRadii@1649-1664@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","deriveRadii","deriveRadii ( factor )",1649,1664
+1,2,16,2,1,"(anonymous)@1671-1671@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous) ( seed cool deriveCool ( seed cool , light )",1671,1671
+24,4,132,1,25,"buildTheme@1664-1688@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","buildTheme","buildTheme ( seed ThemeSeed )",1664,1688
+5,2,44,1,5,"hexToTriplet@1765-1769@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","hexToTriplet","hexToTriplet ( value )",1765,1769
+1,1,4,0,1,"(anonymous)@1774-1774@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1774,1774
+6,4,72,0,8,"(anonymous)@1775-1782@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1775,1782
+8,2,54,1,20,"themeStyle@1771-1790@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","themeStyle","themeStyle ( theme HearthTheme )",1771,1790
+1,1,10,0,1,"(anonymous)@1806-1806@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","(anonymous)","(anonymous)",1806,1806
+13,4,86,2,19,"isNightState@1800-1818@src/lib/Hearth/config.ts","src/lib/Hearth/config.ts","isNightState","isNightState ( state undefined , config DayNightSwitch )",1800,1818

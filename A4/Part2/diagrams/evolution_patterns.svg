@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="730" viewBox="0 0 1500 730" role="img" aria-labelledby="title desc">
+<title id="title">Pattern collaborations introduced or changed by CH01 to CH03</title>
+<desc id="desc">Three panels show condition evaluator strategies, the Hearth history caretaker, and alert widget validator strategies and rendering.</desc>
+<style>text{font-family:Arial,sans-serif;fill:#172033}.panel{fill:#f7f9fc;stroke:#62748e;stroke-width:2}.node{fill:#fff;stroke:#365d8d;stroke-width:2;rx:10}.new{fill:#e8f4ff;stroke:#1769aa;stroke-width:2;rx:10}.heading{font-size:23px;font-weight:bold}.label{font-size:17px}.small{font-size:15px}.arrow{stroke:#52657f;stroke-width:2.5;fill:none;marker-end:url(#arrow)}</style>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#52657f"/></marker></defs>
+<rect x="20" y="20" width="460" height="690" class="panel" rx="14"/><text x="48" y="62" class="heading">CH01 · Condition evaluator</text>
+<rect x="70" y="115" width="350" height="65" class="node"/><text x="245" y="155" text-anchor="middle" class="label">Condition discriminant</text>
+<path d="M245 180 V220" class="arrow"/><rect x="70" y="225" width="350" height="65" class="node"/><text x="245" y="265" text-anchor="middle" class="label">validateCondition()</text>
+<path d="M245 290 V330" class="arrow"/><rect x="70" y="335" width="350" height="65" class="new"/><text x="245" y="375" text-anchor="middle" class="label">CONDITION_EVALUATORS map</text>
+<path d="M245 400 V440" class="arrow"/><rect x="55" y="445" width="380" height="125" class="new"/><text x="245" y="480" text-anchor="middle" class="label">Function strategies</text><text x="245" y="515" text-anchor="middle" class="small">and · or · not · state</text><text x="245" y="542" text-anchor="middle" class="small">numeric_state · screen</text>
+<text x="245" y="635" text-anchor="middle" class="small">Adds negation and map-based dispatch</text>
+<rect x="520" y="20" width="460" height="690" class="panel" rx="14"/><text x="548" y="62" class="heading">CH02 · Hearth history</text>
+<rect x="590" y="145" width="320" height="75" class="node"/><text x="750" y="190" text-anchor="middle" class="label">Hearth store</text>
+<path d="M750 220 V285" class="arrow"/><rect x="575" y="290" width="350" height="95" class="new"/><text x="750" y="330" text-anchor="middle" class="label">HistoryManager&lt;HearthConfig&gt;</text><text x="750" y="360" text-anchor="middle" class="small">bounded snapshot caretaker</text>
+<path d="M750 385 V450" class="arrow"/><rect x="590" y="455" width="320" height="90" class="node"/><text x="750" y="492" text-anchor="middle" class="label">Undo / redo stacks</text><text x="750" y="520" text-anchor="middle" class="small">push · undo · redo · clear</text>
+<text x="750" y="635" text-anchor="middle" class="small">Moves history mechanics out of the store</text>
+<rect x="1020" y="20" width="460" height="690" class="panel" rx="14"/><text x="1048" y="62" class="heading">CH03 · Rail alert widget</text>
+<rect x="1090" y="105" width="320" height="65" class="node"/><text x="1250" y="145" text-anchor="middle" class="label">RailWidget.type</text>
+<path d="M1250 170 V205" class="arrow"/><rect x="1090" y="210" width="320" height="65" class="node"/><text x="1250" y="250" text-anchor="middle" class="label">railWidgetNeedsConfiguration()</text>
+<path d="M1250 275 V310" class="arrow"/><rect x="1090" y="315" width="320" height="65" class="new"/><text x="1250" y="355" text-anchor="middle" class="label">WIDGET_CONFIG_VALIDATORS map</text>
+<path d="M1250 380 V415" class="arrow"/><rect x="1090" y="420" width="320" height="75" class="new"/><text x="1250" y="450" text-anchor="middle" class="label">Predicates incl. alert</text><text x="1250" y="478" text-anchor="middle" class="small">function-based strategies</text>
+<rect x="1090" y="545" width="320" height="65" class="new"/><text x="1250" y="585" text-anchor="middle" class="label">Alert variant → renderer</text>
+<text x="1250" y="650" text-anchor="middle" class="small">Adds alert configuration and display</text>
+</svg>

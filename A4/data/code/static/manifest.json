@@ -1,0 +1,21 @@
+{
+	"name": "ha-fusion",
+	"short_name": "ha-fusion",
+	"id": "/",
+	"start_url": "/",
+	"display": "standalone",
+	"icons": [
+		{
+			"src": "/icon-192.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "/favicon.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"theme_color": "#1d2126",
+	"background_color": "#1d2126"
+}

@@ -1,0 +1,45 @@
+graph TB
+    subgraph Client["Client UI Layer (Svelte 5 / SvelteKit)"]
+        ClassicUI["Classic Dashboard UI<br/>(src/routes/+page.svelte)"]
+        HearthUI["Hearth Modern Dashboard<br/>(src/routes/hearth/+page.svelte)"]
+        ModalLayer["Modal Dialogs Layer<br/>(src/lib/Modal/*.svelte)"]
+        CanvasEditor["Floorplan Canvas<br/>(PictureElements / Konva)"]
+    end
+
+    subgraph StoreLayer["State & Store Management Layer"]
+        ClassicStores["Classic Stores<br/>($dashboard, $history, $historyIndex)<br/>(src/lib/Stores.ts)"]
+        HearthStores["Hearth Stores<br/>(hearthConfig, undoStack, redoStack)<br/>(src/lib/Hearth/store.ts)"]
+        EntityStore["Entity States Store<br/>($states: HassEntities)<br/>(src/lib/Stores.ts)"]
+    end
+
+    subgraph CoreEngine["Core Logic & Dispatch Engines"]
+        ConditionEngine["Visibility Condition Engine<br/>(Composite / Interpreter)<br/>(src/lib/Conditional.ts)"]
+        ModalFactory["Entity Modal Factory<br/>(Factory Method)<br/>(src/lib/Hearth/modals.ts)"]
+        KonvaEngine["Canvas Engine<br/>(Template Method & Memento)<br/>(src/lib/Modal/PictureElements/)"]
+    end
+
+    subgraph Network["Communication & Backend Layer"]
+        SocketManager["WebSocket Manager<br/>(Observer Subject: conn)<br/>(src/lib/Socket.ts)"]
+        ServerRoutes["SvelteKit Server Routes<br/>(src/routes/_api/*)"]
+    end
+
+    subgraph External["External Systems"]
+        HACore[("Home Assistant Core<br/>(WebSocket API & REST)")]
+    end
+
+    ClassicUI --> ClassicStores
+    HearthUI --> HearthStores
+    ModalLayer --> ModalFactory
+    CanvasEditor --> KonvaEngine
+
+    ClassicStores --> ConditionEngine
+    HearthStores --> ConditionEngine
+
+    SocketManager -->|Observer Notification| EntityStore
+    EntityStore --> ClassicUI
+    EntityStore --> HearthUI
+
+    SocketManager <-->|WebSocket| HACore
+    ServerRoutes <-->|Config Persistence| HACore
+    HearthStores --> ServerRoutes
+    ClassicStores --> ServerRoutes

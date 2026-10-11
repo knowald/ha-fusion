@@ -1,0 +1,61 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: ha-fusion version
+      description: Shown in the add-on info tab, or the image tag for Docker installs.
+      placeholder: 2026.7.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Install method
+      options:
+        - Home Assistant add-on
+        - Docker
+        - Local development (Node.js)
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      placeholder: 2026.6.3
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Safari on iPad, Chrome on desktop, Fully Kiosk on tablet
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and console output
+      description: Add-on log tab or `docker logs ha-fusion`, plus browser console errors (F12 > Console). Screenshots help too.
+      render: text
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant dashboard.yaml section
+      description: The item or view involved, if the bug relates to a specific widget. Remove anything private.
+      render: yaml

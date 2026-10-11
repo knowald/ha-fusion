@@ -1,0 +1,10 @@
+$ pnpm test
+$ vitest run
+◇ injected env (0) from .env
+
+RUN v4.1.10 /Users/karthikeya/dp-work/ha-baseline
+
+Test Files  13 passed (13)
+Tests       46 passed (46)
+Start at    05:02:31
+Duration    695ms (transform 1.43s, setup 0ms, import 1.93s, tests 123ms, environment 2ms)

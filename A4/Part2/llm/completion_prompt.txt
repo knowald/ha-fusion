@@ -1,0 +1,7 @@
+User message 1 (2026-10-11):
+So lets complete part 2
+
+User message 2 (2026-10-11):
+lets fill these last holes in Part 2 then
+
+Relevant preceding context: The user requested completion of the case study except Part 3, and earlier directed the work to proceed directly to evolution evidence. The report template supplied by the professor is included in input/DP_Csestudy_template.pdf. Existing A4 Part 2 source, diffs, logs, and datasets were also used as inputs; see input_manifest.md for the specific paths and hashes.

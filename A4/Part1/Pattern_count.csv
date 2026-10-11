@@ -1,0 +1,8 @@
+"source_version","summary","pattern_name","count"
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","per_pattern","Memento",3
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","per_pattern","Composite",2
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","per_pattern","Observer",1
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","per_pattern","Factory Method",1
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","per_pattern","Template Method",1
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","total_pattern_types","",5
+"Original@65cc1957c39c6005609102c33650c32abc8d12f0","total_pattern_instances","",8

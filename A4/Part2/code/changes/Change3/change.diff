@@ -1,0 +1,246 @@
+diff --git a/src/lib/Hearth/ConfigurationPlaceholder.svelte b/src/lib/Hearth/ConfigurationPlaceholder.svelte
+index 2d018c0..cc8408f 100644
+--- a/src/lib/Hearth/ConfigurationPlaceholder.svelte
++++ b/src/lib/Hearth/ConfigurationPlaceholder.svelte
+@@ -3,15 +3,16 @@
+ 
+ 	let {
+ 		label,
++		prefix = 'Configure ',
+ 		compact = false,
+ 		context = 'card'
+-	}: { label: string; compact?: boolean; context?: 'card' | 'widget' } = $props();
++	}: { label: string; prefix?: string; compact?: boolean; context?: 'card' | 'widget' } = $props();
+ </script>
+ 
+ <div class="placeholder" class:compact>
+ 	<Icon name="tune" size={compact ? 18 : 24} color="var(--h-icon-dim)" />
+ 	<div>
+-		<strong>Configure {label}</strong>
++		<strong>{prefix}{label}</strong>
+ 		<span>Open the {context} editor to finish setup.</span>
+ 	</div>
+ </div>
+diff --git a/src/lib/Hearth/RailWidgetRenderer.svelte b/src/lib/Hearth/RailWidgetRenderer.svelte
+index 38b1491..7ac2ec8 100644
+--- a/src/lib/Hearth/RailWidgetRenderer.svelte
++++ b/src/lib/Hearth/RailWidgetRenderer.svelte
+@@ -1,5 +1,6 @@
+ <script lang="ts">
+ 	import type { RailWidget } from './config';
++	import AlertWidget from './AlertWidget.svelte';
+ 	import CalendarWidget from './CalendarWidget.svelte';
+ 	import ClockWidget from './ClockWidget.svelte';
+ 	import EnergyWidget from './EnergyWidget.svelte';
+@@ -17,7 +18,12 @@
+ </script>
+ 
+ {#if railWidgetNeedsConfiguration(widget)}
+-	<ConfigurationPlaceholder label={railConfigurationLabel(widget)} compact context="widget" />
++	<ConfigurationPlaceholder
++		label={railConfigurationLabel(widget)}
++		prefix={widget.type === 'alert' ? '' : 'Configure '}
++		compact
++		context="widget"
++	/>
+ {:else if widget.type === 'clock'}
+ 	<ClockWidget
+ 		timezone={widget.timezone}
+@@ -40,6 +46,13 @@
+ 	<CalendarWidget {widget} />
+ {:else if widget.type === 'status'}
+ 	<StatusWidget icon={widget.icon} text={widget.text} entity={widget.entity} />
++{:else if widget.type === 'alert'}
++	<AlertWidget
++		icon={widget.icon}
++		text={widget.text}
++		entity={widget.entity}
++		severity={widget.severity}
++	/>
+ {:else if widget.type === 'entity'}
+ 	<EntityTile
+ 		entity={widget.entity!}
+diff --git a/src/lib/Hearth/config.ts b/src/lib/Hearth/config.ts
+index 39af9da..56a9868 100644
+--- a/src/lib/Hearth/config.ts
++++ b/src/lib/Hearth/config.ts
+@@ -137,7 +137,15 @@ type RailWidgetVariant =
+ 			icon?: string;
+ 			vertical_padding?: 'compact';
+ 	  }
+-	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number };
++	| { id: string; type: 'fusion'; config?: Record<string, any>; height?: number }
++	| {
++			id: string;
++			type: 'alert';
++			text?: string;
++			icon?: string;
++			severity?: 'info' | 'warning' | 'error';
++			entity?: string;
++	  };
+ 
+ // hidden below Hearth's mobile breakpoint, mirroring the original sidebar's hide_mobile
+ export type RailWidget = RailWidgetVariant & {
+@@ -409,6 +417,13 @@ export const RAIL_WIDGET_TYPES = [
+ 		name: 'Fusion widget',
+ 		sub: 'graphs, cameras, more',
+ 		icon: 'widgets'
++	},
++	{
++		value: 'alert',
++		label: 'Alert',
++		name: 'Alert',
++		sub: 'system notifications',
++		icon: 'warning'
+ 	}
+ ] satisfies HearthTypeDescriptor<RailWidget['type']>[];
+ 
+diff --git a/src/lib/Hearth/configurationState.test.ts b/src/lib/Hearth/configurationState.test.ts
+index 331419f..5eb8b84 100644
+--- a/src/lib/Hearth/configurationState.test.ts
++++ b/src/lib/Hearth/configurationState.test.ts
+@@ -1,5 +1,9 @@
+ import { describe, expect, it } from 'vitest';
+-import { cardNeedsConfiguration, railWidgetNeedsConfiguration } from './configurationState';
++import {
++	cardNeedsConfiguration,
++	railConfigurationLabel,
++	railWidgetNeedsConfiguration
++} from './configurationState';
+ 
+ describe('Hearth configuration placeholders', () => {
+ 	it('covers every entity-backed card before rendering controls', () => {
+@@ -34,4 +38,16 @@ describe('Hearth configuration placeholders', () => {
+ 		).toBe(false);
+ 		expect(railWidgetNeedsConfiguration({ id: 'clock', type: 'clock' })).toBe(false);
+ 	});
++
++	it('requires alert text or an entity and labels the setup placeholder', () => {
++		const unconfiguredAlert = { id: 'alert', type: 'alert' } as const;
++		expect(railWidgetNeedsConfiguration(unconfiguredAlert)).toBe(true);
++		expect(railConfigurationLabel(unconfiguredAlert)).toBe('Configure alert');
++		expect(
++			railWidgetNeedsConfiguration({ id: 'text-alert', type: 'alert', text: 'Leak detected' })
++		).toBe(false);
++		expect(
++			railWidgetNeedsConfiguration({ id: 'entity-alert', type: 'alert', entity: 'binary_sensor.leak' })
++		).toBe(false);
++	});
+ });
+diff --git a/src/lib/Hearth/configurationState.ts b/src/lib/Hearth/configurationState.ts
+index b09f816..c859c1b 100644
+--- a/src/lib/Hearth/configurationState.ts
++++ b/src/lib/Hearth/configurationState.ts
+@@ -24,23 +24,24 @@ export function cardConfigurationLabel(card: OverviewCard): string {
+ 	return `${card.type === 'fusion' ? 'Fusion' : card.type[0].toUpperCase() + card.type.slice(1)} card`;
+ }
+ 
++type RailWidgetPredicate = (widget: any) => boolean;
++
++const WIDGET_CONFIG_VALIDATORS: Record<string, RailWidgetPredicate> = {
++	weather: (w) => !w.entity,
++	energy: (w) => !w.entity,
++	entity: (w) => !w.entity,
++	progress: (w) => !w.status_entity,
++	calendar: (w) => !w.entities?.length,
++	fusion: (w) => !w.config?.type,
++	alert: (w) => !w.text?.trim() && !w.entity
++};
++
+ export function railWidgetNeedsConfiguration(widget: RailWidget): boolean {
+-	switch (widget.type) {
+-		case 'weather':
+-		case 'energy':
+-		case 'entity':
+-			return !widget.entity;
+-		case 'progress':
+-			return !widget.status_entity;
+-		case 'calendar':
+-			return !widget.entities?.length;
+-		case 'fusion':
+-			return !widget.config?.type;
+-		default:
+-			return false;
+-	}
++	const validator = WIDGET_CONFIG_VALIDATORS[widget.type];
++	return validator ? validator(widget) : false;
+ }
+ 
+ export function railConfigurationLabel(widget: RailWidget): string {
++	if (widget.type === 'alert') return 'Configure alert';
+ 	return `${widget.type === 'fusion' ? 'Fusion' : widget.type[0].toUpperCase() + widget.type.slice(1)} widget`;
+ }
+diff --git a/src/lib/Hearth/AlertWidget.svelte b/src/lib/Hearth/AlertWidget.svelte
+new file mode 100644
+index 0000000..f6a8a43
+--- /dev/null
++++ b/src/lib/Hearth/AlertWidget.svelte
+@@ -0,0 +1,68 @@
++<script lang="ts">
++	import { states } from '$lib/Stores';
++	import Icon from './Icon.svelte';
++
++	let {
++		icon,
++		text,
++		entity,
++		severity = 'info'
++	}: {
++		icon?: string;
++		text?: string;
++		entity?: string;
++		severity?: 'info' | 'warning' | 'error';
++	} = $props();
++
++	let entityState = $derived(entity ? $states?.[entity]?.state : undefined);
++	let message = $derived(
++		[text?.trim(), entity ? (entityState ?? entity) : undefined].filter(Boolean).join(' · ')
++	);
++	let iconName = $derived(
++		icon ?? (severity === 'error' ? 'error' : severity === 'warning' ? 'warning' : 'info')
++	);
++</script>
++
++<div
++	class="alert"
++	class:warning={severity === 'warning'}
++	class:error={severity === 'error'}
++	role={severity === 'error' ? 'alert' : 'status'}
++>
++	<Icon name={iconName} size={20} />
++	<span>{message}</span>
++</div>
++
++<style>
++	.alert {
++		display: flex;
++		align-items: center;
++		gap: 10px;
++		min-width: 0;
++		padding: 12px 14px;
++		border: 1px solid rgb(var(--h-accent-rgb) / calc(0.2 * var(--h-accent-scale)));
++		border-radius: var(--h-radius-sm);
++		background: rgb(var(--h-accent-rgb) / calc(0.08 * var(--h-accent-scale)));
++		color: var(--h-accent-text);
++	}
++
++	.alert.warning {
++		border-color: rgb(224 160 40 / 35%);
++		background: rgb(224 160 40 / 10%);
++		color: #e0a028;
++	}
++
++	.alert.error {
++		border-color: rgb(220 75 75 / 35%);
++		background: rgb(220 75 75 / 10%);
++		color: #dc4b4b;
++	}
++
++	.alert span {
++		min-width: 0;
++		overflow: hidden;
++		font-size: 13px;
++		text-overflow: ellipsis;
++		white-space: nowrap;
++	}
++</style>

@@ -1,0 +1,11 @@
+Candidate 1: Dashboard Edit History (Memento)
+Originator=dashboard, Memento=history, Caretaker=HistoryButtons.svelte, Caretaker/Index=historyIndex, Registration=record, Registration=historyUpdater, Originator=hearthConfig, Memento=HearthConfig, Originator/Mutator=updateConfig, Caretaker/Undo=undoConfig, Caretaker/Redo=redoConfig, Caretaker/Storage=undoStack, Caretaker/Storage=redoStack, Caretaker/Cancel=enterEditMode, Caretaker/Cancel=cancelEdit, Cancel-Snapshot=editSnapshot
+Locations: src/lib/Stores.ts:29-29; src/lib/Stores.ts:147-152; src/lib/Drawer/HistoryButtons.svelte:18-18; src/lib/Drawer/HistoryButtons.svelte:43-82; src/lib/Hearth/store.ts:18-18; src/lib/Hearth/store.ts:32-69; src/lib/Hearth/store.ts:92-110; src/lib/Hearth/config.ts:324-341
+
+Candidate 2: Konva Editor History (Memento)
+Originator/Caretaker=KonvaEditor, Memento=KonvaHistory, Caretaker/Storage=KonvaEditor.undoStack, Caretaker/Storage=KonvaEditor.redoStack, Snapshot-Creator=KonvaEditor.record, Caretaker/Undo=KonvaEditor.undo, Caretaker/Redo=KonvaEditor.redo, Restorer=KonvaEditor.applyState
+Locations: src/lib/Modal/PictureElements/konvaEditor.ts:15-15; src/lib/Modal/PictureElements/konvaEditor.ts:57-58; src/lib/Modal/PictureElements/konvaEditor.ts:754-775; src/lib/Modal/PictureElements/konvaEditor.ts:780-794; src/lib/Modal/PictureElements/konvaEditor.ts:799-814; src/lib/Modal/PictureElements/konvaEditor.ts:819-977; src/lib/Types.ts:350-353
+
+Candidate 3: Visibility Condition Tree (Composite)
+Component=Condition, Composite=Condition, Leaf=Condition, Uniform-Operation=validateCondition, Composite-Handler=handleAnd, Composite-Handler=handleOr, Leaf-Handler=handleState, Leaf-Handler=handleNumericState, Leaf-Handler=handleScreen, Client=handleAllConditions
+Locations: src/lib/Types.ts:58-69; src/lib/Conditional.ts:58-65; src/lib/Conditional.ts:70-90; src/lib/Conditional.ts:95-106; src/lib/Conditional.ts:111-127; src/lib/Conditional.ts:132-145; src/lib/Conditional.ts:150-163; src/lib/Conditional.ts:179-216

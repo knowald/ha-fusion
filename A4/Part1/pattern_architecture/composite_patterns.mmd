@@ -1,0 +1,73 @@
+classDiagram
+    direction TB
+
+    %% Collaboration 1: Dashboard Section Layout Hierarchy
+    class Section {
+        <<Component Interface>>
+        +id: number
+        +name: string
+        +type: string
+        +items: Item[]
+        +sections: Section[]
+        +visibility: VisibilityRule[]
+    }
+    class StackSection {
+        <<Composite>>
+        +type: 'horizontal-stack' | 'vertical-stack'
+        +sections: Section[]
+    }
+    class LeafSection {
+        <<Leaf>>
+        +items: Item[]
+    }
+    class Item {
+        <<Leaf Content Union>>
+        ButtonItem | CameraItem | EmptyItem | DaysSinceItem | EntitiesItem
+    }
+    class SectionTraverser {
+        <<Client Operations>>
+        +findInSections(sections: Section[], id: number)
+        +getSelected(id: number, data: Dashboard)
+    }
+
+    Section <|.. StackSection : satisfies
+    Section <|.. LeafSection : satisfies
+    StackSection o-- Section : contains nested sections
+    LeafSection o-- Item : contains visual cards
+    SectionTraverser ..> Section : recursively traverses
+
+    %% Collaboration 2: Visibility Condition Tree
+    class Condition {
+        <<Component / AST Node>>
+        +condition: 'state' | 'numeric_state' | 'screen' | 'and' | 'or'
+        +conditions: Condition[]
+        +entity: string
+        +state: string
+        +above: number
+        +below: number
+        +media_query: string
+    }
+    class CompositeCondition {
+        <<Composite Node>>
+        +condition: 'and' | 'or'
+        +conditions: Condition[]
+    }
+    class LeafCondition {
+        <<Leaf Node>>
+        +condition: 'state' | 'numeric_state' | 'screen'
+    }
+    class ConditionalEvaluator {
+        <<Uniform Evaluator / Interpreter>>
+        +validateCondition(editMode, states, section, condition): boolean
+        +handleAnd(editMode, states, section, condition): boolean
+        +handleOr(editMode, states, section, condition): boolean
+        +handleState(states, condition): boolean
+        +handleNumericState(states, condition): boolean
+        +handleScreen(editMode, section, condition): boolean
+        +handleAllConditions(editMode, states, section): boolean
+    }
+
+    Condition <|.. CompositeCondition : specializes
+    Condition <|.. LeafCondition : specializes
+    CompositeCondition o-- Condition : nests child conditions
+    ConditionalEvaluator ..> Condition : recursively evaluates
