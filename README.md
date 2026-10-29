@@ -8,6 +8,8 @@ Built with SvelteKit and Svelte 5. Connects to Home Assistant over WebSocket for
 
 ha-fusion was created by [matt8707](https://github.com/matt8707). This repository is the maintained continuation of the [original project](https://github.com/matt8707/ha-fusion); see [Credits](#credits).
 
+> Looking for a newer take? Check out [Hearth](https://github.com/knowald/ha-hearth), a redesigned Home Assistant dashboard that grew out of this project.
+
 ## Features
 
 - Drag-and-drop editor for views, sections and sidebar, saved to plain YAML
