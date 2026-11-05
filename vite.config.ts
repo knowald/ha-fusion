@@ -6,6 +6,8 @@ dotenv.config();
 
 export default defineConfig({
 	plugins: [sveltekit()],
+	// component tests mount in jsdom and need Svelte's client build
+	resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
 	build: {
 		// increase chunk size because of maplibre-gl
 		chunkSizeWarningLimit: 1000

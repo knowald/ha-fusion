@@ -15,6 +15,13 @@
 	let entity = $derived($states?.[selected?.entity_id] as HassEntity);
 	let attributes = $derived(entity?.attributes);
 
+	// Entity attributes are plain store data, so the dragged value is kept here
+	// to preview it before Home Assistant reports the new position.
+	let draggedPosition: number | null = $state(null);
+	let draggedTilt: number | null = $state(null);
+	let position = $derived(draggedPosition ?? attributes?.current_position);
+	let tilt = $derived(draggedTilt ?? attributes?.current_tilt_position);
+
 	let supported_features = $derived(attributes?.supported_features);
 
 	let supports = $derived(
@@ -64,32 +71,32 @@
 				{$lang('position')}
 
 				<span class="align-right">
-					{#if attributes?.current_position === 0}
+					{#if position === 0}
 						{$lang('closed')}
 					{:else}
 						{$lang('open')}
 
-						{#if attributes?.current_position}
-							{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(
-								attributes?.current_position / 100
-							)}
+						{#if position}
+							{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(position / 100)}
 						{/if}
 					{/if}
 				</span>
 			</h2>
 
-			{#if attributes?.current_position}
+			{#if position != null}
 				<RangeSlider
-					bind:value={attributes.current_position}
+					value={position}
 					min={0}
 					max={100}
 					updateMode={selected?.slider_updates ?? 'continuous'}
 					oninput={(event) => {
+						draggedPosition = event;
 						if (selected?.slider_updates !== 'release') {
 							handleChange('set_cover_position', 'position', Math.round(event));
 						}
 					}}
 					onchange={(event) => {
+						draggedPosition = null;
 						request = undefined;
 						handleChange('set_cover_position', 'position', Math.round(event));
 					}}
@@ -141,32 +148,32 @@
 				{$lang('tilt_position')}
 
 				<span class="align-right">
-					{#if attributes?.current_tilt_position === 0}
+					{#if tilt === 0}
 						{$lang('closed')}
 					{:else}
 						{$lang('open')}
 
-						{#if attributes?.current_tilt_position}
-							{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(
-								attributes?.current_tilt_position / 100
-							)}
+						{#if tilt}
+							{Intl.NumberFormat($selectedLanguage, { style: 'percent' }).format(tilt / 100)}
 						{/if}
 					{/if}
 				</span>
 			</h2>
 
-			{#if attributes.current_tilt_position}
+			{#if tilt != null}
 				<RangeSlider
-					bind:value={attributes.current_tilt_position}
+					value={tilt}
 					min={0}
 					max={100}
 					updateMode={selected?.slider_updates ?? 'continuous'}
 					oninput={(event) => {
+						draggedTilt = event;
 						if (selected?.slider_updates !== 'release') {
 							handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event));
 						}
 					}}
 					onchange={(event) => {
+						draggedTilt = null;
 						request = undefined;
 						handleChange('set_cover_tilt_position', 'tilt_position', Math.round(event));
 					}}
