@@ -5,6 +5,7 @@ import {
 	subscribeConfig,
 	subscribeEntities,
 	subscribeServices,
+	getUser,
 	ERR_CANNOT_CONNECT,
 	ERR_INVALID_AUTH,
 	ERR_CONNECTION_LOST,
@@ -106,6 +107,17 @@ export async function authentication(configuration: Configuration) {
 		// connection
 		const conn = await createConnection({ auth });
 		tokenPromptOpen = false;
+
+		// Confirm the user's role before publishing this connection or selecting
+		// an event subscription. A failed lookup must leave setup retryable.
+		let user;
+		try {
+			user = await getUser(conn);
+		} catch (error) {
+			conn.close();
+			throw error;
+		}
+
 		connection.set(conn);
 
 		// the lib fires "ready" inside the Connection constructor, before any
@@ -143,33 +155,53 @@ export async function authentication(configuration: Configuration) {
 		}
 
 		// custom events
-		trackSubscription(
-			conn.subscribeMessage(
-				(message: any) => {
-					const trigger = message?.variables?.trigger?.event?.data?.event;
+		const handleEvent = (name: unknown) => {
+			// close_popup
+			if (name === 'close_popup') {
+				event.set('close_popup');
+				closeModal();
+			}
 
-					// close_popup
-					if (trigger === 'close_popup') {
-						event.set('close_popup');
-						closeModal();
-					}
+			// refresh
+			else if (name === 'refresh') {
+				sessionStorage.setItem('event', 'refresh');
+				location.reload();
+			}
+		};
 
-					// refresh
-					else if (trigger === 'refresh') {
-						sessionStorage.setItem('event', 'refresh');
-						location.reload();
+		// subscribe_trigger is admin-only in Home Assistant
+		if (user.is_admin) {
+			trackSubscription(
+				conn.subscribeMessage(
+					(message: any) => handleEvent(message?.variables?.trigger?.event?.data?.event),
+					{
+						type: 'subscribe_trigger',
+						trigger: {
+							platform: 'event',
+							event_type: 'HA_FUSION'
+						}
 					}
-				},
-				{
-					type: 'subscribe_trigger',
-					trigger: {
-						platform: 'event',
-						event_type: 'HA_FUSION'
+				),
+				'HA_FUSION events'
+			);
+		}
+
+		// every user can follow an entity's state changes (event_entity)
+		const eventEntity = configuration?.event_entity;
+		if (eventEntity) {
+			void conn
+				.subscribeMessage(
+					// only react to changes ("c"), not the initial state ("a"),
+					// so a leftover "refresh" doesn't reload on every connect
+					(message: any) => handleEvent(message?.c?.[eventEntity]?.['+']?.s),
+					{
+						type: 'subscribe_entities',
+						entity_ids: [eventEntity]
 					}
-				}
-			),
-			'HA_FUSION events'
-		);
+				)
+				// a malformed event_entity is a config error, not a lost connection
+				.catch((error) => console.error('Home Assistant event_entity subscription failed', error));
+		}
 
 		// notifications
 		trackSubscription(
